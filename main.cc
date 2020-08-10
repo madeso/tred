@@ -190,6 +190,13 @@ main(int, char**)
 
     SetupOpenglDebug();
 
+    auto update_viewport = [&]()
+    {
+        glViewport(0, 0, width, height);
+    };
+
+    update_viewport();
+
     bool running = true;
 
     while(running)
@@ -203,6 +210,9 @@ main(int, char**)
                 if(e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
                     // todo
+                    width = e.window.data1;
+                    height = e.window.data2;
+                    update_viewport();
                 }
                 break;
             case SDL_QUIT:
@@ -234,7 +244,7 @@ main(int, char**)
             }
         }
 
-        glClearColor(0,0,0,1);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // world.Render(viewport_handler.GetFullViewport(), camera);
