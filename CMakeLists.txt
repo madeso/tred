@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
-project(tred CXX)
+project(tred C CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 include(cmake/StandardProjectSettings.cmake)
@@ -91,17 +91,24 @@ endif()
 include_directories(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 
 
-file(GLOB src main.cc)
+set(src
+    main.cc
+    external/glad/src/glad.c
+    external/glad/include/glad/glad.h
+)
 source_group("" FILES ${src})
 
 message(STATUS "Sdl include ${SDL2_INCLUDE_DIR}")
 message(STATUS "Sdl lib ${SDL2_LIBRARY}")
 
 add_executable(tred WIN32 MACOSX_BUNDLE ${src})
-target_include_directories(tred SYSTEM PRIVATE ${SDL2_INCLUDE_DIR})
+target_include_directories(tred SYSTEM PRIVATE
+    ${SDL2_INCLUDE_DIR}
+    external/glad/include
+)
 target_link_libraries(
     tred
-    PUBLIC ${SDL2_LIBRARY}
+    PUBLIC ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS}
     PRIVATE project_options project_warnings
 )
 
