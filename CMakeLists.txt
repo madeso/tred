@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/mo
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/CompilerWarnings.cmake)
 include(cmake/Sanitizers.cmake)
+include(cmake/compress.cmake)
 
 add_library(project_options INTERFACE)
 add_library(project_warnings INTERFACE)
@@ -100,6 +101,10 @@ source_group("" FILES ${src})
 
 message(STATUS "Sdl include ${SDL2_INCLUDE_DIR}")
 message(STATUS "Sdl lib ${SDL2_LIBRARY}")
+
+add_executable(compress compress.cpp)
+
+compress("${CMAKE_CURRENT_SOURCE_DIR}/vertex.glsl" "${src}" src "vertex_shader")
 
 add_executable(tred WIN32 MACOSX_BUNDLE ${src})
 target_include_directories(tred SYSTEM PRIVATE
