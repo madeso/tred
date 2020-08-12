@@ -104,7 +104,10 @@ message(STATUS "Sdl lib ${SDL2_LIBRARY}")
 
 add_executable(compress compress.cpp)
 
-compress("${CMAKE_CURRENT_SOURCE_DIR}/vertex.glsl" "${src}" src "vertex_shader")
+compress(HEADERS compressed_headers
+    FILES vertex.glsl
+)
+set(src ${src} ${compressed_headers})
 
 add_executable(tred WIN32 MACOSX_BUNDLE ${src})
 target_include_directories(tred SYSTEM PRIVATE
