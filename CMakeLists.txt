@@ -102,10 +102,15 @@ source_group("" FILES ${src})
 message(STATUS "Sdl include ${SDL2_INCLUDE_DIR}")
 message(STATUS "Sdl lib ${SDL2_LIBRARY}")
 
+# imgui
 add_executable(compress compress.cpp)
 
-compress(HEADERS compressed_headers
-    FILES vertex.glsl
+# custom
+add_executable(embed embed.cc)
+target_link_libraries(embed PRIVATE project_options project_warnings)
+
+embed(HEADERS compressed_headers
+    FILES vertex.glsl fragment.glsl
 )
 set(src ${src} ${compressed_headers})
 

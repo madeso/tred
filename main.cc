@@ -3,6 +3,8 @@
 
 #include <string_view>
 
+#include "vertex.glsl.h"
+#include "fragment.glsl.h"
 
 int
 Csizet_to_int(std::size_t t)
@@ -235,21 +237,6 @@ main(int, char**)
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
-
-    constexpr std::string_view vertex_shader_source =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-    constexpr std::string_view fragment_shader_source =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n";
     
     const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
     {
@@ -285,12 +272,12 @@ main(int, char**)
     };
 
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    upload_shader_source(vertex_shader, vertex_shader_source);
+    upload_shader_source(vertex_shader, VERTEX_GLSL);
     glCompileShader(vertex_shader);
     check_shader_compilation_error("vertex", vertex_shader);
 
     const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    upload_shader_source(fragment_shader, fragment_shader_source);
+    upload_shader_source(fragment_shader, FRAGMENT_GLSL);
     glCompileShader(fragment_shader);
     check_shader_compilation_error("fragment", fragment_shader);
 
