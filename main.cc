@@ -1,7 +1,14 @@
 #include "glad/glad.h"
 #include "SDL.h"
 
+#include <string_view>
 
+
+int
+Csizet_to_int(std::size_t t)
+{
+    return static_cast<int>(t);
+}
 
 const char*
 OpenglErrorToString(GLenum error_code)
@@ -229,21 +236,20 @@ main(int, char**)
     glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-    constexpr const char* vertex_shader_source =
+    constexpr std::string_view vertex_shader_source =
         "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "void main()\n"
         "{\n"
         "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
         "}\0";
-    constexpr const char* fragment_shader_source =
+    constexpr std::string_view fragment_shader_source =
         "#version 330 core\n"
         "out vec4 FragColor;\n"
         "void main()\n"
         "{\n"
         "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n"
-        ;
+        "}\n";
     
     const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
     {
@@ -270,13 +276,21 @@ main(int, char**)
         }
     };
 
+    const auto upload_shader_source =
+        [](unsigned int shader, std::string_view source)
+    {
+        const char* const s = &source[0];
+        const int length = Csizet_to_int(source.length());
+        glShaderSource(shader, 1, &s, &length);
+    };
+
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    upload_shader_source(vertex_shader, vertex_shader_source);
     glCompileShader(vertex_shader);
     check_shader_compilation_error("vertex", vertex_shader);
 
     const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
+    upload_shader_source(fragment_shader, fragment_shader_source);
     glCompileShader(fragment_shader);
     check_shader_compilation_error("fragment", fragment_shader);
 
