@@ -140,7 +140,6 @@ SetupOpenglDebug()
 }
 
 
-
 int
 main(int, char**)
 {
@@ -197,6 +196,101 @@ main(int, char**)
 
     update_viewport();
 
+    constexpr float vertices[] =
+    {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
+
+    const auto generate_buffer = []()
+    {
+        unsigned int buffer;
+        glGenBuffers(1, &buffer);
+        return buffer;
+    };
+
+    const auto generate_vertex_array = []()
+    {
+        unsigned int vao;
+        glGenVertexArrays(1, &vao);
+        return vao;
+    };
+
+    const auto vbo = generate_buffer();
+    const auto vao = generate_vertex_array();
+    glBindVertexArray(vao);
+
+    // defined in glsl
+    const auto vertex_position_location = 0;
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+
+    constexpr const char* vertex_shader_source =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+    constexpr const char* fragment_shader_source =
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\n"
+        ;
+    
+    const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
+    {
+        int  success = 0;
+        char log[512] = {0,};
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+        if(!success)
+        {
+            glGetShaderInfoLog(shader, 512, NULL, log);
+            SDL_Log("ERROR: %s shader compilation failed\n%s\n", name, log);
+        }
+    };
+
+    const auto check_shader_link_error = [](unsigned int program)
+    {
+        int  success = 0;
+        char log[512] = {0,};
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        if(!success)
+        {
+            glGetProgramInfoLog(program, 512, NULL, log);
+            SDL_Log("ERROR: shader linking failed\n%s\n", log);
+        }
+    };
+
+    const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
+    check_shader_compilation_error("vertex", vertex_shader);
+
+    const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
+    glCompileShader(fragment_shader);
+    check_shader_compilation_error("fragment", fragment_shader);
+
+    const auto shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+    check_shader_link_error(shader_program);
+
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+
+    glUseProgram(shader_program);
+
     bool running = true;
 
     while(running)
@@ -248,8 +342,21 @@ main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // world.Render(viewport_handler.GetFullViewport(), camera);
+        glUseProgram(shader_program);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         SDL_GL_SwapWindow(window);
     }
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &vbo);
+
+    glUseProgram(0);
+    glDeleteProgram(shader_program);
 
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
