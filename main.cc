@@ -2,6 +2,7 @@
 #include "SDL.h"
 
 #include <string_view>
+#include <cassert>
 
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
@@ -198,12 +199,30 @@ main(int, char**)
 
     SetupOpenglDebug();
 
-    auto update_viewport = [&]()
+    const auto update_viewport = [&]()
     {
         glViewport(0, 0, width, height);
     };
 
     update_viewport();
+
+    int rendering_mode = 0;
+    const auto set_rendering_mode = [&rendering_mode](int new_mode)
+    {
+        if(rendering_mode == new_mode)
+        {
+            return;
+        }
+
+        rendering_mode = new_mode;
+        switch(rendering_mode)
+        {
+            case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
+            case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+            default: assert(false && "invalid rendering_mode"); break;
+        }
+    };
 
     constexpr float vertices[] =
     {
@@ -336,6 +355,12 @@ main(int, char**)
                     if(down)
                     {
                         running = false;
+                    }
+                    break;
+                case SDLK_TAB:
+                    if(down)
+                    {
+                        set_rendering_mode((rendering_mode + 1) % 3);
                     }
                     break;
                 default:
