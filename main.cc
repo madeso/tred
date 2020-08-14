@@ -67,6 +67,11 @@ main(int, char**)
 
     SetupOpenglDebug();
 
+    const auto* renderer = glGetString(GL_RENDERER); // get renderer string
+    const auto* version = glGetString(GL_VERSION); // version as a string
+    SDL_Log("Renderer: %s\n", renderer);
+    SDL_Log("Version: %s\n", version);
+
     const auto update_viewport = [&]()
     {
         glViewport(0, 0, width, height);
