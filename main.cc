@@ -207,9 +207,16 @@ main(int, char**)
 
     constexpr float vertices[] =
     {
-        -0.5f, -0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f
+    };
+
+    constexpr unsigned int indices[] =
+    {
+        0, 1, 3,
+        1, 2, 3
     };
 
     const auto generate_buffer = []()
@@ -226,17 +233,21 @@ main(int, char**)
         return vao;
     };
 
+    // defined in glsl
+    const auto vertex_position_location = 0;
+
     const auto vbo = generate_buffer();
     const auto vao = generate_vertex_array();
     glBindVertexArray(vao);
-
-    // defined in glsl
-    const auto vertex_position_location = 0;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
+
+    const auto ebo = generate_buffer();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
     const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
     {
@@ -345,13 +356,17 @@ main(int, char**)
         // world.Render(viewport_handler.GetFullViewport(), camera);
         glUseProgram(shader_program);
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         SDL_GL_SwapWindow(window);
     }
 
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &vao);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &ebo);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &vbo);
