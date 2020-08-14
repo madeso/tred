@@ -7,11 +7,13 @@
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
 
+
 int
 Csizet_to_int(std::size_t t)
 {
     return static_cast<int>(t);
 }
+
 
 const char*
 OpenglErrorToString(GLenum error_code)
@@ -28,12 +30,11 @@ OpenglErrorToString(GLenum error_code)
     case GL_STACK_UNDERFLOW: return "STACK_UNDERFLOW"; break;
 #endif
     case GL_OUT_OF_MEMORY: return "OUT_OF_MEMORY"; break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        return "INVALID_FRAMEBUFFER_OPERATION";
-        break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION: return "INVALID_FRAMEBUFFER_OPERATION"; break;
     default: return "UNKNOWN"; break;
     }
 }
+
 
 namespace
 {
@@ -43,12 +44,8 @@ namespace
         switch(source)
         {
         case GL_DEBUG_SOURCE_API_ARB: return "API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
-            return "Window System";
-            break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
-            return "Shader Compiler";
-            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB: return "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB: return "Shader Compiler"; break;
         case GL_DEBUG_SOURCE_THIRD_PARTY_ARB: return "Third Party"; break;
         case GL_DEBUG_SOURCE_APPLICATION_ARB: return "Application"; break;
         case GL_DEBUG_SOURCE_OTHER_ARB: return "Other"; break;
@@ -62,12 +59,8 @@ namespace
         switch(type)
         {
         case GL_DEBUG_TYPE_ERROR_ARB: return "Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
-            return "Deprecated Behaviour";
-            break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
-            return "Undefined Behaviour";
-            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB: return "Deprecated Behaviour"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB: return "Undefined Behaviour"; break;
         case GL_DEBUG_TYPE_PORTABILITY_ARB: return "Portability"; break;
         case GL_DEBUG_TYPE_PERFORMANCE_ARB: return "Performance"; break;
         case GL_DEBUG_TYPE_OTHER_ARB: return "Other"; break;
@@ -89,43 +82,44 @@ namespace
 
 }  // namespace
 
-    void APIENTRY
-    OnOpenglError
-    (
-            GLenum source,
-            GLenum type,
-            GLuint id,
-            GLenum severity,
-            GLsizei /*length*/,
-            const GLchar* message,
-            const GLvoid* /*userParam*/
-    )
+
+void APIENTRY
+OnOpenglError
+(
+        GLenum source,
+        GLenum type,
+        GLuint id,
+        GLenum severity,
+        GLsizei /*length*/,
+        const GLchar* message,
+        const GLvoid* /*userParam*/
+)
+{
+    // ignore non-significant error/warning codes
+    if(type == GL_DEBUG_TYPE_OTHER_ARB)
     {
-        // ignore non-significant error/warning codes
-        if(type == GL_DEBUG_TYPE_OTHER_ARB)
-        {
-            return;
-        }
-
-        // only display the first 10
-        static int ErrorCount = 0;
-        if(ErrorCount > 10)
-        {
-            return;
-        }
-        ++ErrorCount;
-
-        SDL_Log("---------------");
-        SDL_Log("Debug message (%d): %s", id, message);
-        SDL_Log
-        (
-            "Source %s type: %s Severity: %s",
-            SourceToString(source),
-            TypeToString(type),
-            SeverityToString(severity)
-        );
-        // ASSERT(false);
+        return;
     }
+
+    // only display the first 10
+    static int ErrorCount = 0;
+    if(ErrorCount > 10)
+    {
+        return;
+    }
+    ++ErrorCount;
+
+    SDL_Log("---------------");
+    SDL_Log("Debug message (%d): %s", id, message);
+    SDL_Log
+    (
+        "Source %s type: %s Severity: %s",
+        SourceToString(source),
+        TypeToString(type),
+        SeverityToString(severity)
+    );
+    // ASSERT(false);
+}
 
 
 
@@ -334,7 +328,6 @@ main(int, char**)
             case SDL_WINDOWEVENT:
                 if(e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
-                    // todo
                     width = e.window.data1;
                     height = e.window.data2;
                     update_viewport();
@@ -378,7 +371,6 @@ main(int, char**)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        // world.Render(viewport_handler.GetFullViewport(), camera);
         glUseProgram(shader_program);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
