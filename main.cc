@@ -97,50 +97,8 @@ main(int, char**)
         }
     };
 
-    constexpr float vertices[] =
-    {
-         0.5f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
-    };
-
-    constexpr unsigned int indices[] =
-    {
-        0, 1, 3,
-        1, 2, 3
-    };
-
-    const auto generate_buffer = []()
-    {
-        unsigned int buffer;
-        glGenBuffers(1, &buffer);
-        return buffer;
-    };
-
-    const auto generate_vertex_array = []()
-    {
-        unsigned int vao;
-        glGenVertexArrays(1, &vao);
-        return vao;
-    };
-
-    // defined in glsl
-    const auto vertex_position_location = 0;
-
-    const auto vbo = generate_buffer();
-    const auto vao = generate_vertex_array();
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    const auto ebo = generate_buffer();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
+    ///////////////////////////////////////////////////////////////////////////
+    // shaders
     const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
     {
         int  success = 0;
@@ -193,7 +151,56 @@ main(int, char**)
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    glUseProgram(shader_program);
+    glUseProgram(0);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // model
+    constexpr float vertices[] =
+    {
+         0.5f,  0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f
+    };
+
+    constexpr unsigned int indices[] =
+    {
+        0, 1, 3,
+        1, 2, 3
+    };
+
+    const auto generate_buffer = []()
+    {
+        unsigned int buffer;
+        glGenBuffers(1, &buffer);
+        return buffer;
+    };
+
+    const auto generate_vertex_array = []()
+    {
+        unsigned int vao;
+        glGenVertexArrays(1, &vao);
+        return vao;
+    };
+
+    // defined in glsl
+    const auto vertex_position_location = 0;
+
+    const auto vbo = generate_buffer();
+    const auto vao = generate_vertex_array();
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+
+    const auto ebo = generate_buffer();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // main    
 
     bool running = true;
 
