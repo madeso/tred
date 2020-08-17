@@ -21,6 +21,8 @@ Csizet_to_int(std::size_t t)
 int
 main(int, char**)
 {
+    ///////////////////////////////////////////////////////////////////////////
+    // setup
     if(SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -44,7 +46,7 @@ main(int, char**)
 
     SDL_Window* window = SDL_CreateWindow
     (
-        "TRED",
+        "TreD",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         width,
@@ -195,6 +197,7 @@ main(int, char**)
     glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
+    // class: use IndexBuffer as it reflects the usage better than element buffer object?
     const auto ebo = generate_buffer();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
