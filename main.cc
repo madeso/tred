@@ -203,7 +203,7 @@ main(int, char**)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     ///////////////////////////////////////////////////////////////////////////
-    // main    
+    // main
 
     bool running = true;
 
