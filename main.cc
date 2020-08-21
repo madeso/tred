@@ -17,7 +17,7 @@ Csizet_to_int(std::size_t t)
 }
 
 
-void check_shader_compilation_error(const char* name, unsigned int shader)
+void CheckShaderCompilationError(const char* name, unsigned int shader)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -31,7 +31,7 @@ void check_shader_compilation_error(const char* name, unsigned int shader)
 }
 
 
-void check_shader_link_error(unsigned int program)
+void CheckShaderLinkError(unsigned int program)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -44,7 +44,7 @@ void check_shader_link_error(unsigned int program)
 }
 
 
-void upload_shader_source(unsigned int shader, std::string_view source)
+void UploadShaderSource(unsigned int shader, std::string_view source)
 {
     const char* const s = &source[0];
     const int length = Csizet_to_int(source.length());
@@ -52,7 +52,7 @@ void upload_shader_source(unsigned int shader, std::string_view source)
 };
 
 
-unsigned int generate_buffer()
+unsigned int CreateBuffer()
 {
     unsigned int buffer;
     glGenBuffers(1, &buffer);
@@ -60,7 +60,7 @@ unsigned int generate_buffer()
 };
 
 
-unsigned int generate_vertex_array()
+unsigned int CreateVertexArray()
 {
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -152,20 +152,20 @@ main(int, char**)
     ///////////////////////////////////////////////////////////////////////////
     // shaders
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    upload_shader_source(vertex_shader, VERTEX_GLSL);
+    UploadShaderSource(vertex_shader, VERTEX_GLSL);
     glCompileShader(vertex_shader);
-    check_shader_compilation_error("vertex", vertex_shader);
+    CheckShaderCompilationError("vertex", vertex_shader);
 
     const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    upload_shader_source(fragment_shader, FRAGMENT_GLSL);
+    UploadShaderSource(fragment_shader, FRAGMENT_GLSL);
     glCompileShader(fragment_shader);
-    check_shader_compilation_error("fragment", fragment_shader);
+    CheckShaderCompilationError("fragment", fragment_shader);
 
     const auto shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
     glLinkProgram(shader_program);
-    check_shader_link_error(shader_program);
+    CheckShaderLinkError(shader_program);
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
@@ -191,8 +191,8 @@ main(int, char**)
     // defined in glsl
     const auto vertex_position_location = 0;
 
-    const auto vbo = generate_buffer();
-    const auto vao = generate_vertex_array();
+    const auto vbo = CreateBuffer();
+    const auto vao = CreateVertexArray();
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -201,7 +201,7 @@ main(int, char**)
     glEnableVertexAttribArray(0);
 
     // class: use IndexBuffer as it reflects the usage better than element buffer object?
-    const auto ebo = generate_buffer();
+    const auto ebo = CreateBuffer();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
