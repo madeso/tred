@@ -120,6 +120,7 @@ add_executable(tred WIN32 MACOSX_BUNDLE ${src})
 target_include_directories(tred SYSTEM PRIVATE
     ${SDL2_INCLUDE_DIR}
     external/glad/include
+    external/glm-0.9.9.8
 )
 target_link_libraries(
     tred
