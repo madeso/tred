@@ -17,6 +17,56 @@ Csizet_to_int(std::size_t t)
 }
 
 
+void check_shader_compilation_error(const char* name, unsigned int shader)
+{
+    int  success = 0;
+    char log[512] = {0,};
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetShaderInfoLog(shader, 512, NULL, log);
+        SDL_Log("ERROR: %s shader compilation failed\n%s\n", name, log);
+    }
+}
+
+
+void check_shader_link_error(unsigned int program)
+{
+    int  success = 0;
+    char log[512] = {0,};
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if(!success)
+    {
+        glGetProgramInfoLog(program, 512, NULL, log);
+        SDL_Log("ERROR: shader linking failed\n%s\n", log);
+    }
+}
+
+
+void upload_shader_source(unsigned int shader, std::string_view source)
+{
+    const char* const s = &source[0];
+    const int length = Csizet_to_int(source.length());
+    glShaderSource(shader, 1, &s, &length);
+};
+
+
+unsigned int generate_buffer()
+{
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    return buffer;
+};
+
+
+unsigned int generate_vertex_array()
+{
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    return vao;
+};
+
 
 int
 main(int, char**)
@@ -101,39 +151,6 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    const auto check_shader_compilation_error = [] (const char* name, unsigned int shader)
-    {
-        int  success = 0;
-        char log[512] = {0,};
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-        if(!success)
-        {
-            glGetShaderInfoLog(shader, 512, NULL, log);
-            SDL_Log("ERROR: %s shader compilation failed\n%s\n", name, log);
-        }
-    };
-
-    const auto check_shader_link_error = [](unsigned int program)
-    {
-        int  success = 0;
-        char log[512] = {0,};
-        glGetProgramiv(program, GL_LINK_STATUS, &success);
-        if(!success)
-        {
-            glGetProgramInfoLog(program, 512, NULL, log);
-            SDL_Log("ERROR: shader linking failed\n%s\n", log);
-        }
-    };
-
-    const auto upload_shader_source =
-        [](unsigned int shader, std::string_view source)
-    {
-        const char* const s = &source[0];
-        const int length = Csizet_to_int(source.length());
-        glShaderSource(shader, 1, &s, &length);
-    };
-
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     upload_shader_source(vertex_shader, VERTEX_GLSL);
     glCompileShader(vertex_shader);
@@ -169,20 +186,6 @@ main(int, char**)
     {
         0, 1, 3,
         1, 2, 3
-    };
-
-    const auto generate_buffer = []()
-    {
-        unsigned int buffer;
-        glGenBuffers(1, &buffer);
-        return buffer;
-    };
-
-    const auto generate_vertex_array = []()
-    {
-        unsigned int vao;
-        glGenVertexArrays(1, &vao);
-        return vao;
     };
 
     // defined in glsl
