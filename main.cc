@@ -1,6 +1,7 @@
 #include "glad/glad.h"
 #include "SDL.h"
 
+#include <string>
 #include <string_view>
 #include <cassert>
 
@@ -77,6 +78,36 @@ unsigned int CreateVertexArray()
 };
 
 
+struct Uniform
+{
+    std::string name;
+    int location;
+
+    Uniform()
+        : name("<unknown>")
+        , location(-1)
+    {
+    }
+
+    Uniform(const std::string& n, int l)
+        : name(n)
+        , location(l)
+    {
+    }
+
+    operator bool() const
+    {
+        return IsValid();
+    }
+
+    bool
+    IsValid() const
+    {
+        return location >= 0;
+    }
+};
+
+
 struct Shader
 {
     Shader(std::string_view vertex_source, std::string_view fragment_source)
@@ -113,7 +144,7 @@ struct Shader
     }
 
     void
-    Use()
+    Use() const
     {
         glUseProgram(shader_program);
     }
@@ -124,6 +155,25 @@ struct Shader
         glUseProgram(0);
         glDeleteProgram(shader_program);
         shader_program = 0;
+    }
+
+    Uniform
+    GetUniform(const std::string& name) const
+    {
+        const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str())};
+        if(uni.IsValid() == false)
+        {
+            SDL_Log("Uniform %s not found", name.c_str());
+        }
+        return uni;
+    }
+
+    // shader neeeds to be bound
+    void
+    SetFloat(const Uniform& uniform, float value) const
+    {
+        if(uniform.IsValid() == false) { return; }
+        glUniform1f(uniform.location, value);
     }
 
     unsigned int shader_program;
@@ -214,6 +264,7 @@ main(int, char**)
     ///////////////////////////////////////////////////////////////////////////
     // shaders
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL};
+    auto uni = shader.GetUniform("dog");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -307,6 +358,7 @@ main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         shader.Use();
+        shader.SetFloat(uni, 2.0f);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
