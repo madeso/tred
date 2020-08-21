@@ -17,7 +17,8 @@ Csizet_to_int(std::size_t t)
 }
 
 
-void CheckShaderCompilationError(const char* name, unsigned int shader)
+bool
+CheckShaderCompilationError(const char* name, unsigned int shader)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -27,11 +28,15 @@ void CheckShaderCompilationError(const char* name, unsigned int shader)
     {
         glGetShaderInfoLog(shader, 512, NULL, log);
         SDL_Log("ERROR: %s shader compilation failed\n%s\n", name, log);
+        return false;
     }
+
+    return true;
 }
 
 
-void CheckShaderLinkError(unsigned int program)
+bool
+CheckShaderLinkError(unsigned int program)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -40,11 +45,15 @@ void CheckShaderLinkError(unsigned int program)
     {
         glGetProgramInfoLog(program, 512, NULL, log);
         SDL_Log("ERROR: shader linking failed\n%s\n", log);
+        return false;
     }
+
+    return true;
 }
 
 
-void UploadShaderSource(unsigned int shader, std::string_view source)
+void
+UploadShaderSource(unsigned int shader, std::string_view source)
 {
     const char* const s = &source[0];
     const int length = Csizet_to_int(source.length());
@@ -65,6 +74,59 @@ unsigned int CreateVertexArray()
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     return vao;
+};
+
+
+struct Shader
+{
+    Shader(std::string_view vertex_source, std::string_view fragment_source)
+        : shader_program(glCreateProgram())
+    {
+        const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+        UploadShaderSource(vertex_shader, vertex_source);
+        glCompileShader(vertex_shader);
+        const auto vertex_ok = CheckShaderCompilationError("vertex", vertex_shader);
+
+        const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+        UploadShaderSource(fragment_shader, fragment_source);
+        glCompileShader(fragment_shader);
+        const auto fragment_ok = CheckShaderCompilationError("fragment", fragment_shader);
+
+        glAttachShader(shader_program, vertex_shader);
+        glAttachShader(shader_program, fragment_shader);
+        glLinkProgram(shader_program);
+        const auto link_ok = CheckShaderLinkError(shader_program);
+
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+
+        glUseProgram(0);
+
+        if(vertex_ok && fragment_ok && link_ok)
+        {
+            // nop
+        }
+        else
+        {
+            Delete();
+        }
+    }
+
+    void
+    Use()
+    {
+        glUseProgram(shader_program);
+    }
+
+    void
+    Delete()
+    {
+        glUseProgram(0);
+        glDeleteProgram(shader_program);
+        shader_program = 0;
+    }
+
+    unsigned int shader_program;
 };
 
 
@@ -151,26 +213,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    UploadShaderSource(vertex_shader, VERTEX_GLSL);
-    glCompileShader(vertex_shader);
-    CheckShaderCompilationError("vertex", vertex_shader);
-
-    const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    UploadShaderSource(fragment_shader, FRAGMENT_GLSL);
-    glCompileShader(fragment_shader);
-    CheckShaderCompilationError("fragment", fragment_shader);
-
-    const auto shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-    CheckShaderLinkError(shader_program);
-
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    glUseProgram(0);
+    auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL};
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -263,7 +306,7 @@ main(int, char**)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        glUseProgram(shader_program);
+        shader.Use();
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -280,8 +323,7 @@ main(int, char**)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &vbo);
 
-    glUseProgram(0);
-    glDeleteProgram(shader_program);
+    shader.Delete();
 
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
