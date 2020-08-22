@@ -95,6 +95,7 @@ include_directories(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 set(src
     main.cc
     debug_opengl.cc debug_opengl.h
+    stb.cc
     
     external/glad/src/glad.c
     external/glad/include/glad/glad.h
@@ -121,6 +122,7 @@ target_include_directories(tred SYSTEM PRIVATE
     ${SDL2_INCLUDE_DIR}
     external/glad/include
     external/glm-0.9.9.8
+    external/stb
 )
 target_link_libraries(
     tred
