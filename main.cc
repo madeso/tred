@@ -44,9 +44,15 @@ Cint_to_sizet(int i)
 struct Vertex
 {
     glm::vec3 position;
+    glm::vec4 color;
 
-    Vertex(const glm::vec3& p)
+    Vertex
+    (
+        const glm::vec3& p,
+        const glm::vec4& c = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}
+    )
         : position(p)
+        , color(c)
     {
     }
 };
@@ -64,6 +70,7 @@ struct Mesh
         : vertices(verts)
         , triangles(tris)
     {
+        assert(triangles.size() % 3 == 0);
     }
 };
 
@@ -71,11 +78,11 @@ struct Mesh
 ///////////////////////////////////////////////////////////////////////////////
 // buffer layout header
 
-// rename to something better
+// todo(Gustav): rename to something better: Buffer -> Vertex
 
 enum class BufferType
 {
-    Position3
+    Position3, Color4
 };
 
 
@@ -296,8 +303,6 @@ struct Shader
     )
         : shader_program(glCreateProgram())
     {
-        // todo(Gustav): apply layout to shader
-
         const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
         UploadShaderSource(vertex_shader, vertex_source);
         glCompileShader(vertex_shader);
@@ -425,7 +430,6 @@ struct BufferData
 CompiledMesh
 Compile(const Mesh& mesh, const BufferLayout& layout)
 {
-    // todo(Gustav): use layout and mesh to construct vertices and indices
     using VertexVector = std::vector<float>;
 
     auto data = std::vector<BufferData>{};
@@ -441,6 +445,15 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
                 vertices->push_back(vertex.position.x);
                 vertices->push_back(vertex.position.y);
                 vertices->push_back(vertex.position.z);
+            });
+            break;
+        case BufferType::Color4:
+            data.emplace_back(4, [](VertexVector* vertices, const Vertex& vertex)
+            {
+                vertices->push_back(vertex.color.x);
+                vertices->push_back(vertex.color.y);
+                vertices->push_back(vertex.color.z);
+                vertices->push_back(vertex.color.w);
             });
             break;
         default:
@@ -602,7 +615,8 @@ main(int, char**)
     // shader layout
     const auto layout = BufferLayout
     {
-        {BufferType::Position3, "aPos"}
+        {BufferType::Position3, "aPos"},
+        {BufferType::Color4, "aColor"}
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -615,7 +629,7 @@ main(int, char**)
     const auto model = Mesh
     {
         {
-            glm::vec3{ 0.5f,  0.5f, 0.0f},
+            {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
             glm::vec3{ 0.5f, -0.5f, 0.0f},
             glm::vec3{-0.5f, -0.5f, 0.0f},
             glm::vec3{-0.5f,  0.5f, 0.0f}
