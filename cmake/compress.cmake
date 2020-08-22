@@ -47,6 +47,7 @@ function(compress)
 
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
+            MAIN_DEPENDENCY ${absolute_file}
             COMMAND compress
             ARGS ${compression_argument} "${absolute_file}" "${input_variable}" > "${input_name}.h"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -88,6 +89,7 @@ function(embed)
 
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
+            MAIN_DEPENDENCY ${absolute_file}
             COMMAND embed
             ARGS ${compression_argument} "${absolute_file}" "${input_variable}" > "${input_name}.h"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
