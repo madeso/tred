@@ -1,16 +1,27 @@
-#include "glad/glad.h"
-#include "SDL.h"
-
+// standard headers
 #include <string>
 #include <string_view>
 #include <cassert>
+#include <vector>
+#include <numeric>
+#include <functional>
 
+// dependency headers
+#include "glad/glad.h"
+#include "SDL.h"
+#include "stb_image.h"
+#include "glm/glm.hpp"
+
+// custom/local headers
 #include "debug_opengl.h"
 
+// resource headers
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
 
-#include "stb_image.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// common "header"
 
 
 int
@@ -19,12 +30,81 @@ Csizet_to_int(std::size_t t)
     return static_cast<int>(t);
 }
 
+
+std::size_t
+Cint_to_sizet(int i)
+{
+    return static_cast<std::size_t>(i);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// mesh header
+
+
+struct Vertex
+{
+    glm::vec3 position;
+
+    Vertex(const glm::vec3& p)
+        : position(p)
+    {
+    }
+};
+
+
+using Triangle = glm::ivec3;
+
+
+struct Mesh
+{
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> triangles; // %3 == 0
+
+    Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris)
+        : vertices(verts)
+        , triangles(tris)
+    {
+    }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// buffer layout header
+
+// rename to something better
+
+enum class BufferType
+{
+    Position3
+};
+
+
+struct BufferElement
+{
+    BufferType type;
+    std::string name;
+
+    BufferElement(BufferType t, const std::string& n)
+        : type(t)
+        , name(n)
+    {
+    }
+};
+
+
+using BufferLayout = std::vector<BufferElement>;
+
+
+///////////////////////////////////////////////////////////////////////////////
+// rendering functions
+
 unsigned int CreateTexture()
 {
     unsigned int texture;
     glGenTextures(1, &texture);
     return texture;
 }
+
 
 unsigned int
 LoadImage(unsigned char* image_source, int size)
@@ -65,6 +145,7 @@ LoadImage(unsigned char* image_source, int size)
 
     return texture;
 }
+
 
 bool
 CheckShaderCompilationError(const char* name, unsigned int shader)
@@ -110,7 +191,8 @@ UploadShaderSource(unsigned int shader, std::string_view source)
 };
 
 
-unsigned int CreateBuffer()
+unsigned int
+CreateBuffer()
 {
     unsigned int buffer;
     glGenBuffers(1, &buffer);
@@ -118,7 +200,8 @@ unsigned int CreateBuffer()
 };
 
 
-unsigned int CreateVertexArray()
+unsigned int
+CreateVertexArray()
 {
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -156,11 +239,65 @@ struct Uniform
 };
 
 
+int
+ShaderAttributeSize(const BufferElement&)
+{
+    return 1;
+}
+
+
+void
+BindShaderAttributeLocation(unsigned int shader_program, const BufferLayout& layout)
+{
+    int requested_index = 0;
+    for(const auto& b: layout)
+    {
+        glBindAttribLocation(shader_program, requested_index, b.name.c_str());
+        requested_index += ShaderAttributeSize(b);
+    }
+}
+
+
+void
+VerifyShaderAttributeLocation(unsigned int shader_program, const BufferLayout& layout)
+{
+    int requested_index = 0;
+    for(const auto& b: layout)
+    {
+        const auto actual_index = glGetAttribLocation
+        (
+            shader_program,
+            b.name.c_str()
+        );
+
+        if(actual_index != requested_index)
+        {
+            SDL_Log
+            (
+                "ERROR: %s was bound to %d but requested at %d",
+                b.name.c_str(),
+                actual_index,
+                requested_index
+            );
+        }
+
+        requested_index += ShaderAttributeSize(b);
+    }
+}
+
+
 struct Shader
 {
-    Shader(std::string_view vertex_source, std::string_view fragment_source)
+    Shader
+    (
+        std::string_view vertex_source,
+        std::string_view fragment_source,
+        const BufferLayout& layout
+    )
         : shader_program(glCreateProgram())
     {
+        // todo(Gustav): apply layout to shader
+
         const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
         UploadShaderSource(vertex_shader, vertex_source);
         glCompileShader(vertex_shader);
@@ -173,6 +310,7 @@ struct Shader
 
         glAttachShader(shader_program, vertex_shader);
         glAttachShader(shader_program, fragment_shader);
+        BindShaderAttributeLocation(shader_program, layout);
         glLinkProgram(shader_program);
         const auto link_ok = CheckShaderLinkError(shader_program);
 
@@ -184,6 +322,7 @@ struct Shader
         if(vertex_ok && fragment_ok && link_ok)
         {
             // nop
+            VerifyShaderAttributeLocation(shader_program, layout);
         }
         else
         {
@@ -226,6 +365,156 @@ struct Shader
 
     unsigned int shader_program;
 };
+
+
+struct CompiledMesh
+{
+    unsigned int vbo;
+    unsigned int vao;
+    unsigned int ebo;
+
+    int number_of_indices;
+
+    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count)
+         : vbo(a_vbo)
+         , vao(a_vao)
+         , ebo(a_ebo)
+         , number_of_indices(count)
+    {
+    }
+
+    void
+    Draw() const
+    {
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
+
+    void
+    Delete() const
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &vao);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &ebo);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &vbo);
+    }
+};
+
+
+struct BufferData
+{
+    using PerVertex = std::function<void (std::vector<float>*, const Vertex&)>;
+
+    int count;
+    PerVertex per_vertex;
+    int start = 0;
+
+    BufferData(int c, PerVertex pv)
+        : count(c)
+        , per_vertex(pv)
+    {
+    }
+};
+
+
+CompiledMesh
+Compile(const Mesh& mesh, const BufferLayout& layout)
+{
+    // todo(Gustav): use layout and mesh to construct vertices and indices
+    using VertexVector = std::vector<float>;
+
+    auto data = std::vector<BufferData>{};
+    data.reserve(layout.size());
+
+    for(const auto& element: layout)
+    {
+        switch(element.type)
+        {
+        case BufferType::Position3:
+            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
+            {
+                vertices->push_back(vertex.position.x);
+                vertices->push_back(vertex.position.y);
+                vertices->push_back(vertex.position.z);
+            });
+            break;
+        default:
+            assert(false && "unhandled buffer type");
+            break;
+        }
+    }
+
+    const auto floats_per_vertex = Cint_to_sizet
+    (
+        std::accumulate
+        (
+            data.begin(), data.end(),
+            0, [](auto s, const auto& d)
+            {
+                return s + d.count;
+            }
+        )
+    );
+    auto vertices = VertexVector{};
+    vertices.reserve(mesh.vertices.size() * floats_per_vertex);
+    for(const auto& vertex: mesh.vertices)
+    for(const auto& d: data)
+    {
+        d.per_vertex(&vertices, vertex);
+    }
+
+    const auto vbo = CreateBuffer();
+    const auto vao = CreateVertexArray();
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData
+    (
+        GL_ARRAY_BUFFER,
+        vertices.size() * sizeof(float),
+        &vertices[0],
+        GL_STATIC_DRAW
+    );
+
+    const auto stride = floats_per_vertex * sizeof(float);
+    int location = 0;
+    std::size_t offset = 0;
+    for(const auto& d: data)
+    {
+        const auto normalize = false;
+        glVertexAttribPointer
+        (
+            location,
+            d.count,
+            GL_FLOAT,
+            normalize ? GL_TRUE : GL_FALSE,
+            stride,
+            reinterpret_cast<void*>(offset)
+        );
+        glEnableVertexAttribArray(location);
+
+        location += 1;
+        offset += Cint_to_sizet(d.count) * sizeof(float);
+    }
+
+    // class: use IndexBuffer as it reflects the usage better than element buffer object?
+    const auto ebo = CreateBuffer();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData
+    (
+        GL_ELEMENT_ARRAY_BUFFER,
+        mesh.triangles.size() * sizeof(unsigned int),
+        &mesh.triangles[0],
+        GL_STATIC_DRAW
+    );
+
+    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size())};
+}
 
 
 int
@@ -310,42 +599,34 @@ main(int, char**)
     };
 
     ///////////////////////////////////////////////////////////////////////////
+    // shader layout
+    const auto layout = BufferLayout
+    {
+        {BufferType::Position3, "aPos"}
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL};
+    auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
     auto uni = shader.GetUniform("dog");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    constexpr float vertices[] =
+    const auto model = Mesh
     {
-         0.5f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
+        {
+            glm::vec3{ 0.5f,  0.5f, 0.0f},
+            glm::vec3{ 0.5f, -0.5f, 0.0f},
+            glm::vec3{-0.5f, -0.5f, 0.0f},
+            glm::vec3{-0.5f,  0.5f, 0.0f}
+        },
+        {
+            0, 1, 3,
+            1, 2, 3
+        }
     };
 
-    constexpr unsigned int indices[] =
-    {
-        0, 1, 3,
-        1, 2, 3
-    };
-
-    // defined in glsl
-    const auto vertex_position_location = 0;
-
-    const auto vbo = CreateBuffer();
-    const auto vao = CreateVertexArray();
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(vertex_position_location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    // class: use IndexBuffer as it reflects the usage better than element buffer object?
-    const auto ebo = CreateBuffer();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    const auto mesh = Compile(model, layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // main
@@ -407,21 +688,12 @@ main(int, char**)
 
         shader.Use();
         shader.SetFloat(uni, 2.0f);
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        mesh.Draw();
 
         SDL_GL_SwapWindow(window);
     }
 
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &vao);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &ebo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &vbo);
+    mesh.Delete();
 
     shader.Delete();
 
