@@ -18,7 +18,7 @@
 // resource headers
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
-
+#include "container.jpg.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // common "header"
@@ -37,6 +37,12 @@ Cint_to_sizet(int i)
     return static_cast<std::size_t>(i);
 }
 
+int
+Cunsigned_int_to_int(unsigned int ui)
+{
+    return static_cast<int>(ui);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // mesh header
 
@@ -44,14 +50,17 @@ Cint_to_sizet(int i)
 struct Vertex
 {
     glm::vec3 position;
+    glm::vec2 texture;
     glm::vec4 color;
 
     Vertex
     (
         const glm::vec3& p,
+        const glm::vec2& t,
         const glm::vec4& c = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}
     )
         : position(p)
+        , texture(t)
         , color(c)
     {
     }
@@ -82,7 +91,7 @@ struct Mesh
 
 enum class BufferType
 {
-    Position3, Color4
+    Position3, Color4, Texture2
 };
 
 
@@ -114,7 +123,7 @@ unsigned int CreateTexture()
 
 
 unsigned int
-LoadImage(unsigned char* image_source, int size)
+LoadImage(const unsigned char* image_source, int size)
 {
     const auto texture = CreateTexture();
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -134,7 +143,11 @@ LoadImage(unsigned char* image_source, int size)
         &junk_channels, 3
     );
 
-    if(pixel_data != nullptr)
+    if(pixel_data == nullptr)
+    {
+        SDL_Log("ERROR: Failed to load image.");
+    }
+    else
     {
         glTexImage2D
         (
@@ -151,6 +164,17 @@ LoadImage(unsigned char* image_source, int size)
     }
 
     return texture;
+}
+
+
+unsigned int
+LoadImageEmbeded(const unsigned int* source, unsigned int size)
+{
+    return LoadImage
+    (
+        reinterpret_cast<const unsigned char*>(source),
+        Cunsigned_int_to_int(size)
+    );
 }
 
 
@@ -463,6 +487,13 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
                 vertices->push_back(vertex.color.w);
             });
             break;
+        case BufferType::Texture2:
+            data.emplace_back(2, [](VertexVector* vertices, const Vertex& vertex)
+            {
+                vertices->push_back(vertex.texture.x);
+                vertices->push_back(vertex.texture.y);
+            });
+            break;
         default:
             assert(false && "unhandled buffer type");
             break;
@@ -623,23 +654,25 @@ main(int, char**)
     const auto layout = BufferLayout
     {
         {BufferType::Position3, "aPos"},
-        {BufferType::Color4, "aColor"}
+        {BufferType::Color4, "aColor"},
+        {BufferType::Texture2, "aTexCoord"}
     };
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
     auto uni_color = shader.GetUniform("uColor");
+    auto uni_texture = shader.GetUniform("uTexture");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
     const auto model = Mesh
     {
         {
-            {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
-            glm::vec3{ 0.5f, -0.5f, 0.0f},
-            glm::vec3{-0.5f, -0.5f, 0.0f},
-            glm::vec3{-0.5f,  0.5f, 0.0f}
+            {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec2{1, 1}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f, 0.0f}, glm::vec2{1, 0}},
+            {glm::vec3{-0.5f, -0.5f, 0.0f}, glm::vec2{0, 0}},
+            {glm::vec3{-0.5f,  0.5f, 0.0f}, glm::vec2{0, 1}}
         },
         {
             0, 1, 3,
@@ -648,6 +681,8 @@ main(int, char**)
     };
 
     const auto mesh = Compile(model, layout);
+
+    const auto texture = LoadImageEmbeded(CONTAINER_JPG_data, CONTAINER_JPG_size);
 
     ///////////////////////////////////////////////////////////////////////////
     // main
@@ -708,6 +743,7 @@ main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         shader.Use();
+        glBindTexture(GL_TEXTURE_2D, texture);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
         mesh.Draw();
 

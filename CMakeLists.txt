@@ -112,10 +112,13 @@ add_executable(compress compress.cpp)
 add_executable(embed embed.cc)
 target_link_libraries(embed PRIVATE project_options project_warnings)
 
-embed(HEADERS compressed_headers
+embed(HEADERS embedded_headers
     FILES vertex.glsl fragment.glsl
 )
-set(src ${src} ${compressed_headers})
+compress(HEADERS compressed_headers
+    FILES container.jpg
+)
+set(src ${src} ${embedded_headers} ${compressed_headers})
 
 add_executable(tred WIN32 MACOSX_BUNDLE ${src})
 target_include_directories(tred SYSTEM PRIVATE
