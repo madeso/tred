@@ -10,6 +10,8 @@
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
 
+#include "stb_image.h"
+
 
 int
 Csizet_to_int(std::size_t t)
@@ -17,6 +19,52 @@ Csizet_to_int(std::size_t t)
     return static_cast<int>(t);
 }
 
+unsigned int CreateTexture()
+{
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    return texture;
+}
+
+unsigned int
+LoadImage(unsigned char* image_source, int size)
+{
+    const auto texture = CreateTexture();
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width = 0;
+    int height = 0;
+    int junk_channels;
+    auto* pixel_data = stbi_load_from_memory
+    (
+        image_source, size,
+        &width, &height,
+        &junk_channels, 3
+    );
+
+    if(pixel_data != nullptr)
+    {
+        glTexImage2D
+        (
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            width, height,
+            0,
+            GL_RGB, GL_UNSIGNED_BYTE,
+            pixel_data
+        );
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(pixel_data);
+    }
+
+    return texture;
+}
 
 bool
 CheckShaderCompilationError(const char* name, unsigned int shader)
