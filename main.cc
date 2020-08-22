@@ -368,6 +368,13 @@ struct Shader
         glUniform1f(uniform.location, value);
     }
 
+    void
+    SetVec4(const Uniform& uniform, float x, float y, float z, float w)
+    {
+        if(uniform.IsValid() == false) { return; }
+        glUniform4f(uniform.location, x, y, z, w);
+    }
+
     unsigned int shader_program;
 };
 
@@ -622,7 +629,7 @@ main(int, char**)
     ///////////////////////////////////////////////////////////////////////////
     // shaders
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
-    auto uni = shader.GetUniform("dog");
+    auto uni_color = shader.GetUniform("uColor");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -701,7 +708,7 @@ main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         shader.Use();
-        shader.SetFloat(uni, 2.0f);
+        shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
         mesh.Draw();
 
         SDL_GL_SwapWindow(window);
