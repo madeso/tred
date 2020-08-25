@@ -116,7 +116,7 @@ embed(HEADERS embedded_headers
     FILES vertex.glsl fragment.glsl
 )
 compress(HEADERS compressed_headers
-    FILES container.jpg
+    FILES container.jpg awesomeface.png
 )
 set(src ${src} ${embedded_headers} ${compressed_headers})
 

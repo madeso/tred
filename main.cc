@@ -19,6 +19,7 @@
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
 #include "container.jpg.h"
+#include "awesomeface.png.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // common "header"
@@ -423,6 +424,7 @@ struct Shader
     void
     SetFloat(const Uniform& uniform, float value) const
     {
+        // todo(Gustav): assert on currently selected shader!
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture == -1 && "uniform is a texture not a float");
         glUniform1f(uniform.location, value);
@@ -431,9 +433,19 @@ struct Shader
     void
     SetVec4(const Uniform& uniform, float x, float y, float z, float w)
     {
+        // todo(Gustav): assert on currently selected shader!
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture == -1 && "uniform is a texture not a vec4");
         glUniform4f(uniform.location, x, y, z, w);
+    }
+
+    void
+    SetTexture(const Uniform& uniform)
+    {
+        // todo(Gustav): assert on currently selected shader!
+        if(uniform.IsValid() == false) { return; }
+        assert(uniform.texture >= 0 && "uniform needs to be a texture");
+        glUniform1i(uniform.location, uniform.texture);
     }
 
     unsigned int shader_program;
@@ -441,16 +453,19 @@ struct Shader
 
 
 void
-SetupTextures(std::vector<Uniform*> uniform_list)
+SetupTextures(Shader* shader, std::vector<Uniform*> uniform_list)
 {
     // OpenGL should support atleast 16 textures
     assert(uniform_list.size() <= 16);
+
+    shader->Use();
 
     int index = 0;
     for(const auto& uniform: uniform_list)
     {
         uniform->texture = index;
         index += 1;
+        shader->SetTexture(*uniform);
     }
 }
 
@@ -460,6 +475,7 @@ BindTexture(const Uniform& uniform, unsigned int texture)
 {
     if(uniform.IsValid() == false) { return; }
     assert(uniform.texture >= 0);
+
     glActiveTexture(GL_TEXTURE0 + uniform.texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 }
@@ -726,7 +742,8 @@ main(int, char**)
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
     auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
-    SetupTextures({&uni_texture});
+    auto uni_awesome = shader.GetUniform("uAwesome");
+    SetupTextures(&shader, {&uni_texture, &uni_awesome});
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -749,6 +766,13 @@ main(int, char**)
     const auto texture = LoadImageEmbeded
     (
         CONTAINER_JPG_data, CONTAINER_JPG_size,
+        TextureEdge::Clamp,
+        TextureRenderStyle::Smooth
+    );
+
+    const auto awesome = LoadImageEmbeded
+    (
+        AWESOMEFACE_PNG_data, AWESOMEFACE_PNG_size,
         TextureEdge::Clamp,
         TextureRenderStyle::Smooth
     );
@@ -813,6 +837,7 @@ main(int, char**)
 
         shader.Use();
         BindTexture(uni_texture, texture);
+        BindTexture(uni_awesome, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
         mesh.Draw();
 
