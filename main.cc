@@ -122,16 +122,40 @@ unsigned int CreateTexture()
 }
 
 
+enum class TextureEdge
+{
+    Clamp, Repeat
+};
+
+
+enum class TextureRenderStyle
+{
+    Pixel, Smooth
+};
+
+
 unsigned int
-LoadImage(const unsigned char* image_source, int size)
+LoadImage
+(
+    const unsigned char* image_source,
+    int size,
+    TextureEdge texture_edge,
+    TextureRenderStyle texture_render_style
+)
 {
     const auto texture = CreateTexture();
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    const auto wrap = texture_edge == TextureEdge::Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+
+    const auto render_pixels = texture_render_style == TextureRenderStyle::Pixel;
+
+    const auto min_filter = render_pixels ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
+    const auto mag_filter = render_pixels ? GL_NEAREST : GL_LINEAR;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
     int width = 0;
     int height = 0;
@@ -159,7 +183,10 @@ LoadImage(const unsigned char* image_source, int size)
             GL_RGB, GL_UNSIGNED_BYTE,
             pixel_data
         );
-        glGenerateMipmap(GL_TEXTURE_2D);
+        if(render_pixels == false)
+        {
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
         stbi_image_free(pixel_data);
     }
 
@@ -168,12 +195,19 @@ LoadImage(const unsigned char* image_source, int size)
 
 
 unsigned int
-LoadImageEmbeded(const unsigned int* source, unsigned int size)
+LoadImageEmbeded
+(
+    const unsigned int* source, unsigned int size,
+    TextureEdge texture_edge,
+    TextureRenderStyle texture_render_style
+)
 {
     return LoadImage
     (
         reinterpret_cast<const unsigned char*>(source),
-        Cunsigned_int_to_int(size)
+        Cunsigned_int_to_int(size),
+        texture_edge,
+        texture_render_style
     );
 }
 
@@ -682,7 +716,12 @@ main(int, char**)
 
     const auto mesh = Compile(model, layout);
 
-    const auto texture = LoadImageEmbeded(CONTAINER_JPG_data, CONTAINER_JPG_size);
+    const auto texture = LoadImageEmbeded
+    (
+        CONTAINER_JPG_data, CONTAINER_JPG_size,
+        TextureEdge::Clamp,
+        TextureRenderStyle::Smooth
+    );
 
     ///////////////////////////////////////////////////////////////////////////
     // main
