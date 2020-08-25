@@ -161,6 +161,7 @@ LoadImage
     int width = 0;
     int height = 0;
     int junk_channels;
+    stbi_set_flip_vertically_on_load(true);
     auto* pixel_data = stbi_load_from_memory
     (
         image_source, size,
