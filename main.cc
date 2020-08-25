@@ -135,13 +135,20 @@ enum class TextureRenderStyle
 };
 
 
+enum class Transperency
+{
+    Include, Exclude
+};
+
+
 unsigned int
 LoadImage
 (
     const unsigned char* image_source,
     int size,
     TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style
+    TextureRenderStyle texture_render_style,
+    Transperency transperency
 )
 {
     const auto texture = CreateTexture();
@@ -162,11 +169,12 @@ LoadImage
     int height = 0;
     int junk_channels;
     stbi_set_flip_vertically_on_load(true);
+    const auto include_transperency = transperency == Transperency::Include;
     auto* pixel_data = stbi_load_from_memory
     (
         image_source, size,
         &width, &height,
-        &junk_channels, 3
+        &junk_channels, include_transperency ? 4 : 3
     );
 
     if(pixel_data == nullptr)
@@ -179,10 +187,10 @@ LoadImage
         (
             GL_TEXTURE_2D,
             0,
-            GL_RGB,
+            include_transperency ? GL_RGBA : GL_RGB,
             width, height,
             0,
-            GL_RGB, GL_UNSIGNED_BYTE,
+            include_transperency ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
             pixel_data
         );
         if(render_pixels == false)
@@ -201,7 +209,8 @@ LoadImageEmbeded
 (
     const unsigned int* source, unsigned int size,
     TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style
+    TextureRenderStyle texture_render_style,
+    Transperency transperency
 )
 {
     return LoadImage
@@ -209,7 +218,8 @@ LoadImageEmbeded
         reinterpret_cast<const unsigned char*>(source),
         Cunsigned_int_to_int(size),
         texture_edge,
-        texture_render_style
+        texture_render_style,
+        transperency
     );
 }
 
@@ -743,8 +753,8 @@ main(int, char**)
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
     auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
-    auto uni_awesome = shader.GetUniform("uAwesome");
-    SetupTextures(&shader, {&uni_texture, &uni_awesome});
+    auto uni_decal = shader.GetUniform("uDecal");
+    SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -768,14 +778,16 @@ main(int, char**)
     (
         CONTAINER_JPG_data, CONTAINER_JPG_size,
         TextureEdge::Clamp,
-        TextureRenderStyle::Smooth
+        TextureRenderStyle::Smooth,
+        Transperency::Exclude
     );
 
     const auto awesome = LoadImageEmbeded
     (
         AWESOMEFACE_PNG_data, AWESOMEFACE_PNG_size,
         TextureEdge::Clamp,
-        TextureRenderStyle::Smooth
+        TextureRenderStyle::Smooth,
+        Transperency::Include
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -838,7 +850,7 @@ main(int, char**)
 
         shader.Use();
         BindTexture(uni_texture, texture);
-        BindTexture(uni_awesome, awesome);
+        BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
         mesh.Draw();
 
