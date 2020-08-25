@@ -278,6 +278,7 @@ struct Uniform
 {
     std::string name;
     int location;
+    int texture = -1; // >=0 if this is uniform maps to a texture
 
     Uniform()
         : name("<unknown>")
@@ -423,6 +424,7 @@ struct Shader
     SetFloat(const Uniform& uniform, float value) const
     {
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.texture == -1 && "uniform is a texture not a float");
         glUniform1f(uniform.location, value);
     }
 
@@ -430,11 +432,38 @@ struct Shader
     SetVec4(const Uniform& uniform, float x, float y, float z, float w)
     {
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.texture == -1 && "uniform is a texture not a vec4");
         glUniform4f(uniform.location, x, y, z, w);
     }
 
     unsigned int shader_program;
 };
+
+
+void
+SetupTextures(std::vector<Uniform*> uniform_list)
+{
+    // OpenGL should support atleast 16 textures
+    assert(uniform_list.size() <= 16);
+
+    int index = 0;
+    for(const auto& uniform: uniform_list)
+    {
+        uniform->texture = index;
+        index += 1;
+    }
+}
+
+
+void
+BindTexture(const Uniform& uniform, unsigned int texture)
+{
+    if(uniform.IsValid() == false) { return; }
+    assert(uniform.texture >= 0);
+    glActiveTexture(GL_TEXTURE0 + uniform.texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+}
+
 
 
 struct CompiledMesh
@@ -697,6 +726,7 @@ main(int, char**)
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
     auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
+    SetupTextures({&uni_texture});
 
     ///////////////////////////////////////////////////////////////////////////
     // model
@@ -782,7 +812,7 @@ main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         shader.Use();
-        glBindTexture(GL_TEXTURE_2D, texture);
+        BindTexture(uni_texture, texture);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
         mesh.Draw();
 
