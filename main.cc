@@ -863,7 +863,6 @@ main(int, char**)
     // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     glm::mat4 projection;
 
-    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 
     const auto update_viewport = [&]()
@@ -875,6 +874,20 @@ main(int, char**)
 
     update_viewport();
 
+    const auto cube_positions = std::vector<glm::vec3>
+    {
+        { 0.0f,  0.0f,  0.0f },
+        { 2.0f,  5.0f, -15.0f},
+        {-1.5f, -2.2f, -2.5f },
+        {-3.8f, -2.0f, -12.3f},
+        { 2.4f, -0.4f, -3.5f },
+        {-1.7f,  3.0f, -7.5f },
+        { 1.3f, -2.0f, -2.5f },
+        { 1.5f,  2.0f, -2.5f },
+        { 1.5f,  0.2f, -1.5f },
+        {-1.3f,  1.0f, -1.5f }
+    };
+
     // enable depth test
     glEnable(GL_DEPTH_TEST);
 
@@ -883,6 +896,7 @@ main(int, char**)
 
     bool running = true;
     auto last = SDL_GetPerformanceCounter();
+    auto time = 0.0f;
 
     while(running)
     {
@@ -938,7 +952,9 @@ main(int, char**)
             }
         }
 
-        model = glm::rotate(model, dt * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+        time += dt;
+        const auto pi = 3.14f;
+        if(time > 2*pi) { time -= 2* pi; }
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -947,8 +963,22 @@ main(int, char**)
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
-        shader.SetMat(uni_transform, projection * view * model);
-        mesh.Draw();
+
+        for(unsigned int i=0; i<cube_positions.size(); i+=1)
+        {
+            const auto angle = 20.0f * static_cast<float>(i);
+            const auto model = glm::rotate
+            (
+                glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                time + glm::radians(angle),
+                i%2 == 0
+                ? glm::vec3{1.0f, 0.3f, 0.5f}
+                : glm::vec3{0.5f, 1.0f, 0.0f}
+            );
+
+            shader.SetMat(uni_transform, projection * view * model);
+            mesh.Draw();
+        }
 
         SDL_GL_SwapWindow(window);
     }
