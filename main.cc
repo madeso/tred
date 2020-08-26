@@ -11,6 +11,8 @@
 #include "SDL.h"
 #include "stb_image.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // custom/local headers
 #include "debug_opengl.h"
@@ -459,6 +461,14 @@ struct Shader
         glUniform1i(uniform.location, uniform.texture);
     }
 
+    void
+    SetMat(const Uniform& uniform, const glm::mat4& mat)
+    {
+        if(uniform.IsValid() == false) { return; }
+        assert(uniform.texture == -1 && "uniform is a texture not a matrix");
+        glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
+    }
+
     unsigned int shader_program;
 };
 
@@ -714,13 +724,6 @@ main(int, char**)
     SDL_Log("Renderer: %s\n", renderer);
     SDL_Log("Version: %s\n", version);
 
-    const auto update_viewport = [&]()
-    {
-        glViewport(0, 0, width, height);
-    };
-
-    update_viewport();
-
     int rendering_mode = 0;
     const auto set_rendering_mode = [&rendering_mode](int new_mode)
     {
@@ -754,11 +757,12 @@ main(int, char**)
     auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");
+    auto uni_transform = shader.GetUniform("uTransform");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto model = Mesh
+    const auto mesh_model = Mesh
     {
         {
             {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec2{1, 1}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
@@ -772,7 +776,7 @@ main(int, char**)
         }
     };
 
-    const auto mesh = Compile(model, layout);
+    const auto mesh = Compile(mesh_model, layout);
 
     const auto texture = LoadImageEmbeded
     (
@@ -789,6 +793,23 @@ main(int, char**)
         TextureRenderStyle::Smooth,
         Transperency::Include
     );
+
+    ///////////////////////////////////////////////////////////////////////////
+    // view
+    // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+    glm::mat4 projection;
+
+    const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+
+    const auto update_viewport = [&]()
+    {
+        glViewport(0, 0, width, height);
+        const auto aspect_ratio = static_cast<float>(width)/static_cast<float>(height);
+        projection = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 100.0f);
+    };
+
+    update_viewport();
 
     ///////////////////////////////////////////////////////////////////////////
     // main
@@ -852,6 +873,7 @@ main(int, char**)
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
+        shader.SetMat(uni_transform, projection * view * model);
         mesh.Draw();
 
         SDL_GL_SwapWindow(window);

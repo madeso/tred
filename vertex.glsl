@@ -7,6 +7,7 @@ in vec2 aTexCoord;
 
 // u for uniform
 uniform vec4 uColor;
+uniform mat4 uTransform;
 
 // f for fragment
 out vec4 fColor;
@@ -14,7 +15,7 @@ out vec2 fTexCoord;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = uTransform * vec4(aPos, 1.0);
     fColor = aColor * uColor;
     fTexCoord = aTexCoord;
 }
