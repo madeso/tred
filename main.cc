@@ -686,6 +686,65 @@ CreatePlaneMesh()
     };
 }
 
+Mesh
+CreateBoxMesh()
+{
+    return
+    {
+        {
+            {glm::vec3{ 0.5f, -0.5f, -0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{ 0.5f,  0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{ 0.5f,  0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{-0.5f,  0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 0.0f}},
+
+            {glm::vec3{-0.5f, -0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{ 0.5f, -0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{-0.5f,  0.5f,  0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{-0.5f, -0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+
+            {glm::vec3{-0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{-0.5f,  0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{-0.5f, -0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{-0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{ 0.5f,  0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{ 0.5f, -0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{-0.5f, -0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{-0.5f, -0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+
+            {glm::vec3{-0.5f,  0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f,  0.5f, -0.5f}, glm::vec2{ 1.0f, 1.0f}},
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{ 0.5f,  0.5f,  0.5f}, glm::vec2{ 1.0f, 0.0f}},
+            {glm::vec3{-0.5f,  0.5f,  0.5f}, glm::vec2{ 0.0f, 0.0f}},
+            {glm::vec3{-0.5f,  0.5f, -0.5f}, glm::vec2{ 0.0f, 1.0f}}
+        },
+        {
+            0,  1,  2,  3,  4,  5 ,
+            6,  7,  8,  9,  10, 11,
+            12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29,
+            30, 31, 32, 33, 34, 35
+        }
+    };
+}
+
 
 int
 main(int, char**)
@@ -781,7 +840,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = Compile(CreatePlaneMesh(), layout);
+    const auto mesh = Compile(CreateBoxMesh(), layout);
 
     const auto texture = LoadImageEmbeded
     (
@@ -804,7 +863,7 @@ main(int, char**)
     // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     glm::mat4 projection;
 
-    const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 
     const auto update_viewport = [&]()
@@ -816,13 +875,21 @@ main(int, char**)
 
     update_viewport();
 
+    // enable depth test
+    glEnable(GL_DEPTH_TEST);
+
     ///////////////////////////////////////////////////////////////////////////
     // main
 
     bool running = true;
+    auto last = SDL_GetPerformanceCounter();
 
     while(running)
     {
+        const auto now = SDL_GetPerformanceCounter();
+        const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
+        last = now;
+
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
@@ -870,6 +937,8 @@ main(int, char**)
                 break;
             }
         }
+
+        model = glm::rotate(model, dt * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
