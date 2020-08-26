@@ -668,6 +668,25 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
 }
 
 
+Mesh
+CreatePlaneMesh()
+{
+    return
+    {
+        {
+            {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec2{1, 1}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
+            {glm::vec3{ 0.5f, -0.5f, 0.0f}, glm::vec2{1, 0}},
+            {glm::vec3{-0.5f, -0.5f, 0.0f}, glm::vec2{0, 0}},
+            {glm::vec3{-0.5f,  0.5f, 0.0f}, glm::vec2{0, 1}}
+        },
+        {
+            0, 1, 3,
+            1, 2, 3
+        }
+    };
+}
+
+
 int
 main(int, char**)
 {
@@ -762,21 +781,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh_model = Mesh
-    {
-        {
-            {glm::vec3{ 0.5f,  0.5f, 0.0f}, glm::vec2{1, 1}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
-            {glm::vec3{ 0.5f, -0.5f, 0.0f}, glm::vec2{1, 0}},
-            {glm::vec3{-0.5f, -0.5f, 0.0f}, glm::vec2{0, 0}},
-            {glm::vec3{-0.5f,  0.5f, 0.0f}, glm::vec2{0, 1}}
-        },
-        {
-            0, 1, 3,
-            1, 2, 3
-        }
-    };
-
-    const auto mesh = Compile(mesh_model, layout);
+    const auto mesh = Compile(CreatePlaneMesh(), layout);
 
     const auto texture = LoadImageEmbeded
     (
