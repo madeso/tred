@@ -896,11 +896,24 @@ main(int, char**)
     auto last = SDL_GetPerformanceCounter();
     auto time = 0.0f;
 
+    auto capture_input = false;
+    auto input_w = false;
+    auto input_a = false;
+    auto input_s = false;
+    auto input_d = false;
+    auto input_shift = false;
+
+    auto camera_position = glm::vec3{0.0f, 0.0f,  3.0f};
+    auto camera_pitch = 0.0f;
+    auto camera_yaw = -90.0f;
+
     while(running)
     {
         const auto now = SDL_GetPerformanceCounter();
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
+
+        auto input_mouse = glm::vec2{0, 0};
 
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
@@ -919,6 +932,11 @@ main(int, char**)
                 running = false;
                 break;
             case SDL_MOUSEMOTION:
+                if(capture_input)
+                {
+                    input_mouse.x += static_cast<float>(e.motion.xrel);
+                    input_mouse.y += static_cast<float>(e.motion.yrel);
+                }
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP: {
@@ -927,17 +945,29 @@ main(int, char**)
                 switch(e.key.keysym.sym)
                 {
                 case SDLK_ESCAPE:
-                    if(down)
+                    if(!down)
                     {
                         running = false;
                     }
                     break;
                 case SDLK_TAB:
-                    if(down)
+                    if(!down)
+                    {
+                        capture_input = !capture_input;
+                        SDL_SetRelativeMouseMode(capture_input ? SDL_TRUE : SDL_FALSE);
+                    }
+                    break;
+                case SDLK_SPACE:
+                    if(!down)
                     {
                         set_rendering_mode((rendering_mode + 1) % 3);
                     }
                     break;
+                case SDLK_w: input_w = down; break;
+                case SDLK_a: input_a = down; break;
+                case SDLK_s: input_s = down; break;
+                case SDLK_d: input_d = down; break;
+                case SDLK_LSHIFT: case SDLK_RSHIFT: input_shift = down; break;
                 default:
                     // ignore other keys
                     break;
@@ -950,19 +980,40 @@ main(int, char**)
             }
         }
 
+        constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
+        // handle mouse input
+        if(capture_input)
+        {
+            const float sensitivity = 0.1f;
+            camera_yaw   += input_mouse.x * sensitivity;
+            camera_pitch -= input_mouse.y * sensitivity;
+            if(camera_pitch >  89.0f) camera_pitch =  89.0f;
+            if(camera_pitch < -89.0f) camera_pitch = -89.0f;
+        }
+
+        const auto direction = glm::vec3
+        {
+            cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch)),
+            sin(glm::radians(camera_pitch)),
+            sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch))
+        };
+        const auto camera_front = glm::normalize(direction);
+
+        // handle keyboard input
+        if(capture_input)
+        {
+            const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
+            if (input_w) camera_position += camera_speed * camera_front;
+            if (input_s) camera_position -= camera_speed * camera_front;
+            if (input_a) camera_position -= glm::normalize(glm::cross(camera_front, UP)) * camera_speed;
+            if (input_d) camera_position += glm::normalize(glm::cross(camera_front, UP)) * camera_speed;
+        }
+
         time += dt;
         const auto pi = 3.14f;
         if(time > 2*pi) { time -= 2* pi; }
 
-        constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
-        const auto CENTER = std::accumulate(cube_positions.begin(), cube_positions.end(), glm::vec3{0, 0, 0}) * (1/static_cast<float>(cube_positions.size()));
-        const float RADIUS = 10.0f;
-        const auto view = glm::lookAt
-        (
-            glm::vec3(sin(time), 0.0f, cos(time)) * RADIUS + CENTER,
-            CENTER,
-            UP
-        );
+        const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
