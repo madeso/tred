@@ -862,12 +862,13 @@ main(int, char**)
     // view
     // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     glm::mat4 projection;
+    auto fov = 45.0f;
 
     const auto update_viewport = [&]()
     {
         glViewport(0, 0, width, height);
         const auto aspect_ratio = static_cast<float>(width)/static_cast<float>(height);
-        projection = glm::perspective(glm::radians(45.0f), aspect_ratio, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, 100.0f);
     };
 
     update_viewport();
@@ -936,6 +937,15 @@ main(int, char**)
                 {
                     input_mouse.x += static_cast<float>(e.motion.xrel);
                     input_mouse.y += static_cast<float>(e.motion.yrel);
+                }
+                break;
+            case SDL_MOUSEWHEEL:
+                if(capture_input && e.wheel.y != 0)
+                {
+                    fov -= static_cast<float>(e.wheel.y);
+                    if (fov < 1.0f) fov = 1.0f;
+                    if (fov > 45.0f) fov = 45.0f;
+                    update_viewport();
                 }
                 break;
             case SDL_KEYDOWN:
