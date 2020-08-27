@@ -964,6 +964,7 @@ main(int, char**)
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
 
+        const auto pv = projection * view;
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
             const auto angle = 20.0f * static_cast<float>(i);
@@ -976,7 +977,7 @@ main(int, char**)
                 : glm::vec3{0.5f, 1.0f, 0.0f}
             );
 
-            shader.SetMat(uni_transform, projection * view * model);
+            shader.SetMat(uni_transform, pv * model);
             mesh.Draw();
         }
 
