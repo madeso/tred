@@ -863,8 +863,6 @@ main(int, char**)
     // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     glm::mat4 projection;
 
-    const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-
     const auto update_viewport = [&]()
     {
         glViewport(0, 0, width, height);
@@ -955,6 +953,16 @@ main(int, char**)
         time += dt;
         const auto pi = 3.14f;
         if(time > 2*pi) { time -= 2* pi; }
+
+        constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
+        const auto CENTER = std::accumulate(cube_positions.begin(), cube_positions.end(), glm::vec3{0, 0, 0}) * (1/static_cast<float>(cube_positions.size()));
+        const float RADIUS = 10.0f;
+        const auto view = glm::lookAt
+        (
+            glm::vec3(sin(time), 0.0f, cos(time)) * RADIUS + CENTER,
+            CENTER,
+            UP
+        );
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
