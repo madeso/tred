@@ -1,3 +1,9 @@
+// todo:
+// dear imgui gui for cubes and to debug other things
+// drop esc to quit?
+// fix shader todos
+// toggleable pan and rotate camera control
+
 // standard headers
 #include <string>
 #include <string_view>
