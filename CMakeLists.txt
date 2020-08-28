@@ -105,6 +105,30 @@ source_group("" FILES ${src})
 message(STATUS "Sdl include ${SDL2_INCLUDE_DIR}")
 message(STATUS "Sdl lib ${SDL2_LIBRARY}")
 
+# imgui project dependency
+add_library(imgui STATIC
+    external/imgui-1.78/imgui_demo.cpp
+    external/imgui-1.78/imgui_widgets.cpp
+    external/imgui-1.78/imgui.cpp
+    external/imgui-1.78/imgui_draw.cpp
+    external/imgui-1.78/examples/imgui_impl_sdl.cpp
+    external/imgui-1.78/examples/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui
+    PUBLIC
+    external/imgui-1.78/
+    external/imgui-1.78/examples/
+    PRIVATE
+    external/glad/include
+    ${SDL2_INCLUDE_DIR}
+)
+target_link_libraries(
+    imgui
+    PUBLIC ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS}
+)
+target_compile_definitions(imgui PUBLIC -D IMGUI_IMPL_OPENGL_LOADER_GLAD)
+
+
 # imgui
 add_executable(compress compress.cpp)
 
@@ -129,7 +153,7 @@ target_include_directories(tred SYSTEM PRIVATE
 )
 target_link_libraries(
     tred
-    PUBLIC ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS}
+    PUBLIC ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} imgui
     PRIVATE project_options project_warnings
 )
 

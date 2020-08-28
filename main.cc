@@ -20,6 +20,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+// imgui
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
+
 // custom/local headers
 #include "debug_opengl.h"
 
@@ -808,6 +813,20 @@ main(int, char**)
     SDL_Log("Renderer: %s\n", renderer);
     SDL_Log("Version: %s\n", version);
 
+    const char* glsl_version = "#version 130";
+
+    // imgui setup
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui::StyleColorsDark();
+    
+    ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
     int rendering_mode = 0;
     const auto set_rendering_mode = [&rendering_mode](int new_mode)
     {
@@ -925,6 +944,7 @@ main(int, char**)
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
+            ImGui_ImplSDL2_ProcessEvent(&e);
             switch(e.type)
             {
             case SDL_WINDOWEVENT:
@@ -1056,12 +1076,25 @@ main(int, char**)
             mesh.Draw();
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame(window);
+        ImGui::NewFrame();
+
+        ImGui::Begin("Cubes");
+        ImGui::Text("Cool");
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         SDL_GL_SwapWindow(window);
     }
 
     mesh.Delete();
-
     shader.Delete();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
 
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
