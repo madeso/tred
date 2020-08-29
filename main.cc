@@ -3,7 +3,6 @@
 // toggleable pan and rotate camera control
 // fix todo refactor renaming
 // more const correctness for uniforms?
-// move glEnable setup to start
 
 // standard headers
 #include <string>
@@ -808,16 +807,18 @@ main(int, char**)
         return -1;
     }
 
+    // setup OpenGL
     SetupOpenglDebug();
+    glEnable(GL_DEPTH_TEST);
 
     const auto* renderer = glGetString(GL_RENDERER); // get renderer string
     const auto* version = glGetString(GL_VERSION); // version as a string
     SDL_Log("Renderer: %s\n", renderer);
     SDL_Log("Version: %s\n", version);
 
+    // imgui setup
     const char* glsl_version = "#version 130";
 
-    // imgui setup
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -907,9 +908,6 @@ main(int, char**)
         { 1.5f,  0.2f, -1.5f },
         {-1.3f,  1.0f, -1.5f }
     };
-
-    // enable depth test
-    glEnable(GL_DEPTH_TEST);
 
     ///////////////////////////////////////////////////////////////////////////
     // main
