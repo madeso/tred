@@ -1,6 +1,5 @@
 // todo:
-// dear imgui gui for cubes and to debug other things
-// drop esc to quit?
+// dear imgui gui input prio but not in imersive mode - esc should toggle
 // fix shader todos
 // toggleable pan and rotate camera control
 
@@ -828,14 +827,8 @@ main(int, char**)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     int rendering_mode = 0;
-    const auto set_rendering_mode = [&rendering_mode](int new_mode)
+    const auto set_rendering_mode = [&rendering_mode]()
     {
-        if(rendering_mode == new_mode)
-        {
-            return;
-        }
-
-        rendering_mode = new_mode;
         switch(rendering_mode)
         {
             case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
@@ -898,12 +891,12 @@ main(int, char**)
 
     update_viewport();
 
-    const auto cube_positions = std::vector<glm::vec3>
+    auto cube_positions = std::vector<glm::vec3>
     {
         { 0.0f,  0.0f,  0.0f },
-        { 2.0f,  5.0f, -15.0f},
+        { 2.0f,  5.0f, -5.0f},
         {-1.5f, -2.2f, -2.5f },
-        {-3.8f, -2.0f, -12.3f},
+        {-3.8f, -2.0f, -5.3f},
         { 2.4f, -0.4f, -3.5f },
         {-1.7f,  3.0f, -7.5f },
         { 1.3f, -2.0f, -2.5f },
@@ -980,23 +973,11 @@ main(int, char**)
 
                 switch(e.key.keysym.sym)
                 {
-                case SDLK_ESCAPE:
-                    if(!down)
-                    {
-                        running = false;
-                    }
-                    break;
                 case SDLK_TAB:
                     if(!down)
                     {
                         capture_input = !capture_input;
                         SDL_SetRelativeMouseMode(capture_input ? SDL_TRUE : SDL_FALSE);
-                    }
-                    break;
-                case SDLK_SPACE:
-                    if(!down)
-                    {
-                        set_rendering_mode((rendering_mode + 1) % 3);
                     }
                     break;
                 case SDLK_w: input_w = down; break;
@@ -1076,16 +1057,37 @@ main(int, char**)
             mesh.Draw();
         }
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame(window);
-        ImGui::NewFrame();
+        if(capture_input == false)
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+            ImGui::NewFrame();
 
-        ImGui::Begin("Cubes");
-        ImGui::Text("Cool");
-        ImGui::End();
+            // ImGui::ShowDemoWindow();
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            if(ImGui::Begin("Debug"))
+            {
+                if(ImGui::Button("Quit")) { running = false; }
+                if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
+                {
+                    set_rendering_mode();
+                }
+
+                if (ImGui::CollapsingHeader("Cube positions"))
+                {
+                    for(auto& cube: cube_positions)
+                    {
+                        ImGui::PushID(&cube);
+                        ImGui::DragFloat3("", glm::value_ptr(cube), 0.01f);
+                        ImGui::PopID();
+                    }
+                }
+            }
+            ImGui::End();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
 
         SDL_GL_SwapWindow(window);
     }
