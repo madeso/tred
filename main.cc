@@ -801,8 +801,9 @@ main(int, char**)
     }
 
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
-
-    if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+    
+    if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
+    {
         SDL_Log("Failed to initialize OpenGL context");
         return -1;
     }
