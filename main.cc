@@ -1,5 +1,4 @@
 // todo:
-// dear imgui gui input prio but not in imersive mode - esc should toggle
 // fov ui instead of scroll
 // fix shader todos
 // toggleable pan and rotate camera control
@@ -921,6 +920,11 @@ main(int, char**)
     auto time = 0.0f;
 
     auto capture_input = false;
+    const auto set_capture_input = [&capture_input](bool value)
+    {
+        capture_input = value;
+        SDL_SetRelativeMouseMode(capture_input ? SDL_TRUE : SDL_FALSE);
+    };
     auto input_w = false;
     auto input_a = false;
     auto input_s = false;
@@ -942,7 +946,10 @@ main(int, char**)
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
-            ImGui_ImplSDL2_ProcessEvent(&e);
+            if(!capture_input)
+            {
+                ImGui_ImplSDL2_ProcessEvent(&e);
+            }
             switch(e.type)
             {
             case SDL_WINDOWEVENT:
@@ -978,11 +985,10 @@ main(int, char**)
 
                 switch(e.key.keysym.sym)
                 {
-                case SDLK_TAB:
-                    if(!down)
+                case SDLK_ESCAPE:
+                    if(!down && capture_input)
                     {
-                        capture_input = !capture_input;
-                        SDL_SetRelativeMouseMode(capture_input ? SDL_TRUE : SDL_FALSE);
+                        set_capture_input(false);
                     }
                     break;
                 case SDLK_w: input_w = down; break;
@@ -1073,6 +1079,11 @@ main(int, char**)
             if(ImGui::Begin("Debug"))
             {
                 if(ImGui::Button("Quit")) { running = false; }
+                ImGui::SameLine();
+                if(ImGui::Button("FPS controller"))
+                {
+                    set_capture_input(true);
+                }
                 if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
                 {
                     set_rendering_mode();
