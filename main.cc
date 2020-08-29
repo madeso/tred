@@ -1,7 +1,3 @@
-// todo:
-// fix shader todos
-// toggleable pan and rotate camera control
-
 // standard headers
 #include <string>
 #include <string_view>
