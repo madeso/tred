@@ -1,7 +1,12 @@
 // todo:
 // dear imgui gui input prio but not in imersive mode - esc should toggle
+// fov ui instead of scroll
 // fix shader todos
 // toggleable pan and rotate camera control
+// fix todo refactor renaming
+// more const correctness for uniforms?
+// move glEnable setup to start
+// less glm namespace in default meshes?
 
 // standard headers
 #include <string>
