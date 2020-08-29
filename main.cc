@@ -369,6 +369,15 @@ VerifyShaderAttributeLocation(unsigned int shader_program, const VertexLayout& l
 }
 
 
+unsigned int debug_current_shader_program;
+void
+SetShaderProgram(unsigned int new_program)
+{
+    debug_current_shader_program = new_program;
+    glUseProgram(new_program);
+}
+
+
 struct Shader
 {
     Shader
@@ -398,7 +407,7 @@ struct Shader
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
 
-        glUseProgram(0);
+        SetShaderProgram(0);
 
         if(vertex_ok && fragment_ok && link_ok)
         {
@@ -414,13 +423,13 @@ struct Shader
     void
     Use() const
     {
-        glUseProgram(shader_program);
+        SetShaderProgram(shader_program);
     }
 
     void
     Delete()
     {
-        glUseProgram(0);
+        SetShaderProgram(0);
         glDeleteProgram(shader_program);
         shader_program = 0;
     }
@@ -440,7 +449,7 @@ struct Shader
     void
     SetFloat(const Uniform& uniform, float value) const
     {
-        // todo(Gustav): assert on currently selected shader!
+        assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture == -1 && "uniform is a texture not a float");
         glUniform1f(uniform.location, value);
@@ -449,7 +458,7 @@ struct Shader
     void
     SetVec4(const Uniform& uniform, float x, float y, float z, float w)
     {
-        // todo(Gustav): assert on currently selected shader!
+        assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture == -1 && "uniform is a texture not a vec4");
         glUniform4f(uniform.location, x, y, z, w);
@@ -458,7 +467,7 @@ struct Shader
     void
     SetTexture(const Uniform& uniform)
     {
-        // todo(Gustav): assert on currently selected shader!
+        assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture >= 0 && "uniform needs to be a texture");
         glUniform1i(uniform.location, uniform.texture);
@@ -467,6 +476,7 @@ struct Shader
     void
     SetMat(const Uniform& uniform, const glm::mat4& mat)
     {
+        assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
         assert(uniform.texture == -1 && "uniform is a texture not a matrix");
         glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));

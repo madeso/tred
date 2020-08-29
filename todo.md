@@ -1,5 +1,4 @@
 # todo
-* fix shader todos
 * toggleable pan and rotate camera control
 * re add escape as quit
 * Learn OpenGL(7): Lightning (material, normalmap, light types, multiple lights)
