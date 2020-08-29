@@ -137,7 +137,9 @@ add_executable(embed embed.cc)
 target_link_libraries(embed PRIVATE project_options project_warnings)
 
 embed(HEADERS embedded_headers
-    FILES vertex.glsl fragment.glsl
+    FILES
+    vertex.glsl fragment.glsl
+    light_vertex.glsl light_fragment.glsl
 )
 compress(HEADERS compressed_headers
     FILES container.jpg awesomeface.png

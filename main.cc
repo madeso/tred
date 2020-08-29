@@ -25,6 +25,8 @@
 // resource headers
 #include "vertex.glsl.h"
 #include "fragment.glsl.h"
+#include "light_vertex.glsl.h"
+#include "light_fragment.glsl.h"
 #include "container.jpg.h"
 #include "awesomeface.png.h"
 
@@ -295,17 +297,20 @@ struct Uniform
 {
     std::string name;
     int location;
+    unsigned int debug_shader_program;
     int texture = -1; // >=0 if this is uniform maps to a texture
 
     Uniform()
         : name("<unknown>")
         , location(-1)
+        , debug_shader_program(0)
     {
     }
 
-    Uniform(const std::string& n, int l)
+    Uniform(const std::string& n, int l, unsigned int sp)
         : name(n)
         , location(l)
+        , debug_shader_program(sp)
     {
     }
 
@@ -437,7 +442,7 @@ struct Shader
     Uniform
     GetUniform(const std::string& name) const
     {
-        const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str())};
+        const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
         if(uni.IsValid() == false)
         {
             SDL_Log("Uniform %s not found", name.c_str());
@@ -451,8 +456,27 @@ struct Shader
     {
         assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
         assert(uniform.texture == -1 && "uniform is a texture not a float");
         glUniform1f(uniform.location, value);
+    }
+
+    void
+    SetVec3(const Uniform& uniform, float x, float y, float z)
+    {
+        assert(debug_current_shader_program == shader_program);
+        if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
+        assert(uniform.texture == -1 && "uniform is a texture not a vec3");
+        glUniform3f(uniform.location, x, y, z);
+    }
+
+    void
+    SetVec3(const Uniform& uniform, const glm::vec3& v)
+    {
+        SetVec3(uniform, v.x, v.y, v.z);
     }
 
     void
@@ -460,6 +484,8 @@ struct Shader
     {
         assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
         assert(uniform.texture == -1 && "uniform is a texture not a vec4");
         glUniform4f(uniform.location, x, y, z, w);
     }
@@ -469,6 +495,8 @@ struct Shader
     {
         assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
         assert(uniform.texture >= 0 && "uniform needs to be a texture");
         glUniform1i(uniform.location, uniform.texture);
     }
@@ -478,6 +506,8 @@ struct Shader
     {
         assert(debug_current_shader_program == shader_program);
         if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
         assert(uniform.texture == -1 && "uniform is a texture not a matrix");
         glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
     }
@@ -858,6 +888,10 @@ main(int, char**)
         {VertexType::Color4, "aColor"},
         {VertexType::Texture2, "aTexCoord"}
     };
+    const auto light_layout = VertexLayout
+    {
+        {VertexType::Position3, "aPos"}
+    };
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
@@ -868,9 +902,14 @@ main(int, char**)
     const auto uni_transform = shader.GetUniform("uTransform");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
+    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
+    const auto uni_light_transform = light_shader.GetUniform("uTransform");
+    const auto uni_light_color = light_shader.GetUniform("uColor");
+
     ///////////////////////////////////////////////////////////////////////////
     // model
     const auto mesh = Compile(CreateBoxMesh(), shader, layout);
+    const auto light_mesh = Compile(CreateBoxMesh(), light_shader, light_layout);
 
     const auto texture = LoadImageEmbeded
     (
@@ -943,6 +982,9 @@ main(int, char**)
     auto camera_position = glm::vec3{0.0f, 0.0f,  3.0f};
     auto camera_pitch = 0.0f;
     auto camera_yaw = -90.0f;
+
+    auto light_color = glm::vec3{1.0f};
+    auto light_position = glm::vec3{1.2f, 1.0f, 2.0f};
 
     while(running)
     {
@@ -1089,25 +1131,40 @@ main(int, char**)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+        const auto pv = projection * view;
+
+        light_shader.Use();
+        light_shader.SetVec3(uni_light_color, light_color);
+
+        {
+            const auto model = glm::scale
+            (
+                glm::translate(glm::mat4(1.0f), light_position),
+                glm::vec3{0.2f}
+            );
+            light_shader.SetMat(uni_light_transform, pv * model);
+        }
+        light_mesh.Draw();
+
         shader.Use();
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
-
-        const auto pv = projection * view;
+        
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
             const auto angle = 20.0f * static_cast<float>(i);
-            const auto model = glm::rotate
-            (
-                glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                time + glm::radians(angle),
-                i%2 == 0
-                ? glm::vec3{1.0f, 0.3f, 0.5f}
-                : glm::vec3{0.5f, 1.0f, 0.0f}
-            );
-
-            shader.SetMat(uni_transform, pv * model);
+            {
+                const auto model = glm::rotate
+                (
+                    glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                    time + glm::radians(angle),
+                    i%2 == 0
+                    ? glm::vec3{1.0f, 0.3f, 0.5f}
+                    : glm::vec3{0.5f, 1.0f, 0.0f}
+                );
+                shader.SetMat(uni_transform, pv * model);
+            }
             mesh.Draw();
         }
 
@@ -1134,6 +1191,11 @@ main(int, char**)
                 if(ImGui::DragFloat("FOV", &fov, 0.1f, 1.0f, 145.0f))
                 {
                     update_viewport();
+                }
+                if (ImGui::CollapsingHeader("Light"))
+                {
+                    ImGui::ColorEdit3("Color", glm::value_ptr(light_color));
+                    ImGui::DragFloat3("Position", glm::value_ptr(light_position), 0.01f);
                 }
 
                 if (ImGui::CollapsingHeader("Cube positions"))
