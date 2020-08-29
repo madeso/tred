@@ -1,7 +1,6 @@
 // todo:
 // fix shader todos
 // toggleable pan and rotate camera control
-// fix todo refactor renaming
 // more const correctness for uniforms?
 
 // standard headers
@@ -99,22 +98,20 @@ struct Mesh
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// buffer layout header
+// vertex layout
 
-// todo(Gustav): rename to something better: Buffer -> Vertex
-
-enum class BufferType
+enum class VertexType
 {
     Position3, Color4, Texture2
 };
 
 
-struct BufferElement
+struct VertexElement
 {
-    BufferType type;
+    VertexType type;
     std::string name;
 
-    BufferElement(BufferType t, const std::string& n)
+    VertexElement(VertexType t, const std::string& n)
         : type(t)
         , name(n)
     {
@@ -122,7 +119,7 @@ struct BufferElement
 };
 
 
-using BufferLayout = std::vector<BufferElement>;
+using VertexLayout = std::vector<VertexElement>;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -331,14 +328,14 @@ struct Uniform
 
 
 int
-ShaderAttributeSize(const BufferElement&)
+ShaderAttributeSize(const VertexElement&)
 {
     return 1;
 }
 
 
 void
-BindShaderAttributeLocation(unsigned int shader_program, const BufferLayout& layout)
+BindShaderAttributeLocation(unsigned int shader_program, const VertexLayout& layout)
 {
     int requested_index = 0;
     for(const auto& b: layout)
@@ -350,7 +347,7 @@ BindShaderAttributeLocation(unsigned int shader_program, const BufferLayout& lay
 
 
 void
-VerifyShaderAttributeLocation(unsigned int shader_program, const BufferLayout& layout)
+VerifyShaderAttributeLocation(unsigned int shader_program, const VertexLayout& layout)
 {
     int requested_index = 0;
     for(const auto& b: layout)
@@ -383,7 +380,7 @@ struct Shader
     (
         std::string_view vertex_source,
         std::string_view fragment_source,
-        const BufferLayout& layout
+        const VertexLayout& layout
     )
         : shader_program(glCreateProgram())
     {
@@ -570,7 +567,7 @@ struct BufferData
 
 
 CompiledMesh
-Compile(const Mesh& mesh, const BufferLayout& layout)
+Compile(const Mesh& mesh, const VertexLayout& layout)
 {
     using VertexVector = std::vector<float>;
 
@@ -581,7 +578,7 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
     {
         switch(element.type)
         {
-        case BufferType::Position3:
+        case VertexType::Position3:
             data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.position.x);
@@ -589,7 +586,7 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
                 vertices->push_back(vertex.position.z);
             });
             break;
-        case BufferType::Color4:
+        case VertexType::Color4:
             data.emplace_back(4, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.color.x);
@@ -598,7 +595,7 @@ Compile(const Mesh& mesh, const BufferLayout& layout)
                 vertices->push_back(vertex.color.w);
             });
             break;
-        case BufferType::Texture2:
+        case VertexType::Texture2:
             data.emplace_back(2, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.texture.x);
@@ -801,7 +798,7 @@ main(int, char**)
     }
 
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
-    
+
     if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
     {
         SDL_Log("Failed to initialize OpenGL context");
@@ -845,11 +842,11 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto layout = BufferLayout
+    const auto layout = VertexLayout
     {
-        {BufferType::Position3, "aPos"},
-        {BufferType::Color4, "aColor"},
-        {BufferType::Texture2, "aTexCoord"}
+        {VertexType::Position3, "aPos"},
+        {VertexType::Color4, "aColor"},
+        {VertexType::Texture2, "aTexCoord"}
     };
 
     ///////////////////////////////////////////////////////////////////////////
