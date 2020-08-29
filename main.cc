@@ -1,5 +1,4 @@
 // todo:
-// fov ui instead of scroll
 // fix shader todos
 // toggleable pan and rotate camera control
 // fix todo refactor renaming
@@ -970,15 +969,6 @@ main(int, char**)
                     input_mouse.y += static_cast<float>(e.motion.yrel);
                 }
                 break;
-            case SDL_MOUSEWHEEL:
-                if(capture_input && e.wheel.y != 0)
-                {
-                    fov -= static_cast<float>(e.wheel.y);
-                    if (fov < 1.0f) fov = 1.0f;
-                    if (fov > 45.0f) fov = 45.0f;
-                    update_viewport();
-                }
-                break;
             case SDL_KEYDOWN:
             case SDL_KEYUP: {
                 const bool down = e.type == SDL_KEYDOWN;
@@ -1087,6 +1077,10 @@ main(int, char**)
                 if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
                 {
                     set_rendering_mode();
+                }
+                if(ImGui::DragFloat("FOV", &fov, 0.1f, 1.0f, 145.0f))
+                {
+                    update_viewport();
                 }
 
                 if (ImGui::CollapsingHeader("Cube positions"))
