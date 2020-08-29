@@ -524,17 +524,22 @@ struct CompiledMesh
 
     int number_of_indices;
 
-    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count)
+    unsigned int debug_shader_program;
+
+    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, unsigned int sp)
          : vbo(a_vbo)
          , vao(a_vao)
          , ebo(a_ebo)
          , number_of_indices(count)
+         , debug_shader_program(sp)
     {
+        assert(sp != 0);
     }
 
     void
     Draw() const
     {
+        assert(debug_shader_program == debug_current_shader_program);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -572,7 +577,7 @@ struct BufferData
 
 
 CompiledMesh
-Compile(const Mesh& mesh, const VertexLayout& layout)
+Compile(const Mesh& mesh, const Shader& shader, const VertexLayout& layout)
 {
     using VertexVector = std::vector<float>;
 
@@ -677,7 +682,7 @@ Compile(const Mesh& mesh, const VertexLayout& layout)
         GL_STATIC_DRAW
     );
 
-    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size())};
+    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), shader.shader_program};
 }
 
 
@@ -865,7 +870,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = Compile(CreateBoxMesh(), layout);
+    const auto mesh = Compile(CreateBoxMesh(), shader, layout);
 
     const auto texture = LoadImageEmbeded
     (
