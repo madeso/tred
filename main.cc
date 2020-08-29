@@ -977,9 +977,16 @@ main(int, char**)
                 switch(e.key.keysym.sym)
                 {
                 case SDLK_ESCAPE:
-                    if(!down && capture_input)
+                    if(!down)
                     {
-                        set_capture_input(false);
+                        if(capture_input)
+                        {
+                            set_capture_input(false);
+                        }
+                        else
+                        {
+                            running = false;
+                        }
                     }
                     break;
                 case SDLK_w: input_w = down; break;
