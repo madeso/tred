@@ -1,7 +1,6 @@
 // todo:
 // fix shader todos
 // toggleable pan and rotate camera control
-// more const correctness for uniforms?
 
 // standard headers
 #include <string>
@@ -852,10 +851,10 @@ main(int, char**)
     ///////////////////////////////////////////////////////////////////////////
     // shaders
     auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
-    auto uni_color = shader.GetUniform("uColor");
+    const auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");
-    auto uni_transform = shader.GetUniform("uTransform");
+    const auto uni_transform = shader.GetUniform("uTransform");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     ///////////////////////////////////////////////////////////////////////////
