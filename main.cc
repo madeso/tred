@@ -825,7 +825,7 @@ main(int, char**)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsLight();
     
     ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
     ImGui_ImplOpenGL3_Init(glsl_version);
