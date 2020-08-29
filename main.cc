@@ -931,6 +931,10 @@ main(int, char**)
     auto input_d = false;
     auto input_shift = false;
 
+    auto mouse_left = false;
+    auto mouse_middle = false;
+    auto mouse_right = false;
+
     auto camera_position = glm::vec3{0.0f, 0.0f,  3.0f};
     auto camera_pitch = 0.0f;
     auto camera_yaw = -90.0f;
@@ -964,12 +968,24 @@ main(int, char**)
                 running = false;
                 break;
             case SDL_MOUSEMOTION:
-                if(capture_input)
-                {
-                    input_mouse.x += static_cast<float>(e.motion.xrel);
-                    input_mouse.y += static_cast<float>(e.motion.yrel);
-                }
+                input_mouse.x += static_cast<float>(e.motion.xrel);
+                input_mouse.y += static_cast<float>(e.motion.yrel);
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP: {
+                const bool down = e.type == SDL_MOUSEBUTTONDOWN;
+
+                switch(e.button.button)
+                {
+                    case SDL_BUTTON_LEFT: mouse_left = down; break;
+                    case SDL_BUTTON_MIDDLE: mouse_middle = down; break;
+                    case SDL_BUTTON_RIGHT: mouse_right = down; break;
+                    default:
+                        // ignore other mouse buttons
+                        break;
+                }
+            }
+            break;
             case SDL_KEYDOWN:
             case SDL_KEYUP: {
                 const bool down = e.type == SDL_KEYDOWN;
@@ -1007,16 +1023,6 @@ main(int, char**)
         }
 
         constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
-        // handle mouse input
-        if(capture_input)
-        {
-            const float sensitivity = 0.1f;
-            camera_yaw   += input_mouse.x * sensitivity;
-            camera_pitch -= input_mouse.y * sensitivity;
-            if(camera_pitch >  89.0f) camera_pitch =  89.0f;
-            if(camera_pitch < -89.0f) camera_pitch = -89.0f;
-        }
-
         const auto direction = glm::vec3
         {
             cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch)),
@@ -1024,6 +1030,40 @@ main(int, char**)
             sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch))
         };
         const auto camera_front = glm::normalize(direction);
+        const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
+        const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
+
+        // handle mouse input
+        if(capture_input)
+        {
+            const float sensitivity = 0.1f;
+            camera_yaw   += input_mouse.x * sensitivity;
+            camera_pitch -= input_mouse.y * sensitivity;
+        }
+        else if(io.WantCaptureMouse == false)
+        {
+            const float move_sensitivity = 0.01f;
+            if(mouse_left)
+            {
+                // todo(Gustav): make actually roatate around a center point instead
+                const float sensitivity = 0.1f;
+                camera_yaw   += input_mouse.x * sensitivity;
+                camera_pitch -= input_mouse.y * sensitivity;
+            }
+            else if(mouse_middle)
+            {
+                camera_position +=
+                      camera_right * input_mouse.x * move_sensitivity
+                    - camera_up * input_mouse.y * move_sensitivity;
+            }
+            else if(mouse_right)
+            {
+                camera_position += camera_front * input_mouse.y * move_sensitivity;
+            }
+        }
+
+        if(camera_pitch >  89.0f) camera_pitch =  89.0f;
+        if(camera_pitch < -89.0f) camera_pitch = -89.0f;
 
         // handle keyboard input
         if(capture_input)
@@ -1031,8 +1071,8 @@ main(int, char**)
             const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
             if (input_w) camera_position += camera_speed * camera_front;
             if (input_s) camera_position -= camera_speed * camera_front;
-            if (input_a) camera_position -= glm::normalize(glm::cross(camera_front, UP)) * camera_speed;
-            if (input_d) camera_position += glm::normalize(glm::cross(camera_front, UP)) * camera_speed;
+            if (input_a) camera_position -= camera_speed * camera_right;
+            if (input_d) camera_position += camera_speed * camera_right;
         }
 
         time += dt;

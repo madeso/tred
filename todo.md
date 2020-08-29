@@ -1,5 +1,4 @@
 # todo
-* toggleable pan and rotate camera control
 * Learn OpenGL(7): Lightning (material, normalmap, light types, multiple lights)
 * Learn OpenGL(11): Advanced OpenGL (blending, fbo, instanced, aa)
 * Learn OpenGL(10): Avanced lighning (gamma, shadows, hdr, parralax, bloom, ssao)
