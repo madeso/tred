@@ -906,6 +906,7 @@ main(int, char**)
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");
     const auto uni_transform = shader.GetUniform("uTransform");
+    const auto uni_shader_light_color = shader.GetUniform("uLightColor");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
@@ -1157,6 +1158,7 @@ main(int, char**)
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, cube_color);
+        shader.SetVec3(uni_shader_light_color, light_color);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -1201,13 +1203,13 @@ main(int, char**)
                 }
                 if (ImGui::CollapsingHeader("Light"))
                 {
-                    ImGui::ColorEdit3("Color", glm::value_ptr(light_color));
-                    ImGui::DragFloat3("Position", glm::value_ptr(light_position), 0.01f);
+                    ImGui::ColorEdit3("Light color", glm::value_ptr(light_color));
+                    ImGui::DragFloat3("Light position", glm::value_ptr(light_position), 0.01f);
                 }
 
                 if (ImGui::CollapsingHeader("Cubes"))
                 {
-                    ImGui::ColorEdit4("Color", glm::value_ptr(cube_color));
+                    ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
                     for(auto& cube: cube_positions)
                     {
                         ImGui::PushID(&cube);
