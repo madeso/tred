@@ -491,6 +491,12 @@ struct Shader
     }
 
     void
+    SetVec4(const Uniform& uniform, const glm::vec4& v)
+    {
+        SetVec4(uniform, v.x, v.y, v.z, v.w);
+    }
+
+    void
     SetTexture(const Uniform& uniform)
     {
         assert(debug_current_shader_program == shader_program);
@@ -955,6 +961,7 @@ main(int, char**)
         { 1.5f,  0.2f, -1.5f },
         {-1.3f,  1.0f, -1.5f }
     };
+    auto cube_color = glm::vec4{1.0f};
 
     ///////////////////////////////////////////////////////////////////////////
     // main
@@ -1149,7 +1156,7 @@ main(int, char**)
         shader.Use();
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
-        shader.SetVec4(uni_color, 1.0f, 1.0f, 1.0f, 1.0f);
+        shader.SetVec4(uni_color, cube_color);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -1198,8 +1205,9 @@ main(int, char**)
                     ImGui::DragFloat3("Position", glm::value_ptr(light_position), 0.01f);
                 }
 
-                if (ImGui::CollapsingHeader("Cube positions"))
+                if (ImGui::CollapsingHeader("Cubes"))
                 {
+                    ImGui::ColorEdit4("Color", glm::value_ptr(cube_color));
                     for(auto& cube: cube_positions)
                     {
                         ImGui::PushID(&cube);
