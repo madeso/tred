@@ -60,16 +60,19 @@ Cunsigned_int_to_int(unsigned int ui)
 struct Vertex
 {
     glm::vec3 position;
+    glm::vec3 normal;
     glm::vec2 texture;
     glm::vec4 color;
 
     Vertex
     (
         const glm::vec3& p,
+        const glm::vec3& n,
         const glm::vec2& t,
         const glm::vec4& c = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}
     )
         : position(p)
+        , normal(n)
         , texture(t)
         , color(c)
     {
@@ -99,7 +102,7 @@ struct Mesh
 
 enum class VertexType
 {
-    Position3, Color4, Texture2
+    Position3, Normal3, Color4, Texture2
 };
 
 
@@ -632,6 +635,14 @@ Compile(const Mesh& mesh, const Shader& shader, const VertexLayout& layout)
                 vertices->push_back(vertex.position.z);
             });
             break;
+        case VertexType::Normal3:
+            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
+            {
+                vertices->push_back(vertex.normal.x);
+                vertices->push_back(vertex.normal.y);
+                vertices->push_back(vertex.normal.z);
+            });
+            break;
         case VertexType::Color4:
             data.emplace_back(4, [](VertexVector* vertices, const Vertex& vertex)
             {
@@ -728,10 +739,10 @@ CreatePlaneMesh()
     return
     {
         {
-            {{ 0.5f, -0.5f, 0.0f}, {1, 0}},
-            {{ 0.5f,  0.5f, 0.0f}, {1, 1}, {0.0f, 0.0f, 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, 0.0f}, {0, 0}},
-            {{-0.5f,  0.5f, 0.0f}, {0, 1}}
+            {{ 0.5f, -0.5f, 0.0f}, {0, 1, 0}, {1, 0}},
+            {{ 0.5f,  0.5f, 0.0f}, {0, 1, 0}, {1, 1}, {0.0f, 0.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.0f}, {0, 1, 0}, {0, 0}},
+            {{-0.5f,  0.5f, 0.0f}, {0, 1, 0}, {0, 1}}
         },
         {
             0, 1, 3,
@@ -747,47 +758,47 @@ CreateBoxMesh()
     return
     {
         {
-            {{ 0.5f, -0.5f, -0.5f}, { 1.0f, 0.0f}},
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 0.0f}},
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{-0.5f,  0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 0.0f}},
+            {{-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 1.0f, 0.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 0.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 1.0f, 1.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 1.0f, 1.0f}},
+            {{-0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, { 0.0f, 0.0f}},
 
-            {{-0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}},
-            {{ 0.5f, -0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 1.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 1.0f}},
-            {{-0.5f,  0.5f,  0.5f}, { 0.0f, 1.0f}},
-            {{-0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}},
+            {{-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 0.0f, 0.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 1.0f, 1.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 1.0f, 1.0f}},
+            {{-0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 0.0f, 1.0f}},
+            {{-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f, 1.0f}, { 0.0f, 0.0f}},
 
-            {{-0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{-0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{-0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}},
-            {{-0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, { 1.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, { 0.0f, 0.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, { 1.0f, 0.0f}},
 
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{ 0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{ 0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{ 0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, { 1.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, { 0.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, { 1.0f, 0.0f}},
 
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{ 0.5f, -0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{ 0.5f, -0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{ 0.5f, -0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{-0.5f, -0.5f,  0.5f}, { 0.0f, 0.0f}},
-            {{-0.5f, -0.5f, -0.5f}, { 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, { 1.0f, 1.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{-0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, { 0.0f, 0.0f}},
+            {{-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, { 0.0f, 1.0f}},
 
-            {{-0.5f,  0.5f, -0.5f}, { 0.0f, 1.0f}},
-            {{ 0.5f,  0.5f, -0.5f}, { 1.0f, 1.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, { 1.0f, 0.0f}},
-            {{-0.5f,  0.5f,  0.5f}, { 0.0f, 0.0f}},
-            {{-0.5f,  0.5f, -0.5f}, { 0.0f, 1.0f}}
+            {{-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, { 0.0f, 1.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, { 1.0f, 1.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, { 1.0f, 0.0f}},
+            {{-0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, { 0.0f, 0.0f}},
+            {{-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, { 0.0f, 1.0f}}
         },
         {
             0,  1,  2,  3,  4,  5 ,
@@ -891,6 +902,7 @@ main(int, char**)
     const auto layout = VertexLayout
     {
         {VertexType::Position3, "aPos"},
+        {VertexType::Normal3, "aNormal"},
         {VertexType::Color4, "aColor"},
         {VertexType::Texture2, "aTexCoord"}
     };
@@ -906,7 +918,9 @@ main(int, char**)
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");
     const auto uni_transform = shader.GetUniform("uTransform");
+    const auto uni_model = shader.GetUniform("uModelTransform");
     const auto uni_shader_light_color = shader.GetUniform("uLightColor");
+    const auto uni_shader_light_position = shader.GetUniform("uLightPosition");
     const auto uni_ambient_strength = shader.GetUniform("uLightAmbientStrength");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
@@ -1162,6 +1176,7 @@ main(int, char**)
         shader.SetVec4(uni_color, cube_color);
         shader.SetVec3(uni_shader_light_color, light_color);
         shader.SetFloat(uni_ambient_strength, light_ambient_strength);
+        shader.SetVec3(uni_shader_light_position, light_position);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -1176,6 +1191,7 @@ main(int, char**)
                     : glm::vec3{0.5f, 1.0f, 0.0f}
                 );
                 shader.SetMat(uni_transform, pv * model);
+                shader.SetMat(uni_model, model);
             }
             mesh.Draw();
         }
