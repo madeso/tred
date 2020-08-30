@@ -907,6 +907,7 @@ main(int, char**)
     auto uni_decal = shader.GetUniform("uDecal");
     const auto uni_transform = shader.GetUniform("uTransform");
     const auto uni_shader_light_color = shader.GetUniform("uLightColor");
+    const auto uni_ambient_strength = shader.GetUniform("uLightAmbientStrength");
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
@@ -992,6 +993,7 @@ main(int, char**)
     auto camera_yaw = -90.0f;
 
     auto light_color = glm::vec3{1.0f};
+    auto light_ambient_strength = 0.1f;
     auto light_position = glm::vec3{1.2f, 1.0f, 2.0f};
 
     while(running)
@@ -1159,6 +1161,7 @@ main(int, char**)
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, cube_color);
         shader.SetVec3(uni_shader_light_color, light_color);
+        shader.SetFloat(uni_ambient_strength, light_ambient_strength);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -1203,6 +1206,7 @@ main(int, char**)
                 }
                 if (ImGui::CollapsingHeader("Light"))
                 {
+                    ImGui::DragFloat("Ambient strength", &light_ambient_strength, 0.01f);
                     ImGui::ColorEdit3("Light color", glm::value_ptr(light_color));
                     ImGui::DragFloat3("Light position", glm::value_ptr(light_position), 0.01f);
                 }
