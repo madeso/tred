@@ -10,6 +10,7 @@ in vec2 aTexCoord;
 uniform vec4 uColor;
 uniform mat4 uTransform;
 uniform mat4 uModelTransform;
+uniform mat3 uNormalMatrix;
 
 // f for fragment
 out vec4 fColor;
@@ -23,5 +24,5 @@ void main()
     fFragmentPosition = vec3(uModelTransform * vec4(aPos, 1.0));
     fColor = aColor * uColor;
     fTexCoord = aTexCoord;
-    fNormal = aNormal;
+    fNormal = uNormalMatrix * aNormal;
 }

@@ -517,8 +517,19 @@ struct Shader
         if(uniform.IsValid() == false) { return; }
         assert(uniform.debug_shader_program == shader_program);
 
-        assert(uniform.texture == -1 && "uniform is a texture not a matrix");
+        assert(uniform.texture == -1 && "uniform is a texture not a matrix4");
         glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
+    }
+
+    void
+    SetMat(const Uniform& uniform, const glm::mat3& mat)
+    {
+        assert(debug_current_shader_program == shader_program);
+        if(uniform.IsValid() == false) { return; }
+        assert(uniform.debug_shader_program == shader_program);
+
+        assert(uniform.texture == -1 && "uniform is a texture not a matrix3");
+        glUniformMatrix3fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
     }
 
     unsigned int shader_program;
@@ -918,7 +929,8 @@ main(int, char**)
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");
     const auto uni_transform = shader.GetUniform("uTransform");
-    const auto uni_model = shader.GetUniform("uModelTransform");
+    const auto uni_model_transform = shader.GetUniform("uModelTransform");
+    const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_shader_light_color = shader.GetUniform("uLightColor");
     const auto uni_shader_light_position = shader.GetUniform("uLightPosition");
     const auto uni_ambient_strength = shader.GetUniform("uLightAmbientStrength");
@@ -1191,7 +1203,8 @@ main(int, char**)
                     : glm::vec3{0.5f, 1.0f, 0.0f}
                 );
                 shader.SetMat(uni_transform, pv * model);
-                shader.SetMat(uni_model, model);
+                shader.SetMat(uni_model_transform, model);
+                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
             }
             mesh.Draw();
         }
