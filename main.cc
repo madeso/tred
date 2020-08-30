@@ -963,11 +963,11 @@ main(int, char**)
     auto last = SDL_GetPerformanceCounter();
     auto time = 0.0f;
 
-    auto capture_input = false;
-    const auto set_capture_input = [&capture_input](bool value)
+    auto input_fps = false;
+    const auto set_input_fps = [&input_fps](bool value)
     {
-        capture_input = value;
-        SDL_SetRelativeMouseMode(capture_input ? SDL_TRUE : SDL_FALSE);
+        input_fps = value;
+        SDL_SetRelativeMouseMode(input_fps ? SDL_TRUE : SDL_FALSE);
     };
     auto input_w = false;
     auto input_a = false;
@@ -997,7 +997,7 @@ main(int, char**)
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
-            if(!capture_input)
+            if(!input_fps)
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
@@ -1042,9 +1042,9 @@ main(int, char**)
                 case SDLK_ESCAPE:
                     if(!down)
                     {
-                        if(capture_input)
+                        if(input_fps)
                         {
-                            set_capture_input(false);
+                            set_input_fps(false);
                         }
                         else
                         {
@@ -1081,7 +1081,7 @@ main(int, char**)
         const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
 
         // handle mouse input
-        if(capture_input)
+        if(input_fps)
         {
             const float sensitivity = 0.1f;
             camera_yaw   += input_mouse.x * sensitivity;
@@ -1113,7 +1113,7 @@ main(int, char**)
         if(camera_pitch < -89.0f) camera_pitch = -89.0f;
 
         // handle keyboard input
-        if(capture_input)
+        if(input_fps)
         {
             const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
             if (input_w) camera_position += camera_speed * camera_front;
@@ -1168,7 +1168,7 @@ main(int, char**)
             mesh.Draw();
         }
 
-        if(capture_input == false)
+        if(input_fps == false)
         {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
@@ -1182,7 +1182,7 @@ main(int, char**)
                 ImGui::SameLine();
                 if(ImGui::Button("FPS controller"))
                 {
-                    set_capture_input(true);
+                    set_input_fps(true);
                 }
                 if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
                 {
