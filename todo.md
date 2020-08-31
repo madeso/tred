@@ -10,3 +10,4 @@
 * Particle system
 * Decals
 * Simple 2d rendering (rotated and scaled sprites, tilemap) and batching
+* Heightmaps
