@@ -826,6 +826,7 @@ CreateBoxMesh()
 int
 main(int, char**)
 {
+    const auto pi = 3.14f;
     ///////////////////////////////////////////////////////////////////////////
     // setup
     if(SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -934,6 +935,10 @@ main(int, char**)
     const auto uni_shader_light_color = shader.GetUniform("uLightColor");
     const auto uni_shader_light_position = shader.GetUniform("uLightPosition");
     const auto uni_ambient_strength = shader.GetUniform("uLightAmbientStrength");
+    const auto uni_shininess = shader.GetUniform("uShininess");
+    const auto uni_specular_strength = shader.GetUniform("uSpecularStrength");
+    const auto uni_view_position = shader.GetUniform("uViewPosition");
+
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
@@ -997,6 +1002,7 @@ main(int, char**)
     bool running = true;
     auto last = SDL_GetPerformanceCounter();
     auto time = 0.0f;
+    bool animate = true;
 
     auto input_fps = false;
     const auto set_input_fps = [&input_fps](bool value)
@@ -1018,6 +1024,8 @@ main(int, char**)
     auto camera_pitch = 0.0f;
     auto camera_yaw = -90.0f;
 
+    auto specular_strength = 0.5f;
+    auto shininess = 32.0f;
     auto light_color = glm::vec3{1.0f};
     auto light_ambient_strength = 0.1f;
     auto light_position = glm::vec3{1.2f, 1.0f, 2.0f};
@@ -1158,9 +1166,15 @@ main(int, char**)
             if (input_d) camera_position += camera_speed * camera_right;
         }
 
-        time += dt;
-        const auto pi = 3.14f;
-        if(time > 2*pi) { time -= 2* pi; }
+        if(animate)
+        {
+            time += dt;
+
+            if(time > 2*pi)
+            {
+                time -= 2* pi;
+            }
+        }
 
         const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
 
@@ -1188,7 +1202,10 @@ main(int, char**)
         shader.SetVec4(uni_color, cube_color);
         shader.SetVec3(uni_shader_light_color, light_color);
         shader.SetFloat(uni_ambient_strength, light_ambient_strength);
+        shader.SetFloat(uni_shininess, shininess);
+        shader.SetFloat(uni_specular_strength, specular_strength);
         shader.SetVec3(uni_shader_light_position, light_position);
+        shader.SetVec3(uni_view_position, camera_position);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -1225,6 +1242,9 @@ main(int, char**)
                 {
                     set_input_fps(true);
                 }
+                ImGui::Checkbox("Animate?", &animate);
+                ImGui::SameLine();
+                ImGui::SliderFloat("Time", &time, 0.0f, 2 * pi);
                 if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
                 {
                     set_rendering_mode();
@@ -1243,6 +1263,8 @@ main(int, char**)
                 if (ImGui::CollapsingHeader("Cubes"))
                 {
                     ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
+                    ImGui::DragFloat("Specular strength", &specular_strength, 0.01f);
+                    ImGui::DragFloat("Shininess", &shininess, 1.0f, 2.0f, 256.0f);
                     for(auto& cube: cube_positions)
                     {
                         ImGui::PushID(&cube);
