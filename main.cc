@@ -823,6 +823,49 @@ CreateBoxMesh()
 }
 
 
+struct Material
+{
+    glm::vec3 ambient = glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 diffuse = glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+    float shininess = 32.0f;
+
+    float diffuse_strength = 0.0f;
+    float specular_strength = 0.5f;
+};
+
+
+struct MaterialUniforms
+{
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
+    Uniform shininess;
+
+    MaterialUniforms
+    (
+        const Shader& shader,
+        const std::string& base_name
+    )
+    :
+        ambient  (shader.GetUniform(base_name + ".ambient"  )),
+        diffuse  (shader.GetUniform(base_name + ".diffuse"  )),
+        specular (shader.GetUniform(base_name + ".specular" )),
+        shininess(shader.GetUniform(base_name + ".shininess"))
+    {
+    }
+
+    void
+    SetShader(Shader* shader, const Material& material, float ambient_light) const
+    {
+        shader->SetVec3(ambient, material.ambient * ambient_light);
+        shader->SetVec3(diffuse, material.diffuse * material.diffuse_strength);
+        shader->SetVec3(specular, material.specular * material.specular_strength);
+        shader->SetFloat(shininess, material.shininess);
+    }
+};
+
+
 int
 main(int, char**)
 {
@@ -934,10 +977,8 @@ main(int, char**)
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_shader_light_color = shader.GetUniform("uLightColor");
     const auto uni_shader_light_position = shader.GetUniform("uLightPosition");
-    const auto uni_ambient_strength = shader.GetUniform("uLightAmbientStrength");
-    const auto uni_shininess = shader.GetUniform("uShininess");
-    const auto uni_specular_strength = shader.GetUniform("uSpecularStrength");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
+    const auto uni_material = MaterialUniforms{shader, "uMaterial"};
 
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
@@ -1026,11 +1067,11 @@ main(int, char**)
     auto camera_pitch = 0.0f;
     auto camera_yaw = -90.0f;
 
-    auto specular_strength = 0.5f;
-    auto shininess = 32.0f;
+    auto material = Material{};
+
     auto light_color = glm::vec3{1.0f};
-    auto light_ambient_strength = 0.1f;
     auto light_position = glm::vec3{1.2f, 1.0f, 2.0f};
+    auto light_ambient_strength = 0.1f;
 
     while(running)
     {
@@ -1222,9 +1263,7 @@ main(int, char**)
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, cube_color);
         shader.SetVec3(uni_shader_light_color, light_color);
-        shader.SetFloat(uni_ambient_strength, light_ambient_strength);
-        shader.SetFloat(uni_shininess, shininess);
-        shader.SetFloat(uni_specular_strength, specular_strength);
+        uni_material.SetShader(&shader, material, light_ambient_strength);
         shader.SetVec3(uni_shader_light_position, light_position);
         shader.SetVec3(uni_view_position, camera_position);
         
@@ -1284,8 +1323,12 @@ main(int, char**)
                 if (ImGui::CollapsingHeader("Cubes"))
                 {
                     ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
-                    ImGui::DragFloat("Specular strength", &specular_strength, 0.01f);
-                    ImGui::DragFloat("Shininess", &shininess, 1.0f, 2.0f, 256.0f);
+                    ImGui::ColorEdit3("Ambient color", glm::value_ptr(material.ambient));
+                    ImGui::ColorEdit3("Diffuse color", glm::value_ptr(material.diffuse));
+                    ImGui::ColorEdit3("Specular color", glm::value_ptr(material.specular));
+                    ImGui::DragFloat("Diffuse strength", &material.diffuse_strength, 0.01f);
+                    ImGui::DragFloat("Specular strength", &material.specular_strength, 0.01f);
+                    ImGui::DragFloat("Shininess", &material.shininess, 1.0f, 2.0f, 256.0f);
                     for(auto& cube: cube_positions)
                     {
                         ImGui::PushID(&cube);
