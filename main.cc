@@ -23,8 +23,8 @@
 #include "debug_opengl.h"
 
 // resource headers
-#include "vertex.glsl.h"
-#include "fragment.glsl.h"
+#include "shader_vertex.glsl.h"
+#include "shader_fragment.glsl.h"
 #include "light_vertex.glsl.h"
 #include "light_fragment.glsl.h"
 #include "container.jpg.h"
@@ -925,7 +925,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = Shader{VERTEX_GLSL, FRAGMENT_GLSL, layout};
+    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, layout};
     const auto uni_color = shader.GetUniform("uColor");
     auto uni_texture = shader.GetUniform("uTexture");
     auto uni_decal = shader.GetUniform("uDecal");

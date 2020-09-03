@@ -138,7 +138,7 @@ target_link_libraries(embed PRIVATE project_options project_warnings)
 
 embed(HEADERS embedded_headers
     FILES
-    vertex.glsl fragment.glsl
+    shader_vertex.glsl shader_fragment.glsl
     light_vertex.glsl light_fragment.glsl
 )
 compress(HEADERS compressed_headers
