@@ -8,6 +8,15 @@ struct Material
     float shininess;
 };
 
+struct Light
+{
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
 in vec3 fNormal;
 in vec3 fFragmentPosition;
 in vec4 fColor;
@@ -20,8 +29,7 @@ uniform sampler2D uDecal;
 
 uniform Material uMaterial;
 
-uniform vec3 uLightColor;
-uniform vec3 uLightPosition;
+uniform Light uLight;
 uniform vec3 uViewPosition;
 
 
@@ -32,15 +40,15 @@ void main()
     vec3 object_color = fColor.rgb * mix(texture_sample.rgb, decal_sample.rgb, decal_sample.a);
 
     vec3 normal = normalize(fNormal);
-    vec3 light_direction = normalize(uLightPosition - fFragmentPosition);
+    vec3 light_direction = normalize(uLight.position - fFragmentPosition);
     vec3 view_direction = normalize(uViewPosition - fFragmentPosition);
     vec3 reflection_direction = reflect(-light_direction, normal);
-    float diffuse_component = max(0.0, dot(normal, light_direction));
-    float specular_component = pow(max(dot(view_direction, reflection_direction), 0.0), uMaterial.shininess);
+    float diffuse_component =      max(0.0f, dot(normal, light_direction));
+    float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
     
-    vec3 ambient = uLightColor * uMaterial.ambient;
-    vec3 diffuse = uLightColor * uMaterial.diffuse * diffuse_component;
-    vec3 specular = uLightColor * uMaterial.specular * specular_component;
+    vec3 ambient = uLight.ambient * uMaterial.ambient;
+    vec3 diffuse = uLight.diffuse * uMaterial.diffuse * diffuse_component;
+    vec3 specular = uLight.specular * uMaterial.specular * specular_component;
 
     FragColor = vec4((ambient + diffuse + specular) * object_color, 1.0f);
 }

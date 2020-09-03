@@ -830,7 +830,7 @@ struct Material
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
     float shininess = 32.0f;
 
-    float diffuse_strength = 0.0f;
+    float diffuse_strength = 1.0f;
     float specular_strength = 0.5f;
 };
 
@@ -856,12 +856,54 @@ struct MaterialUniforms
     }
 
     void
-    SetShader(Shader* shader, const Material& material, float ambient_light) const
+    SetShader(Shader* shader, const Material& material) const
     {
-        shader->SetVec3(ambient, material.ambient * ambient_light);
+        shader->SetVec3(ambient, material.ambient);
         shader->SetVec3(diffuse, material.diffuse * material.diffuse_strength);
         shader->SetVec3(specular, material.specular * material.specular_strength);
         shader->SetFloat(shininess, material.shininess);
+    }
+};
+
+
+struct Light
+{
+    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
+
+    float ambient_strength = 0.1f;
+    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+};
+
+
+struct LightUniforms
+{
+    Uniform position;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
+
+    LightUniforms
+    (
+        const Shader& shader,
+        const std::string& base_name
+    )
+    :
+        position(shader.GetUniform(base_name + ".position"  )),
+        ambient (shader.GetUniform(base_name + ".ambient"  )),
+        diffuse (shader.GetUniform(base_name + ".diffuse"  )),
+        specular(shader.GetUniform(base_name + ".specular" ))
+    {
+    }
+
+    void
+    SetShader(Shader* shader, const Light& light) const
+    {
+        shader->SetVec3(position, light.position);
+        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
+        shader->SetVec3(diffuse, light.diffuse);
+        shader->SetVec3(specular, light.specular);
     }
 };
 
@@ -975,10 +1017,9 @@ main(int, char**)
     const auto uni_transform = shader.GetUniform("uTransform");
     const auto uni_model_transform = shader.GetUniform("uModelTransform");
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
-    const auto uni_shader_light_color = shader.GetUniform("uLightColor");
-    const auto uni_shader_light_position = shader.GetUniform("uLightPosition");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
     const auto uni_material = MaterialUniforms{shader, "uMaterial"};
+    const auto uni_light = LightUniforms{shader, "uLight"};
 
     SetupTextures(&shader, {&uni_texture, &uni_decal});
 
@@ -1068,10 +1109,8 @@ main(int, char**)
     auto camera_yaw = -90.0f;
 
     auto material = Material{};
-
-    auto light_color = glm::vec3{1.0f};
-    auto light_position = glm::vec3{1.2f, 1.0f, 2.0f};
-    auto light_ambient_strength = 0.1f;
+    auto light = Light{};
+    light.position = glm::vec3{1.2f, 1.0f, 2.0f};
 
     while(running)
     {
@@ -1246,12 +1285,12 @@ main(int, char**)
         const auto pv = projection * view;
 
         light_shader.Use();
-        light_shader.SetVec3(uni_light_color, light_color);
+        light_shader.SetVec3(uni_light_color, light.diffuse);
 
         {
             const auto model = glm::scale
             (
-                glm::translate(glm::mat4(1.0f), light_position),
+                glm::translate(glm::mat4(1.0f), light.position),
                 glm::vec3{0.2f}
             );
             light_shader.SetMat(uni_light_transform, pv * model);
@@ -1262,9 +1301,8 @@ main(int, char**)
         BindTexture(uni_texture, texture);
         BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, cube_color);
-        shader.SetVec3(uni_shader_light_color, light_color);
-        uni_material.SetShader(&shader, material, light_ambient_strength);
-        shader.SetVec3(uni_shader_light_position, light_position);
+        uni_material.SetShader(&shader, material);
+        uni_light.SetShader(&shader, light);
         shader.SetVec3(uni_view_position, camera_position);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
@@ -1315,9 +1353,11 @@ main(int, char**)
                 }
                 if (ImGui::CollapsingHeader("Light"))
                 {
-                    ImGui::DragFloat("Ambient strength", &light_ambient_strength, 0.01f);
-                    ImGui::ColorEdit3("Light color", glm::value_ptr(light_color));
-                    ImGui::DragFloat3("Light position", glm::value_ptr(light_position), 0.01f);
+                    ImGui::DragFloat("Ambient strength", &light.ambient_strength, 0.01f);
+                    ImGui::ColorEdit3("Light Ambient", glm::value_ptr(light.ambient));
+                    ImGui::ColorEdit3("Light Diffuse", glm::value_ptr(light.diffuse));
+                    ImGui::ColorEdit3("Light Specular", glm::value_ptr(light.specular));
+                    ImGui::DragFloat3("Light position", glm::value_ptr(light.position), 0.01f);
                 }
 
                 if (ImGui::CollapsingHeader("Cubes"))
