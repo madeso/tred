@@ -1014,6 +1014,8 @@ main(int, char**)
     auto input_a = false;
     auto input_s = false;
     auto input_d = false;
+    auto input_space = false;
+    auto input_ctrl = false;
     auto input_shift = false;
 
     auto mouse_left = false;
@@ -1100,6 +1102,8 @@ main(int, char**)
                 case SDLK_a: input_a = down; break;
                 case SDLK_s: input_s = down; break;
                 case SDLK_d: input_d = down; break;
+                case SDLK_SPACE: input_space = down; break;
+                case SDLK_LCTRL: case SDLK_RCTRL: input_ctrl = down; break;
                 case SDLK_LSHIFT: case SDLK_RSHIFT: input_shift = down; break;
                 default:
                     // ignore other keys
@@ -1160,10 +1164,12 @@ main(int, char**)
         if(input_fps)
         {
             const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
-            if (input_w) camera_position += camera_speed * camera_front;
-            if (input_s) camera_position -= camera_speed * camera_front;
-            if (input_a) camera_position -= camera_speed * camera_right;
-            if (input_d) camera_position += camera_speed * camera_right;
+            if (input_w)     camera_position += camera_speed * camera_front;
+            if (input_s)     camera_position -= camera_speed * camera_front;
+            if (input_a)     camera_position -= camera_speed * camera_right;
+            if (input_d)     camera_position += camera_speed * camera_right;
+            if (input_space) camera_position += camera_speed * camera_up;
+            if (input_ctrl)  camera_position -= camera_speed * camera_up;
         }
 
         if(animate)
