@@ -1163,13 +1163,28 @@ main(int, char**)
         // handle keyboard input
         if(input_fps)
         {
-            const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
-            if (input_w)     camera_position += camera_speed * camera_front;
-            if (input_s)     camera_position -= camera_speed * camera_front;
-            if (input_a)     camera_position -= camera_speed * camera_right;
-            if (input_d)     camera_position += camera_speed * camera_right;
-            if (input_space) camera_position += camera_speed * camera_up;
-            if (input_ctrl)  camera_position -= camera_speed * camera_up;
+            auto camera_movement = glm::vec3{0.0f, 0.0f, 0.0f};
+            auto camera_movement_requested = false;
+            const auto move_camera = [&](const glm::vec3& m, bool p, bool n)
+            {
+                int d = 0;
+                if(p) d += 1;
+                if(n) d -= 1;
+                if(d != 0)
+                {
+                    camera_movement += m * static_cast<float>(d);
+                    camera_movement_requested = true;
+                }
+            };
+            move_camera(camera_front, input_w, input_s);
+            move_camera(camera_right, input_d, input_a);
+            move_camera(camera_up, input_space, input_ctrl);
+
+            if(camera_movement_requested)
+            {
+                const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
+                camera_position += camera_speed * glm::normalize(camera_movement);
+            }
         }
 
         if(animate)
