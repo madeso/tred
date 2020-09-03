@@ -4,6 +4,8 @@
 * Learn OpenGL(10): Avanced lighning (gamma, shadows, hdr, parralax, bloom, ssao)
 * Learn OpenGL(4): PBR
 * Refactor to "engine"
+* Debug draw lines, spheres etc (dear imgui to render text in 3d?)
+* render icon (textured quad always facing camera, either in 2d or 3d)
 * Model loading (3)
 * Culling
   - http://rastergrid.com/blog/2010/10/hierarchical-z-map-based-occlusion-culling/
