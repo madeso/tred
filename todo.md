@@ -5,9 +5,13 @@
 * Learn OpenGL(4): PBR
 * Refactor to "engine"
 * Model loading (3)
-* Animations
-* Portal culling
+* Culling
+  - http://rastergrid.com/blog/2010/10/hierarchical-z-map-based-occlusion-culling/
+  - http://rastergrid.com/blog/2010/02/instance-culling-using-geometry-shaders/
+  - https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch29.html
 * Particle system
 * Decals
 * Simple 2d rendering (rotated and scaled sprites, tilemap) and batching
+* Animations
+Face animation
 * Heightmaps
