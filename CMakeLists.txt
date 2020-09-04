@@ -142,7 +142,7 @@ embed(HEADERS embedded_headers
     light_vertex.glsl light_fragment.glsl
 )
 compress(HEADERS compressed_headers
-    FILES container_diffuse.png
+    FILES container_diffuse.png container_specular.png
 )
 set(src ${src} ${embedded_headers} ${compressed_headers})
 

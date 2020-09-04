@@ -28,6 +28,7 @@
 #include "light_vertex.glsl.h"
 #include "light_fragment.glsl.h"
 #include "container_diffuse.png.h"
+#include "container_specular.png.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // common "header"
@@ -838,45 +839,52 @@ CreateBoxMesh()
 struct Material
 {
     Texture diffuse;
+    Texture specular;
 
     glm::vec3 tint = glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
     float shininess = 32.0f;
 
-    float specular_strength = 0.5f;
+    float specular_strength = 1.0f;
 
-    explicit Material(const Texture& d) : diffuse(d) {}
+    explicit Material(const Texture& d, const Texture& s)
+        : diffuse(d)
+        , specular(s)
+    {
+    }
 };
 
 
 struct MaterialUniforms
 {
     Uniform diffuse;
+    Uniform specular;
 
     Uniform tint;
-    Uniform specular;
     Uniform shininess;
+    Uniform specular_strength;
 
     MaterialUniforms
     (
         Shader* shader,
         const std::string& base_name
     )
-    :
-        diffuse  (shader->GetUniform(base_name + ".diffuse"  )),
-        tint     (shader->GetUniform(base_name + ".tint"     )),
-        specular (shader->GetUniform(base_name + ".specular" )),
-        shininess(shader->GetUniform(base_name + ".shininess"))
+        : diffuse(shader->GetUniform(base_name + ".diffuse"))
+        , specular(shader->GetUniform(base_name + ".specular"))
+        , tint(shader->GetUniform(base_name + ".tint"))
+        , shininess(shader->GetUniform(base_name + ".shininess"))
+        , specular_strength(shader->GetUniform(base_name + ".specular_strength" ))
     {
-        SetupTextures(shader, {&diffuse});
+        SetupTextures(shader, {&diffuse, &specular});
     }
 
     void
     SetShader(Shader* shader, const Material& material) const
     {
-        shader->SetVec3(tint, material.tint);
         BindTexture(diffuse, material.diffuse);
-        shader->SetVec3(specular, material.specular * material.specular_strength);
+        BindTexture(specular, material.specular);
+
+        shader->SetVec3(tint, material.tint);
+        shader->SetFloat(specular_strength, material.specular_strength);
         shader->SetFloat(shininess, material.shininess);
     }
 };
@@ -1111,6 +1119,16 @@ main(int, char**)
             LoadImageEmbeded
             (
                 CONTAINER_DIFFUSE_PNG_data, CONTAINER_DIFFUSE_PNG_size,
+                TextureEdge::Clamp,
+                TextureRenderStyle::Smooth,
+                Transperency::Exclude
+            )
+        },
+        Texture
+        {
+            LoadImageEmbeded
+            (
+                CONTAINER_SPECULAR_PNG_data, CONTAINER_SPECULAR_PNG_size,
                 TextureEdge::Clamp,
                 TextureRenderStyle::Smooth,
                 Transperency::Exclude
@@ -1370,7 +1388,6 @@ main(int, char**)
                 {
                     ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
                     ImGui::ColorEdit3("Tint color", glm::value_ptr(material.tint));
-                    ImGui::ColorEdit3("Specular color", glm::value_ptr(material.specular));
                     ImGui::DragFloat("Specular strength", &material.specular_strength, 0.01f);
                     ImGui::DragFloat("Shininess", &material.shininess, 1.0f, 2.0f, 256.0f);
                     for(auto& cube: cube_positions)
