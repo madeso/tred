@@ -46,9 +46,9 @@ void main()
     float diffuse_component =      max(0.0f, dot(normal, light_direction));
     float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
     
-    vec3 ambient = uLight.ambient * uMaterial.tint;
-    vec3 diffuse = uLight.diffuse * uMaterial.tint * diffuse_component;
+    vec3 ambient = object_color * uLight.ambient * uMaterial.tint;
+    vec3 diffuse = object_color * uLight.diffuse * uMaterial.tint * diffuse_component;
     vec3 specular = uLight.specular * specular_sample * uMaterial.specular_strength * specular_component;
 
-    FragColor = vec4((ambient + diffuse + specular) * object_color, 1.0f);
+    FragColor = vec4(ambient + diffuse + specular, 1.0f);
 }
