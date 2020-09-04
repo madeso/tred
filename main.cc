@@ -27,8 +27,7 @@
 #include "shader_fragment.glsl.h"
 #include "light_vertex.glsl.h"
 #include "light_fragment.glsl.h"
-#include "container.jpg.h"
-#include "awesomeface.png.h"
+#include "container_diffuse.png.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // common "header"
@@ -554,14 +553,27 @@ SetupTextures(Shader* shader, std::vector<Uniform*> uniform_list)
 }
 
 
+struct Texture
+{
+    unsigned int id;
+    explicit Texture(unsigned int i) : id(i) {}
+
+    void
+    Delete()
+    {
+        // todo(Gustav): implement this
+    }
+};
+
+
 void
-BindTexture(const Uniform& uniform, unsigned int texture)
+BindTexture(const Uniform& uniform, const Texture& texture)
 {
     if(uniform.IsValid() == false) { return; }
     assert(uniform.texture >= 0);
 
     glActiveTexture(GL_TEXTURE0 + uniform.texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
 
@@ -825,41 +837,45 @@ CreateBoxMesh()
 
 struct Material
 {
-    glm::vec3 ambient = glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 diffuse = glm::vec3{1.0f, 1.0f, 1.0f};
+    Texture diffuse;
+
+    glm::vec3 tint = glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
     float shininess = 32.0f;
 
-    float diffuse_strength = 1.0f;
     float specular_strength = 0.5f;
+
+    explicit Material(const Texture& d) : diffuse(d) {}
 };
 
 
 struct MaterialUniforms
 {
-    Uniform ambient;
     Uniform diffuse;
+
+    Uniform tint;
     Uniform specular;
     Uniform shininess;
 
     MaterialUniforms
     (
-        const Shader& shader,
+        Shader* shader,
         const std::string& base_name
     )
     :
-        ambient  (shader.GetUniform(base_name + ".ambient"  )),
-        diffuse  (shader.GetUniform(base_name + ".diffuse"  )),
-        specular (shader.GetUniform(base_name + ".specular" )),
-        shininess(shader.GetUniform(base_name + ".shininess"))
+        diffuse  (shader->GetUniform(base_name + ".diffuse"  )),
+        tint     (shader->GetUniform(base_name + ".tint"     )),
+        specular (shader->GetUniform(base_name + ".specular" )),
+        shininess(shader->GetUniform(base_name + ".shininess"))
     {
+        SetupTextures(shader, {&diffuse});
     }
 
     void
     SetShader(Shader* shader, const Material& material) const
     {
-        shader->SetVec3(ambient, material.ambient);
-        shader->SetVec3(diffuse, material.diffuse * material.diffuse_strength);
+        shader->SetVec3(tint, material.tint);
+        BindTexture(diffuse, material.diffuse);
         shader->SetVec3(specular, material.specular * material.specular_strength);
         shader->SetFloat(shininess, material.shininess);
     }
@@ -1012,16 +1028,12 @@ main(int, char**)
     // shaders
     auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, layout};
     const auto uni_color = shader.GetUniform("uColor");
-    auto uni_texture = shader.GetUniform("uTexture");
-    auto uni_decal = shader.GetUniform("uDecal");
     const auto uni_transform = shader.GetUniform("uTransform");
     const auto uni_model_transform = shader.GetUniform("uModelTransform");
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
-    const auto uni_material = MaterialUniforms{shader, "uMaterial"};
+    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
     const auto uni_light = LightUniforms{shader, "uLight"};
-
-    SetupTextures(&shader, {&uni_texture, &uni_decal});
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
@@ -1031,22 +1043,6 @@ main(int, char**)
     // model
     const auto mesh = Compile(CreateBoxMesh(), shader, layout);
     const auto light_mesh = Compile(CreateBoxMesh(), light_shader, light_layout);
-
-    const auto texture = LoadImageEmbeded
-    (
-        CONTAINER_JPG_data, CONTAINER_JPG_size,
-        TextureEdge::Clamp,
-        TextureRenderStyle::Smooth,
-        Transperency::Exclude
-    );
-
-    const auto awesome = LoadImageEmbeded
-    (
-        AWESOMEFACE_PNG_data, AWESOMEFACE_PNG_size,
-        TextureEdge::Clamp,
-        TextureRenderStyle::Smooth,
-        Transperency::Include
-    );
 
     ///////////////////////////////////////////////////////////////////////////
     // view
@@ -1108,7 +1104,19 @@ main(int, char**)
     auto camera_pitch = 0.0f;
     auto camera_yaw = -90.0f;
 
-    auto material = Material{};
+    auto material = Material
+    {
+        Texture
+        {
+            LoadImageEmbeded
+            (
+                CONTAINER_DIFFUSE_PNG_data, CONTAINER_DIFFUSE_PNG_size,
+                TextureEdge::Clamp,
+                TextureRenderStyle::Smooth,
+                Transperency::Exclude
+            )
+        }
+    };
     auto light = Light{};
     light.position = glm::vec3{1.2f, 1.0f, 2.0f};
 
@@ -1298,8 +1306,6 @@ main(int, char**)
         light_mesh.Draw();
 
         shader.Use();
-        BindTexture(uni_texture, texture);
-        BindTexture(uni_decal, awesome);
         shader.SetVec4(uni_color, cube_color);
         uni_material.SetShader(&shader, material);
         uni_light.SetShader(&shader, light);
@@ -1363,10 +1369,8 @@ main(int, char**)
                 if (ImGui::CollapsingHeader("Cubes"))
                 {
                     ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
-                    ImGui::ColorEdit3("Ambient color", glm::value_ptr(material.ambient));
-                    ImGui::ColorEdit3("Diffuse color", glm::value_ptr(material.diffuse));
+                    ImGui::ColorEdit3("Tint color", glm::value_ptr(material.tint));
                     ImGui::ColorEdit3("Specular color", glm::value_ptr(material.specular));
-                    ImGui::DragFloat("Diffuse strength", &material.diffuse_strength, 0.01f);
                     ImGui::DragFloat("Specular strength", &material.specular_strength, 0.01f);
                     ImGui::DragFloat("Shininess", &material.shininess, 1.0f, 2.0f, 256.0f);
                     for(auto& cube: cube_positions)
