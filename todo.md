@@ -15,5 +15,5 @@
 * Decals
 * Simple 2d rendering (rotated and scaled sprites, tilemap) and batching
 * Animations
-Face animation
+* Face animation
 * Heightmaps
