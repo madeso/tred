@@ -596,13 +596,16 @@ struct CompiledMesh
          , number_of_indices(count)
          , debug_shader_program(sp)
     {
-        assert(sp != 0);
+        if(sp == 0)
+        {
+            SDL_Log("Invalid shader for compiled mesh");
+        }
     }
 
     void
     Draw() const
     {
-        assert(debug_shader_program == debug_current_shader_program);
+        if(debug_shader_program != 0) { assert(debug_shader_program == debug_current_shader_program); }
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
