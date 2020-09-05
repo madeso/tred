@@ -890,7 +890,7 @@ struct MaterialUniforms
 };
 
 
-struct Light
+struct DirectionalLight
 {
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -898,33 +898,40 @@ struct Light
     glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+
+    // todo(Gustav): make a property instead, function only here for demo purposes
+    glm::vec3
+    GetDirection() const
+    {
+        return glm::normalize(-position);
+    }
 };
 
 
-struct LightUniforms
+struct DirectionalLightUniforms
 {
-    Uniform position;
+    Uniform direction;
     Uniform ambient;
     Uniform diffuse;
     Uniform specular;
 
-    LightUniforms
+    DirectionalLightUniforms
     (
         const Shader& shader,
         const std::string& base_name
     )
     :
-        position(shader.GetUniform(base_name + ".position"  )),
-        ambient (shader.GetUniform(base_name + ".ambient"  )),
-        diffuse (shader.GetUniform(base_name + ".diffuse"  )),
-        specular(shader.GetUniform(base_name + ".specular" ))
+        direction(shader.GetUniform(base_name + ".normalized_direction")),
+        ambient(shader.GetUniform(base_name + ".ambient")),
+        diffuse(shader.GetUniform(base_name + ".diffuse")),
+        specular(shader.GetUniform(base_name + ".specular"))
     {
     }
 
     void
-    SetShader(Shader* shader, const Light& light) const
+    SetShader(Shader* shader, const DirectionalLight& light) const
     {
-        shader->SetVec3(position, light.position);
+        shader->SetVec3(direction, light.GetDirection());
         shader->SetVec3(ambient, light.ambient * light.ambient_strength);
         shader->SetVec3(diffuse, light.diffuse);
         shader->SetVec3(specular, light.specular);
@@ -1041,7 +1048,7 @@ main(int, char**)
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
     const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_light = LightUniforms{shader, "uLight"};
+    const auto uni_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
@@ -1135,7 +1142,7 @@ main(int, char**)
             )
         }
     };
-    auto light = Light{};
+    auto light = DirectionalLight{};
     light.position = glm::vec3{1.2f, 1.0f, 2.0f};
 
     while(running)

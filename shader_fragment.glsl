@@ -11,9 +11,9 @@ struct Material
     float specular_strength;
 };
 
-struct Light
+struct DirectionalLight
 {
-    vec3 position;
+    vec3 normalized_direction;
 
     vec3 ambient;
     vec3 diffuse;
@@ -29,26 +29,43 @@ out vec4 FragColor;
 
 uniform Material uMaterial;
 
-uniform Light uLight;
+uniform DirectionalLight uDirectionalLight;
 uniform vec3 uViewPosition;
 
 
-void main()
+vec3
+CalculateDirectionalLight
+(
+    DirectionalLight light,
+    vec3 object_color,
+    vec3 specular_sample,
+    vec3 normal,
+    vec3 view_direction
+)
+{
+    vec3 light_direction = -light.normalized_direction;
+    vec3 reflection_direction = reflect(-light_direction, normal);
+    float diffuse_component =      max(0.0f, dot(normal, light_direction));
+    float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
+
+    vec3 ambient = object_color * light.ambient * uMaterial.tint;
+    vec3 diffuse = object_color * light.diffuse * uMaterial.tint * diffuse_component;
+    vec3 specular = light.specular * specular_sample * uMaterial.specular_strength * specular_component;
+
+    return ambient + diffuse + specular;
+}
+
+
+void
+main()
 {
     vec4 diffuse_sample = texture(uMaterial.diffuse, fTexCoord);
     vec3 specular_sample = texture(uMaterial.specular, fTexCoord).rgb;
     vec3 object_color = fColor.rgb * diffuse_sample.rgb;
 
     vec3 normal = normalize(fNormal);
-    vec3 light_direction = normalize(uLight.position - fFragmentPosition);
+    // vec3 light_direction = normalize(uLight.position - fFragmentPosition);
     vec3 view_direction = normalize(uViewPosition - fFragmentPosition);
-    vec3 reflection_direction = reflect(-light_direction, normal);
-    float diffuse_component =      max(0.0f, dot(normal, light_direction));
-    float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
     
-    vec3 ambient = object_color * uLight.ambient * uMaterial.tint;
-    vec3 diffuse = object_color * uLight.diffuse * uMaterial.tint * diffuse_component;
-    vec3 specular = uLight.specular * specular_sample * uMaterial.specular_strength * specular_component;
-
-    FragColor = vec4(ambient + diffuse + specular, 1.0f);
+    FragColor = vec4(CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction), 1.0f);
 }
