@@ -11,9 +11,26 @@ struct Material
     float specular_strength;
 };
 
+struct Attenuation
+{
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 struct DirectionalLight
 {
     vec3 normalized_direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight
+{
+    Attenuation attenuation;
+    vec3 position;
 
     vec3 ambient;
     vec3 diffuse;
@@ -29,8 +46,19 @@ out vec4 FragColor;
 
 uniform Material uMaterial;
 
-uniform DirectionalLight uDirectionalLight;
+// uniform DirectionalLight uDirectionalLight;
+uniform PointLight uPointLight;
 uniform vec3 uViewPosition;
+
+
+float
+CalculateAttenuation(Attenuation att, vec3 light_position)
+{
+    float distance = length(light_position - fFragmentPosition);
+    float distance2 = distance * distance;
+    float attenuation = 1.0 / (att.constant + att.linear * distance + att.quadratic * distance2);
+    return attenuation;
+}
 
 
 vec3
@@ -76,6 +104,26 @@ CalculateDirectionalLight
     );
 }
 
+vec3
+CalculatePointLight
+(
+    PointLight light,
+    vec3 object_color,
+    vec3 specular_sample,
+    vec3 normal,
+    vec3 view_direction
+)
+{
+    vec3 light_direction = normalize(light.position - fFragmentPosition);
+    vec3 color = CalculateBaseLight
+    (
+        light.ambient, light.diffuse, light.specular,
+        object_color, specular_sample, normal, view_direction, light_direction
+    );
+    float attenuation = CalculateAttenuation(light.attenuation, light.position);
+    return attenuation * color;
+}
+
 
 void
 main()
@@ -85,8 +133,8 @@ main()
     vec3 object_color = fColor.rgb * diffuse_sample.rgb;
 
     vec3 normal = normalize(fNormal);
-    // vec3 light_direction = normalize(uLight.position - fFragmentPosition);
     vec3 view_direction = normalize(uViewPosition - fFragmentPosition);
     
-    FragColor = vec4(CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction), 1.0f);
+    // FragColor = vec4(CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction), 1.0f);
+    FragColor = vec4(CalculatePointLight(uPointLight, object_color, specular_sample, normal, view_direction), 1.0f);
 }

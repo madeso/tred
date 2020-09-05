@@ -942,6 +942,89 @@ struct DirectionalLightUniforms
 };
 
 
+struct Attenuation
+{
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
+};
+
+
+struct AttenuationUniforms
+{
+    Uniform constant;
+    Uniform linear;
+    Uniform quadratic;
+
+    AttenuationUniforms
+    (
+        const Shader& shader,
+        const std::string& base_name
+    )
+    :
+        constant(shader.GetUniform(base_name + ".constant")),
+        linear(shader.GetUniform(base_name + ".linear")),
+        quadratic(shader.GetUniform(base_name + ".quadratic"))
+    {
+    }
+
+    void
+    SetShader(Shader* shader, const Attenuation& att) const
+    {
+        shader->SetFloat(constant, att.constant);
+        shader->SetFloat(linear, att.linear);
+        shader->SetFloat(quadratic, att.quadratic);
+    }
+};
+
+
+struct PointLight
+{
+    Attenuation attenuation;
+
+    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
+
+    float ambient_strength = 0.1f;
+    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+};
+
+
+struct PointLightUniforms
+{
+    AttenuationUniforms attenuation;
+    Uniform position;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
+
+    PointLightUniforms
+    (
+        const Shader& shader,
+        const std::string& base_name
+    )
+    :
+        attenuation(shader, base_name + ".attenuation"),
+        position(shader.GetUniform(base_name + ".position")),
+        ambient(shader.GetUniform(base_name + ".ambient")),
+        diffuse(shader.GetUniform(base_name + ".diffuse")),
+        specular(shader.GetUniform(base_name + ".specular"))
+    {
+    }
+
+    void
+    SetShader(Shader* shader, const PointLight& light) const
+    {
+        attenuation.SetShader(shader, light.attenuation);
+        shader->SetVec3(position, light.position);
+        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
+        shader->SetVec3(diffuse, light.diffuse);
+        shader->SetVec3(specular, light.specular);
+    }
+};
+
+
 int
 main(int, char**)
 {
@@ -1051,7 +1134,7 @@ main(int, char**)
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
     const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
+    const auto uni_light = PointLightUniforms{shader, "uPointLight"};
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
@@ -1145,7 +1228,7 @@ main(int, char**)
             )
         }
     };
-    auto light = DirectionalLight{};
+    auto light = PointLight{};
     light.position = glm::vec3{1.2f, 1.0f, 2.0f};
 
     while(running)
@@ -1388,6 +1471,9 @@ main(int, char**)
                 if (ImGui::CollapsingHeader("Light"))
                 {
                     ImGui::DragFloat("Ambient strength", &light.ambient_strength, 0.01f);
+                    ImGui::DragFloat("Attenuation constant", &light.attenuation.constant, 0.01f);
+                    ImGui::DragFloat("Attenuation linear", &light.attenuation.linear, 0.01f);
+                    ImGui::DragFloat("Attenuation quadratic", &light.attenuation.quadratic, 0.01f);
                     ImGui::ColorEdit3("Light Ambient", glm::value_ptr(light.ambient));
                     ImGui::ColorEdit3("Light Diffuse", glm::value_ptr(light.diffuse));
                     ImGui::ColorEdit3("Light Specular", glm::value_ptr(light.specular));
