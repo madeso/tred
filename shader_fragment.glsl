@@ -34,6 +34,31 @@ uniform vec3 uViewPosition;
 
 
 vec3
+CalculateBaseLight
+(
+    vec3 light_ambient,
+    vec3 light_diffuse,
+    vec3 light_specular,
+    vec3 object_color,
+    vec3 specular_sample,
+    vec3 normal,
+    vec3 view_direction,
+    vec3 light_direction
+)
+{
+    vec3 reflection_direction = reflect(-light_direction, normal);
+    float diffuse_component =      max(0.0f, dot(normal, light_direction));
+    float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
+
+    vec3 ambient = object_color * light_ambient * uMaterial.tint;
+    vec3 diffuse = object_color * light_diffuse * uMaterial.tint * diffuse_component;
+    vec3 specular = light_specular * specular_sample * uMaterial.specular_strength * specular_component;
+
+    return ambient + diffuse + specular;
+}
+
+
+vec3
 CalculateDirectionalLight
 (
     DirectionalLight light,
@@ -44,15 +69,11 @@ CalculateDirectionalLight
 )
 {
     vec3 light_direction = -light.normalized_direction;
-    vec3 reflection_direction = reflect(-light_direction, normal);
-    float diffuse_component =      max(0.0f, dot(normal, light_direction));
-    float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
-
-    vec3 ambient = object_color * light.ambient * uMaterial.tint;
-    vec3 diffuse = object_color * light.diffuse * uMaterial.tint * diffuse_component;
-    vec3 specular = light.specular * specular_sample * uMaterial.specular_strength * specular_component;
-
-    return ambient + diffuse + specular;
+    return CalculateBaseLight
+    (
+        light.ambient, light.diffuse, light.specular,
+        object_color, specular_sample, normal, view_direction, light_direction
+    );
 }
 
 
