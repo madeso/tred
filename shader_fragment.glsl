@@ -174,11 +174,11 @@ CalculateSpotLight
 
     vec3 color = CalculateBaseLight
     (
-        light.ambient, light.diffuse, light.specular,
+        light.ambient, spot_scale * light.diffuse, spot_scale * light.specular,
         object_color, specular_sample, normal, view_direction, light_direction
     );
     float attenuation = CalculateAttenuation(light.attenuation, light.position);
-    return spot_scale * attenuation * color;
+    return attenuation * color;
 }
 
 
