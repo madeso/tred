@@ -48,6 +48,7 @@ struct SpotLight
     vec3 position;
     vec3 direction;
     float cos_cutoff;
+    float cos_outer_cutoff;
 
     vec3 ambient;
     vec3 diffuse;
@@ -147,14 +148,12 @@ CalculatePointLight
 
 
 float
-CalculateSpotLight(SpotLight light, vec3 light_direction)
+CalculateSpotLightIntensity(SpotLight light, vec3 light_direction)
 {
     float theta = dot(light_direction, normalize(-light.direction));
-    if(theta > light.cos_cutoff)
-    {
-        return 1.0f;
-    }
-    return 0.0f;
+    float epsilon = light.cos_cutoff - light.cos_outer_cutoff;
+    float intensity = clamp((theta - light.cos_outer_cutoff) / epsilon, 0.0, 1.0);
+    return intensity;
 }
 
 
@@ -170,11 +169,11 @@ CalculateSpotLight
 {
     vec3 light_direction = normalize(light.position - fFragmentPosition);
 
-    float spot_scale = CalculateSpotLight(light, light_direction);
+    float intensity = CalculateSpotLightIntensity(light, light_direction);
 
     vec3 color = CalculateBaseLight
     (
-        light.ambient, spot_scale * light.diffuse, spot_scale * light.specular,
+        light.ambient, intensity * light.diffuse, intensity * light.specular,
         object_color, specular_sample, normal, view_direction, light_direction
     );
     float attenuation = CalculateAttenuation(light.attenuation, light.position);

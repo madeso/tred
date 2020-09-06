@@ -1032,6 +1032,7 @@ struct SpotLight
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
     glm::vec3 direction = glm::vec3{0.0f, 0.0f, 0.0f};
     float cutoff = 12.5f;
+    float outer_cutoff = 17.5;
 
     float ambient_strength = 0.1f;
     glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
@@ -1046,6 +1047,7 @@ struct SpotLightUniforms
     Uniform position;
     Uniform direction;
     Uniform cos_cutoff;
+    Uniform cos_outer_cutoff;
     Uniform ambient;
     Uniform diffuse;
     Uniform specular;
@@ -1060,6 +1062,7 @@ struct SpotLightUniforms
         position(shader.GetUniform(base_name + ".position")),
         direction(shader.GetUniform(base_name + ".direction")),
         cos_cutoff(shader.GetUniform(base_name + ".cos_cutoff")),
+        cos_outer_cutoff(shader.GetUniform(base_name + ".cos_outer_cutoff")),
         ambient(shader.GetUniform(base_name + ".ambient")),
         diffuse(shader.GetUniform(base_name + ".diffuse")),
         specular(shader.GetUniform(base_name + ".specular"))
@@ -1073,6 +1076,7 @@ struct SpotLightUniforms
         shader->SetVec3(position, light.position);
         shader->SetVec3(direction, light.direction);
         shader->SetFloat(cos_cutoff, cos(glm::radians(light.cutoff)));
+        shader->SetFloat(cos_outer_cutoff, cos(glm::radians(light.outer_cutoff)));
         shader->SetVec3(ambient, light.ambient * light.ambient_strength);
         shader->SetVec3(diffuse, light.diffuse);
         shader->SetVec3(specular, light.specular);
@@ -1543,7 +1547,8 @@ main(int, char**)
                     ImGui::ColorEdit3("Light Diffuse", glm::value_ptr(light.diffuse));
                     ImGui::ColorEdit3("Light Specular", glm::value_ptr(light.specular));
                     // ImGui::DragFloat3("Light position", glm::value_ptr(light.position), 0.01f);
-                    ImGui::DragFloat("Light cutoff", &light.cutoff, 0.01f);
+                    ImGui::DragFloat("Light cutoff", &light.cutoff, 0.1f);
+                    ImGui::DragFloat("Light outer cutoff", &light.outer_cutoff, 0.1f);
                 }
 
                 if (ImGui::CollapsingHeader("Cubes"))
