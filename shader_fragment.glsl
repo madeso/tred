@@ -65,8 +65,9 @@ out vec4 FragColor;
 
 uniform Material uMaterial;
 
-// uniform DirectionalLight uDirectionalLight;
-// uniform PointLight uPointLight;
+#define NUMBER_OF_POINT_LIGHTS 4
+uniform DirectionalLight uDirectionalLight;
+uniform PointLight uPointLights[NUMBER_OF_POINT_LIGHTS];
 uniform SpotLight uSpotLight;
 
 uniform vec3 uViewPosition;
@@ -96,7 +97,7 @@ CalculateBaseLight
 )
 {
     vec3 reflection_direction = reflect(-light_direction, normal);
-    float diffuse_component =      max(0.0f, dot(normal, light_direction));
+    float diffuse_component = max(0.0f, dot(normal, light_direction));
     float specular_component = pow(max(0.0f, dot(view_direction, reflection_direction)), uMaterial.shininess);
 
     vec3 ambient = object_color * light_ambient * uMaterial.tint;
@@ -191,6 +192,11 @@ main()
     vec3 normal = normalize(fNormal);
     vec3 view_direction = normalize(uViewPosition - fFragmentPosition);
     
-    // FragColor = vec4(CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction), 1.0f);
-    FragColor = vec4(CalculateSpotLight(uSpotLight, object_color, specular_sample, normal, view_direction), 1.0f);
+    vec3 color = CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction);
+    color += CalculateSpotLight(uSpotLight, object_color, specular_sample, normal, view_direction);
+    for(int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+    {
+        color += CalculatePointLight(uPointLights[i], object_color, specular_sample, normal, view_direction);
+    }
+    FragColor = vec4(color, 1.0f);
 }

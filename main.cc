@@ -5,6 +5,7 @@
 #include <vector>
 #include <numeric>
 #include <functional>
+#include <array>
 
 // dependency headers
 #include "glad/glad.h"
@@ -982,12 +983,14 @@ struct PointLight
 {
     Attenuation attenuation;
 
-    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
+    glm::vec3 position;
 
     float ambient_strength = 0.1f;
     glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+
+    PointLight(const glm::vec3& p) : position(p) {}
 };
 
 
@@ -1083,6 +1086,8 @@ struct SpotLightUniforms
     }
 };
 
+
+constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 
 int
 main(int, char**)
@@ -1193,7 +1198,15 @@ main(int, char**)
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
     const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_light = SpotLightUniforms{shader, "uSpotLight"};
+    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
+    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
+    {
+        PointLightUniforms{shader, "uPointLights[0]"},
+        PointLightUniforms{shader, "uPointLights[1]"},
+        PointLightUniforms{shader, "uPointLights[2]"},
+        PointLightUniforms{shader, "uPointLights[3]"}
+    };
+    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
@@ -1287,9 +1300,15 @@ main(int, char**)
             )
         }
     };
-    auto light = SpotLight{};
-    // light.position = glm::vec3{1.2f, 1.0f, 2.0f};
-    auto render_light = false;
+    auto directional_light = DirectionalLight{};
+    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
+    {
+        glm::vec3{ 0.7f,  0.2f,  2.0f},
+        glm::vec3{ 2.3f, -3.3f, -4.0f},
+        glm::vec3{-4.0f,  2.0f, -12.0f},
+        glm::vec3{ 0.0f,  0.0f, -3.0f}
+    };
+    auto spot_light = SpotLight{};
 
     while(running)
     {
@@ -1387,11 +1406,8 @@ main(int, char**)
         const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
         const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
 
-        if(!render_light)
-        {
-            light.position = camera_position;
-            light.direction = camera_front;
-        }
+        spot_light.position = camera_position;
+        spot_light.direction = camera_front;
 
         // handle mouse input
         if(input_fps)
@@ -1469,14 +1485,14 @@ main(int, char**)
 
         const auto pv = projection * view;
 
-        if(render_light)
+        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
         {
             light_shader.Use();
-            light_shader.SetVec3(uni_light_color, light.diffuse);
+            light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
             {
                 const auto model = glm::scale
                 (
-                    glm::translate(glm::mat4(1.0f), light.position),
+                    glm::translate(glm::mat4(1.0f), point_lights[i].position),
                     glm::vec3{0.2f}
                 );
                 light_shader.SetMat(uni_light_transform, pv * model);
@@ -1487,7 +1503,12 @@ main(int, char**)
         shader.Use();
         shader.SetVec4(uni_color, cube_color);
         uni_material.SetShader(&shader, material);
-        uni_light.SetShader(&shader, light);
+        uni_directional_light.SetShader(&shader, directional_light);
+        uni_spot_light.SetShader(&shader, spot_light);
+        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+        {
+            uni_point_lights[i].SetShader(&shader, point_lights[i]);
+        }
         shader.SetVec3(uni_view_position, camera_position);
         
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
@@ -1536,19 +1557,68 @@ main(int, char**)
                 {
                     update_viewport();
                 }
-                if (ImGui::CollapsingHeader("Light"))
+                if (ImGui::CollapsingHeader("Lights"))
                 {
-                    ImGui::Checkbox("Render light?", &render_light);
-                    ImGui::DragFloat("Ambient strength", &light.ambient_strength, 0.01f);
-                    ImGui::DragFloat("Attenuation constant", &light.attenuation.constant, 0.01f);
-                    ImGui::DragFloat("Attenuation linear", &light.attenuation.linear, 0.01f);
-                    ImGui::DragFloat("Attenuation quadratic", &light.attenuation.quadratic, 0.01f);
-                    ImGui::ColorEdit3("Light Ambient", glm::value_ptr(light.ambient));
-                    ImGui::ColorEdit3("Light Diffuse", glm::value_ptr(light.diffuse));
-                    ImGui::ColorEdit3("Light Specular", glm::value_ptr(light.specular));
-                    // ImGui::DragFloat3("Light position", glm::value_ptr(light.position), 0.01f);
-                    ImGui::DragFloat("Light cutoff", &light.cutoff, 0.1f);
-                    ImGui::DragFloat("Light outer cutoff", &light.outer_cutoff, 0.1f);
+                    const auto ui_attenuation = [](Attenuation* a)
+                    {
+                        ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f);
+                        ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f);
+                        ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f);
+                    };
+
+                    const auto ui_directional = [](DirectionalLight* light)
+                    {
+                        ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f);
+                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
+                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
+                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
+                        ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f);
+                    };
+
+                    const auto ui_point = [&ui_attenuation](PointLight* light)
+                    {
+                        ui_attenuation(&light->attenuation);
+                        ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f);
+                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
+                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
+                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
+                        ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f);
+                    };
+
+                    const auto ui_spot = [&ui_attenuation](SpotLight* light)
+                    {
+                        ui_attenuation(&light->attenuation);
+
+                        ImGui::DragFloat("Ambient strength", &light->ambient_strength, 0.01f);
+                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
+                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
+                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
+
+                        ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f);
+                        ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f);
+                    };
+
+                    if(ImGui::CollapsingHeader("Directional"))
+                    {
+                        ImGui::PushID("directional light");
+                        ui_directional(&directional_light);
+                        ImGui::PopID();
+                    }
+                    if(ImGui::CollapsingHeader("Spot"))
+                    {
+                        ImGui::PushID("spot light");
+                        ui_spot(&spot_light);
+                        ImGui::PopID();
+                    }
+                    if(ImGui::CollapsingHeader("Point"))
+                    {
+                        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+                        {
+                            ImGui::PushID(static_cast<int>(i));
+                            ui_point(&point_lights[i]);
+                            ImGui::PopID();
+                        }
+                    }
                 }
 
                 if (ImGui::CollapsingHeader("Cubes"))
