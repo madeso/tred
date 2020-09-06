@@ -18,7 +18,9 @@ out vec3 fFragmentPosition;
 out vec3 fNormal;
 out vec2 fTexCoord;
 
-void main()
+
+void
+main()
 {
     gl_Position = uTransform * vec4(aPos, 1.0);
     fFragmentPosition = vec3(uModelTransform * vec4(aPos, 1.0));

@@ -1,5 +1,6 @@
 #version 330 core
 
+
 struct Material
 {
     vec3 tint;
@@ -11,12 +12,14 @@ struct Material
     float specular_strength;
 };
 
+
 struct Attenuation
 {
     float constant;
     float linear;
     float quadratic;
 };
+
 
 struct DirectionalLight
 {
@@ -27,6 +30,7 @@ struct DirectionalLight
     vec3 specular;
 };
 
+
 struct PointLight
 {
     Attenuation attenuation;
@@ -36,6 +40,7 @@ struct PointLight
     vec3 diffuse;
     vec3 specular;
 };
+
 
 struct SpotLight
 {
@@ -48,6 +53,7 @@ struct SpotLight
     vec3 diffuse;
     vec3 specular;
 };
+
 
 in vec3 fNormal;
 in vec3 fFragmentPosition;
@@ -118,6 +124,7 @@ CalculateDirectionalLight
     );
 }
 
+
 vec3
 CalculatePointLight
 (
@@ -138,6 +145,7 @@ CalculatePointLight
     return attenuation * color;
 }
 
+
 float
 CalculateSpotLight(SpotLight light, vec3 light_direction)
 {
@@ -148,6 +156,7 @@ CalculateSpotLight(SpotLight light, vec3 light_direction)
     }
     return 0.0f;
 }
+
 
 vec3
 CalculateSpotLight
@@ -171,6 +180,7 @@ CalculateSpotLight
     float attenuation = CalculateAttenuation(light.attenuation, light.position);
     return spot_scale * attenuation * color;
 }
+
 
 void
 main()
