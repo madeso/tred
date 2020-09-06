@@ -1025,6 +1025,61 @@ struct PointLightUniforms
 };
 
 
+struct SpotLight
+{
+    Attenuation attenuation;
+
+    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
+    glm::vec3 direction = glm::vec3{0.0f, 0.0f, 0.0f};
+    float cutoff = 12.5f;
+
+    float ambient_strength = 0.1f;
+    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
+    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+};
+
+
+struct SpotLightUniforms
+{
+    AttenuationUniforms attenuation;
+    Uniform position;
+    Uniform direction;
+    Uniform cos_cutoff;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
+
+    SpotLightUniforms
+    (
+        const Shader& shader,
+        const std::string& base_name
+    )
+    :
+        attenuation(shader, base_name + ".attenuation"),
+        position(shader.GetUniform(base_name + ".position")),
+        direction(shader.GetUniform(base_name + ".direction")),
+        cos_cutoff(shader.GetUniform(base_name + ".cos_cutoff")),
+        ambient(shader.GetUniform(base_name + ".ambient")),
+        diffuse(shader.GetUniform(base_name + ".diffuse")),
+        specular(shader.GetUniform(base_name + ".specular"))
+    {
+    }
+
+    void
+    SetShader(Shader* shader, const SpotLight& light) const
+    {
+        attenuation.SetShader(shader, light.attenuation);
+        shader->SetVec3(position, light.position);
+        shader->SetVec3(direction, light.direction);
+        shader->SetFloat(cos_cutoff, cos(glm::radians(light.cutoff)));
+        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
+        shader->SetVec3(diffuse, light.diffuse);
+        shader->SetVec3(specular, light.specular);
+    }
+};
+
+
 int
 main(int, char**)
 {
@@ -1134,7 +1189,7 @@ main(int, char**)
     const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
     const auto uni_view_position = shader.GetUniform("uViewPosition");
     const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_light = PointLightUniforms{shader, "uPointLight"};
+    const auto uni_light = SpotLightUniforms{shader, "uSpotLight"};
 
     auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
@@ -1228,8 +1283,9 @@ main(int, char**)
             )
         }
     };
-    auto light = PointLight{};
-    light.position = glm::vec3{1.2f, 1.0f, 2.0f};
+    auto light = SpotLight{};
+    // light.position = glm::vec3{1.2f, 1.0f, 2.0f};
+    auto render_light = false;
 
     while(running)
     {
@@ -1327,6 +1383,12 @@ main(int, char**)
         const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
         const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
 
+        if(!render_light)
+        {
+            light.position = camera_position;
+            light.direction = camera_front;
+        }
+
         // handle mouse input
         if(input_fps)
         {
@@ -1403,18 +1465,20 @@ main(int, char**)
 
         const auto pv = projection * view;
 
-        light_shader.Use();
-        light_shader.SetVec3(uni_light_color, light.diffuse);
-
+        if(render_light)
         {
-            const auto model = glm::scale
-            (
-                glm::translate(glm::mat4(1.0f), light.position),
-                glm::vec3{0.2f}
-            );
-            light_shader.SetMat(uni_light_transform, pv * model);
+            light_shader.Use();
+            light_shader.SetVec3(uni_light_color, light.diffuse);
+            {
+                const auto model = glm::scale
+                (
+                    glm::translate(glm::mat4(1.0f), light.position),
+                    glm::vec3{0.2f}
+                );
+                light_shader.SetMat(uni_light_transform, pv * model);
+            }
+            light_mesh.Draw();
         }
-        light_mesh.Draw();
 
         shader.Use();
         shader.SetVec4(uni_color, cube_color);
@@ -1470,6 +1534,7 @@ main(int, char**)
                 }
                 if (ImGui::CollapsingHeader("Light"))
                 {
+                    ImGui::Checkbox("Render light?", &render_light);
                     ImGui::DragFloat("Ambient strength", &light.ambient_strength, 0.01f);
                     ImGui::DragFloat("Attenuation constant", &light.attenuation.constant, 0.01f);
                     ImGui::DragFloat("Attenuation linear", &light.attenuation.linear, 0.01f);
@@ -1477,7 +1542,8 @@ main(int, char**)
                     ImGui::ColorEdit3("Light Ambient", glm::value_ptr(light.ambient));
                     ImGui::ColorEdit3("Light Diffuse", glm::value_ptr(light.diffuse));
                     ImGui::ColorEdit3("Light Specular", glm::value_ptr(light.specular));
-                    ImGui::DragFloat3("Light position", glm::value_ptr(light.position), 0.01f);
+                    // ImGui::DragFloat3("Light position", glm::value_ptr(light.position), 0.01f);
+                    ImGui::DragFloat("Light cutoff", &light.cutoff, 0.01f);
                 }
 
                 if (ImGui::CollapsingHeader("Cubes"))

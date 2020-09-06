@@ -37,6 +37,18 @@ struct PointLight
     vec3 specular;
 };
 
+struct SpotLight
+{
+    Attenuation attenuation;
+    vec3 position;
+    vec3 direction;
+    float cos_cutoff;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
 in vec3 fNormal;
 in vec3 fFragmentPosition;
 in vec4 fColor;
@@ -47,7 +59,9 @@ out vec4 FragColor;
 uniform Material uMaterial;
 
 // uniform DirectionalLight uDirectionalLight;
-uniform PointLight uPointLight;
+// uniform PointLight uPointLight;
+uniform SpotLight uSpotLight;
+
 uniform vec3 uViewPosition;
 
 
@@ -124,6 +138,39 @@ CalculatePointLight
     return attenuation * color;
 }
 
+float
+CalculateSpotLight(SpotLight light, vec3 light_direction)
+{
+    float theta = dot(light_direction, normalize(-light.direction));
+    if(theta > light.cos_cutoff)
+    {
+        return 1.0f;
+    }
+    return 0.0f;
+}
+
+vec3
+CalculateSpotLight
+(
+    SpotLight light,
+    vec3 object_color,
+    vec3 specular_sample,
+    vec3 normal,
+    vec3 view_direction
+)
+{
+    vec3 light_direction = normalize(light.position - fFragmentPosition);
+
+    float spot_scale = CalculateSpotLight(light, light_direction);
+
+    vec3 color = CalculateBaseLight
+    (
+        light.ambient, light.diffuse, light.specular,
+        object_color, specular_sample, normal, view_direction, light_direction
+    );
+    float attenuation = CalculateAttenuation(light.attenuation, light.position);
+    return spot_scale * attenuation * color;
+}
 
 void
 main()
@@ -136,5 +183,5 @@ main()
     vec3 view_direction = normalize(uViewPosition - fFragmentPosition);
     
     // FragColor = vec4(CalculateDirectionalLight(uDirectionalLight, object_color, specular_sample, normal, view_direction), 1.0f);
-    FragColor = vec4(CalculatePointLight(uPointLight, object_color, specular_sample, normal, view_direction), 1.0f);
+    FragColor = vec4(CalculateSpotLight(uSpotLight, object_color, specular_sample, normal, view_direction), 1.0f);
 }
