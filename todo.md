@@ -1,7 +1,8 @@
 # todo
 * Learn OpenGL(11): Advanced OpenGL (blending, fbo, instanced, aa)
-* Learn OpenGL(10): Avanced lighning (gamma, shadows, hdr, parralax, bloom, ssao)
+* Learn OpenGL(10): Avanced lighning (gamma, shadows, hdr, parralax, bloom, deferred shading, ssao)
 * Learn OpenGL(4): PBR
+* remove opengl and replace with https://github.com/bkaradzic/bgfx
 * Refactor to "engine"
 * Debug draw lines, spheres etc (dear imgui to render text in 3d?)
 * various particle rendering types (point, axis aligned etc)
