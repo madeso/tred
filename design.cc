@@ -7,7 +7,18 @@ template <typename K, typename V> struct map {};
 
 // math things
 struct vec2f; struct vec3f; struct ray3f;
-struct rect; struct aabb;
+struct rect; struct aabb; struct ray2f;
+
+// also known as sausage body and capsule2d
+struct Stadium
+{
+    vec2f start;
+    vec2f end;
+    float radius;
+
+    // converts stadium to a "aa stadium" and rotates point to the 'aa stadium' coordinate space
+    bool Contains(vec2f) const;
+};
 
 // engine things
 
@@ -56,6 +67,8 @@ struct Camera
     ray3f CameraToRay(vec2f) const;
     vec2f WorldToCameraSpace(vec3f) const;
     rect WorldToCameraSpace(aabb) const;
+    ray2f WorldToCameraSpace(ray3f) const;
+    pair<vec2f, vec2f> WorldToCameraSpaceClipped(ray3f) const;
 };
 
 struct World
