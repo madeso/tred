@@ -6,8 +6,8 @@ template <typename T> struct vector {};
 template <typename K, typename V> struct map {};
 
 // math things
-struct vec2f; struct vec3f; struct ray3f;
-struct rect; struct aabb; struct ray2f;
+struct vec2f{}; struct vec3f{}; struct ray3f{};
+struct rect{}; struct aabb{}; struct ray2f{};
 
 // also known as sausage body and capsule2d
 struct Stadium
