@@ -4,6 +4,7 @@
 struct string {};
 template <typename T> struct vector {};
 template <typename K, typename V> struct map {};
+template <typename L, typename R> struct pair {};
 
 // math things
 struct vec2f{}; struct vec3f{}; struct ray3f{};
