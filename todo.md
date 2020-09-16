@@ -49,6 +49,7 @@
 * grass rendering
   - https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch07.html
   - https://www.youtube.com/watch?v=L_Bzcw9tqTc
+* mud/snow heightmap rendering/dynamic tesselation
 * post process effects:
   - https://www.youtube.com/watch?v=9tjYz6Ab0oc
 * water color shader
