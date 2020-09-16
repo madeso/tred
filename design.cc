@@ -59,11 +59,12 @@ struct ViewVolume
 
 struct Camera
 {
-    // virtual width & height
+    // virtual width & height or send as a argument when needed
     // world position
     // near and far plane
 
     // move to the compiled camera or a util function that compiles executes and discards? or dont bother compiling?
+    // or get a dirty flag so we don't calculate inverse matrix and multiplications all the time and make the api a bit nicer?
     ViewVolume GetViewVolume();
     ray3f CameraToRay(vec2f) const;
     vec2f WorldToCameraSpace(vec3f) const;
