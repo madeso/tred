@@ -50,7 +50,7 @@
   - https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch07.html
   - https://www.youtube.com/watch?v=L_Bzcw9tqTc
 * post process effects:
-- https://www.youtube.com/watch?v=9tjYz6Ab0oc
-- water color shader
+  - https://www.youtube.com/watch?v=9tjYz6Ab0oc
+* water color shader
   - https://twitter.com/AlanZucconi/status/1301120184233713665
   - https://www.bruteforce-games.com/post/watercolor-shader-devblog-13
