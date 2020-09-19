@@ -6,6 +6,8 @@
 #include <numeric>
 #include <functional>
 #include <array>
+#include <map>
+#include <set>
 
 // dependency headers
 #include "glad/glad.h"
@@ -104,27 +106,137 @@ struct Mesh
 enum class VertexType
 {
     Position3, Normal3, Color4, Texture2
+
+    // change to include other textcoords and custom types that are created from scripts
 };
 
 
-struct VertexElement
+struct VertexElementDescription
 {
     VertexType type;
     std::string name;
 
-    VertexElement(VertexType t, const std::string& n)
+    VertexElementDescription(VertexType t, const std::string& n)
         : type(t)
         , name(n)
     {
     }
 };
 
+struct CompiledVertexElement
+{
+    VertexType type;
+    std::string name;
+    int index;
 
-using VertexLayout = std::vector<VertexElement>;
+    CompiledVertexElement(const VertexElementDescription& d, int i)
+        : type(d.type)
+        , name(d.name)
+        , index(i)
+    {
+    }
+};
+
+
+using VertexLayoutDescription = std::vector<VertexElementDescription>;
+using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
+using VertexTypes = std::vector<VertexType>;
+
+struct CompiledVertexLayout
+{
+    CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
+        : elements(e)
+        , types(t)
+    {
+    }
+
+    CompiledVertexLayoutList elements;
+    VertexTypes types;
+};
+
+struct VertexTypeList
+{
+    void
+    Add(const VertexLayoutDescription& elements)
+    {
+        for(const auto& e: elements)
+        {
+            indices.insert(e.type);
+        }
+    }
+
+    std::set<VertexType> indices;
+};
+
+struct CompiledVertexTypeList
+{
+    CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v)
+        : indices(i)
+        , vertex_types(v)
+    {
+    }
+
+    CompiledVertexLayout
+    Compile(const VertexLayoutDescription& elements) const
+    {
+        CompiledVertexLayoutList list;
+
+        for(const auto& e: elements)
+        {
+            const auto found = indices.find(e.type);
+            assert(found != indices.end() && "layout wasn't added to the compilation list");
+
+            list.push_back({e, found->second});
+        }
+
+        return {list, vertex_types};
+    }
+
+    std::map<VertexType, int> indices;
+    VertexTypes vertex_types;
+};
+
+
+int
+ShaderAttributeSize(const VertexType&)
+{
+    return 1;
+}
+
+
+CompiledVertexTypeList
+Compile(const VertexTypeList& list)
+{
+    std::map<VertexType, int> indices;
+
+    int next_index = 0;
+    for(const auto type: list.indices)
+    {
+        indices[type] = next_index;
+        next_index += ShaderAttributeSize(type);
+    }
+
+    return {indices, {list.indices.begin(), list.indices.end()} };
+}
+
+
+CompiledVertexTypeList
+Compile(const std::vector<VertexLayoutDescription>& descriptions)
+{
+    VertexTypeList list;
+
+    for(const auto& d: descriptions)
+    {
+        list.Add(d);
+    }
+
+    return Compile(list);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // rendering functions
+
 
 unsigned int CreateTexture()
 {
@@ -331,30 +443,20 @@ struct Uniform
 };
 
 
-int
-ShaderAttributeSize(const VertexElement&)
-{
-    return 1;
-}
-
-
 void
-BindShaderAttributeLocation(unsigned int shader_program, const VertexLayout& layout)
+BindShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLayout& layout)
 {
-    int requested_index = 0;
-    for(const auto& b: layout)
+    for(const auto& b: layout.elements)
     {
-        glBindAttribLocation(shader_program, requested_index, b.name.c_str());
-        requested_index += ShaderAttributeSize(b);
+        glBindAttribLocation(shader_program, b.index, b.name.c_str());
     }
 }
 
 
 void
-VerifyShaderAttributeLocation(unsigned int shader_program, const VertexLayout& layout)
+VerifyShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLayout& layout)
 {
-    int requested_index = 0;
-    for(const auto& b: layout)
+    for(const auto& b: layout.elements)
     {
         const auto actual_index = glGetAttribLocation
         (
@@ -362,28 +464,34 @@ VerifyShaderAttributeLocation(unsigned int shader_program, const VertexLayout& l
             b.name.c_str()
         );
 
-        if(actual_index != requested_index)
+        if(actual_index != b.index)
         {
             SDL_Log
             (
                 "ERROR: %s was bound to %d but requested at %d",
                 b.name.c_str(),
                 actual_index,
-                requested_index
+                b.index
             );
         }
-
-        requested_index += ShaderAttributeSize(b);
     }
 }
 
 
+VertexTypes debug_current_shader_types;
 unsigned int debug_current_shader_program;
 void
-SetShaderProgram(unsigned int new_program)
+SetShaderProgram(unsigned int new_program, const VertexTypes& types)
 {
     debug_current_shader_program = new_program;
+    debug_current_shader_types = types;
     glUseProgram(new_program);
+}
+
+void
+ClearShaderProgram()
+{
+    SetShaderProgram(0, {});
 }
 
 
@@ -393,9 +501,10 @@ struct Shader
     (
         std::string_view vertex_source,
         std::string_view fragment_source,
-        const VertexLayout& layout
+        const CompiledVertexLayout& layout
     )
         : shader_program(glCreateProgram())
+        , vertex_types(layout.types)
     {
         const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
         UploadShaderSource(vertex_shader, vertex_source);
@@ -416,7 +525,7 @@ struct Shader
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
 
-        SetShaderProgram(0);
+        ClearShaderProgram();
 
         if(vertex_ok && fragment_ok && link_ok)
         {
@@ -432,13 +541,13 @@ struct Shader
     void
     Use() const
     {
-        SetShaderProgram(shader_program);
+        SetShaderProgram(shader_program, vertex_types);
     }
 
     void
     Delete()
     {
-        SetShaderProgram(0);
+        ClearShaderProgram();
         glDeleteProgram(shader_program);
         shader_program = 0;
     }
@@ -534,6 +643,7 @@ struct Shader
     }
 
     unsigned int shader_program;
+    VertexTypes vertex_types;
 };
 
 
@@ -588,25 +698,21 @@ struct CompiledMesh
 
     int number_of_indices;
 
-    unsigned int debug_shader_program;
+    VertexTypes debug_shader_types;
 
-    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, unsigned int sp)
+    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
          : vbo(a_vbo)
          , vao(a_vao)
          , ebo(a_ebo)
          , number_of_indices(count)
-         , debug_shader_program(sp)
+         , debug_shader_types(st)
     {
-        if(sp == 0)
-        {
-            SDL_Log("Invalid shader for compiled mesh");
-        }
     }
 
     void
     Draw() const
     {
-        if(debug_shader_program != 0) { assert(debug_shader_program == debug_current_shader_program); }
+        assert(debug_shader_types == debug_current_shader_types);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -644,14 +750,14 @@ struct BufferData
 
 
 CompiledMesh
-Compile(const Mesh& mesh, const Shader& shader, const VertexLayout& layout)
+Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
 {
     using VertexVector = std::vector<float>;
 
     auto data = std::vector<BufferData>{};
-    data.reserve(layout.size());
+    data.reserve(layout.elements.size());
 
-    for(const auto& element: layout)
+    for(const auto& element: layout.elements)
     {
         switch(element.type)
         {
@@ -757,7 +863,7 @@ Compile(const Mesh& mesh, const Shader& shader, const VertexLayout& layout)
         GL_STATIC_DRAW
     );
 
-    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), shader.shader_program};
+    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.types};
 }
 
 
@@ -1177,21 +1283,26 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto layout = VertexLayout
+    const auto layout = VertexLayoutDescription
     {
         {VertexType::Position3, "aPos"},
         {VertexType::Normal3, "aNormal"},
         {VertexType::Color4, "aColor"},
         {VertexType::Texture2, "aTexCoord"}
     };
-    const auto light_layout = VertexLayout
+    auto layout_compiler = Compile({layout});
+    const auto compiled_layout = layout_compiler.Compile(layout);
+
+    const auto light_layout = VertexLayoutDescription
     {
         {VertexType::Position3, "aPos"}
     };
+    auto light_compiler = Compile({light_layout});
+    const auto compiled_light_layout = light_compiler.Compile(light_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, layout};
+    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
     const auto uni_color = shader.GetUniform("uColor");
     const auto uni_transform = shader.GetUniform("uTransform");
     const auto uni_model_transform = shader.GetUniform("uModelTransform");
@@ -1208,14 +1319,14 @@ main(int, char**)
     };
     const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
-    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, light_layout};
+    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
     const auto uni_light_color = light_shader.GetUniform("uColor");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = Compile(CreateBoxMesh(), shader, layout);
-    const auto light_mesh = Compile(CreateBoxMesh(), light_shader, light_layout);
+    const auto mesh = Compile(CreateBoxMesh(), compiled_layout);
+    const auto light_mesh = Compile(CreateBoxMesh(), compiled_light_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // view
