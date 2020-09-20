@@ -9,6 +9,8 @@ template <typename L, typename R> struct pair {};
 // math things
 struct vec2f{}; struct vec3f{}; struct ray3f{};
 struct rect{}; struct aabb{}; struct ray2f{};
+struct rgba{}; struct rgb;
+struct Angle{};
 
 // also known as sausage body and capsule2d
 struct Stadium
@@ -79,6 +81,59 @@ struct World
 };
 void Render(const World& world, const Camera& camera);
 
+
 // fullscreen effects are handled elsewhere, not sure yet how to approach this
 
-// todo(Gustav): figure out how to handle figure out how to handle 2d rendering both immediate modeish and tiled/world rendering
+
+struct Camera2d
+{
+    vec2f center;
+    Angle rotation;
+};
+
+struct Sprite
+{
+    // Texture texture
+    rect subsection; // uv
+    rgba tint;
+    vec2f center;
+    vec2f size;
+    Angle rotation;
+};
+
+struct SubSection
+{
+    vector<rect> subsections;
+
+    // one "constructor" should map how tiled tiles work
+    // border support?
+    static SubSection FullImage();
+    static SubSection FromPixels(int image_width, int image_height, int tile_width, int tile_height); // divide image in tiles, might skip if "overflows"
+    static SubSection FromGrid(int image_width, int image_height, int columns, int rows); // divide image evenly - needed?
+};
+
+// immediate mode, no advanced culling
+struct SceneRenderer
+{
+    SceneRenderer(const Camera2d& camera);
+
+    void Add(const Sprite& sprite);
+
+    void Render();
+};
+
+// baseclass (?) with more advanced culling (octree/ tiling?)
+// 2d world should be able to handle:
+//  - tile renderer (with sloped tiles)
+//  - liero/worms painted world
+//  - beziercurve based worlds like soldat/elastomania
+struct World
+{
+    // should be able to spline/drgonbone meshes
+    // simple access to sprites
+    // easily modifyable sprite deformations like blobs
+    void AddActor();
+
+    void Render(const Camera2d& camera);
+};
+
