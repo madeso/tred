@@ -1,5 +1,23 @@
 // design or mockup of engine api... this is not compiled nor part of tred code but might be soon...
 
+/*
+
+Design philosopy?
+
+Should the engine be bothered with loading/unloading meshes, shaders, textures, levels etc or let the user handle that?
+I kinda lean towards "no support" but with a clean api to easily add assimp or something
+
+Pro (no loading supported)
+ - easier to run (? currently embeded images are loaded)
+ - easier to integrate into existing frameworks
+ - examples will be easier to read
+
+Con (loading supported)
+ - simple meshes are easy to generate but (good) skinned meshes will be hard
+ - do we care about ease of use since the target codebase is euphoria
+
+*/
+
 // std things?
 struct string {};
 template <typename T> struct vector {};
@@ -10,7 +28,7 @@ template <typename L, typename R> struct pair {};
 struct vec2f{}; struct vec3f{}; struct ray3f{};
 struct rect{}; struct aabb{}; struct ray2f{};
 struct rgba{}; struct rgb;
-struct Angle{};
+struct Angle{}; struct quatf {};
 
 // also known as sausage body and capsule2d
 struct Stadium
@@ -41,10 +59,25 @@ struct ActorDef
     // definition of a mesh
 };
 
+
+struct World;
+struct PlacementInWorld;
+
 struct Actor
 {
+
+    // position, rotation(?) and animation pose(?) might change how the world culls the actor
+    // so we need to reevaluate how to render it, for example to move to another room
+    // in a portal setup or "another" cube in a quadtree
+    PlacementInWorld* placement = 0;
+
     // position
     // rotation
+    void SetPosition(const vec3f& pos);
+    void SetRotation(const quatf& rot);
+    const vec3f& GetPosition() const;
+    const quatf& GetRotation() const;
+
     // current animation pose
     // ActorDef
 
@@ -52,11 +85,16 @@ struct Actor
     vec3f ObjectToWorldSpace(vec3f) const;
 };
 
+
 // frustum(perspective) or a box(ortho)
 struct ViewVolume
 {
     // contains the 6 planes
     // function to test if aabb, sphere, etc are inside
+
+    // might want to make it 6 less (ie dynamic)
+    // so when culling, we can drop planes we know children in a hierarchical layout surely will pass
+    // this might give a speed increase since we are doing less calculations
 };
 
 struct Camera
@@ -77,9 +115,17 @@ struct Camera
 
 struct World
 {
+    // how to handle memory?
+    // RemoveX function are needed
     void AddActor(Actor);
+    void AddLight();
+    void AddParticleSystem();
+
+    virtual void Render(const Camera& camera) const = 0;
+
+    virtual void OnActorMoved(Actor*, PlacementInWorld*) =0;
 };
-void Render(const World& world, const Camera& camera);
+
 
 
 // fullscreen effects are handled elsewhere, not sure yet how to approach this
