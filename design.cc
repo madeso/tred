@@ -4,21 +4,22 @@
 
 Design philosopy?
 
-Should the engine be bothered with loading/unloading meshes, shaders, textures, levels etc or let the user handle that?
-I kinda lean towards "no support" but with a clean api to easily add assimp or something
+// todo(Gustav): Should the engine be bothered with loading meshes, shaders, textures, levels etc or
+let the user handle that? I kinda lean towards "no support" but with a clean api to easily add
+assimp or something else
 
-Pro (no loading supported)
+Pro (in favor of no loading supported)
  - easier to run (? currently embeded images are loaded)
  - easier to integrate into existing frameworks
- - examples will be easier to read
+ - examples will be easier to read (? loadMesh("cube.obj") vs. createCubeMesh())
 
-Con (loading supported)
+Con (in favor of loading supported)
  - simple meshes are easy to generate but (good) skinned meshes will be hard
- - do we care about ease of use since the target codebase is euphoria
+ - do we care about ease of use since the target codebase is euphoria?
 
 */
 
-// std things?
+// std things
 struct string {};
 template <typename T> struct vector {};
 template <typename K, typename V> struct map {};
@@ -26,7 +27,7 @@ template <typename L, typename R> struct pair {};
 
 // math things
 struct vec2f{}; struct vec3f{}; struct ray3f{};
-struct rect{}; struct aabb{}; struct ray2f{};
+struct rectf{}; struct recti{}; struct aabb{}; struct ray2f{};
 struct rgba{}; struct rgb;
 struct Angle{}; struct quatf {};
 
@@ -100,6 +101,36 @@ struct ViewVolume
     // this might give a speed increase since we are doing less calculations
 };
 
+// how to handle different sizes
+enum class ViewportType
+{
+    // exact pixel match, no black bars, no stretch
+    Screen,
+
+    // fills, keeps the same virtual size, stretches
+    // wants width and height
+    Stretch,
+
+    // keeps aspect ratio, might be black bars, no stretch
+    // wants width and height
+    Fit,
+
+    // keeps the aspect ration but might crop the view, no stretch
+    // wants width and height
+    Fill
+};
+
+// where to render on screen or texture
+struct Viewport
+{
+    recti Calculate(const recti& available) const;
+
+    float virtual_width;
+    float virtual_height;
+};
+
+// todo(Gustav): how to handle animating viewports like 24 or Hulk?
+
 struct Camera
 {
     // virtual width & height or send as a argument when needed
@@ -111,7 +142,7 @@ struct Camera
     ViewVolume GetViewVolume();
     ray3f CameraToRay(vec2f) const;
     vec2f WorldToCameraSpace(vec3f) const;
-    rect WorldToCameraSpace(aabb) const;
+    rectf WorldToCameraSpace(aabb) const;
     ray2f WorldToCameraSpace(ray3f) const;
     pair<vec2f, vec2f> WorldToCameraSpaceClipped(ray3f) const;
 };
@@ -143,7 +174,7 @@ struct Camera2d
 struct Sprite
 {
     // Texture texture
-    rect subsection; // uv
+    rectf subsection; // uv
     rgba tint;
     vec2f center;
     vec2f size;
@@ -152,7 +183,7 @@ struct Sprite
 
 struct SubSection
 {
-    vector<rect> subsections;
+    vector<rectf> subsections;
 
     // one "constructor" should map how tiled tiles work
     // border support?
@@ -162,9 +193,11 @@ struct SubSection
 };
 
 // immediate mode, no advanced culling
-struct SceneRenderer
+// could also be called scenerenderer (though that may be confusing with the world)
+// spritebatch name from libGDX
+struct SpriteBatch
 {
-    SceneRenderer(const Camera2d& camera);
+    SpriteBatch(const Camera2d& camera);
 
     void Add(const Sprite& sprite);
 
@@ -176,11 +209,14 @@ struct SceneRenderer
 //  - tile renderer (with sloped tiles)
 //  - liero/worms painted world
 //  - beziercurve based worlds like soldat/elastomania
-struct World
+struct World2d
 {
+    // layer support
+
     // should be able to spline/drgonbone meshes
     // simple access to sprites
     // easily modifyable sprite deformations like blobs
+    // fluid dynamics like water, lava and smoke
     void AddActor();
 
     void Render(const Camera2d& camera);
