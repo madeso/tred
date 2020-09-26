@@ -78,6 +78,9 @@ struct Actor
     const vec3f& GetPosition() const;
     const quatf& GetRotation() const;
 
+    // idea: replace position and rotation with a matrix since that's what is used
+    // by the rendering or keep position and rotation as they are easier to tween?
+
     // current animation pose
     // ActorDef
 
