@@ -33,8 +33,11 @@
 #include "container_diffuse.png.h"
 #include "container_specular.png.h"
 
+#include "profiler.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // common "header"
+
 
 
 int
@@ -1423,6 +1426,8 @@ main(int, char**)
 
     while(running)
     {
+        PROFILE_SCOPE("main loop");
+
         const auto now = SDL_GetPerformanceCounter();
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
@@ -1432,6 +1437,8 @@ main(int, char**)
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
+            PROFILE_SCOPE("event loop");
+
             if(!input_fps)
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
@@ -1589,60 +1596,67 @@ main(int, char**)
             }
         }
 
-        const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        const auto pv = projection * view;
-
-        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
         {
-            light_shader.Use();
-            light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
-            {
-                const auto model = glm::scale
-                (
-                    glm::translate(glm::mat4(1.0f), point_lights[i].position),
-                    glm::vec3{0.2f}
-                );
-                light_shader.SetMat(uni_light_transform, pv * model);
-            }
-            light_mesh.Draw();
+            PROFILE_SCOPE("clearing screen");
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         }
 
-        shader.Use();
-        shader.SetVec4(uni_color, cube_color);
-        uni_material.SetShader(&shader, material);
-        uni_directional_light.SetShader(&shader, directional_light);
-        uni_spot_light.SetShader(&shader, spot_light);
-        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
         {
-            uni_point_lights[i].SetShader(&shader, point_lights[i]);
-        }
-        shader.SetVec3(uni_view_position, camera_position);
-        
-        for(unsigned int i=0; i<cube_positions.size(); i+=1)
-        {
-            const auto angle = 20.0f * static_cast<float>(i);
+            PROFILE_SCOPE("rendering");
+            const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
+
+            const auto pv = projection * view;
+
+            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
             {
-                const auto model = glm::rotate
-                (
-                    glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                    time + glm::radians(angle),
-                    i%2 == 0
-                    ? glm::vec3{1.0f, 0.3f, 0.5f}
-                    : glm::vec3{0.5f, 1.0f, 0.0f}
-                );
-                shader.SetMat(uni_transform, pv * model);
-                shader.SetMat(uni_model_transform, model);
-                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                light_shader.Use();
+                light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
+                {
+                    const auto model = glm::scale
+                    (
+                        glm::translate(glm::mat4(1.0f), point_lights[i].position),
+                        glm::vec3{0.2f}
+                    );
+                    light_shader.SetMat(uni_light_transform, pv * model);
+                }
+                light_mesh.Draw();
             }
-            mesh.Draw();
+
+            shader.Use();
+            shader.SetVec4(uni_color, cube_color);
+            uni_material.SetShader(&shader, material);
+            uni_directional_light.SetShader(&shader, directional_light);
+            uni_spot_light.SetShader(&shader, spot_light);
+            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+            {
+                uni_point_lights[i].SetShader(&shader, point_lights[i]);
+            }
+            shader.SetVec3(uni_view_position, camera_position);
+            
+            for(unsigned int i=0; i<cube_positions.size(); i+=1)
+            {
+                const auto angle = 20.0f * static_cast<float>(i);
+                {
+                    const auto model = glm::rotate
+                    (
+                        glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                        time + glm::radians(angle),
+                        i%2 == 0
+                        ? glm::vec3{1.0f, 0.3f, 0.5f}
+                        : glm::vec3{0.5f, 1.0f, 0.0f}
+                    );
+                    shader.SetMat(uni_transform, pv * model);
+                    shader.SetMat(uni_model_transform, model);
+                    shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                }
+                mesh.Draw();
+            }
         }
 
         if(input_fps == false)
         {
+            PROFILE_SCOPE("imgui");
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
             ImGui::NewFrame();
@@ -1747,6 +1761,8 @@ main(int, char**)
                 }
             }
             ImGui::End();
+
+            PrintProfiles();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

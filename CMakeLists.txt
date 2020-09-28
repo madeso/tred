@@ -95,6 +95,7 @@ include_directories(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 set(src
     main.cc
     debug_opengl.cc debug_opengl.h
+    profiler.cc profiler.h
     stb.cc
     
     external/glad/src/glad.c
