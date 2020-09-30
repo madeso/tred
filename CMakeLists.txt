@@ -96,6 +96,7 @@ set(src
     main.cc
     debug_opengl.cc debug_opengl.h
     profiler.cc profiler.h
+    cint.cc cint.h
     stb.cc
     
     external/glad/src/glad.c

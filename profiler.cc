@@ -4,6 +4,8 @@
 
 #include "imgui.h"
 
+#include "cint.h"
+
 
 ProfileId
 GenerateProfilerId()
@@ -24,7 +26,11 @@ namespace
         int hits = 0;
     };
 
-    using ProfileRecords = std::vector<ProfileRecord>;
+    struct ProfileRecords
+    {
+        std::vector<ProfileRecord> records;
+        int selected = -1;
+    };
 
     ProfileRecords& GetRecords()
     {
@@ -36,11 +42,11 @@ namespace
     {
         auto& rs = GetRecords();
         const auto wanted_size = static_cast<size_t>(id + 1);
-        if(rs.size() < wanted_size)
+        if(rs.records.size() < wanted_size)
         {
-            rs.resize(wanted_size);
+            rs.records.resize(wanted_size);
         }
-        auto& r = rs[static_cast<size_t>(id)];
+        auto& r = rs.records[static_cast<size_t>(id)];
         r.total_time += time_taken;
         r.name = name;
         r.hits += 1;
@@ -68,14 +74,33 @@ PrintProfiles()
 {
     if(ImGui::Begin("Profiler") == false) { ImGui::End(); return; }
 
-    for(auto& p: GetRecords())
+    ImGui::Columns(4, "profiling");
+    ImGui::Separator();
+    ImGui::Text("Function"); ImGui::NextColumn();
+    ImGui::Text("Time per sample"); ImGui::NextColumn();
+    ImGui::Text("Time"); ImGui::NextColumn();
+    ImGui::Text("Hits"); ImGui::NextColumn();
+    ImGui::Separator();
+    
+    auto& rs = GetRecords();
+    for(int i=0; i < Csizet_to_int(rs.records.size()); i+=1)
     {
+        constexpr float in_ms = 1000.0f;
+        auto& p = rs.records[Cint_to_sizet(i)];
+
+        // todo(Gustav): fix sending string_view as .data()
+        if (ImGui::Selectable(p.name.data(), rs.selected == i, ImGuiSelectableFlags_SpanAllColumns))
+            rs.selected = i;
+        ImGui::NextColumn();
         const float time_per_sample = p.hits > 0 ? p.total_time / static_cast<float>(p.hits) : 0.0f;
-        ImGui::Text("%s | %f", p.name.data(), static_cast<double>(time_per_sample));
+        ImGui::Text("%.1f", static_cast<double>(time_per_sample * in_ms));ImGui::NextColumn();
+        ImGui::Text("%.1f", static_cast<double>(p.total_time * in_ms));ImGui::NextColumn();
+        ImGui::Text("%d", p.hits);ImGui::NextColumn();
 
         p.total_time = 0.0f;
         p.hits = 0;
     }
+    ImGui::Columns(1);
 
     ImGui::End();
 }
