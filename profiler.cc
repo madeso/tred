@@ -49,7 +49,10 @@ namespace
     struct ProfileRecords
     {
         std::vector<ProfileRecord> records;
+
         int selected = -1;
+        int selected_history = -1;
+        bool running = true;
     };
 
     ProfileRecords& GetRecords()
@@ -94,6 +97,11 @@ PrintProfiles()
 {
     if(ImGui::Begin("Profiler") == false) { ImGui::End(); return; }
 
+    auto& rs = GetRecords();
+    constexpr float in_ms = 1000.0f;
+
+    ImGui::Checkbox("Running", &rs.running);
+
     ImGui::Columns(4, "profiling");
     ImGui::Separator();
     ImGui::Text("Function"); ImGui::NextColumn();
@@ -101,26 +109,39 @@ PrintProfiles()
     ImGui::Text("Time"); ImGui::NextColumn();
     ImGui::Text("Hits"); ImGui::NextColumn();
     ImGui::Separator();
-    
-    auto& rs = GetRecords();
-    constexpr float in_ms = 1000.0f;
 
+    const auto show_current = !
+    (
+        rs.running==false
+        &&
+        (
+            rs.records.empty() == false &&
+            rs.selected_history >= 0 &&
+            rs.selected_history < Csizet_to_int(rs.records[0].history_of_hits.size())
+        )
+    );
     for(int i=0; i < Csizet_to_int(rs.records.size()); i+=1)
     {
-        auto& p = rs.records[Cint_to_sizet(i)];
+        auto& record = rs.records[Cint_to_sizet(i)];
+        
+        if(rs.running)
+        {
+            record.Backup();
+        }
 
-        p.Backup();
+        auto hits = show_current ? record.hits : record.history_of_hits[Cint_to_sizet(rs.selected_history)];
+        auto total_time = show_current ? record.total_time : record.history_of_total_times[Cint_to_sizet(rs.selected_history)];
 
         // todo(Gustav): fix sending string_view as .data()
-        if (ImGui::Selectable(p.name.data(), rs.selected == i, ImGuiSelectableFlags_SpanAllColumns))
+        if (ImGui::Selectable(record.name.data(), rs.selected == i, ImGuiSelectableFlags_SpanAllColumns))
             rs.selected = i;
         ImGui::NextColumn();
-        const float time_per_sample = p.hits > 0 ? p.total_time / static_cast<float>(p.hits) : 0.0f;
+        const float time_per_sample = hits > 0 ? total_time / static_cast<float>(hits) : 0.0f;
         ImGui::Text("%.1f", static_cast<double>(time_per_sample * in_ms));ImGui::NextColumn();
-        ImGui::Text("%.1f", static_cast<double>(p.total_time * in_ms));ImGui::NextColumn();
-        ImGui::Text("%d", p.hits);ImGui::NextColumn();
+        ImGui::Text("%.1f", static_cast<double>(total_time * in_ms));ImGui::NextColumn();
+        ImGui::Text("%d", hits);ImGui::NextColumn();
 
-        p.Clear();
+        record.Clear();
     }
     ImGui::Columns(1);
 
@@ -138,8 +159,31 @@ PrintProfiles()
         const auto& v = selected.history_of_total_times;
         if(v.size() >= 2)
         {
-            ImGui::PlotLines("Frame Times", v.data(), Csizet_to_int(v.size()), 0, nullptr, -1.0f/in_ms, 30.0f/in_ms, ImVec2{0.0f, 60.0f});
+            ImGui::PlotLines
+            (
+                "Frame Times",
+                v.data(),
+                Csizet_to_int(v.size()),
+                0,
+                nullptr,
+                -1.0f/in_ms,
+                30.0f/in_ms,
+                ImVec2{0.0f, 60.0f}
+            );
         }
+    }
+
+    if(rs.running == false)
+    {
+        if(rs.selected_history == -1)
+        {
+            rs.selected_history = 0;
+        }
+        auto max = rs.records.empty() ? 10 : Csizet_to_int(rs.records[0].history_of_total_times.size()-1);
+
+        // todo(Gustav): find a way to click in the ImGui::PlotLines to select the frame
+        ImGui::SliderInt("History", &rs.selected_history, 0, max);
+        ImGui::InputInt("History detail", &rs.selected_history);
     }
 
     ImGui::End();
