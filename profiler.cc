@@ -21,9 +21,29 @@ namespace
 {
     struct ProfileRecord
     {
-        float total_time = 0.0f;
         std::string_view name = "";
+
+        float total_time = 0.0f;
         int hits = 0;
+
+        std::vector<float> history_of_total_times;
+        std::vector<int> history_of_hits;
+
+        void Backup()
+        {
+            constexpr std::size_t MAX_SIZE = 100;
+
+            if(history_of_hits.size() >= MAX_SIZE) { history_of_hits.erase(history_of_hits.begin()); }
+            if(history_of_total_times.size() >= MAX_SIZE) { history_of_total_times.erase(history_of_total_times.begin()); }
+            history_of_hits.push_back(hits);
+            history_of_total_times.push_back(total_time);
+        }
+
+        void Clear()
+        {
+            total_time = 0.0f;
+            hits = 0;
+        }
     };
 
     struct ProfileRecords
@@ -83,10 +103,13 @@ PrintProfiles()
     ImGui::Separator();
     
     auto& rs = GetRecords();
+    constexpr float in_ms = 1000.0f;
+
     for(int i=0; i < Csizet_to_int(rs.records.size()); i+=1)
     {
-        constexpr float in_ms = 1000.0f;
         auto& p = rs.records[Cint_to_sizet(i)];
+
+        p.Backup();
 
         // todo(Gustav): fix sending string_view as .data()
         if (ImGui::Selectable(p.name.data(), rs.selected == i, ImGuiSelectableFlags_SpanAllColumns))
@@ -97,10 +120,27 @@ PrintProfiles()
         ImGui::Text("%.1f", static_cast<double>(p.total_time * in_ms));ImGui::NextColumn();
         ImGui::Text("%d", p.hits);ImGui::NextColumn();
 
-        p.total_time = 0.0f;
-        p.hits = 0;
+        p.Clear();
     }
     ImGui::Columns(1);
+
+    if(rs.selected == -1)
+    {
+        if(rs.records.empty() == false)
+        {
+            rs.selected = 0;
+        }
+    }
+
+    if(rs.selected != -1)
+    {
+        const auto& selected = rs.records[Cint_to_sizet(rs.selected)];
+        const auto& v = selected.history_of_total_times;
+        if(v.size() >= 2)
+        {
+            ImGui::PlotLines("Frame Times", v.data(), Csizet_to_int(v.size()), 0, nullptr, -1.0f/in_ms, 30.0f/in_ms, ImVec2{0.0f, 60.0f});
+        }
+    }
 
     ImGui::End();
 }
