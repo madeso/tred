@@ -9,6 +9,8 @@
 #include <map>
 #include <set>
 
+#include <fmt/core.h>
+
 // dependency headers
 #include "glad/glad.h"
 #include "SDL.h"
@@ -337,7 +339,8 @@ CheckShaderCompilationError(const char* name, unsigned int shader)
     if(!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, log);
-        SDL_Log("ERROR: %s shader compilation failed\n%s\n", name, log);
+        const auto msg = fmt::format("ERROR: {} shader compilation failed\n{}}\n", name, log);
+        SDL_Log("%s", msg.c_str());
         return false;
     }
 
