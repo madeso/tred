@@ -147,6 +147,9 @@ struct Camera
     pair<vec2f, vec2f> WorldToCameraSpaceClipped(ray3f) const;
 };
 
+// todo(Gustav): rename to World3?
+// 'Game Engine Architecture' calls this structure a SceneGraph, but I think
+// that name implies some form of hierarchy and World does not have that
 struct World
 {
     // how to handle memory?
