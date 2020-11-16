@@ -44,7 +44,7 @@ else()
 endif()
 
 
-
+add_subdirectory(external/fmt-7.1.1)
 find_package(OpenGL REQUIRED)
 # find_package(assimp REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -157,7 +157,7 @@ target_include_directories(tred SYSTEM PRIVATE
 )
 target_link_libraries(
     tred
-    PUBLIC ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} imgui
+    PUBLIC ${SDL2_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} imgui fmt::fmt
     PRIVATE project_options project_warnings
 )
 
