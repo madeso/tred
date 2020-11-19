@@ -1406,7 +1406,7 @@ main(int, char**)
 
     while(running)
     {
-        PROFILE_SCOPE("main loop");
+        PROFILE_FRAME();
 
         const auto now = SDL_GetPerformanceCounter();
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
@@ -1417,8 +1417,6 @@ main(int, char**)
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
-            PROFILE_SCOPE("event loop");
-
             if(!input_fps)
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
@@ -1576,14 +1574,10 @@ main(int, char**)
             }
         }
 
-        {
-            PROFILE_SCOPE("clearing screen");
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        }
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         {
-            PROFILE_SCOPE("rendering");
             const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
 
             const auto pv = projection * view;
@@ -1636,7 +1630,6 @@ main(int, char**)
 
         if(input_fps == false)
         {
-            PROFILE_SCOPE("imgui");
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
             ImGui::NewFrame();
