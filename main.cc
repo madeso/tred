@@ -870,6 +870,27 @@ CreatePlaneMesh()
 
 
 Mesh
+CreatePlaneMesh(float size, float uv)
+{
+    const auto h = size / 2.0f;
+    return
+    {
+        {
+            {{-h,  0.0f, -h}, { 0.0f,  1.0f,  0.0f}, { 0.0f,   uv}},
+            {{ h,  0.0f, -h}, { 0.0f,  1.0f,  0.0f}, {   uv,   uv}},
+            {{ h,  0.0f,  h}, { 0.0f,  1.0f,  0.0f}, {   uv, 0.0f}},
+            {{ h,  0.0f,  h}, { 0.0f,  1.0f,  0.0f}, {   uv, 0.0f}},
+            {{-h,  0.0f,  h}, { 0.0f,  1.0f,  0.0f}, { 0.0f, 0.0f}},
+            {{-h,  0.0f, -h}, { 0.0f,  1.0f,  0.0f}, { 0.0f,   uv}}
+        },
+        {
+             0,  1,  2,    3,  4,  5
+        }
+    };
+}
+
+
+Mesh
 CreateBoxMesh(float size)
 {
     const auto h = size / 2.0f;
@@ -1311,6 +1332,7 @@ main(int, char**)
     // model
     const auto mesh = Compile(CreateBoxMesh(1.0f), compiled_layout);
     const auto light_mesh = Compile(CreateBoxMesh(0.2f), compiled_light_layout);
+    const auto plane_mesh = Compile(CreatePlaneMesh(20.0f, 20.0f), compiled_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // view
@@ -1379,7 +1401,7 @@ main(int, char**)
             LoadImageEmbeded
             (
                 CONTAINER_DIFFUSE_PNG_data, CONTAINER_DIFFUSE_PNG_size,
-                TextureEdge::Clamp,
+                TextureEdge::Repeat,
                 TextureRenderStyle::Smooth,
                 Transperency::Exclude
             )
@@ -1389,7 +1411,7 @@ main(int, char**)
             LoadImageEmbeded
             (
                 CONTAINER_SPECULAR_PNG_data, CONTAINER_SPECULAR_PNG_size,
-                TextureEdge::Clamp,
+                TextureEdge::Repeat,
                 TextureRenderStyle::Smooth,
                 Transperency::Exclude
             )
@@ -1623,6 +1645,14 @@ main(int, char**)
                     shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
                 }
                 mesh.Draw();
+            }
+
+            {
+                const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
+                shader.SetMat(uni_transform, pv * model);
+                shader.SetMat(uni_model_transform, model);
+                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                plane_mesh.Draw();
             }
         }
 
