@@ -1472,6 +1472,7 @@ main(int, char**)
                         }
                     }
                     break;
+                case SDLK_f: if(!down) { set_input_fps(!input_fps); } break;
                 case SDLK_w: input_w = down; break;
                 case SDLK_a: input_a = down; break;
                 case SDLK_s: input_s = down; break;
