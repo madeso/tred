@@ -17,11 +17,22 @@ Con (in favor of loading supported)
  - simple meshes are easy to generate but (good) skinned meshes will be hard
  - do we care about ease of use since the target codebase is euphoria?
 
+
+// todo(Gustav): Should the engine be flexible enough to handle different mesh attributes?
+
+Fully dynamic:
+ - Easy to add new rendering techniques with custom mesh data
+
+Fixed setup
+ - Easy to have a general shader (flat color) and less memory is used
+ - Is custom per-vertex mesh data common or is it more a new texture
+
 */
 
 // std things
 struct string {};
 template <typename T> struct vector {};
+template <typename T> struct optional {};
 template <typename K, typename V> struct map {};
 template <typename L, typename R> struct pair {};
 
@@ -66,6 +77,7 @@ struct PlacementInWorld;
 
 struct Actor
 {
+    optional<rgb> outline;
 
     // position, rotation(?) and animation pose(?) might change how the world culls the actor
     // so we need to reevaluate how to render it, for example to move to another room
@@ -147,6 +159,19 @@ struct Camera
     pair<vec2f, vec2f> WorldToCameraSpaceClipped(ray3f) const;
 };
 
+
+struct Technique
+{
+    virtual void Render(const vector<Actor>& culled) = 0;
+};
+
+struct TechniqueWireframe : public Technique {};
+
+struct TechniqueNoTextures : public Technique {};
+
+struct TechniqueFullyLit : public Technique {};
+
+
 // todo(Gustav): rename to World3?
 // 'Game Engine Architecture' calls this structure a SceneGraph, but I think
 // that name implies some form of hierarchy and World does not have that
@@ -158,7 +183,7 @@ struct World
     void AddLight();
     void AddParticleSystem();
 
-    virtual void Render(const Camera& camera) const = 0;
+    virtual void Render(const Camera& camera, Technique* technique) const = 0;
 
     virtual void OnActorMoved(Actor*, PlacementInWorld*) =0;
 };
