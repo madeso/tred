@@ -42,6 +42,8 @@
 // mesh header
 
 
+/** A unique combination of position/normal/texturecoord/etc. in a Mesh.
+ */
 struct Vertex
 {
     glm::vec3 position;
@@ -85,6 +87,7 @@ struct Mesh
 ///////////////////////////////////////////////////////////////////////////////
 // vertex layout
 
+/** Vertex source type, position, normal etc. */
 enum class VertexType
 {
     Position3, Normal3, Color4, Texture2
@@ -93,6 +96,7 @@ enum class VertexType
 };
 
 
+/** A not-yet-realised binding to a shader variable like 'vec3 position' */
 struct VertexElementDescription
 {
     VertexType type;
@@ -105,6 +109,7 @@ struct VertexElementDescription
     }
 };
 
+/** A realized VertexElementDescription */
 struct CompiledVertexElement
 {
     VertexType type;
@@ -121,11 +126,13 @@ struct CompiledVertexElement
 
 
 using VertexLayoutDescription = std::vector<VertexElementDescription>;
-using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
 using VertexTypes = std::vector<VertexType>;
 
+/** A list of CompiledVertexElement */
 struct CompiledVertexLayout
 {
+    using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
+
     CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
         : elements(e)
         , types(t)
@@ -134,8 +141,11 @@ struct CompiledVertexLayout
 
     CompiledVertexLayoutList elements;
     VertexTypes types;
+    
+    // todo(Gustav): isn't the type variable a copy of elements.type?
 };
 
+/** A list of things we need to extract from the Mesh when compiling */
 struct VertexTypeList
 {
     void
@@ -150,6 +160,7 @@ struct VertexTypeList
     std::set<VertexType> indices;
 };
 
+/** A mapping of the vertex type (position...) to the actual shader id */
 struct CompiledVertexTypeList
 {
     CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v)
@@ -161,7 +172,7 @@ struct CompiledVertexTypeList
     CompiledVertexLayout
     Compile(const VertexLayoutDescription& elements) const
     {
-        CompiledVertexLayoutList list;
+        CompiledVertexLayout::CompiledVertexLayoutList list;
 
         for(const auto& e: elements)
         {
@@ -392,6 +403,8 @@ CreateVertexArray()
 };
 
 
+/** Represents a found shader uniform and created via Shader::GetUniform()
+ */
 struct Uniform
 {
     std::string name;
@@ -673,6 +686,7 @@ BindTexture(const Uniform& uniform, const Texture& texture)
 
 
 
+/** A compiled Mesh*/
 struct CompiledMesh
 {
     unsigned int vbo;
@@ -716,6 +730,8 @@ struct CompiledMesh
 };
 
 
+/** Internal class used when compiling Mesh.
+ */
 struct BufferData
 {
     using PerVertex = std::function<void (std::vector<float>*, const Vertex&)>;
