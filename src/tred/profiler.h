@@ -1,10 +1,11 @@
-#ifndef PROFILER_H
-#define PROFILER_H
+#pragma once
 
 #include <chrono>
 
+
 void
 PrintProfiles();
+
 
 struct FrameProfileScope
 {
@@ -16,7 +17,6 @@ struct FrameProfileScope
     ~FrameProfileScope();
 };
 
+
 #define PROFILE_FRAME() auto dnu__profiler = FrameProfileScope{}
 
-
-#endif // PROFILER_H

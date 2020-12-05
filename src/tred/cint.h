@@ -1,5 +1,4 @@
-#ifndef CINT_H
-#define CINT_H
+#pragma once
 
 #include "tred/opengl.h"
 
@@ -35,5 +34,3 @@ Csizet_to_glsizeiptr(std::size_t t);
 GLsizei
 Csizet_to_glsizei(std::size_t t);
 
-
-#endif  //  CINT_H

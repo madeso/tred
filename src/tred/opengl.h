@@ -1,1 +1,2 @@
-#include "SDL_opengl.h"
+// #include "SDL_opengl.h"
+#include "glad/glad.h"

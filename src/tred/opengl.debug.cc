@@ -1,9 +1,10 @@
-#include "tred/debug_opengl.h"
+#include "tred/opengl.debug.h"
 
 #include "SDL.h"
-
 #include "glad/glad.h"
+
 #include "tred/opengl.h"
+#include "tred/log.h"
 
 
 const char*
@@ -100,11 +101,12 @@ OnOpenglError
     }
     ++ErrorCount;
 
-    SDL_Log("---------------");
-    SDL_Log("Debug message (%d): %s", id, message);
-    SDL_Log
+    LOG_ERROR
     (
-        "Source %s type: %s Severity: %s",
+        "---------------\n"
+        "Debug message ({}): {}\n"
+        "Source {} type: {} Severity: {}",
+        id, message,
         SourceToString(source),
         TypeToString(type),
         SeverityToString(severity)
@@ -120,16 +122,18 @@ SetupOpenglDebug()
     const bool has_debug = GLAD_GL_ARB_debug_output == 1;
     if(has_debug)
     {
-        SDL_Log("Enabling OpenGL debug output");
+        LOG_INFO("Enabling OpenGL debug output");
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         glDebugMessageCallbackARB(OnOpenglError, nullptr);
-        glDebugMessageControlARB(
-                GL_DONT_CARE,
-                GL_DONT_CARE,
-                GL_DONT_CARE,
-                0,
-                nullptr,
-                GL_TRUE);
+        glDebugMessageControlARB
+        (
+            GL_DONT_CARE,
+            GL_DONT_CARE,
+            GL_DONT_CARE,
+            0,
+            nullptr,
+            GL_TRUE
+        );
     }
 }
