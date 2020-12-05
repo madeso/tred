@@ -25,7 +25,9 @@
 #include "imgui_impl_opengl3.h"
 
 // custom/local headers
-#include "debug_opengl.h"
+#include "tred/debug_opengl.h"
+#include "tred/profiler.h"
+#include "tred/cint.h"
 
 // resource headers
 #include "shader_vertex.glsl.h"
@@ -35,8 +37,6 @@
 #include "container_diffuse.png.h"
 #include "container_specular.png.h"
 
-#include "profiler.h"
-#include "cint.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // mesh header
@@ -444,7 +444,7 @@ BindShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLay
 {
     for(const auto& b: layout.elements)
     {
-        glBindAttribLocation(shader_program, b.index, b.name.c_str());
+        glBindAttribLocation(shader_program, Cint_to_gluint(b.index), b.name.c_str());
     }
 }
 
@@ -680,7 +680,7 @@ BindTexture(const Uniform& uniform, const Texture& texture)
     if(uniform.IsValid() == false) { return; }
     assert(uniform.texture >= 0);
 
-    glActiveTexture(GL_TEXTURE0 + uniform.texture);
+    glActiveTexture(Cint_to_glenum(GL_TEXTURE0 + uniform.texture));
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
@@ -825,7 +825,7 @@ Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
     glBufferData
     (
         GL_ARRAY_BUFFER,
-        vertices.size() * sizeof(float),
+        Csizet_to_glsizeiptr(vertices.size() * sizeof(float)),
         &vertices[0],
         GL_STATIC_DRAW
     );
@@ -838,14 +838,14 @@ Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
         const auto normalize = false;
         glVertexAttribPointer
         (
-            location,
+            Cint_to_gluint(location),
             d.count,
             GL_FLOAT,
             normalize ? GL_TRUE : GL_FALSE,
-            stride,
+            Csizet_to_glsizei(stride),
             reinterpret_cast<void*>(offset)
         );
-        glEnableVertexAttribArray(location);
+        glEnableVertexAttribArray(Cint_to_gluint(location));
 
         location += 1;
         offset += Cint_to_sizet(d.count) * sizeof(float);
@@ -857,7 +857,7 @@ Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
     glBufferData
     (
         GL_ELEMENT_ARRAY_BUFFER,
-        mesh.triangles.size() * sizeof(unsigned int),
+        Csizet_to_glsizeiptr(mesh.triangles.size() * sizeof(unsigned int)),
         &mesh.triangles[0],
         GL_STATIC_DRAW
     );

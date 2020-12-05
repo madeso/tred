@@ -1,7 +1,9 @@
-#include "debug_opengl.h"
+#include "tred/debug_opengl.h"
+
+#include "SDL.h"
 
 #include "glad/glad.h"
-#include "SDL.h"
+#include "tred/opengl.h"
 
 
 const char*
