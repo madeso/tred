@@ -72,6 +72,15 @@ target_include_directories(glm
 
 
 ###################################################################################################
+# catch
+add_library(catch INTERFACE)
+target_include_directories(catch
+    INTERFACE
+        catch
+)
+
+
+###################################################################################################
 # stb
 add_library(stb STATIC
     stb.cc
