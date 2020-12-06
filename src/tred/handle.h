@@ -17,6 +17,13 @@ struct HandleFunctions
 {
     using Base = typename std::underlying_type<T>::type;
 
+    static_assert
+    (
+        std::is_unsigned_v<Base> &&
+        std::is_unsigned_v<Id> &&
+        std::is_unsigned_v<Version>,
+        "types needs to be unsigned"
+    );
     static_assert(IdSize > 0 && VersionSize > 0, "invalid size");
     static_assert(sizeof(Base) == IdSize + VersionSize, "sizes doesn't match base size");
 
