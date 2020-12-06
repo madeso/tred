@@ -1,5 +1,6 @@
 set(src
     tred/cint.cc tred/cint.h
+    tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
@@ -11,6 +12,7 @@ set(src
     tred/shader.cc tred/shader.h
     tred/shader.util.cc tred/shader.util.h
     tred/texture.cc tred/texture.h
+    tred/types.cc tred/types.h
     tred/uniform.cc tred/uniform.h
     tred/vertex_layout.cc tred/vertex_layout.h
 )
@@ -25,3 +27,13 @@ target_include_directories(tred
 )
 
 source_group("" FILES ${src})
+
+set(src_test
+    tred/handle.test.cc
+    ../external/catch/main.cc
+)
+add_executable(test ${src_test})
+target_link_libraries(test
+    PUBLIC catch tred
+    PRIVATE project_options project_warnings
+)
