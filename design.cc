@@ -31,6 +31,7 @@ Fixed setup
 
 // std things
 struct string {};
+template<typename T> using unique_ptr = T*;
 template <typename T> struct vector {};
 template <typename T> struct optional {};
 template <typename K, typename V> struct map {};
@@ -41,6 +42,10 @@ struct vec2f{}; struct vec3f{}; struct ray3f{};
 struct rectf{}; struct recti{}; struct aabb{}; struct ray2f{};
 struct rgba{}; struct rgb;
 struct Angle{}; struct quatf {};
+struct sizei
+{
+    sizei(int w, int h);
+};
 
 // also known as sausage body and capsule2d
 struct Stadium
@@ -54,6 +59,9 @@ struct Stadium
 };
 
 // engine things
+
+struct Mesh {};
+struct CompiledMesh {};
 
 struct Pose
 {
@@ -108,7 +116,7 @@ struct ViewVolume
     // contains the 6 planes
     // function to test if aabb, sphere, etc are inside
 
-    // might want to make it 6 less (ie dynamic)
+    // might want to make it 6 or less (ie dynamic)
     // so when culling, we can drop planes we know children in a hierarchical layout surely will pass
     // this might give a speed increase since we are doing less calculations
 };
@@ -137,17 +145,19 @@ struct Viewport
 {
     recti Calculate(const recti& available) const;
 
+    ViewportType type;
     float virtual_width;
     float virtual_height;
 };
 
 // todo(Gustav): how to handle animating viewports like 24 or Hulk?
 
-struct Camera
+struct Camera3
 {
     // virtual width & height or send as a argument when needed
     // world position
     // near and far plane
+    // aspect ratio
 
     // move to the compiled camera or a util function that compiles executes and discards? or dont bother compiling?
     // or get a dirty flag so we don't calculate inverse matrix and multiplications all the time and make the api a bit nicer?
@@ -162,7 +172,7 @@ struct Camera
 
 struct Technique
 {
-    virtual void Render(const vector<Actor>& culled) = 0;
+    virtual void Render(const vector<Actor>& culled); // pure virtual
 };
 
 struct TechniqueWireframe : public Technique {};
@@ -183,7 +193,7 @@ struct World
     void AddLight();
     void AddParticleSystem();
 
-    virtual void Render(const Camera& camera, Technique* technique) const = 0;
+    virtual void Render(const Camera3& camera, Technique* technique) const = 0;
 
     virtual void OnActorMoved(Actor*, PlacementInWorld*) =0;
 };
@@ -250,3 +260,77 @@ struct World2d
     void Render(const Camera2d& camera);
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// "working" main function
+
+enum class ActorDefHandle {};
+
+struct Engine
+{
+    ActorDefHandle CreateActorDef(const Mesh& mesh);
+};
+
+struct Windows
+{
+    unique_ptr<Engine> engine;
+
+    template<typename F>
+    void AddWindow(const sizei&, F&& on_render);
+
+    void Render();
+
+    void PumpEvents();
+};
+unique_ptr<Windows> Setup();
+
+enum class ActorHandle {};
+
+struct World
+{
+    ActorHandle CreateActor(ActorDefHandle);
+    void Render(const recti& size, const Technique& t);
+    void PlaceActor(ActorHandle actor, const vec3f& pos);
+};
+unique_ptr<World> CreateWorld();
+
+
+
+template<typename F>
+int MainLoop(Windows* windows, F&&);
+
+int main()
+{
+    auto windows = Setup();
+    
+    auto world = CreateWorld();
+    auto def = windows->engine->CreateActorDef(Mesh{});
+    auto actor = world->CreateActor(def);
+
+    // todo(Gustav): how does full screen effects work
+    // todo(Gustav): how does custom material shaders work?
+    // todo(Gustav): access vfs from engine object and add?
+
+    windows->AddWindow
+    (
+        {800, 600},
+        [&](const recti& size)
+        {
+            // todo(Gustav): camera? save or create here inline?
+            // how to specify camera? 3d=aspect ratio + screen rect, 2d=world rect + screen rect
+            // first arg is "constant" but screen rect needs some form of layout system
+            // probably also want some immediate api for atleast 2d but perhaps also 3d
+            world->Render(size, TechniqueFullyLit{});
+        }
+    );
+
+    return MainLoop
+    (
+        windows,
+        [&](float delta)
+        {
+            // todo(Gustav): how to handle input? register inputs or "pump" events in MainLoop?
+            world->PlaceActor(actor, vec3f{});
+        }
+    );
+}
