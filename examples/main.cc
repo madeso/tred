@@ -350,6 +350,8 @@ main(int, char**)
     // setup OpenGL
     SetupOpenglDebug();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK); // remove back faces
 
     const auto* renderer = glGetString(GL_RENDERER); // get renderer string
     const auto* version = glGetString(GL_VERSION); // version as a string
