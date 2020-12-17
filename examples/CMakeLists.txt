@@ -2,17 +2,16 @@ set(src
     main.cc
 )
 
-embed(HEADERS embedded_source
-    FILES
-    ../data/shader_vertex.glsl ../data/shader_fragment.glsl
-    ../data/light_vertex.glsl ../data/light_fragment.glsl
+embed(embedded
+    AS_TEXT
+        ../data/shader_vertex.glsl ../data/shader_fragment.glsl
+        ../data/light_vertex.glsl ../data/light_fragment.glsl
+    AS_BINARY
+        ../data/container_diffuse.png
+        ../data/container_specular.png
 )
-compress(HEADERS compressed_source
-    FILES ../data/container_diffuse.png ../data/container_specular.png
-)
-set(generated ${embedded_source} ${compressed_source})
 
-add_executable(example WIN32 MACOSX_BUNDLE ${src} ${generated})
+add_executable(example WIN32 MACOSX_BUNDLE ${src} ${embedded})
 target_link_libraries(
     example
     PUBLIC tred
