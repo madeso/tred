@@ -498,7 +498,7 @@ main(int, char**)
         {
             LoadImageEmbeded
             (
-                CONTAINER_DIFFUSE_PNG_data, CONTAINER_DIFFUSE_PNG_size,
+                CONTAINER_DIFFUSE_PNG,
                 TextureEdge::Repeat,
                 TextureRenderStyle::Smooth,
                 Transperency::Exclude
@@ -508,7 +508,7 @@ main(int, char**)
         {
             LoadImageEmbeded
             (
-                CONTAINER_SPECULAR_PNG_data, CONTAINER_SPECULAR_PNG_size,
+                CONTAINER_SPECULAR_PNG,
                 TextureEdge::Repeat,
                 TextureRenderStyle::Smooth,
                 Transperency::Exclude

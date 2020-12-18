@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tred/embedded_types.h"
+
 enum class TextureEdge
 {
     Clamp, Repeat
@@ -21,7 +23,7 @@ enum class Transperency
 unsigned int
 LoadImageEmbeded
 (
-    const unsigned int* source, unsigned int size,
+    const EmbeddedBinary& image_binary,
     TextureEdge texture_edge,
     TextureRenderStyle texture_render_style,
     Transperency transperency

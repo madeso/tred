@@ -1,5 +1,6 @@
 set(src
     tred/cint.cc tred/cint.h
+    tred/embedded_types.cc tred/embedded_types.h
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
     tred/log.cc tred/log.h

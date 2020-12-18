@@ -81,7 +81,7 @@ LoadImage
 unsigned int
 LoadImageEmbeded
 (
-    const unsigned int* source, unsigned int size,
+    const EmbeddedBinary& image_binary,
     TextureEdge texture_edge,
     TextureRenderStyle texture_render_style,
     Transperency transperency
@@ -89,8 +89,8 @@ LoadImageEmbeded
 {
     return LoadImage
     (
-        reinterpret_cast<const unsigned char*>(source),
-        Cunsigned_int_to_int(size),
+        reinterpret_cast<const unsigned char*>(image_binary.data),
+        Cunsigned_int_to_int(image_binary.size),
         texture_edge,
         texture_render_style,
         transperency
