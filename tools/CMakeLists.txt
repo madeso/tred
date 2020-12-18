@@ -1,8 +1,16 @@
-include(compress.cmake)
+include (embed.cmake)
 
-# imgui
-add_executable(compress compress.cpp)
+add_executable(embed_binary embed_binary.cpp)
+target_link_libraries(embed_binary
+    PRIVATE
+        project_options
+        imgui_binary_to_compressed
+)
 
-# custom
-add_executable(embed embed.cc)
-target_link_libraries(embed PRIVATE project_options project_warnings)
+
+add_executable(embed_text embed_text.cc)
+target_link_libraries(embed_text
+    PRIVATE
+        project_options
+        project_warnings
+)

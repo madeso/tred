@@ -69,7 +69,7 @@ function(embed HEADERS_TARGET)
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
             MAIN_DEPENDENCY ${absolute_file}
-            COMMAND embed
+            COMMAND embed_text
             ARGS "${absolute_file}" "${input_variable}" > "${input_name}.h"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Embedding text ${input_variable} to ${input_name}.h"
@@ -81,7 +81,7 @@ function(embed HEADERS_TARGET)
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
             MAIN_DEPENDENCY ${absolute_file}
-            COMMAND compress
+            COMMAND embed_binary
             ARGS "-nocompress" "${absolute_file}" "${input_variable}" > "${input_name}.h"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Embedding binary ${input_variable} to ${input_name}.h"
@@ -93,7 +93,7 @@ function(embed HEADERS_TARGET)
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
             MAIN_DEPENDENCY ${absolute_file}
-            COMMAND compress
+            COMMAND embed_binary
             ARGS "${absolute_file}" "${input_variable}" > "${input_name}.h"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Compressing binary ${input_variable} to ${input_name}.h"

@@ -40,6 +40,15 @@ target_compile_definitions(imgui
 
 
 ###################################################################################################
+# imgui binary_to_compressed
+add_library(imgui_binary_to_compressed INTERFACE)
+target_include_directories(imgui_binary_to_compressed
+    INTERFACE
+        imgui-1.78/misc/fonts/
+)
+
+
+###################################################################################################
 # SDL2
 find_package(SDL2 REQUIRED)
 add_library(sdl2 INTERFACE)
