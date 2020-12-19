@@ -52,50 +52,55 @@ function(embed_internal_helper)
 endfunction()
 
 
+function(embed_add_command)
+    set(options)
+    set(oneValueArgs COMMAND COMMENT)
+    set(multiValueArgs ARGS)
+    cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
+        MAIN_DEPENDENCY ${absolute_file}
+        COMMAND "${ARGS_COMMAND}"
+        # DEPENDS ${ARGS_COMMAND} # causes a circular dependency...?
+        ARGS ${ARGS_ARGS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "${ARGS_COMMENT}"
+    )
+endfunction()
+
+
 function(embed HEADERS_TARGET)
     set(options)
     set(oneValueArgs SOURCE_GROUP)
     set(multiValueArgs AS_TEXT AS_BINARY AS_COMPRESSED)
-    cmake_parse_arguments(PARSE_ARGV 1 ARG
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-    )
+    cmake_parse_arguments(PARSE_ARGV 1 ARG "${options}" "${oneValueArgs}" "${multiValueArgs}")
 
     set(headers_lists)
     
     foreach(input_file ${ARG_AS_TEXT})
         embed_internal_helper()
-        add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
-            MAIN_DEPENDENCY ${absolute_file}
+        embed_add_command(
             COMMAND embed_text
             ARGS "${absolute_file}" "${input_variable}" > "${input_name}.h"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Embedding text ${input_variable} to ${input_name}.h"
         )
     endforeach()
 
     foreach(input_file ${ARG_AS_BINARY})
         embed_internal_helper()
-        add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
-            MAIN_DEPENDENCY ${absolute_file}
+        embed_add_command(
             COMMAND embed_binary
             ARGS "-nocompress" "${absolute_file}" "${input_variable}" > "${input_name}.h"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Embedding binary ${input_variable} to ${input_name}.h"
         )
     endforeach()
 
     foreach(input_file ${ARG_AS_COMPRESSED})
         embed_internal_helper()
-        add_custom_command(
-            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
-            MAIN_DEPENDENCY ${absolute_file}
+        embed_add_command(
             COMMAND embed_binary
             ARGS "${absolute_file}" "${input_variable}" > "${input_name}.h"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Compressing binary ${input_variable} to ${input_name}.h"
         )
     endforeach()
