@@ -79,9 +79,8 @@ function(embed_add_command)
 
     add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${input_name}.h"
-        MAIN_DEPENDENCY ${absolute_file}
+        DEPENDS ${absolute_file} ${ARGS_COMMAND}
         COMMAND ${ARGS_COMMAND}
-        # DEPENDS ${ARGS_COMMAND}
         ARGS ${ARGS_ARGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "${ARGS_COMMENT}"
