@@ -10,7 +10,8 @@
 
 // Build with, e.g:
 //   # cl.exe binary_to_compressed_c.cpp
-//   # gcc binary_to_compressed_c.cpp
+//   # g++ binary_to_compressed_c.cpp
+//   # clang++ binary_to_compressed_c.cpp
 // You can also find a precompiled Windows binary in the binary/demo package available from https://github.com/ocornut/imgui
 
 // Usage:
@@ -30,13 +31,7 @@ typedef unsigned int stb_uint;
 typedef unsigned char stb_uchar;
 stb_uint stb_compress(stb_uchar* out, stb_uchar* in, stb_uint len);
 
-#ifdef CUSTOM_BINARY_TO_COMPRESSED_C
-    #define call_binary_to_compressed_c CUSTOM_BINARY_TO_COMPRESSED_C
-#else
-    #define call_binary_to_compressed_c binary_to_compressed_c
-#endif
-
-static bool call_binary_to_compressed_c(const char* filename, const char* symbol, bool use_base85_encoding, bool use_compression);
+static bool binary_to_compressed_c(const char* filename, const char* symbol, bool use_base85_encoding, bool use_compression);
 
 int main(int argc, char** argv)
 {
@@ -60,7 +55,7 @@ int main(int argc, char** argv)
         }
     }
 
-    bool ret = call_binary_to_compressed_c(argv[argn], argv[argn + 1], use_base85_encoding, use_compression);
+    bool ret = binary_to_compressed_c(argv[argn], argv[argn + 1], use_base85_encoding, use_compression);
     if (!ret)
         fprintf(stderr, "Error opening or reading file: '%s'\n", argv[argn]);
     return ret ? 0 : 1;
