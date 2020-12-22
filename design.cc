@@ -262,6 +262,48 @@ struct World2d
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// how to handle lights
+
+// defined by "world"
+struct LightShader {};
+
+// defined by "script"
+struct MaterialShader {};
+
+struct CombinedShader
+{
+    LightShader* light_shader;
+    MaterialShader* material_shader;
+};
+
+struct Material
+{
+    CombinedShader* combined_shader;
+    std::vector<Texture> textures;
+};
+
+struct Light
+{
+    virtual void SetupShader(CombinedShader* shader) = 0;
+};
+
+struct Renderer
+{
+    virtual void RenderWorld(World* world) = 0;
+};
+
+// specific light algorithm
+
+struct ForwardLight : public Light { };
+
+struct ForwardRenderer : public Renderer
+{
+};
+
+// deferred
+// other/toon
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // "working" main function
 
 enum class ActorDefHandle {};
