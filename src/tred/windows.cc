@@ -51,12 +51,12 @@ struct WindowImpl : public detail::Window
     std::string title;
     glm::ivec2 size;
     RenderFunction on_render;
-    std::optional<RenderFunction> imgui;
+    std::optional<ImguiFunction> imgui;
 
     SDL_Window* window;
     SDL_GLContext glcontext;
     
-    WindowImpl(const std::string& t, const glm::ivec2& s, RenderFunction&& r, std::optional<RenderFunction>&& i)
+    WindowImpl(const std::string& t, const glm::ivec2& s, RenderFunction&& r, std::optional<ImguiFunction>&& i)
         : title(t)
         , size(s)
         , on_render(r)
@@ -127,7 +127,7 @@ struct WindowImpl : public detail::Window
     {
         if(window == nullptr) { return; }
 
-        on_render();
+        on_render(size);
 
         if(imgui)
         {
@@ -168,7 +168,7 @@ void Windows::AddWindow(const std::string& title, const glm::ivec2& size, Render
 }
 
 
-void Windows::AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, RenderFunction&& on_imgui)
+void Windows::AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, ImguiFunction&& on_imgui)
 {
     AddWindowImpl(title, size, std::move(on_render), std::move(on_imgui));
 }
@@ -187,7 +187,7 @@ struct WindowsImpl : public Windows
         SDL_Quit();
     }
     
-    void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<RenderFunction>&& imgui) override
+    void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<ImguiFunction>&& imgui) override
     {
         auto window = std::make_unique<WindowImpl>(title, size, std::move(on_render), std::move(imgui));
         windows[window->GetId()] = std::move(window);

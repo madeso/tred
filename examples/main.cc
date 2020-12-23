@@ -299,6 +299,15 @@ struct SpotLightUniforms
 
 // constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 
+void Render(const glm::ivec2& size)
+{
+    glViewport(0, 0, size.x, size.y);
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+
 int
 main(int, char**)
 {
@@ -321,8 +330,9 @@ main(int, char**)
     windows->AddWindow
     (
         "TreD", {1280, 720},
-        []()
+        [](const glm::ivec2& size)
         {
+            Render(size);
         }
     );
 
