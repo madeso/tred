@@ -2,7 +2,6 @@
 
 #include "catch.hpp"
 
-#include "tred/types.h"
 #include "tred/to_base.h"
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tred/to_base.h"
+#include "tred/types.h"
 
 #include <type_traits>
 
@@ -15,6 +16,9 @@ constexpr T OnlyF(int size)
 template<typename T, typename Id, typename Version, int IdSize=sizeof(Id), int VersionSize=sizeof(Version)>
 struct HandleFunctions
 {
+    using TId = Id;
+    using TVersion = Version;
+    
     using Base = typename std::underlying_type<T>::type;
 
     static_assert
@@ -48,4 +52,7 @@ struct HandleFunctions
         return static_cast<T>(((id & IdMask) << IdShift) | (version & VersionMask));
     }
 };
+
+template<typename E>
+using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
 

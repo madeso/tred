@@ -6,6 +6,8 @@
 
 #include "glm/glm.hpp"
 
+#include "tred/types.h"
+
 
 using FunctionCallback = std::function<void ()>;
 
@@ -24,6 +26,8 @@ struct TwoButtonRange
 
 struct InputImpl;
 
+enum class Range : u64 {};
+
 struct Input
 {
     Input();
@@ -34,6 +38,10 @@ struct Input
     void OnKeyboard(int key, bool down);
 
     void AddFunction(const Keybind& bind, FunctionCallback&& function);
+
+    Range AddRange(const Keybind& negative, const Keybind& positive);
+
+    float Get(Range range);
 
     std::unique_ptr<InputImpl> impl;
 };

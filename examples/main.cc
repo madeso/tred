@@ -410,12 +410,14 @@ main(int, char**)
 
     Engine engine;
 
+    auto camera = Camera{};
+
     windows->AddWindow
     (
         "TreD", {1280, 720},
         [&](const glm::ivec2& size)
         {
-            engine.Render(size, {});
+            engine.Render(size, camera);
         }
     );
 
@@ -572,10 +574,26 @@ main(int, char**)
         }
     };
 
-    return MainLoop(std::move(windows), &input, [&](float) -> bool
+    const auto range_in = input.AddRange(Keybind{SDLK_s}, Keybind{SDLK_w});
+    const auto range_right = input.AddRange(Keybind{SDLK_a}, Keybind{SDLK_d});
+    const auto range_up = input.AddRange(Keybind{SDLK_LCTRL}, Keybind{SDLK_SPACE});
+
+    return MainLoop(std::move(windows), &input, [&](float dt) -> bool
     {
+        const auto v = camera.CreateVectors();
+        const auto camera_movement
+            = v.front * input.Get(range_in)
+            + v.right * input.Get(range_right)
+            + v.up * input.Get(range_up)
+            ;
+        
+        constexpr bool input_shift = false; // todo(Gustav): expose toggleables
+        const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
+        camera.position += camera_speed * camera_movement;
+
         return running;
     });
+
     #if 0
 
     int rendering_mode = 0;
