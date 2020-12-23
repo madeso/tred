@@ -297,15 +297,75 @@ struct SpotLightUniforms
 };
 
 
-// constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
+constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 
-void Render(const glm::ivec2& size)
+
+constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
+struct Camera
 {
-    glViewport(0, 0, size.x, size.y);
+    float fov = 45.0f;
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    float near = 0.1f;
+    float far = 100.0f;
+
+    glm::vec3 position = glm::vec3{0.0f, 0.0f,  3.0f};
+
+    float yaw = -90.0f;
+    float pitch = 0.0f;
+};
+
+
+struct CompiledCamera
+{
+    glm::mat4 view;
+    glm::vec3 position;
+
+    CompiledCamera(const glm::mat4& v, const glm::vec3& p)
+        : view(v)
+        , position(p)
+    {
+    }
+};
+
+
+CompiledCamera Compile(const Camera& camera)
+{
+    const auto direction = glm::vec3
+    {
+        cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch)),
+        sin(glm::radians(camera.pitch)),
+        sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch))
+    };
+    const auto camera_front = glm::normalize(direction);
+    // const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
+    // const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
+
+    const auto view = glm::lookAt(camera.position, camera.position + camera_front, UP);
+
+    return {view, camera.position};
 }
+
+
+struct Engine
+{
+    std::function<void (const glm::mat4& projection, const CompiledCamera& camera)> painter_callback;
+
+    void Render(const glm::ivec2& size, const Camera& camera)
+    {
+        glViewport(0, 0, size.x, size.y);
+
+        // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+        const auto aspect_ratio = static_cast<float>(size.x)/static_cast<float>(size.y);
+        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        painter_callback(projection, Compile(camera));
+    }
+};
 
 
 int
@@ -327,14 +387,169 @@ main(int, char**)
 
     input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
+    Engine engine;
+
     windows->AddWindow
     (
         "TreD", {1280, 720},
-        [](const glm::ivec2& size)
+        [&](const glm::ivec2& size)
         {
-            Render(size);
+            engine.Render(size, {});
         }
     );
+
+    ///////////////////////////////////////////////////////////////////////////
+    // shader layout
+    const auto layout = VertexLayoutDescription
+    {
+        {VertexType::Position3, "aPos"},
+        {VertexType::Normal3, "aNormal"},
+        {VertexType::Color4, "aColor"},
+        {VertexType::Texture2, "aTexCoord"}
+    };
+    auto layout_compiler = Compile({layout});
+    const auto compiled_layout = layout_compiler.Compile(layout);
+
+    const auto light_layout = VertexLayoutDescription
+    {
+        {VertexType::Position3, "aPos"}
+    };
+    auto light_compiler = Compile({light_layout});
+    const auto compiled_light_layout = light_compiler.Compile(light_layout);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // shaders
+    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    const auto uni_color = shader.GetUniform("uColor");
+    const auto uni_transform = shader.GetUniform("uTransform");
+    const auto uni_model_transform = shader.GetUniform("uModelTransform");
+    const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
+    const auto uni_view_position = shader.GetUniform("uViewPosition");
+    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
+    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
+    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
+    {
+        PointLightUniforms{shader, "uPointLights[0]"},
+        PointLightUniforms{shader, "uPointLights[1]"},
+        PointLightUniforms{shader, "uPointLights[2]"},
+        PointLightUniforms{shader, "uPointLights[3]"}
+    };
+    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
+
+    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    const auto uni_light_transform = light_shader.GetUniform("uTransform");
+    const auto uni_light_color = light_shader.GetUniform("uColor");
+
+    ///////////////////////////////////////////////////////////////////////////
+    // model
+    const auto mesh = Compile(CreateBoxMesh(1.0f), compiled_layout);
+    const auto light_mesh = Compile(CreateBoxMesh(0.2f), compiled_light_layout);
+    const auto plane_mesh = Compile(CreatePlaneMesh(20.0f, 20.0f), compiled_layout);
+
+    auto cube_positions = std::vector<glm::vec3>
+    {
+        { 0.0f,  0.0f,  0.0f },
+        { 2.0f,  5.0f, -5.0f},
+        {-1.5f, -2.2f, -2.5f },
+        {-3.8f, -2.0f, -5.3f},
+        { 2.4f, -0.4f, -3.5f },
+        {-1.7f,  3.0f, -7.5f },
+        { 1.3f, -2.0f, -2.5f },
+        { 1.5f,  2.0f, -2.5f },
+        { 1.5f,  0.2f, -1.5f },
+        {-1.3f,  1.0f, -1.5f }
+    };
+    auto cube_color = glm::vec4{1.0f};
+
+    auto material = Material
+    {
+        Texture
+        {
+            LoadImageEmbeded
+            (
+                CONTAINER_DIFFUSE_PNG,
+                TextureEdge::Repeat,
+                TextureRenderStyle::Smooth,
+                Transperency::Exclude
+            )
+        },
+        Texture
+        {
+            LoadImageEmbeded
+            (
+                CONTAINER_SPECULAR_PNG,
+                TextureEdge::Repeat,
+                TextureRenderStyle::Smooth,
+                Transperency::Exclude
+            )
+        }
+    };
+    auto directional_light = DirectionalLight{};
+    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
+    {
+        glm::vec3{ 0.7f,  0.2f,  2.0f},
+        glm::vec3{ 2.3f, -3.3f, -4.0f},
+        glm::vec3{-4.0f,  2.0f, -12.0f},
+        glm::vec3{ 0.0f,  0.0f, -3.0f}
+    };
+    auto spot_light = SpotLight{};
+
+    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& camera)
+    {
+        const auto view = camera.view;
+
+        const auto pv = projection * view;
+
+        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+        {
+            light_shader.Use();
+            light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
+            {
+                const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
+                light_shader.SetMat(uni_light_transform, pv * model);
+            }
+            light_mesh.Draw();
+        }
+
+        shader.Use();
+        shader.SetVec4(uni_color, cube_color);
+        uni_material.SetShader(&shader, material);
+        uni_directional_light.SetShader(&shader, directional_light);
+        uni_spot_light.SetShader(&shader, spot_light);
+        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
+        {
+            uni_point_lights[i].SetShader(&shader, point_lights[i]);
+        }
+        shader.SetVec3(uni_view_position, camera.position);
+        
+        for(unsigned int i=0; i<cube_positions.size(); i+=1)
+        {
+            const auto angle = 20.0f * static_cast<float>(i);
+            const float time = 0;
+            {
+                const auto model = glm::rotate
+                (
+                    glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                    time + glm::radians(angle),
+                    i%2 == 0
+                    ? glm::vec3{1.0f, 0.3f, 0.5f}
+                    : glm::vec3{0.5f, 1.0f, 0.0f}
+                );
+                shader.SetMat(uni_transform, pv * model);
+                shader.SetMat(uni_model_transform, model);
+                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+            }
+            mesh.Draw();
+        }
+
+        {
+            const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
+            shader.SetMat(uni_transform, pv * model);
+            shader.SetMat(uni_model_transform, model);
+            shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+            plane_mesh.Draw();
+        }
+    };
 
     return MainLoop(std::move(windows), &input, [&]() -> bool
     {
