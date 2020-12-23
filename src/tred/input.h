@@ -9,12 +9,42 @@
 
 using FunctionCallback = std::function<void ()>;
 
+namespace input
+{
+
+struct Function
+{
+    virtual ~Function() = default;
+    virtual void OnChange(bool new_state) = 0;
+};
+
+struct Callback : public Function
+{
+    FunctionCallback callback;
+
+    explicit Callback(FunctionCallback&& callback);
+    void OnChange(bool new_state) override;
+};
+
+struct Toggle : public Function
+{
+    bool state = false;
+
+    void OnChange(bool new_state) override;
+};
+
+}
 
 struct Keybind
 {
     int key;
 
     explicit Keybind(int key);
+};
+
+struct TwoButtonRange
+{
+    TwoButtonRange();
 };
 
 struct Input
@@ -25,5 +55,7 @@ struct Input
 
     void AddFunction(const Keybind& bind, FunctionCallback&& function);
 
-    std::map<int, std::unique_ptr<FunctionCallback>> map;
+    void AddFunction(const Keybind& bind, std::unique_ptr<input::Function>&& function);
+
+    std::map<int, std::unique_ptr<input::Function>> map;
 };
