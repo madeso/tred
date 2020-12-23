@@ -5,23 +5,40 @@ namespace input
 {
 
 
-Callback::Callback(FunctionCallback&& c)
-    : callback(std::move(c))
+struct Function
 {
-}
+    virtual ~Function() = default;
+
+    virtual void OnChange(bool new_state) = 0;
+};
 
 
-void Callback::OnChange(bool new_state)
+struct Callback : public Function
 {
-    if(!new_state) { return; }
-    callback();
-}
+    FunctionCallback callback;
+
+    explicit Callback(FunctionCallback&& c)
+        : callback(std::move(c))
+    {
+    }
+
+    void OnChange(bool new_state) override
+    {
+        if(!new_state) { return; }
+        callback();
+    }
+};
 
 
-void Toggle::OnChange(bool new_state)
+struct Toggle : public Function
 {
-    state = new_state;
-}
+    bool state = false;
+
+    void OnChange(bool new_state) override
+    {
+        state = new_state;
+    }
+};
 
 
 }
@@ -32,6 +49,20 @@ Keybind::Keybind(int k)
 {
 }
 
+
+struct InputImpl
+{
+    std::map<int, std::unique_ptr<input::Function>> map;
+
+    void AddFunction(const Keybind& bind, std::unique_ptr<input::Function>&& function)
+    {
+        map[bind.key] = std::move(function);
+    }
+};
+
+
+Input::Input() = default;
+Input::~Input() = default;
 
 void Input::OnMouseMotion(const glm::vec2&)
 {
@@ -45,8 +76,8 @@ void Input::OnMouseButton(int, bool)
 
 void Input::OnKeyboard(int key, bool down)
 {
-    auto found = map.find(key);
-    if(found == map.end()) { return; }
+    auto found = impl->map.find(key);
+    if(found == impl->map.end()) { return; }
 
     auto& func = found->second;
     func->OnChange(down);
@@ -55,11 +86,7 @@ void Input::OnKeyboard(int key, bool down)
 
 void Input::AddFunction(const Keybind& bind, FunctionCallback&& function)
 {
-    AddFunction(bind, std::make_unique<input::Callback>(std::move(function)));
+    impl->AddFunction(bind, std::make_unique<input::Callback>(std::move(function)));
 }
 
-void Input::AddFunction(const Keybind& bind, std::unique_ptr<input::Function>&& function)
-{
-    map[bind.key] = std::move(function);
-}
 
