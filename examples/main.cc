@@ -303,6 +303,23 @@ constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
+struct CameraVectors
+{
+    glm::vec3 front;
+    glm::vec3 right;
+    glm::vec3 up;
+    glm::vec3 position;
+
+    CameraVectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
+        : front(f)
+        , right(r)
+        , up(u)
+        , position(p)
+    {
+    }
+};
+
+
 struct Camera
 {
     float fov = 45.0f;
@@ -314,6 +331,21 @@ struct Camera
 
     float yaw = -90.0f;
     float pitch = 0.0f;
+
+    CameraVectors CreateVectors() const
+    {
+        const auto direction = glm::vec3
+        {
+            cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+            sin(glm::radians(pitch)),
+            sin(glm::radians(yaw)) * cos(glm::radians(pitch))
+        };
+        const auto front = glm::normalize(direction);
+        const auto right = glm::normalize(glm::cross(front, UP));
+        const auto up = glm::normalize(glm::cross(right, front));
+
+        return {front, right, up, position};
+    }
 };
 
 
@@ -330,20 +362,9 @@ struct CompiledCamera
 };
 
 
-CompiledCamera Compile(const Camera& camera)
+CompiledCamera Compile(const CameraVectors& camera)
 {
-    const auto direction = glm::vec3
-    {
-        cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch)),
-        sin(glm::radians(camera.pitch)),
-        sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch))
-    };
-    const auto camera_front = glm::normalize(direction);
-    // const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
-    // const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
-
-    const auto view = glm::lookAt(camera.position, camera.position + camera_front, UP);
-
+    const auto view = glm::lookAt(camera.position, camera.position + camera.front, UP);
     return {view, camera.position};
 }
 
@@ -363,7 +384,7 @@ struct Engine
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        painter_callback(projection, Compile(camera));
+        painter_callback(projection, Compile(camera.CreateVectors()));
     }
 };
 
