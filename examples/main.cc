@@ -36,6 +36,9 @@
 #include "tred/log.h"
 #include "tred/mesh.compiled.h"
 #include "tred/image.h"
+#include "tred/windows.h"
+#include "tred/input.h"
+
 
 // resource headers
 #include "shader_vertex.glsl.h"
@@ -294,83 +297,40 @@ struct SpotLightUniforms
 };
 
 
-constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
+// constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 
 int
 main(int, char**)
 {
-    const auto pi = 3.14f;
+    // const auto pi = 3.14f;
     ///////////////////////////////////////////////////////////////////////////
     // setup
-    if(SDL_Init(SDL_INIT_VIDEO) != 0)
+    auto windows = Setup();
+
+    if(windows == nullptr)
     {
-        LOG_ERROR("Unable to initialize SDL: {}", SDL_GetError());
+        LOG_ERROR("Failed to start");
         return 1;
     }
 
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    bool running = true;
+    Input input;
 
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    int width = 1280;
-    int height = 720;
-
-    SDL_Window* window = SDL_CreateWindow
+    windows->AddWindow
     (
-        "TreD",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        width,
-        height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+        "TreD", {1280, 720},
+        []()
+        {
+        }
     );
 
-    if(window == nullptr)
+    return MainLoop(std::move(windows), &input, [&]() -> bool
     {
-        LOG_ERROR("Could not create window: {}", SDL_GetError());
-        return 1;
-    }
-
-    SDL_GLContext glcontext = SDL_GL_CreateContext(window);
-
-    if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
-    {
-        LOG_ERROR("Failed to initialize OpenGL context");
-        return -1;
-    }
-
-    // setup OpenGL
-    SetupOpenglDebug();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK); // remove back faces
-
-    const auto* renderer = glGetString(GL_RENDERER); // get renderer string
-    const auto* version = glGetString(GL_VERSION); // version as a string
-    LOG_INFO("Renderer: {}", renderer);
-    LOG_INFO("Version: {}", version);
-
-    // imgui setup
-    const char* glsl_version = "#version 130";
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    auto& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    ImGui::StyleColorsLight();
-    
-    ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+        return running;
+    });
+    #if 0
 
     int rendering_mode = 0;
     const auto set_rendering_mode = [&rendering_mode]()
@@ -881,5 +841,6 @@ main(int, char**)
 
     SDL_Quit();
     return 0;
+    #endif
 }
 

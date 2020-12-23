@@ -3,6 +3,7 @@ set(src
     tred/embedded_types.cc tred/embedded_types.h
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
+    tred/input.cc tred/input.h
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
     tred/mesh.compiled.cc tred/mesh.compiled.h
@@ -16,6 +17,7 @@ set(src
     tred/types.cc tred/types.h
     tred/uniform.cc tred/uniform.h
     tred/vertex_layout.cc tred/vertex_layout.h
+    tred/windows.cc tred/windows.h
 )
 
 add_library(tred STATIC ${src})
