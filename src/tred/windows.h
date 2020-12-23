@@ -9,7 +9,7 @@
 
 using RenderFunction = std::function<void (const glm::ivec2& size)>;
 using ImguiFunction = std::function<void ()>;
-using UpdateFunction = std::function<bool ()>;
+using UpdateFunction = std::function<bool (float)>;
 
 struct Input;
 

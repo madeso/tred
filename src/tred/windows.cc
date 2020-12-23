@@ -285,10 +285,16 @@ std::unique_ptr<Windows> Setup()
 
 int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, UpdateFunction&& on_update)
 {
+    auto last = SDL_GetPerformanceCounter();
+
     while(windows->running)
     {
+        const auto now = SDL_GetPerformanceCounter();
+        const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
+        last = now;
+
         windows->PumpEvents(input);
-        if(false == on_update())
+        if(false == on_update(dt))
         {
             return 0;
         }

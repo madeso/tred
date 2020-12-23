@@ -572,7 +572,7 @@ main(int, char**)
         }
     };
 
-    return MainLoop(std::move(windows), &input, [&]() -> bool
+    return MainLoop(std::move(windows), &input, [&](float) -> bool
     {
         return running;
     });
