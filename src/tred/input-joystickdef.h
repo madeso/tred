@@ -19,13 +19,13 @@ namespace config { struct JoystickDef; }
 
 namespace input {
 
-class InputDirector;
-class ActiveUnit;
-class InputActionMap;
+struct InputDirector;
+struct ActiveUnit;
+struct InputActionMap;
 
 /** Joystick definition.
  */
-class JoystickDef : public UnitDef {
+struct JoystickDef : public UnitDef {
  public:
   /** Constructor.
   @param data the data structure to load from

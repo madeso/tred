@@ -13,7 +13,7 @@ Classes for input definitions.
 
 namespace input {
 
-class HatAxis {
+struct HatAxis {
  public:
   HatAxis(int hat, Axis axis);
 

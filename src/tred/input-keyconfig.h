@@ -16,15 +16,15 @@ Classes for input handling.
 
 namespace input {
 
-class UnitDef;
-class InputDirector;
-class InputActionMap;
-class BindMap;
+struct UnitDef;
+struct InputDirector;
+struct InputActionMap;
+struct BindMap;
 
 /** Contains a list of configurations.
 A good example is Mouse+Keyboard.
  */
-class KeyConfig {
+struct KeyConfig {
  public:
   /** Constructor.
    */

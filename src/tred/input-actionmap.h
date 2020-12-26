@@ -14,18 +14,18 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
 namespace config { struct ActionMap; }
 
-class InputAction;
-class GlobalToggle;
+struct InputAction;
+struct GlobalToggle;
 
 /** A map of all the available input actions.
  */
-class InputActionMap {
+struct InputActionMap {
  public:
   /** Constructor.
    */

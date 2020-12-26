@@ -13,8 +13,8 @@ Classes for input handling.
 
 namespace input {
 
-class InputAction;
-class GlobalToggle;
+struct InputAction;
+struct GlobalToggle;
 
 enum class BindType { RANGE, AXIS };
 
@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& ss, const BindType& bt);
 
 /** A bind.
  */
-class Bind {
+struct Bind {
  public:
   Bind(InputAction* action, BindType type);
   ~Bind();

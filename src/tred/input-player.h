@@ -13,7 +13,7 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
@@ -21,7 +21,7 @@ namespace input {
 The idea behind decoupling the active units and the player is that the unit
 could be disconnected and swapped but the player should remain.
 */
-class Player {
+struct Player {
  public:
   /** Constructor.
    */

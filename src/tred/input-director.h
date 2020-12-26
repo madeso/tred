@@ -16,13 +16,13 @@ Classes for input handling.
 
 namespace input {
 
-class KeyboardActiveUnit;
-class MouseActiveUnit;
-class JoystickActiveUnit;
+struct KeyboardActiveUnit;
+struct MouseActiveUnit;
+struct JoystickActiveUnit;
 
-/** Container class for directing input.
+/** Container struct for directing input.
  */
-class InputDirector {
+struct InputDirector {
  public:
   /** Constructor.
    */

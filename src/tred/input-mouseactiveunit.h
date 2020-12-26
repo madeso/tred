@@ -18,16 +18,16 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class InputDirector;
+struct InputDirector;
 struct BindData;
 
 /** A active mouse binding
  */
-class MouseActiveUnit : public ActiveUnit {
+struct MouseActiveUnit : public ActiveUnit {
  public:
   /** Constructor.
   @param axis the axis binds to use

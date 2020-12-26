@@ -14,13 +14,13 @@ Classes for input handling.
 
 
 namespace input {
-class KeyConfig;
-class ConnectedUnits;
-class InputActionMap;
+struct KeyConfig;
+struct ConnectedUnits;
+struct InputActionMap;
 
 /** Contains a list of configurations.
  */
-class KeyConfigs {
+struct KeyConfigs {
  public:
   /** Constructor.
    */

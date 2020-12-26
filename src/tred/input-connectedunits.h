@@ -12,16 +12,16 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class ActiveUnit;
-class ActiveList;
+struct ActiveUnit;
+struct ActiveList;
 
 /** Contains a list of active units.
  */
-class ConnectedUnits {
+struct ConnectedUnits {
  public:
   /** Constructor.
    */

@@ -15,7 +15,7 @@ namespace input {
 
 /** A Dummy active unit.
  */
-class DummyActiveUnit : public ActiveUnit {
+struct DummyActiveUnit : public ActiveUnit {
  public:
   /** Rumble.
    */

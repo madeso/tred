@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 
-class Table
+struct Table
 {
 public:
     void Set(const std::string& name, float value);

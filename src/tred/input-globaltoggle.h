@@ -14,12 +14,12 @@ Classes for input handling.
 
 namespace input {
 
-class InputAction;
-class Bind;
+struct InputAction;
+struct Bind;
 
 /** Represents the accumulated input to be sent to the game logic.
  */
-class GlobalToggle {
+struct GlobalToggle {
  public:
   explicit GlobalToggle(std::shared_ptr<InputAction> action);
   ~GlobalToggle();

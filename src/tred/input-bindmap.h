@@ -21,16 +21,16 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class InputAction;
-class ActiveList;
+struct InputAction;
+struct ActiveList;
 
 /** A container for all the actives in the game.
  */
-class BindMap {
+struct BindMap {
  public:
   BindMap(const InputActionMap& actions, ActiveList* actives);
   std::shared_ptr<Bind> GetBindByName(const std::string& name);

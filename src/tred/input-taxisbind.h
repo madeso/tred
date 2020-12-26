@@ -17,7 +17,7 @@ Classes for input handling.
 namespace input {
 
 template <typename T>
-class TAxisBind {
+struct TAxisBind {
  public:
   TAxisBind(T axis, std::shared_ptr<Bind> bind, bool invert, float scale)
       : axis_(axis), bind_(bind), invert_(invert), scale_(scale) {

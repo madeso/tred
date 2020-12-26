@@ -17,14 +17,14 @@ Classes for common input def loading.
 #include "tred/input-bindmap.h"
 
 namespace Json {  // no-doxygen-namechecks
-class Value;
+struct Value;
 }
 
 
 
 namespace input {
-class InputActionMap;
-class BindMap;
+struct InputActionMap;
+struct BindMap;
 
 struct CommonDef {
   std::string bindname;

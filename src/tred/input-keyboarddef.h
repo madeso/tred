@@ -16,15 +16,15 @@ Classes for input handling.
 
 
 namespace input {
-class InputActionMap;
-class ActiveUnit;
-class InputDirector;
+struct InputActionMap;
+struct ActiveUnit;
+struct InputDirector;
 
 namespace config { struct KeyboardDef; }
 
 /** Keyboard definition.
  */
-class KeyboardDef : public UnitDef {
+struct KeyboardDef : public UnitDef {
  public:
   /** Constructor.
   @param data the data structure to load from

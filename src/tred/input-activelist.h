@@ -12,22 +12,22 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class ActiveRange;
-class ActiveAxis;
+struct ActiveRange;
+struct ActiveAxis;
 
-class ActiveAxisToRange;
-class ActiveRangeToAxis;
+struct ActiveAxisToRange;
+struct ActiveRangeToAxis;
 
-class ActiveMasterAxis;
-class ActiveMasterRange;
+struct ActiveMasterAxis;
+struct ActiveMasterRange;
 
 /** A container for all the actives in the game.
  */
-class ActiveList {
+struct ActiveList {
  public:
   void Add(std::shared_ptr<ActiveRange> range);
   void Add(std::shared_ptr<ActiveAxis> axis);

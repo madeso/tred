@@ -13,15 +13,15 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class GlobalToggle;
+struct GlobalToggle;
 
 /** A input action.
  */
-class InputAction {
+struct InputAction {
  public:
   /** Constructor.
   @param scriptvarname the name of the variable in the script.

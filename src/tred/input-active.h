@@ -9,15 +9,15 @@ Classes for input handling.
 
 
 
-class Table;
+struct Table;
 
 namespace input {
 
-class InputAction;
+struct InputAction;
 
 /** Represents the accumulated input to be sent to the game logic.
  */
-class InputActive {
+struct InputActive {
  public:
   /** Constructor.
   @param action the action this active belongs to

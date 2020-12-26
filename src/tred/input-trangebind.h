@@ -16,7 +16,7 @@ Classes for input handling.
 
 namespace input {
 template <typename T>
-class TRangeBind {
+struct TRangeBind {
  public:
   TRangeBind(T button, std::shared_ptr<Bind> bind, bool invert, float scale)
       : button_(button), bind_(bind), invert_(invert), scale_(scale) {

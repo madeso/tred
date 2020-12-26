@@ -19,11 +19,11 @@ namespace config { struct MouseDef; }
 
 
 namespace input {
-class InputActionMap;
+struct InputActionMap;
 
 /** Mouse definition.
  */
-class MouseDef : public UnitDef {
+struct MouseDef : public UnitDef {
  public:
   /** Constructor.
   @param data the data structure to load from

@@ -16,10 +16,10 @@ Classes for input handling.
 
 namespace input {
 
-class ActiveAxis;
-class ActiveRangeToAxis;
+struct ActiveAxis;
+struct ActiveRangeToAxis;
 
-class ActiveMasterAxis : public InputActive {
+struct ActiveMasterAxis : public InputActive {
  public:
   explicit ActiveMasterAxis(InputAction* action, ActiveAxis* axis,
                             ActiveRangeToAxis* range);

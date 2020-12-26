@@ -18,19 +18,19 @@ Classes for input handling.
 #include "tred/input-actionmap.h"
 
 
-class Table;
+struct Table;
 
 namespace input {
 
 namespace config{ struct InputSystem; }
 
-class Player;
-class GlobalToggle;
-class InputDirector;
+struct Player;
+struct GlobalToggle;
+struct InputDirector;
 
-/** the master class that controls the input system.
+/** the master struct that controls the input system.
  */
-class InputSystem {
+struct InputSystem {
  public:
   /** Constructor.
    */

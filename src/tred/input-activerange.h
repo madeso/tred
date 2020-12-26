@@ -13,12 +13,12 @@ Classes for input handling.
 
 namespace input {
 
-class InputAction;
-class Bind;
+struct InputAction;
+struct Bind;
 
 /** A input active range.
  */
-class ActiveRange : public InputActive {
+struct ActiveRange : public InputActive {
  public:
   /** Constructor.
   @param action the action this active belongs to

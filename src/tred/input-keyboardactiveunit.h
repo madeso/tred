@@ -20,13 +20,13 @@ Classes for input handling.
 
 namespace input {
 
-class AxisKey;
-class InputDirector;
+struct AxisKey;
+struct InputDirector;
 struct BindData;
 
 /** A active keyboard.
  */
-class KeyboardActiveUnit : public ActiveUnit {
+struct KeyboardActiveUnit : public ActiveUnit {
  public:
   /** Constructor.
   @param binds the key binds

@@ -13,14 +13,14 @@
 
 namespace input {
 
-class InputDirector;
-class ActiveUnit;
-class BindMap;
+struct InputDirector;
+struct ActiveUnit;
+struct BindMap;
 
 /** Definition of a certain input unit.
 Usually loaded from a file.
  */
-class UnitDef {
+struct UnitDef {
  public:
   /** Destructor.
    */

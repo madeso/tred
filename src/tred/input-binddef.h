@@ -20,7 +20,7 @@ namespace input {
  */
 
 template <typename Type>
-class BindDef {
+struct BindDef {
  public:
  template<typename D>
   BindDef(const std::string& id, const Type type, const D& d)

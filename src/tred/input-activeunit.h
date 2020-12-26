@@ -14,12 +14,12 @@ Classes for input handling.
 
 namespace input {
 
-class InputAction;
+struct InputAction;
 
 /** Represents a active unit.
 A perfect example is a connected joystick.
  */
-class ActiveUnit {
+struct ActiveUnit {
  public:
   /** Destructor.
    */
