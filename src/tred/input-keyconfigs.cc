@@ -62,42 +62,23 @@ std::shared_ptr<ConnectedUnits> KeyConfigs::GetFirstAutoDetectedConfig() const
 }
 
 
-std::shared_ptr<UnitDef> CreateUnit(const input::config::UnitInterface& type, const InputActionMap& map)
-{
-    if (type.keyboard.has_value())
-    {
-        std::shared_ptr<UnitDef> def;
-        def.reset(new KeyboardDef(*type.keyboard, map));
-        return def;
-    }
-    else if (type.mouse.has_value())
-    {
-        std::shared_ptr<UnitDef> def;
-        def.reset(new MouseDef(*type.mouse, map));
-        return def;
-    }
-    else if (type.joystick.has_value())
-    {
-        std::shared_ptr<UnitDef> def;
-        def.reset(new JoystickDef(*type.joystick, map));
-        return def;
-    }
-    else
-    {
-        throw std::string{"Unknown unit definition"};
-    }
-}
-
-
 void Load(KeyConfig* config, const input::config::Config& root, const InputActionMap& map)
 {
     assert(config);
 
-    for (const auto& d: root.units)
+    for (const auto& d: root.keyboards)
     {
-        auto def = CreateUnit(d, map);
-        assert(def);
-        config->Add(def);
+        config->Add(std::make_shared<KeyboardDef>(d, map));
+    }
+
+    for (const auto& d: root.mouses)
+    {
+        config->Add(std::make_shared<MouseDef>(d, map));
+    }
+
+    for (const auto& d: root.joysticks)
+    {
+        config->Add(std::make_shared<JoystickDef>(d, map));
     }
 }
 

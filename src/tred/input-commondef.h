@@ -15,12 +15,6 @@ namespace input
 struct InputActionMap;
 struct BindMap;
 
-struct CommonDef
-{
-    std::string bindname;
-    std::string actionname;
-    std::string type;
-};
 
 struct BindData
 {
@@ -29,7 +23,9 @@ struct BindData
     float scale;
 };
 
+
 void TransformAndSetBindValue(const BindData& data, float value);
+
 
 template <typename TBind, typename Type>
 std::vector<std::shared_ptr<TBind>> CreateBinds(std::vector<BindDef<Type>> defs, BindMap* map)

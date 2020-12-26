@@ -99,13 +99,17 @@ TEST_CASE("input-test", "[input]")
             {
                 {
                     "mouse+keyboard",
+                    // keyboards
                     {
                         config::KeyboardDef
                         {
                             {
                                 {"shoot", Key::A}
                             }
-                        },
+                        }
+                    },
+                    // mouses
+                    {
                         config::MouseDef
                         {
                             {
@@ -114,6 +118,9 @@ TEST_CASE("input-test", "[input]")
                             // no mouse buttons
                             {}
                         }
+                    },
+                    // joysticks
+                    {
                     }
                 }
             },

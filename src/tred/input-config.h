@@ -121,24 +121,15 @@ struct JoystickDef
 };
 
 
-// todo(Gustav): move one layer up
-struct UnitInterface
-{
-    UnitInterface(const KeyboardDef&);
-    UnitInterface(const MouseDef&);
-    UnitInterface(const JoystickDef&);
-
-    std::optional<KeyboardDef> keyboard;
-    std::optional<MouseDef> mouse;
-    std::optional<JoystickDef> joystick;
-};
-
 struct Config
 {
-    Config(const std::string&, const std::vector<UnitInterface>&);
+    Config(const std::string&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
 
     std::string name;
-    std::vector<UnitInterface> units;
+    
+    std::vector<KeyboardDef> keyboards;
+    std::vector<MouseDef> mouses;
+    std::vector<JoystickDef> joysticks;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

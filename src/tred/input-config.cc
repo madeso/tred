@@ -102,27 +102,11 @@ JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<J
 }
 
 
-UnitInterface::UnitInterface(const KeyboardDef& k)
-    : keyboard(k)
-{
-}
-
-
-UnitInterface::UnitInterface(const MouseDef& m)
-    : mouse(m)
-{
-}
-
-
-UnitInterface::UnitInterface(const JoystickDef& j)
-    : joystick(j)
-{
-}
-
-
-Config::Config(const std::string& n, const std::vector<UnitInterface>& u)
+Config::Config(const std::string& n, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
     : name(n)
-    , units(u)
+    , keyboards(k)
+    , mouses(m)
+    , joysticks(j)
 {
 }
 
