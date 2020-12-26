@@ -103,13 +103,13 @@ TEST_CASE("input-test", "[input]")
                         config::KeyboardDef
                         {
                             {
-                                {{"shoot", "action_name"}, Key::A}
+                                {"shoot", Key::A}
                             }
                         },
                         config::MouseDef
                         {
                             {
-                                {{"look", "mouse_name"}, Axis::X}
+                                {"look", Axis::X}
                             },
                             // no mouse buttons
                             {}

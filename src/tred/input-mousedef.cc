@@ -18,12 +18,12 @@ MouseDef::MouseDef(const config::MouseDef& data, const InputActionMap&)
 {
     for (const auto& d: data.axis)
     {
-        axis.push_back(BindDef<Axis>(d.common.bindname, d.axis, d));
+        axis.push_back(BindDef<Axis>(d.bindname, d.axis, d));
     }
 
     for (const auto& d: data.button)
     {
-        keys.push_back(BindDef<MouseButton>(d.common.bindname, d.key, d));
+        keys.push_back(BindDef<MouseButton>(d.bindname, d.key, d));
     }
 }
 

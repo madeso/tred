@@ -12,23 +12,16 @@ Action::Action(const std::string& n, const std::string& v, ::Range r, bool g)
 }
 
 
-CommonDef::CommonDef(const std::string& b, const std::string& a)
-    : bindname(b)
-    , actionname(a)
-{
-}
-
-
-KeyboardButton::KeyboardButton(const CommonDef& c, ::Key k, bool i, float s)
-    : common(c)
+KeyboardButton::KeyboardButton(const std::string& bind, ::Key k, bool i, float s)
+    : bindname(bind)
     , key(k)
     , invert(i)
     , scale(s)
 {
 }
 
-MouseAxis::MouseAxis(const CommonDef& c, ::Axis a, bool i, float s)
-    : common(c)
+MouseAxis::MouseAxis(const std::string& bind, ::Axis a, bool i, float s)
+    : bindname(bind)
     , axis(a)
     , invert(i)
     , scale(s)
@@ -36,8 +29,8 @@ MouseAxis::MouseAxis(const CommonDef& c, ::Axis a, bool i, float s)
 }
 
 
-MouseButton::MouseButton(const CommonDef& c, ::MouseButton k, bool i, float s)
-    : common(c)
+MouseButton::MouseButton(const std::string& bind, ::MouseButton k, bool i, float s)
+    : bindname(bind)
     , key(k)
     , invert(i)
     , scale(s)
@@ -45,8 +38,8 @@ MouseButton::MouseButton(const CommonDef& c, ::MouseButton k, bool i, float s)
 }
 
 
-JoystickAxis::JoystickAxis(const CommonDef& c, int a, bool i, float s)
-    : common(c)
+JoystickAxis::JoystickAxis(const std::string& bind, int a, bool i, float s)
+    : bindname(bind)
     , axis(a)
     , invert(i)
     , scale(s)
@@ -54,8 +47,8 @@ JoystickAxis::JoystickAxis(const CommonDef& c, int a, bool i, float s)
 }
 
 
-JoystickButton::JoystickButton(const CommonDef& c, int b, bool i, float s)
-    : common(c)
+JoystickButton::JoystickButton(const std::string& bind, int b, bool i, float s)
+    : bindname(bind)
     , button(b)
     , invert(i)
     , scale(s)
@@ -63,8 +56,8 @@ JoystickButton::JoystickButton(const CommonDef& c, int b, bool i, float s)
 }
 
 
-JoystickHat::JoystickHat(const CommonDef& c, int h, ::Axis a, bool i, float s)
-    : common(c)
+JoystickHat::JoystickHat(const std::string& bind, int h, ::Axis a, bool i, float s)
+    : bindname(bind)
     , hat(h)
     , axis(a)
     , invert(i)

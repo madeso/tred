@@ -23,42 +23,39 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
 {
     for (const auto& d: data.axis)
     {
-        auto common = d.common;
         const int axis = d.axis;
         if (axis < 0)
         {
-            LOG_ERROR("Invalid joystick axis for {} action", common.bindname);
+            LOG_ERROR("Invalid joystick axis for {} action", d.bindname);
         }
         else
         {
-            axes.push_back(BindDef<int>(common.bindname, axis, d));
+            axes.push_back(BindDef<int>(d.bindname, axis, d));
         }
     }
     for (const auto& d: data.button)
     {
-        auto common = d.common;
         const int key = d.button;
 
         if (key < 0)
         {
-            LOG_ERROR("Invalid joystick button for the {} action", common.bindname);
+            LOG_ERROR("Invalid joystick button for the {} action", d.bindname);
         }
         else
         {
-            buttons.push_back(BindDef<int>(common.bindname, key, d));
+            buttons.push_back(BindDef<int>(d.bindname, key, d));
         }
     }
     for (const auto& d: data.hat)
     {
-        auto common = d.common;
         const int hat = d.hat;
         if (hat < 0)
         {
-            LOG_ERROR("Invalid joystick hat for the {} action", common.bindname);
+            LOG_ERROR("Invalid joystick hat for the {} action", d.bindname);
         }
         else
         {
-            hats.push_back(BindDef<HatAxis>(common.bindname, HatAxis(hat, d.axis), d));
+            hats.push_back(BindDef<HatAxis>(d.bindname, HatAxis(hat, d.axis), d));
         }
     }
 }

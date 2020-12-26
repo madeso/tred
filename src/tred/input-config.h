@@ -19,20 +19,11 @@ struct Action
     bool global;
 };
 
-struct CommonDef
-{
-    CommonDef(const std::string& bind, const std::string& action);
-
-    std::string bindname;
-    std::string actionname;
-    // std::string type;
-};
-
 struct KeyboardButton
 {
-    KeyboardButton(const CommonDef&, ::Key, bool invert=false, float scale=1.0f);
+    KeyboardButton(const std::string&, ::Key, bool invert=false, float scale=1.0f);
 
-    CommonDef common;
+    std::string bindname;
 
     ::Key key;
 
@@ -42,9 +33,9 @@ struct KeyboardButton
 
 struct MouseAxis
 {
-    MouseAxis(const CommonDef&, ::Axis, bool invert=false, float scale=1.0f);
+    MouseAxis(const std::string&, ::Axis, bool invert=false, float scale=1.0f);
 
-    CommonDef common;
+    std::string bindname;
 
     ::Axis axis;
 
@@ -54,8 +45,8 @@ struct MouseAxis
 
 struct MouseButton
 {
-    MouseButton(const CommonDef&, ::MouseButton, bool invert=false, float scale=1.0f);
-    CommonDef common;
+    MouseButton(const std::string&, ::MouseButton, bool invert=false, float scale=1.0f);
+    std::string bindname;
 
     ::MouseButton key;
 
@@ -66,9 +57,9 @@ struct MouseButton
 
 struct JoystickAxis
 {
-    JoystickAxis(const CommonDef&, int, bool invert=false, float scale=1.0f);
+    JoystickAxis(const std::string&, int, bool invert=false, float scale=1.0f);
 
-    CommonDef common;
+    std::string bindname;
 
     int axis;
 
@@ -78,8 +69,8 @@ struct JoystickAxis
 
 struct JoystickButton
 {
-    JoystickButton(const CommonDef&, int, bool invert=false, float scale=1.0f);
-    CommonDef common;
+    JoystickButton(const std::string&, int, bool invert=false, float scale=1.0f);
+    std::string bindname;
 
     int button;
 
@@ -89,9 +80,9 @@ struct JoystickButton
 
 struct JoystickHat
 {
-    JoystickHat(const CommonDef&, int, ::Axis, bool invert=false, float scale=1.0f);
+    JoystickHat(const std::string&, int, ::Axis, bool invert=false, float scale=1.0f);
 
-    CommonDef common;
+    std::string bindname;
 
     int hat;
     ::Axis axis;

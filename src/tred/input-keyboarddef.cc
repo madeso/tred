@@ -18,7 +18,7 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&)
 {
     for (const auto& d: data.binds)
     {
-        keys.push_back(BindDef<Key>(d.common.bindname, d.key, d));
+        keys.push_back(BindDef<Key>(d.bindname, d.key, d));
     }
 }
 
