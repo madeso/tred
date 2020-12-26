@@ -116,13 +116,24 @@ TEST_CASE("input-test", "[input]")
 
     auto player = sys.GetPlayer("player");
 
-    // press enter on playscreen
-    sys.SetUnitForPlayer("player", "mouse+keyboard");
+    SECTION("no assigned control is valid")
+    {
+        const auto table = GetTable(player);
 
-    auto table = GetTable(player);
+        REQUIRE(MapEquals(table.data, {
+        }));
+    }
 
-    REQUIRE(MapEquals(table.data, {
-        {"var_shoot", 0.0f}
-    }));
+    SECTION("no input")
+    {
+        // press enter on playscreen
+        sys.SetUnitForPlayer("player", "mouse+keyboard");
+
+        const auto table = GetTable(player);
+
+        REQUIRE(MapEquals(table.data, {
+            {"var_shoot", 0.0f}
+        }));
+    }
 }
 
