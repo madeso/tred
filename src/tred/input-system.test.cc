@@ -41,7 +41,7 @@ FalseString BaseMapEquals(const std::map<K, V>& lhs, const std::map<K, V>& rhs, 
             const catchy::FalseString result = compare(lhsp.second, found->second);
             if(result == false)
             {
-                issues.emplace_back(fmt::format("{} was different: {}", lhsp.first, result));
+                issues.emplace_back(fmt::format("{} was different: {}", lhsp.first, result.reason));
             }
         }
     }
@@ -132,6 +132,29 @@ TEST_CASE("input-test", "[input]")
         const auto table = GetTable(player);
 
         REQUIRE(MapEquals(table.data, {
+            {"var_shoot", 0.0f}
+        }));
+    }
+
+    SECTION("push button")
+    {
+        // press enter on playscreen
+        sys.SetUnitForPlayer("player", "mouse+keyboard");
+
+        sys.OnKeyboardKey(Key::A, true);
+        sys.Update(0.1f);
+
+        const auto before = GetTable(player);
+
+        sys.OnKeyboardKey(Key::A, false);
+        sys.Update(0.1f);
+
+        const auto after = GetTable(player);
+
+        REQUIRE(MapEquals(before.data, {
+            {"var_shoot", 1.0f}
+        }));
+        REQUIRE(MapEquals(after.data, {
             {"var_shoot", 0.0f}
         }));
     }
