@@ -88,11 +88,13 @@ TEST_CASE("input-test", "[input]")
     {
         {
             // actions
+            // todo(Gustav): split global and player input
+            // todo(Gustav): add groupings... car/walk/swim ...?
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne, false}
             },
 
-            // keys
+            // controller setup (bind)
             {
                 {
                     "mouse+keyboard",
@@ -108,6 +110,7 @@ TEST_CASE("input-test", "[input]")
             },
 
             // players
+            // todo(Gustav): remove list of player... concept is good, list is bad
             {
                 "player"
             }
