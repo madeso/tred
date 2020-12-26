@@ -91,7 +91,8 @@ TEST_CASE("input-test", "[input]")
             // todo(Gustav): split global and player input
             // todo(Gustav): add groupings... car/walk/swim ...?
             {
-                {"shoot", "var_shoot", Range::WithinZeroToOne, false}
+                {"shoot", "var_shoot", Range::WithinZeroToOne, false},
+                {"look", "var_look", Range::WithinNegativeOneToPositiveOne, false}
             },
 
             // controller setup (bind)
@@ -104,6 +105,14 @@ TEST_CASE("input-test", "[input]")
                             {
                                 {{"shoot", "action_name"}, Key::A}
                             }
+                        },
+                        config::MouseDef
+                        {
+                            {
+                                {{"look", "mouse_name"}, Axis::X}
+                            },
+                            // no mouse buttons
+                            {}
                         }
                     }
                 }
@@ -135,7 +144,8 @@ TEST_CASE("input-test", "[input]")
         const auto table = GetTable(player);
 
         REQUIRE(MapEquals(table.data, {
-            {"var_shoot", 0.0f}
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f}
         }));
     }
 
@@ -155,10 +165,37 @@ TEST_CASE("input-test", "[input]")
         const auto after = GetTable(player);
 
         REQUIRE(MapEquals(before.data, {
-            {"var_shoot", 1.0f}
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f}
         }));
         REQUIRE(MapEquals(after.data, {
-            {"var_shoot", 0.0f}
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f}
+        }));
+    }
+
+    SECTION("move mouse")
+    {
+        // press enter on playscreen
+        sys.SetUnitForPlayer("player", "mouse+keyboard");
+
+        sys.OnMouseAxis(Axis::X, 2.0f);
+        sys.Update(0.1f);
+
+        const auto before = GetTable(player);
+
+        sys.OnMouseAxis(Axis::X, 0.0f);
+        sys.Update(0.1f);
+
+        const auto after = GetTable(player);
+
+        REQUIRE(MapEquals(before.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 1.0f}
+        }));
+        REQUIRE(MapEquals(after.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f}
         }));
     }
 }
