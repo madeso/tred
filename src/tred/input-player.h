@@ -8,37 +8,33 @@ Classes for input handling.
 #include "tred/input-connectedunits.h"
 
 
-
 struct Table;
 
-namespace input {
-
+namespace input
+{
 /** Represents a player.
 The idea behind decoupling the active units and the player is that the unit
 could be disconnected and swapped but the player should remain.
 */
-struct Player {
-   /** Constructor.
+struct Player
+{
+    /** Constructor.
    */
-  Player();
+    Player();
 
-  /** Updates all connected units.
+    /** Updates all connected units.
   @param table the table to update
   */
-  void UpdateTable(Table* table);
+    void UpdateTable(Table* table);
 
-  void Update(float dt);
+    void Update(float dt);
 
-  /** Sets the connected units.
+    /** Sets the connected units.
   @param units the units
   */
-  void set_units(std::shared_ptr<ConnectedUnits> units);
+    void set_units(std::shared_ptr<ConnectedUnits> units);
 
-   std::shared_ptr<ConnectedUnits> units_;
+    std::shared_ptr<ConnectedUnits> units_;
 };
 
 }  // namespace input
-
-
-
-

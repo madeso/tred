@@ -11,90 +11,106 @@
 #include "tred/input-keyconfig.h"
 
 
+namespace input
+{
+void Load(InputSystem* sys, const config::InputSystem& root)
+{
+    assert(sys);
 
-namespace input {
-
-void Load(InputSystem* sys, const config::InputSystem& root) {
-  assert(sys);
-  
-  for (const auto& name : root.players) {
-    sys->AddPlayer(name);
-  }
+    for (const auto& name: root.players)
+    {
+        sys->AddPlayer(name);
+    }
 }
 
-InputSystem::InputSystem(const config::InputSystem& config) : input_(new InputDirector()) {
+InputSystem::InputSystem(const config::InputSystem& config)
+    : input_(new InputDirector())
+{
     Load(&actions_, config.actions);
-  Load(&configs_, config.keys, actions_);
-  Load(this, config);
+    Load(&configs_, config.keys, actions_);
+    Load(this, config);
 }
 
-InputSystem::~InputSystem() {
+InputSystem::~InputSystem()
+{
     players_.clear();
 }
 
-std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name) {
+std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name)
+{
     return actions_.GetGlobalToggle(name);
 }
 
-void InputSystem::SetUnitForPlayer(const std::string& playerName,
-                                   const std::string& inputname) {
+void InputSystem::SetUnitForPlayer(const std::string& playerName, const std::string& inputname)
+{
     auto res = players_.find(playerName);
-  if (res == players_.end()) {
-    const std::string error = fmt::format("Unable to find player {}", playerName);
-    throw error;
-  }
-  std::shared_ptr<Player> player = res->second;
+    if (res == players_.end())
+    {
+        const std::string error = fmt::format("Unable to find player {}", playerName);
+        throw error;
+    }
+    std::shared_ptr<Player> player = res->second;
 
-  auto config = configs_.Get(inputname);
-  player->set_units(config->Connect(actions_, input_.get()));
+    auto config = configs_.Get(inputname);
+    player->set_units(config->Connect(actions_, input_.get()));
 }
 
-void InputSystem::Update(float dt) {
+void InputSystem::Update(float dt)
+{
     actions_.Update();
 
-  for (auto p : players_) {
-    p.second->Update(dt);
-  }
+    for (auto p: players_)
+    {
+        p.second->Update(dt);
+    }
 }
 
-void InputSystem::OnKeyboardKey(Key key, bool down) {
+void InputSystem::OnKeyboardKey(Key key, bool down)
+{
     input_->OnKeyboardKey(key, down);
 }
 
-void InputSystem::OnMouseAxis(Axis axis, float value) {
+void InputSystem::OnMouseAxis(Axis axis, float value)
+{
     input_->OnMouseAxis(axis, value);
 }
 
-void InputSystem::OnMouseButton(MouseButton button, bool down) {
+void InputSystem::OnMouseButton(MouseButton button, bool down)
+{
     input_->OnMouseButton(button, down);
 }
 
-void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value) {
+void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value)
+{
     input_->OnJoystickPov(type, hat, joystick, value);
 }
 
-void InputSystem::OnJoystickButton(int button, int joystick, bool down) {
+void InputSystem::OnJoystickButton(int button, int joystick, bool down)
+{
     input_->OnJoystickButton(button, joystick, down);
 }
 
-void InputSystem::OnJoystickAxis(int axis, int joystick, float value) {
+void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
+{
     input_->OnJoystickAxis(axis, joystick, value);
 }
 
-std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name) {
+std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name)
+{
     auto res = players_.find(name);
-  if (res == players_.end()) {
-    const std::string error = fmt::format("Unable to find player {}", name);
-    throw error;
-  }
-  assert(res->second);
-  return res->second;
+    if (res == players_.end())
+    {
+        const std::string error = fmt::format("Unable to find player {}", name);
+        throw error;
+    }
+    assert(res->second);
+    return res->second;
 }
 
-void InputSystem::AddPlayer(const std::string& name) {
+void InputSystem::AddPlayer(const std::string& name)
+{
     std::shared_ptr<Player> p(new Player());
-  players_.insert(std::make_pair(name, p));
+    players_.insert(std::make_pair(name, p));
 }
 
 }  // namespace input
-

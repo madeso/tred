@@ -13,55 +13,51 @@ Classes for input handling.
 #include "tred/input-trangebind.h"
 
 
-
 struct Table;
 
-namespace input {
-
+namespace input
+{
 struct BindData;
 struct InputDirector;
 
 /** A active mouse binding
  */
-struct JoystickActiveUnit : public ActiveUnit {
-   /** Constructor.
+struct JoystickActiveUnit : public ActiveUnit
+{
+    /** Constructor.
   @param axis the axis binds to use
   @param director the input director
    */
-  JoystickActiveUnit(
-      int joystick, InputDirector* director,
-      const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
-      const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
-      const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats);
+    JoystickActiveUnit(
+            int joystick, InputDirector* director,
+            const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
+            const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
+            const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats);
 
-  /** React to a change in the axis.
+    /** React to a change in the axis.
   @param axis the axis
   @param state the state of the axis
    */
-  void OnAxis(int axis, float state);
+    void OnAxis(int axis, float state);
 
-  void OnButton(int button, float state);
+    void OnButton(int button, float state);
 
-  void OnHat(const HatAxis& hatAxis, float state);
+    void OnHat(const HatAxis& hatAxis, float state);
 
-  /** Destructor.
+    /** Destructor.
    */
-  ~JoystickActiveUnit();
+    ~JoystickActiveUnit();
 
-  /** Rumble the joystick.
+    /** Rumble the joystick.
   Doesn't do anything.
    */
-  void Rumble() override;
+    void Rumble() override;
 
-   // int joystick_;
-  InputDirector* director_;
-  std::map<int, BindData> axis_;
-  std::map<int, BindData> buttons_;
-  std::map<HatAxis, BindData> hats_;
+    // int joystick_;
+    InputDirector* director_;
+    std::map<int, BindData> axis_;
+    std::map<int, BindData> buttons_;
+    std::map<HatAxis, BindData> hats_;
 };
 
 }  // namespace input
-
-
-
-

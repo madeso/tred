@@ -8,53 +8,53 @@ Classes for input handling.
 #include <memory>
 
 
-
-namespace input {
+namespace input
+{
 struct KeyConfig;
 struct ConnectedUnits;
 struct InputActionMap;
 
 /** Contains a list of configurations.
  */
-struct KeyConfigs {
-   /** Constructor.
+struct KeyConfigs
+{
+    /** Constructor.
    */
-  KeyConfigs();
+    KeyConfigs();
 
-  /** Add a configuration.
+    /** Add a configuration.
   @param name the name of the configuration
   @param config the configuration to add
    */
-  void Add(const std::string& name, std::shared_ptr<KeyConfig> config);
+    void Add(const std::string& name, std::shared_ptr<KeyConfig> config);
 
-  /** Get a configuration.
+    /** Get a configuration.
   @param name the name of the configuration
   @returns the found configuration
    */
-  std::shared_ptr<KeyConfig> Get(const std::string& name) const;
+    std::shared_ptr<KeyConfig> Get(const std::string& name) const;
 
-  /** Start configuration auto detection.
+    /** Start configuration auto detection.
    */
-  void BeginAutoDetect();
+    void BeginAutoDetect();
 
-  /** Abort auto detection.
+    /** Abort auto detection.
    */
-  void AbortAutoDetect();
+    void AbortAutoDetect();
 
-  /** Get the detected configuration.
+    /** Get the detected configuration.
   If there are many detected, this will only return the first.
   @returns the first detected configuration
    */
-  std::shared_ptr<ConnectedUnits> GetFirstAutoDetectedConfig() const;
+    std::shared_ptr<ConnectedUnits> GetFirstAutoDetectedConfig() const;
 
-   std::map<std::string, std::shared_ptr<KeyConfig>> configs_;
+    std::map<std::string, std::shared_ptr<KeyConfig>> configs_;
 };
 
-namespace config { struct KeyConfigs; }
+namespace config
+{
+    struct KeyConfigs;
+}
 void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const InputActionMap& map);
 
 }  // namespace input
-
-
-
-

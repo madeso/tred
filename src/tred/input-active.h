@@ -7,39 +7,36 @@ Classes for input handling.
 
 struct Table;
 
-namespace input {
-
+namespace input
+{
 struct InputAction;
 
 /** Represents the accumulated input to be sent to the game logic.
  */
-struct InputActive {
-  /** Constructor.
+struct InputActive
+{
+    /** Constructor.
   @param action the action this active belongs to
    */
-  explicit InputActive(InputAction* action);
+    explicit InputActive(InputAction* action);
 
-  /** Get the current value of the input.
+    /** Get the current value of the input.
   @returns the state
    */
-  float state() const;
+    float state() const;
 
-  /** Set the value of the input.
+    /** Set the value of the input.
   @param state the new value
    */
-  void set_state(float state);
+    void set_state(float state);
 
-  /** Gets the action this active belongs to.
+    /** Gets the action this active belongs to.
   @returns the action this active belongs to
    */
-  const InputAction& action() const;
+    const InputAction& action() const;
 
-  InputAction* action_;
-  float state_;
+    InputAction* action_;
+    float state_;
 };
 
 }  // namespace input
-
-
-
-

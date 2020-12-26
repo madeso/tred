@@ -6,27 +6,23 @@ Classes for input handling.
 #include "tred/input-active.h"
 
 
-
-namespace input {
-
+namespace input
+{
 struct InputAction;
 struct Bind;
 
 /** A input active range.
  */
-struct ActiveRange : public InputActive {
-   /** Constructor.
+struct ActiveRange : public InputActive
+{
+    /** Constructor.
   @param action the action this active belongs to
    */
-  ActiveRange(InputAction* action, Bind* range);
+    ActiveRange(InputAction* action, Bind* range);
 
-  void Update(float dt);
+    void Update(float dt);
 
-   Bind* range_;
+    Bind* range_;
 };
 
 }  // namespace input
-
-
-
-

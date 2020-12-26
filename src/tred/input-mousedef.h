@@ -10,34 +10,33 @@ Classes for input handling.
 #include "tred/input-binddef.h"
 #include "tred/input-key.h"
 
-namespace config { struct MouseDef; }
+namespace config
+{
+struct MouseDef;
+}
 
 
-
-namespace input {
+namespace input
+{
 struct InputActionMap;
 
 /** Mouse definition.
  */
-struct MouseDef : public UnitDef {
-   /** Constructor.
+struct MouseDef : public UnitDef
+{
+    /** Constructor.
   @param data the data structure to load from
   @param map the input actions to use
    */
-  MouseDef(const config::MouseDef& data, const InputActionMap& map);
+    MouseDef(const config::MouseDef& data, const InputActionMap& map);
 
-  /** Create a active mouse interface.
+    /** Create a active mouse interface.
   @param director the input director
   @returns the active mouse
    */
-  std::shared_ptr<ActiveUnit> Create(InputDirector* director,
-                                     BindMap* map) override;
+    std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) override;
 
-   std::vector<BindDef<Axis>> axis_;
-  std::vector<BindDef<MouseButton>> keys_;
+    std::vector<BindDef<Axis>> axis_;
+    std::vector<BindDef<MouseButton>> keys_;
 };
 }  // namespace input
-
-
-
-

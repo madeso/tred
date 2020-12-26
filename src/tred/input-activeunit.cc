@@ -4,12 +4,14 @@
 #include "tred/input-action.h"
 
 
+namespace input
+{
+ActiveUnit::~ActiveUnit()
+{
+}
 
-namespace input {
-
-ActiveUnit::~ActiveUnit() {  }
-
-ActiveUnit::ActiveUnit() {  }
+ActiveUnit::ActiveUnit()
+{
+}
 
 }  // namespace input
-

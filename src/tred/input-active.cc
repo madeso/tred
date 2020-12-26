@@ -4,49 +4,61 @@
 #include "tred/input-action.h"
 
 
-
-namespace input {
-
+namespace input
+{
 float KeepWithin(float mi, float v, float ma)
 {
-    if(v < mi) { return mi;}
-    else if(v > ma) { return ma;}
-    else return v;
+    if (v < mi)
+    {
+        return mi;
+    }
+    else if (v > ma)
+    {
+        return ma;
+    }
+    else
+        return v;
 }
 
-InputActive::InputActive(InputAction* action) : action_(action), state_(0.0f) {
-  }
+InputActive::InputActive(InputAction* action)
+    : action_(action)
+    , state_(0.0f)
+{
+}
 
-float InputActive::state() const {
+float InputActive::state() const
+{
     float value = state_;
 
-  switch (action().range()) {
+    switch (action().range())
+    {
     case Range::INFINITE:
-      /* do nothing */
-      break;
+        /* do nothing */
+        break;
     case Range::WITHIN_ZERO_ONE:
-      value = KeepWithin(0.0f, value, 1.0f);
-      break;
+        value = KeepWithin(0.0f, value, 1.0f);
+        break;
     case Range::WITHIN_NEGATIVE_ONE_POSITIVE_ONE:
-      value = KeepWithin(-1.0f, value, 1.0f);
-      break;
+        value = KeepWithin(-1.0f, value, 1.0f);
+        break;
     case Range::INVALID:
     default:
-      assert(0 && "Using invalid value");
-      break;
-  }
+        assert(0 && "Using invalid value");
+        break;
+    }
 
-  return value;
+    return value;
 }
 
-const InputAction& InputActive::action() const {
+const InputAction& InputActive::action() const
+{
     assert(action_);
-  return *action_;
+    return *action_;
 }
 
-void InputActive::set_state(float state) {
+void InputActive::set_state(float state)
+{
     state_ = state;
 }
 
 }  // namespace input
-

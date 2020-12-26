@@ -9,101 +9,97 @@ Classes for input handling.
 #include "tred/input-axis.h"
 
 
-
-namespace input {
-
+namespace input
+{
 struct KeyboardActiveUnit;
 struct MouseActiveUnit;
 struct JoystickActiveUnit;
 
 /** Container struct for directing input.
  */
-struct InputDirector {
-   /** Constructor.
+struct InputDirector
+{
+    /** Constructor.
    */
-  InputDirector();
+    InputDirector();
 
-  /** Destructor.
+    /** Destructor.
    */
-  ~InputDirector();
+    ~InputDirector();
 
-  /** Add a keyboard.
+    /** Add a keyboard.
   @param kb the keyboard
    */
-  void Add(KeyboardActiveUnit* kb);
+    void Add(KeyboardActiveUnit* kb);
 
-  /** Remove a keyboard.
+    /** Remove a keyboard.
   @param kb the keyboard
    */
-  void Remove(KeyboardActiveUnit* kb);
+    void Remove(KeyboardActiveUnit* kb);
 
-  /** Add a mouse.
+    /** Add a mouse.
   @param au the mouse
   */
-  void Add(MouseActiveUnit* au);
+    void Add(MouseActiveUnit* au);
 
-  /** Remove a mouse.
+    /** Remove a mouse.
   @param au the mouse
   */
-  void Remove(MouseActiveUnit* au);
+    void Remove(MouseActiveUnit* au);
 
-  /** Add a joystick.
+    /** Add a joystick.
   @param au the joystick
   */
-  void Add(JoystickActiveUnit* au);
+    void Add(JoystickActiveUnit* au);
 
-  /** Remove a joystick.
+    /** Remove a joystick.
   @param au the joystick
   */
-  void Remove(JoystickActiveUnit* au);
+    void Remove(JoystickActiveUnit* au);
 
-  /** Send a keyboard event.
+    /** Send a keyboard event.
   @param key the key to act upon
   @param down true if it is down, false if not
    */
-  void OnKeyboardKey(Key key, bool down);
+    void OnKeyboardKey(Key key, bool down);
 
-  /** Send a mouse axis.
+    /** Send a mouse axis.
   @param axis the axis
   @param value the value
    */
-  void OnMouseAxis(Axis axis, float value);
+    void OnMouseAxis(Axis axis, float value);
 
-  /** Send a mouse button.
+    /** Send a mouse button.
   @param button the button to act upon
   @param down true if it is down, false if not
    */
-  void OnMouseButton(MouseButton button, bool down);
+    void OnMouseButton(MouseButton button, bool down);
 
-  /** Send a joystick pov.
+    /** Send a joystick pov.
   @param type the pov type
   @param hat the pov hat
   @param joystick the joystick id
   @param value the value
    */
-  void OnJoystickPov(Axis type, int hat, int joystick, float value);
+    void OnJoystickPov(Axis type, int hat, int joystick, float value);
 
-  /** Send a joystick button.
+    /** Send a joystick button.
   @param button the button to act upon
   @param joystick the joystick id
   @param down true if it is down, false if not
    */
-  void OnJoystickButton(int button, int joystick, bool down);
+    void OnJoystickButton(int button, int joystick, bool down);
 
-  /** Send a joystick axis.
+    /** Send a joystick axis.
   @param axis the axis
   @param joystick the joystick id
   @param value the value
    */
-  void OnJoystickAxis(int axis, int joystick, float value);
+    void OnJoystickAxis(int axis, int joystick, float value);
 
-   std::vector<KeyboardActiveUnit*> keyboards_;
-  std::vector<MouseActiveUnit*> mouse_;
-  std::vector<JoystickActiveUnit*> joystick_;
+    std::vector<KeyboardActiveUnit*> keyboards_;
+    std::vector<MouseActiveUnit*> mouse_;
+    std::vector<JoystickActiveUnit*> joystick_;
 };
 
 }  // namespace input
-
-
-
-

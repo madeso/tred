@@ -10,7 +10,6 @@
 
 namespace input::config
 {
-
 struct Action
 {
     std::string name;

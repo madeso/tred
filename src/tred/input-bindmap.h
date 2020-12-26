@@ -16,28 +16,24 @@ Classes for input handling.
 #include "tred/input-activerange.h"
 
 
-
 struct Table;
 
-namespace input {
-
+namespace input
+{
 struct InputAction;
 struct ActiveList;
 
 /** A container for all the actives in the game.
  */
-struct BindMap {
-   BindMap(const InputActionMap& actions, ActiveList* actives);
-  std::shared_ptr<Bind> GetBindByName(const std::string& name);
+struct BindMap
+{
+    BindMap(const InputActionMap& actions, ActiveList* actives);
+    std::shared_ptr<Bind> GetBindByName(const std::string& name);
 
-   void AddRange(std::shared_ptr<InputAction> action, ActiveList* actives);
-  void AddAxis(std::shared_ptr<InputAction> action, ActiveList* actives);
+    void AddRange(std::shared_ptr<InputAction> action, ActiveList* actives);
+    void AddAxis(std::shared_ptr<InputAction> action, ActiveList* actives);
 
-  std::map<std::string, std::shared_ptr<Bind>> binds_;
+    std::map<std::string, std::shared_ptr<Bind>> binds_;
 };
 
 }  // namespace input
-
-
-
-

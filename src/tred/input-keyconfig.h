@@ -9,9 +9,8 @@ Classes for input handling.
 #include "tred/input-connectedunits.h"
 
 
-
-namespace input {
-
+namespace input
+{
 struct UnitDef;
 struct InputDirector;
 struct InputActionMap;
@@ -20,29 +19,25 @@ struct BindMap;
 /** Contains a list of configurations.
 A good example is Mouse+Keyboard.
  */
-struct KeyConfig {
-   /** Constructor.
+struct KeyConfig
+{
+    /** Constructor.
    */
-  KeyConfig();
+    KeyConfig();
 
-  /** Add a definition.
+    /** Add a definition.
   @param def the definition to add.
    */
-  void Add(std::shared_ptr<UnitDef> def);
+    void Add(std::shared_ptr<UnitDef> def);
 
-  /** Connect.
+    /** Connect.
   @param director the input director
   @returns the connected units
    */
-  std::shared_ptr<ConnectedUnits> Connect(const InputActionMap& actions,
-                                          InputDirector* director);
+    std::shared_ptr<ConnectedUnits> Connect(const InputActionMap& actions, InputDirector* director);
 
-   std::vector<std::shared_ptr<UnitDef>> definitions_;
-  std::shared_ptr<BindMap> binds_;
+    std::vector<std::shared_ptr<UnitDef>> definitions_;
+    std::shared_ptr<BindMap> binds_;
 };
 
 }  // namespace input
-
-
-
-

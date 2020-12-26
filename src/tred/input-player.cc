@@ -2,24 +2,28 @@
 #include <cassert>
 
 
-namespace input {
-
-Player::Player() {  }
-
-void Player::UpdateTable(Table* table) {
-    assert(table);
-  units_->UpdateTable(table);
+namespace input
+{
+Player::Player()
+{
 }
 
-void Player::Update(float dt) {
+void Player::UpdateTable(Table* table)
+{
+    assert(table);
+    units_->UpdateTable(table);
+}
+
+void Player::Update(float dt)
+{
     units_->Update(dt);
 }
 
-void Player::set_units(std::shared_ptr<ConnectedUnits> units) {
+void Player::set_units(std::shared_ptr<ConnectedUnits> units)
+{
     assert(units);
-  assert(units->IsEmpty() == false);
-  units_ = units;
+    assert(units->IsEmpty() == false);
+    units_ = units;
 }
 
 }  // namespace input
-

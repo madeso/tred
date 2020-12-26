@@ -6,9 +6,8 @@
 #include <memory>
 
 
-
-namespace input {
-
+namespace input
+{
 struct InputDirector;
 struct ActiveUnit;
 struct BindMap;
@@ -16,21 +15,17 @@ struct BindMap;
 /** Definition of a certain input unit.
 Usually loaded from a file.
  */
-struct UnitDef {
-   /** Destructor.
+struct UnitDef
+{
+    /** Destructor.
    */
-  virtual ~UnitDef();
+    virtual ~UnitDef();
 
-  /** Create a active unit.
+    /** Create a active unit.
   @param director the input director
   @returns the active unit.
    */
-  virtual std::shared_ptr<ActiveUnit> Create(InputDirector* director,
-                                             BindMap* map) = 0;
+    virtual std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) = 0;
 };
 
 }  // namespace input
-
-
-
-

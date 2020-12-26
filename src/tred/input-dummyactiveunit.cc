@@ -2,9 +2,10 @@
 #include <cassert>
 
 
-
-namespace input {
-
-void DummyActiveUnit::Rumble() {  }
+namespace input
+{
+void DummyActiveUnit::Rumble()
+{
+}
 
 }  // namespace input

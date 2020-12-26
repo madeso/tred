@@ -7,31 +7,27 @@ Classes for input handling.
 #include <memory>
 
 
-
-namespace input {
-
+namespace input
+{
 struct InputAction;
 
 /** Represents a active unit.
 A perfect example is a connected joystick.
  */
-struct ActiveUnit {
-   /** Destructor.
+struct ActiveUnit
+{
+    /** Destructor.
    */
-  virtual ~ActiveUnit();
+    virtual ~ActiveUnit();
 
-  /** Causes the active unit to rumble.
+    /** Causes the active unit to rumble.
    */
-  virtual void Rumble() = 0;
+    virtual void Rumble() = 0;
 
- protected:
-  /** Constructor.
+protected:
+    /** Constructor.
    */
-  ActiveUnit();
+    ActiveUnit();
 };
 
 }  // namespace input
-
-
-
-

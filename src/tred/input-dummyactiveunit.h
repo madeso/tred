@@ -6,20 +6,15 @@ Classes for input handling.
 #include "tred/input-activeunit.h"
 
 
-
-namespace input {
-
+namespace input
+{
 /** A Dummy active unit.
  */
-struct DummyActiveUnit : public ActiveUnit {
-   /** Rumble.
+struct DummyActiveUnit : public ActiveUnit
+{
+    /** Rumble.
    */
-  void Rumble() override;
-
- };
+    void Rumble() override;
+};
 
 }  // namespace input
-
-
-
-

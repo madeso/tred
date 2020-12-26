@@ -7,44 +7,40 @@ Classes for input handling.
 #include <memory>
 
 
-
 struct Table;
 
-namespace input {
-
+namespace input
+{
 struct ActiveUnit;
 struct ActiveList;
 
 /** Contains a list of active units.
  */
-struct ConnectedUnits {
-   /** Constructor.
+struct ConnectedUnits
+{
+    /** Constructor.
    */
-  explicit ConnectedUnits(std::shared_ptr<ActiveList> actives);
+    explicit ConnectedUnits(std::shared_ptr<ActiveList> actives);
 
-  /** Updates all connected units.
+    /** Updates all connected units.
   @param table the table to update
    */
-  void UpdateTable(Table* table);
+    void UpdateTable(Table* table);
 
-  void Update(float dt);
+    void Update(float dt);
 
-  /** Add a unit.
+    /** Add a unit.
   @param unit the unit to add
    */
-  void Add(std::shared_ptr<ActiveUnit> unit);
+    void Add(std::shared_ptr<ActiveUnit> unit);
 
-  /** Are there any connected units?
+    /** Are there any connected units?
   @returns true if there are no active units, false if not
    */
-  bool IsEmpty() const;
+    bool IsEmpty() const;
 
-   std::vector<std::shared_ptr<ActiveUnit>> units_;
-  std::shared_ptr<ActiveList> actives_;
+    std::vector<std::shared_ptr<ActiveUnit>> units_;
+    std::shared_ptr<ActiveList> actives_;
 };
 
 }  // namespace input
-
-
-
-

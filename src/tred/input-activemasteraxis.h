@@ -9,23 +9,18 @@ Classes for input handling.
 #include "tred/input-active.h"
 
 
-
-namespace input {
-
+namespace input
+{
 struct ActiveAxis;
 struct ActiveRangeToAxis;
 
-struct ActiveMasterAxis : public InputActive {
-  explicit ActiveMasterAxis(InputAction* action, ActiveAxis* axis,
-                            ActiveRangeToAxis* range);
-  void Update(float dt);
+struct ActiveMasterAxis : public InputActive
+{
+    explicit ActiveMasterAxis(InputAction* action, ActiveAxis* axis, ActiveRangeToAxis* range);
+    void Update(float dt);
 
-  ActiveAxis* axis_;
-  ActiveRangeToAxis* range_;
+    ActiveAxis* axis_;
+    ActiveRangeToAxis* range_;
 };
 
 }  // namespace input
-
-
-
-

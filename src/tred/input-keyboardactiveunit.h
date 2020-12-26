@@ -13,43 +13,38 @@ Classes for input handling.
 #include "tred/input-key.h"
 
 
-
-namespace input {
-
+namespace input
+{
 struct AxisKey;
 struct InputDirector;
 struct BindData;
 
 /** A active keyboard.
  */
-struct KeyboardActiveUnit : public ActiveUnit {
-   /** Constructor.
+struct KeyboardActiveUnit : public ActiveUnit
+{
+    /** Constructor.
   @param binds the key binds
   @param director the director
    */
-  KeyboardActiveUnit(const std::vector<std::shared_ptr<TRangeBind<Key>>>& binds,
-                     InputDirector* director);
+    KeyboardActiveUnit(const std::vector<std::shared_ptr<TRangeBind<Key>>>& binds, InputDirector* director);
 
-  /** On key handler.
+    /** On key handler.
   @param key the key
   @param state the state of the button
    */
-  void OnKey(const Key& key, bool state);
+    void OnKey(const Key& key, bool state);
 
-  /** Destructor.
+    /** Destructor.
    */
-  ~KeyboardActiveUnit();
+    ~KeyboardActiveUnit();
 
-  /** Rumble function, not really useful.
+    /** Rumble function, not really useful.
    */
-  void Rumble() override;
+    void Rumble() override;
 
-   InputDirector* director_;
-  const std::map<Key, BindData> actions_;
+    InputDirector* director_;
+    const std::map<Key, BindData> actions_;
 };
 
 }  // namespace input
-
-
-
-
