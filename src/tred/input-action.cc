@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-action.h"
 #include <cassert>
 
@@ -15,49 +13,40 @@ InputAction::InputAction(const std::string& name,
       range_(range),
       global_(global),
       toggle_(0) {
-  assert(this);
-}
+  }
 
 InputAction::~InputAction() {
-  assert(this);
-  assert(toggle_ == 0);
+    assert(toggle_ == 0);
 }
 
 const std::string& InputAction::scriptvarname() const {
-  assert(this);
-  return scriptvarname_;
+    return scriptvarname_;
 }
 
 Range InputAction::range() const {
-  assert(this);
-  return range_;
+    return range_;
 }
 
 const std::string& InputAction::name() const {
-  assert(this);
-  return name_;
+    return name_;
 }
 
 bool InputAction::global() const {
-  assert(this);
-  return global_;
+    return global_;
 }
 
 GlobalToggle* InputAction::toggle() {
-  assert(this);
-  return toggle_;
+    return toggle_;
 }
 
 void InputAction::Setup(GlobalToggle* toggle) {
-  assert(this);
-  assert(toggle);
+    assert(toggle);
   assert(toggle_ == 0);
   toggle_ = toggle;
 }
 
 void InputAction::ClearToggle(GlobalToggle* toggle) {
-  assert(this);
-  assert(toggle);
+    assert(toggle);
   assert(toggle == toggle_);
   toggle_ = 0;
 }

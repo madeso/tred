@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-commondef.h"
 
 #include <cassert>

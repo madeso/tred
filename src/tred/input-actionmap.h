@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTIONMAP_H_
-#define EUPHORIA_INPUT_ACTIONMAP_H_
-
+#pragma once
 #include <map>
 #include <string>
 #include <memory>
@@ -26,7 +22,6 @@ struct GlobalToggle;
 /** A map of all the available input actions.
  */
 struct InputActionMap {
- public:
   /** Constructor.
    */
   InputActionMap();
@@ -48,7 +43,6 @@ struct InputActionMap {
 
   std::vector<std::shared_ptr<InputAction>> GetActionList() const;
 
- private:
   std::map<std::string, std::shared_ptr<InputAction>> actions_;
   std::map<std::string, std::shared_ptr<GlobalToggle>> toggles_;
 };
@@ -59,4 +53,4 @@ void Load(InputActionMap* map, const input::config::ActionMap& root);
 
 
 
-#endif  // EUPHORIA_INPUT_ACTIONMAP_H_
+

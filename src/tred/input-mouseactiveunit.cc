@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-mouseactiveunit.h"
 #include <cassert>
 
@@ -19,23 +17,20 @@ MouseActiveUnit::MouseActiveUnit(
       actions_(ConvertToBindMap<TAxisBind<Axis>, Axis>(axis)),
       buttons_(
           ConvertToBindMap<TRangeBind<MouseButton>, MouseButton>(buttons)) {
-  assert(this);
-  assert(director_);
+    assert(director_);
 
   director_->Add(this);
 }
 
 void MouseActiveUnit::OnAxis(const Axis& key, float state) {
-  assert(this);
-  auto res = actions_.find(key);
+    auto res = actions_.find(key);
   if (res != actions_.end()) {
     TransformAndSetBindValue(res->second, state);
   }
 }
 
 void MouseActiveUnit::OnButton(MouseButton key, float state) {
-  assert(this);
-  auto res = buttons_.find(key);
+    auto res = buttons_.find(key);
   if (res != buttons_.end()) {
     TransformAndSetBindValue(res->second, state);
   }

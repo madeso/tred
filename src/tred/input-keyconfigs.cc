@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-keyconfigs.h"
 
 #include <cassert>
@@ -19,19 +17,16 @@
 
 namespace input {
 
-KeyConfigs::KeyConfigs() { assert(this); }
+KeyConfigs::KeyConfigs() {  }
 
 void KeyConfigs::Add(const std::string& name,
                      std::shared_ptr<KeyConfig> config) {
-  assert(this);
-  assert(config);
+    assert(config);
   configs_.insert(std::make_pair(name, config));
 }
 
 std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const {
-  assert(this);
-
-  auto res = configs_.find(name);
+    auto res = configs_.find(name);
   if (res == configs_.end()) {
     const std::string error = fmt::format("Unable to find config: {}", name);
     throw error;
@@ -42,18 +37,15 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const {
 }
 
 void KeyConfigs::BeginAutoDetect() {
-  assert(this);
-  assert(false && "Not implemented yet");
+    assert(false && "Not implemented yet");
 }
 
 void KeyConfigs::AbortAutoDetect() {
-  assert(this);
-  assert(false && "Not implemented yet");
+    assert(false && "Not implemented yet");
 }
 
 std::shared_ptr<ConnectedUnits> KeyConfigs::GetFirstAutoDetectedConfig() const {
-  assert(this);
-  assert(false && "Not implemented yet");
+    assert(false && "Not implemented yet");
   std::shared_ptr<ConnectedUnits> dummy;
   return dummy;
 }

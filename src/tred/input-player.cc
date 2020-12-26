@@ -1,27 +1,22 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-player.h"
 #include <cassert>
 
 
 namespace input {
 
-Player::Player() { assert(this); }
+Player::Player() {  }
 
 void Player::UpdateTable(Table* table) {
-  assert(this);
-  assert(table);
+    assert(table);
   units_->UpdateTable(table);
 }
 
 void Player::Update(float dt) {
-  assert(this);
-  units_->Update(dt);
+    units_->Update(dt);
 }
 
 void Player::set_units(std::shared_ptr<ConnectedUnits> units) {
-  assert(this);
-  assert(units);
+    assert(units);
   assert(units->IsEmpty() == false);
   units_ = units;
 }

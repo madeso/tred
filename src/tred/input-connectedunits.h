@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_CONNECTEDUNITS_H_
-#define EUPHORIA_INPUT_CONNECTEDUNITS_H_
-
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -22,8 +18,7 @@ struct ActiveList;
 /** Contains a list of active units.
  */
 struct ConnectedUnits {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   explicit ConnectedUnits(std::shared_ptr<ActiveList> actives);
 
@@ -44,8 +39,7 @@ struct ConnectedUnits {
    */
   bool IsEmpty() const;
 
- private:
-  std::vector<std::shared_ptr<ActiveUnit>> units_;
+   std::vector<std::shared_ptr<ActiveUnit>> units_;
   std::shared_ptr<ActiveList> actives_;
 };
 
@@ -53,4 +47,4 @@ struct ConnectedUnits {
 
 
 
-#endif  // EUPHORIA_INPUT_CONNECTEDUNITS_H_
+

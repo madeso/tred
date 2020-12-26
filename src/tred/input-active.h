@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTIVE_H_
-#define EUPHORIA_INPUT_ACTIVE_H_
-
+#pragma once
 
 
 struct Table;
@@ -18,7 +14,6 @@ struct InputAction;
 /** Represents the accumulated input to be sent to the game logic.
  */
 struct InputActive {
- public:
   /** Constructor.
   @param action the action this active belongs to
    */
@@ -39,7 +34,6 @@ struct InputActive {
    */
   const InputAction& action() const;
 
- private:
   InputAction* action_;
   float state_;
 };
@@ -48,4 +42,4 @@ struct InputActive {
 
 
 
-#endif  // EUPHORIA_INPUT_ACTIVE_H_
+

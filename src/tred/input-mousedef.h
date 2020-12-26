@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_MOUSEDEF_H_
-#define EUPHORIA_INPUT_MOUSEDEF_H_
-
+#pragma once
 #include <vector>
 
 #include "tred/input-unitdef.h"
@@ -24,8 +20,7 @@ struct InputActionMap;
 /** Mouse definition.
  */
 struct MouseDef : public UnitDef {
- public:
-  /** Constructor.
+   /** Constructor.
   @param data the data structure to load from
   @param map the input actions to use
    */
@@ -38,12 +33,11 @@ struct MouseDef : public UnitDef {
   std::shared_ptr<ActiveUnit> Create(InputDirector* director,
                                      BindMap* map) override;
 
- private:
-  std::vector<BindDef<Axis>> axis_;
+   std::vector<BindDef<Axis>> axis_;
   std::vector<BindDef<MouseButton>> keys_;
 };
 }  // namespace input
 
 
 
-#endif  // EUPHORIA_INPUT_MOUSEDEF_H_
+

@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTIVERANGETOAXIS_H_
-#define EUPHORIA_INPUT_ACTIVERANGETOAXIS_H_
-
+#pragma once
 #include "tred/input-active.h"
 
 
@@ -19,16 +15,14 @@ struct Bind;
 /** A input active range.
  */
 struct ActiveRangeToAxis : public InputActive {
- public:
-  /** Constructor.
+   /** Constructor.
   @param action the action this active belongs to
    */
   ActiveRangeToAxis(InputAction* action, Bind* positive, Bind* negative);
 
   void Update(float dt);
 
- private:
-  Bind* positive_;
+   Bind* positive_;
   Bind* negative_;
 };
 
@@ -36,4 +30,4 @@ struct ActiveRangeToAxis : public InputActive {
 
 
 
-#endif  // EUPHORIA_INPUT_ACTIVERANGETOAXIS_H_
+

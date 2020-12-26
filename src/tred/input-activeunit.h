@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTIVEUNIT_H_
-#define EUPHORIA_INPUT_ACTIVEUNIT_H_
-
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -20,8 +16,7 @@ struct InputAction;
 A perfect example is a connected joystick.
  */
 struct ActiveUnit {
- public:
-  /** Destructor.
+   /** Destructor.
    */
   virtual ~ActiveUnit();
 
@@ -39,4 +34,4 @@ struct ActiveUnit {
 
 
 
-#endif  // EUPHORIA_INPUT_ACTIVEUNIT_H_
+

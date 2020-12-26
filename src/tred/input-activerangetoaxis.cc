@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-activerangetoaxis.h"
 
 #include <cassert>
@@ -16,8 +14,7 @@ namespace input {
 ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive,
                                      Bind* negative)
     : InputActive(action), positive_(positive), negative_(negative) {
-  assert(this);
-  assert(positive_);
+    assert(positive_);
   assert(negative_);
 
   if (positive_->type() != BindType::RANGE) {
@@ -35,8 +32,7 @@ ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive,
 }
 
 void ActiveRangeToAxis::Update(float) {
-  assert(this);
-  assert(positive_);
+    assert(positive_);
   assert(negative_);
   set_state(positive_->value() - negative_->value());
 }

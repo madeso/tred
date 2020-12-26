@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_PLAYER_H_
-#define EUPHORIA_INPUT_PLAYER_H_
-
+#pragma once
 #include <memory>
 
 #include "tred/input-connectedunits.h"
@@ -22,8 +18,7 @@ The idea behind decoupling the active units and the player is that the unit
 could be disconnected and swapped but the player should remain.
 */
 struct Player {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   Player();
 
@@ -39,12 +34,11 @@ struct Player {
   */
   void set_units(std::shared_ptr<ConnectedUnits> units);
 
- private:
-  std::shared_ptr<ConnectedUnits> units_;
+   std::shared_ptr<ConnectedUnits> units_;
 };
 
 }  // namespace input
 
 
 
-#endif  // EUPHORIA_INPUT_PLAYER_H_
+

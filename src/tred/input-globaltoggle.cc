@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-globaltoggle.h"
 #include <cassert>
 #include <algorithm>
@@ -18,19 +16,16 @@ GlobalToggle::GlobalToggle(std::shared_ptr<InputAction> action)
       state_(false),
       last_down_(false),
       current_state_holder_(0) {
-  assert(this);
-  assert(action_);
+    assert(action_);
   action_->Setup(this);
 }
 GlobalToggle::~GlobalToggle() {
-  assert(this);
-  assert(action_);
+    assert(action_);
   action_->ClearToggle(this);
 }
 
 void GlobalToggle::Update() {
-  assert(this);
-  bool down;
+    bool down;
 
   Bind* theBind = 0;
 
@@ -62,18 +57,15 @@ void GlobalToggle::Update() {
 }
 
 void GlobalToggle::Add(Bind* bind) {
-  assert(this);
-  binds_.push_back(bind);
+    binds_.push_back(bind);
 }
 
 void GlobalToggle::Remove(Bind* bind) {
-  assert(this);
-  binds_.erase(std::remove_if(binds_.begin(), binds_.end(), [bind](Bind* rhs){return rhs == bind;}), binds_.end());
+    binds_.erase(std::remove_if(binds_.begin(), binds_.end(), [bind](Bind* rhs){return rhs == bind;}), binds_.end());
 }
 
 bool GlobalToggle::state() const {
-  assert(this);
-  return state_;
+    return state_;
 }
 
 }  // namespace input

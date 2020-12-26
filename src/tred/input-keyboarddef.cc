@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-keyboarddef.h"
 
 #include <cassert>
@@ -18,9 +16,7 @@
 namespace input {
 
 KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&) {
-  assert(this);
-
-  for (const auto& d: data.binds) {
+    for (const auto& d: data.binds) {
     auto common = d.common;
 
       const auto key = d.key;
@@ -30,8 +26,7 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&)
 
 std::shared_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director,
                                                 BindMap* map) {
-  assert(this);
-  assert(director);
+    assert(director);
   assert(map);
 
   std::vector<std::shared_ptr<TRangeBind<Key>>> keybinds =

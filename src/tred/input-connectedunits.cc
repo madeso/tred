@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-connectedunits.h"
 
 #include <cassert>
@@ -16,19 +14,16 @@ namespace input {
 
 ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> actives)
     : actives_(actives) {
-  assert(this);
-  assert(actives);
+    assert(actives);
 }
 
 void ConnectedUnits::Add(std::shared_ptr<ActiveUnit> unit) {
-  assert(this);
-  assert(unit);
+    assert(unit);
   units_.push_back(unit);
 }
 
 void ConnectedUnits::UpdateTable(Table* table) {
-  assert(this);
-  assert(table);
+    assert(table);
   assert(actives_);
 
   // not really relevant but this is great for error checking
@@ -41,15 +36,13 @@ void ConnectedUnits::UpdateTable(Table* table) {
 }
 
 void ConnectedUnits::Update(float dt) {
-  assert(this);
-  assert(actives_);
+    assert(actives_);
 
   actives_->Update(dt);
 }
 
 bool ConnectedUnits::IsEmpty() const {
-  assert(this);
-  return units_.empty();
+    return units_.empty();
 }
 
 }  // namespace input

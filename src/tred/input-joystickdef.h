@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_JOYSTICKDEF_H_
-#define EUPHORIA_INPUT_JOYSTICKDEF_H_
-
+#pragma once
 #include <vector>
 
 #include "tred/input-unitdef.h"
@@ -26,8 +22,7 @@ struct InputActionMap;
 /** Joystick definition.
  */
 struct JoystickDef : public UnitDef {
- public:
-  /** Constructor.
+   /** Constructor.
   @param data the data structure to load from
    */
   JoystickDef(const config::JoystickDef& data, const InputActionMap& map);
@@ -38,8 +33,7 @@ struct JoystickDef : public UnitDef {
    */
   std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map);
 
- private:
-  std::vector<BindDef<int>> axis_;
+   std::vector<BindDef<int>> axis_;
   std::vector<BindDef<int>> buttons_;
   std::vector<BindDef<HatAxis>> hats_;
 };
@@ -48,4 +42,4 @@ struct JoystickDef : public UnitDef {
 
 
 
-#endif  // EUPHORIA_INPUT_JOYSTICKDEF_H_
+

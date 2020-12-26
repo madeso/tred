@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_KEYCONFIG_H_
-#define EUPHORIA_INPUT_KEYCONFIG_H_
-
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -25,8 +21,7 @@ struct BindMap;
 A good example is Mouse+Keyboard.
  */
 struct KeyConfig {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   KeyConfig();
 
@@ -42,8 +37,7 @@ struct KeyConfig {
   std::shared_ptr<ConnectedUnits> Connect(const InputActionMap& actions,
                                           InputDirector* director);
 
- private:
-  std::vector<std::shared_ptr<UnitDef>> definitions_;
+   std::vector<std::shared_ptr<UnitDef>> definitions_;
   std::shared_ptr<BindMap> binds_;
 };
 
@@ -51,4 +45,4 @@ struct KeyConfig {
 
 
 
-#endif  // EUPHORIA_INPUT_KEYCONFIG_H_
+

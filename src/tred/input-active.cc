@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-active.h"
 #include <cassert>
 
@@ -17,12 +15,10 @@ float KeepWithin(float mi, float v, float ma)
 }
 
 InputActive::InputActive(InputAction* action) : action_(action), state_(0.0f) {
-  assert(this);
-}
+  }
 
 float InputActive::state() const {
-  assert(this);
-  float value = state_;
+    float value = state_;
 
   switch (action().range()) {
     case Range::INFINITE:
@@ -44,14 +40,12 @@ float InputActive::state() const {
 }
 
 const InputAction& InputActive::action() const {
-  assert(this);
-  assert(action_);
+    assert(action_);
   return *action_;
 }
 
 void InputActive::set_state(float state) {
-  assert(this);
-  state_ = state;
+    state_ = state;
 }
 
 }  // namespace input

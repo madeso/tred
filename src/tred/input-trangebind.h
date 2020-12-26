@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_TRANGEBIND_H_
-#define EUPHORIA_INPUT_TRANGEBIND_H_
-
+#pragma once
 #include <memory>
 #include <cassert>
 
@@ -17,36 +13,29 @@ Classes for input handling.
 namespace input {
 template <typename T>
 struct TRangeBind {
- public:
-  TRangeBind(T button, std::shared_ptr<Bind> bind, bool invert, float scale)
+   TRangeBind(T button, std::shared_ptr<Bind> bind, bool invert, float scale)
       : button_(button), bind_(bind), invert_(invert), scale_(scale) {
-    assert(this);
-    assert(bind);
+        assert(bind);
   }
 
   const T GetType() const {
-    assert(this);
-    return button_;
+        return button_;
   }
 
   std::shared_ptr<Bind> bind() {
-    assert(this);
-    assert(bind_);
+        assert(bind_);
     return bind_;
   }
 
   bool invert() const {
-    assert(this);
-    return invert_;
+        return invert_;
   }
 
   float scale() const {
-    assert(this);
-    return scale_;
+        return scale_;
   }
 
- private:
-  T button_;
+   T button_;
   std::shared_ptr<Bind> bind_;
 
   bool invert_;
@@ -57,4 +46,4 @@ struct TRangeBind {
 
 
 
-#endif  // EUPHORIA_INPUT_TRANGEBIND_H_
+

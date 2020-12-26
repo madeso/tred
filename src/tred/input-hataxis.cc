@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-hataxis.h"
 #include <cassert>
 
@@ -7,16 +5,14 @@
 
 namespace input {
 
-HatAxis::HatAxis(int hat, Axis axis) : hat_(hat), axis_(axis) { assert(this); }
+HatAxis::HatAxis(int hat, Axis axis) : hat_(hat), axis_(axis) {  }
 
 Axis HatAxis::axis() const {
-  assert(this);
-  return axis_;
+    return axis_;
 }
 
 int HatAxis::hat() const {
-  assert(this);
-  return hat_;
+    return hat_;
 }
 
 bool HatAxis::operator<(const HatAxis& rhs) const {

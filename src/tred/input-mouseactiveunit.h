@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_MOUSEACTIVEUNIT_H_
-#define EUPHORIA_INPUT_MOUSEACTIVEUNIT_H_
-
+#pragma once
 #include <vector>
 #include <map>
 
@@ -28,8 +24,7 @@ struct BindData;
 /** A active mouse binding
  */
 struct MouseActiveUnit : public ActiveUnit {
- public:
-  /** Constructor.
+   /** Constructor.
   @param axis the axis binds to use
   @param director the input director
    */
@@ -55,8 +50,7 @@ struct MouseActiveUnit : public ActiveUnit {
    */
   void Rumble() override;
 
- private:
-  InputDirector* director_;
+   InputDirector* director_;
   const std::map<Axis, BindData> actions_;
   const std::map<MouseButton, BindData> buttons_;
 };
@@ -65,4 +59,4 @@ struct MouseActiveUnit : public ActiveUnit {
 
 
 
-#endif  // EUPHORIA_INPUT_MOUSEACTIVEUNIT_H_
+

@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-keyboardactiveunit.h"
 #include <cassert>
 
@@ -16,15 +14,13 @@ KeyboardActiveUnit::KeyboardActiveUnit(
     InputDirector* director)
     : director_(director),
       actions_(ConvertToBindMap<TRangeBind<Key>, Key>(binds)) {
-  assert(this);
-  assert(director_);
+    assert(director_);
 
   director_->Add(this);
 }
 
 void KeyboardActiveUnit::OnKey(const Key& key, bool state) {
-  assert(this);
-  auto actionsit = actions_.find(key);
+    auto actionsit = actions_.find(key);
   if (actionsit != actions_.end()) {
     TransformAndSetBindValue(actionsit->second, state ? 1.0f : 0.0f);
   }

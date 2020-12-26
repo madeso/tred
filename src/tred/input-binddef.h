@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_BINDDEF_H_
-#define EUPHORIA_INPUT_BINDDEF_H_
-
+#pragma once
 #include <string>
 #include <cassert>
 
@@ -21,36 +17,29 @@ namespace input {
 
 template <typename Type>
 struct BindDef {
- public:
- template<typename D>
+  template<typename D>
   BindDef(const std::string& id, const Type type, const D& d)
       : id_(id),
         type_(type),
         invert_(d.invert),
         scale_(d.scale) {
-    assert(this);
-  }
+      }
   const std::string& id() const {
-    assert(this);
-    return id_;
+        return id_;
   }
   const Type type() const {
-    assert(this);
-    return type_;
+        return type_;
   }
 
   bool invert() const {
-    assert(this);
-    return invert_;
+        return invert_;
   }
 
   float scale() const {
-    assert(this);
-    return scale_;
+        return scale_;
   }
 
- private:
-  std::string id_;
+   std::string id_;
   Type type_;
   bool invert_;
   float scale_;
@@ -60,4 +49,4 @@ struct BindDef {
 
 
 
-#endif  // EUPHORIA_INPUT_BINDDEF_H_
+

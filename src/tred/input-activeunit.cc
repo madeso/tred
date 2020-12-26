@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-activeunit.h"
 #include <cassert>
 
@@ -9,9 +7,9 @@
 
 namespace input {
 
-ActiveUnit::~ActiveUnit() { assert(this); }
+ActiveUnit::~ActiveUnit() {  }
 
-ActiveUnit::ActiveUnit() { assert(this); }
+ActiveUnit::ActiveUnit() {  }
 
 }  // namespace input
 

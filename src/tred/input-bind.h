@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_BIND_H_
-#define EUPHORIA_INPUT_BIND_H_
-
+#pragma once
 #include <string>
 
 
@@ -25,8 +21,7 @@ std::ostream& operator<<(std::ostream& ss, const BindType& bt);
 /** A bind.
  */
 struct Bind {
- public:
-  Bind(InputAction* action, BindType type);
+   Bind(InputAction* action, BindType type);
   ~Bind();
 
   float value() const;
@@ -35,8 +30,7 @@ struct Bind {
   BindType type() const;
   InputAction* action();
 
- private:
-  InputAction* action_;
+   InputAction* action_;
   BindType type_;
   GlobalToggle* toggle_;
   float value_;
@@ -46,4 +40,4 @@ struct Bind {
 
 
 
-#endif  // EUPHORIA_INPUT_BIND_H_
+

@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-system.h"
 
 #include <cassert>
@@ -25,26 +23,22 @@ void Load(InputSystem* sys, const config::InputSystem& root) {
 }
 
 InputSystem::InputSystem(const config::InputSystem& config) : input_(new InputDirector()) {
-  assert(this);
-  Load(&actions_, config.actions);
+    Load(&actions_, config.actions);
   Load(&configs_, config.keys, actions_);
   Load(this, config);
 }
 
 InputSystem::~InputSystem() {
-  assert(this);
-  players_.clear();
+    players_.clear();
 }
 
 std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name) {
-  assert(this);
-  return actions_.GetGlobalToggle(name);
+    return actions_.GetGlobalToggle(name);
 }
 
 void InputSystem::SetUnitForPlayer(const std::string& playerName,
                                    const std::string& inputname) {
-  assert(this);
-  auto res = players_.find(playerName);
+    auto res = players_.find(playerName);
   if (res == players_.end()) {
     const std::string error = fmt::format("Unable to find player {}", playerName);
     throw error;
@@ -56,8 +50,7 @@ void InputSystem::SetUnitForPlayer(const std::string& playerName,
 }
 
 void InputSystem::Update(float dt) {
-  assert(this);
-  actions_.Update();
+    actions_.Update();
 
   for (auto p : players_) {
     p.second->Update(dt);
@@ -65,38 +58,31 @@ void InputSystem::Update(float dt) {
 }
 
 void InputSystem::OnKeyboardKey(Key key, bool down) {
-  assert(this);
-  input_->OnKeyboardKey(key, down);
+    input_->OnKeyboardKey(key, down);
 }
 
 void InputSystem::OnMouseAxis(Axis axis, float value) {
-  assert(this);
-  input_->OnMouseAxis(axis, value);
+    input_->OnMouseAxis(axis, value);
 }
 
 void InputSystem::OnMouseButton(MouseButton button, bool down) {
-  assert(this);
-  input_->OnMouseButton(button, down);
+    input_->OnMouseButton(button, down);
 }
 
 void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value) {
-  assert(this);
-  input_->OnJoystickPov(type, hat, joystick, value);
+    input_->OnJoystickPov(type, hat, joystick, value);
 }
 
 void InputSystem::OnJoystickButton(int button, int joystick, bool down) {
-  assert(this);
-  input_->OnJoystickButton(button, joystick, down);
+    input_->OnJoystickButton(button, joystick, down);
 }
 
 void InputSystem::OnJoystickAxis(int axis, int joystick, float value) {
-  assert(this);
-  input_->OnJoystickAxis(axis, joystick, value);
+    input_->OnJoystickAxis(axis, joystick, value);
 }
 
 std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name) {
-  assert(this);
-  auto res = players_.find(name);
+    auto res = players_.find(name);
   if (res == players_.end()) {
     const std::string error = fmt::format("Unable to find player {}", name);
     throw error;
@@ -106,8 +92,7 @@ std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name) {
 }
 
 void InputSystem::AddPlayer(const std::string& name) {
-  assert(this);
-  std::shared_ptr<Player> p(new Player());
+    std::shared_ptr<Player> p(new Player());
   players_.insert(std::make_pair(name, p));
 }
 

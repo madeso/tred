@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-activeaxistorange.h"
 #include <cassert>
 #include <string>
@@ -14,8 +12,7 @@ namespace input {
 
 ActiveAxisToRange::ActiveAxisToRange(InputAction* action, Bind* axis)
     : InputActive(action), axis_(axis) {
-  assert(this);
-  assert(axis_);
+    assert(axis_);
 
   if (axis_->type() != BindType::AXIS) {
     const std::string error = fmt::format("bound type for axis {} is not a axis, is {}", action->name(), axis_->type());
@@ -24,8 +21,7 @@ ActiveAxisToRange::ActiveAxisToRange(InputAction* action, Bind* axis)
 }
 
 void ActiveAxisToRange::Update(float) {
-  assert(this);
-  assert(axis_);
+    assert(axis_);
   float v = axis_->value();
   if (v < 0) {
     v = 0;

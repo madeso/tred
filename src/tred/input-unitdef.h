@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 
  */
 
-#ifndef EUPHORIA_INPUT_UNITDEF_H_
-#define EUPHORIA_INPUT_UNITDEF_H_
-
+#pragma once
 #include <memory>
 
 
@@ -21,8 +17,7 @@ struct BindMap;
 Usually loaded from a file.
  */
 struct UnitDef {
- public:
-  /** Destructor.
+   /** Destructor.
    */
   virtual ~UnitDef();
 
@@ -38,4 +33,4 @@ struct UnitDef {
 
 
 
-#endif  // EUPHORIA_INPUT_UNITDEF_H_
+

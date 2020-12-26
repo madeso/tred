@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-joystickdef.h"
 
 #include <cassert>
@@ -21,9 +19,7 @@
 namespace input {
 
 JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&) {
-  assert(this);
-
-    for(const auto& d: data.axis) {
+      for(const auto& d: data.axis) {
         auto common = d.common;
       const int axis = d.axis;
       if (axis < 0) {
@@ -56,8 +52,7 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
 }
 
 std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, BindMap* map) {
-  assert(this);
-  assert(director);
+    assert(director);
   assert(map);
 
   /// @todo fix the joystick number

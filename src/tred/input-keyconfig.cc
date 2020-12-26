@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-keyconfig.h"
 #include <cassert>
 
@@ -11,18 +9,16 @@
 
 namespace input {
 
-KeyConfig::KeyConfig() { assert(this); }
+KeyConfig::KeyConfig() {  }
 
 void KeyConfig::Add(std::shared_ptr<UnitDef> def) {
-  assert(this);
-  assert(def);
+    assert(def);
   definitions_.push_back(def);
 }
 
 std::shared_ptr<ConnectedUnits> KeyConfig::Connect(
     const InputActionMap& actions, InputDirector* director) {
-  assert(this);
-  assert(director);
+    assert(director);
   std::shared_ptr<ActiveList> actives(new ActiveList());
   binds_.reset(new BindMap(actions, actives.get()));
 

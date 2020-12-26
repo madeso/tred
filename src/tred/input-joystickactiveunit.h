@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_JOYSTICKACTIVEUNIT_H_
-#define EUPHORIA_INPUT_JOYSTICKACTIVEUNIT_H_
-
+#pragma once
 #include <vector>
 #include <map>
 
@@ -28,8 +24,7 @@ struct InputDirector;
 /** A active mouse binding
  */
 struct JoystickActiveUnit : public ActiveUnit {
- public:
-  /** Constructor.
+   /** Constructor.
   @param axis the axis binds to use
   @param director the input director
    */
@@ -58,8 +53,7 @@ struct JoystickActiveUnit : public ActiveUnit {
    */
   void Rumble() override;
 
- private:
-  // int joystick_;
+   // int joystick_;
   InputDirector* director_;
   std::map<int, BindData> axis_;
   std::map<int, BindData> buttons_;
@@ -70,4 +64,4 @@ struct JoystickActiveUnit : public ActiveUnit {
 
 
 
-#endif  // EUPHORIA_INPUT_JOYSTICKACTIVEUNIT_H_
+

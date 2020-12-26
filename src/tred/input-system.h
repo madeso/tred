@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_SYSTEM_H_
-#define EUPHORIA_INPUT_SYSTEM_H_
-
+#pragma once
 #include <vector>
 #include <map>
 #include <string>
@@ -31,8 +27,7 @@ struct InputDirector;
 /** the master struct that controls the input system.
  */
 struct InputSystem {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   explicit InputSystem(const config::InputSystem& config);
 
@@ -106,8 +101,7 @@ struct InputSystem {
    */
   void AddPlayer(const std::string& name);
 
- private:
-  InputActionMap actions_;
+   InputActionMap actions_;
   std::map<std::string, std::shared_ptr<Player>> players_;
   KeyConfigs configs_;
   std::unique_ptr<InputDirector> input_;
@@ -117,4 +111,4 @@ struct InputSystem {
 
 
 
-#endif  // EUPHORIA_INPUT_SYSTEM_H_
+

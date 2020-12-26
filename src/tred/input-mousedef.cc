@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-mousedef.h"
 #include <cassert>
 #include <string>
@@ -33,8 +31,7 @@ MouseDef::MouseDef(const config::MouseDef& data, const InputActionMap&) {
 
 std::shared_ptr<ActiveUnit> MouseDef::Create(InputDirector* director,
                                              BindMap* map) {
-  assert(this);
-  assert(director);
+    assert(director);
   assert(map);
 
   std::vector<std::shared_ptr<TAxisBind<Axis>>> axisbinds =

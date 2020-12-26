@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-bindmap.h"
 
 #include <cassert>
@@ -20,8 +18,7 @@
 namespace input {
 
 BindMap::BindMap(const InputActionMap& actions, ActiveList* actives) {
-  assert(this);
-  const auto as = actions.GetActionList();
+    const auto as = actions.GetActionList();
 
   for (auto action : as) {
     auto range = action->range();
@@ -51,8 +48,7 @@ std::shared_ptr<Bind> BindMap::GetBindByName(const std::string& name) {
 
 void BindMap::AddRange(std::shared_ptr<InputAction> action,
                        ActiveList* actives) {
-  assert(this);
-  std::string actionname = action->name();
+    std::string actionname = action->name();
 
   /// @todo verify that it is indeed a range
 
@@ -75,8 +71,7 @@ void BindMap::AddRange(std::shared_ptr<InputAction> action,
 
 void BindMap::AddAxis(std::shared_ptr<InputAction> action,
                       ActiveList* actives) {
-  assert(this);
-  std::string actionname = action->name();
+    std::string actionname = action->name();
 
   /// @todo verify that it is indeed a axis
 

@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTIVELIST_H_
-#define EUPHORIA_INPUT_ACTIVELIST_H_
-
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -28,7 +24,6 @@ struct ActiveMasterRange;
 /** A container for all the actives in the game.
  */
 struct ActiveList {
- public:
   void Add(std::shared_ptr<ActiveRange> range);
   void Add(std::shared_ptr<ActiveAxis> axis);
 
@@ -45,7 +40,6 @@ struct ActiveList {
   /// @todo move to a global list
   void Update(float dt);
 
- private:
   std::vector<std::shared_ptr<ActiveRange>> range_binds_;
   std::vector<std::shared_ptr<ActiveAxis>> axis_binds_;
   std::vector<std::shared_ptr<ActiveAxisToRange>> axis_to_range_binds_;
@@ -58,4 +52,4 @@ struct ActiveList {
 
 
 
-#endif  // EUPHORIA_INPUT_ACTIVELIST_H_
+

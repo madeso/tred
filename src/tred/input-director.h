@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_DIRECTOR_H_
-#define EUPHORIA_INPUT_DIRECTOR_H_
-
+#pragma once
 #include <vector>
 
 #include "tred/input-key.h"
@@ -23,8 +19,7 @@ struct JoystickActiveUnit;
 /** Container struct for directing input.
  */
 struct InputDirector {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   InputDirector();
 
@@ -102,8 +97,7 @@ struct InputDirector {
    */
   void OnJoystickAxis(int axis, int joystick, float value);
 
- private:
-  std::vector<KeyboardActiveUnit*> keyboards_;
+   std::vector<KeyboardActiveUnit*> keyboards_;
   std::vector<MouseActiveUnit*> mouse_;
   std::vector<JoystickActiveUnit*> joystick_;
 };
@@ -112,4 +106,4 @@ struct InputDirector {
 
 
 
-#endif  // EUPHORIA_INPUT_DIRECTOR_H_
+

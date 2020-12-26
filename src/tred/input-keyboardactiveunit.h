@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_KEYBOARDACTIVEUNIT_H_
-#define EUPHORIA_INPUT_KEYBOARDACTIVEUNIT_H_
-
+#pragma once
 #include <vector>
 #include <map>
 #include <memory>
@@ -27,8 +23,7 @@ struct BindData;
 /** A active keyboard.
  */
 struct KeyboardActiveUnit : public ActiveUnit {
- public:
-  /** Constructor.
+   /** Constructor.
   @param binds the key binds
   @param director the director
    */
@@ -49,8 +44,7 @@ struct KeyboardActiveUnit : public ActiveUnit {
    */
   void Rumble() override;
 
- private:
-  InputDirector* director_;
+   InputDirector* director_;
   const std::map<Key, BindData> actions_;
 };
 
@@ -58,4 +52,4 @@ struct KeyboardActiveUnit : public ActiveUnit {
 
 
 
-#endif  // EUPHORIA_INPUT_KEYBOARDACTIVEUNIT_H_
+

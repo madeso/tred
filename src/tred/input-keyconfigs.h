@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_KEYCONFIGS_H_
-#define EUPHORIA_INPUT_KEYCONFIGS_H_
-
+#pragma once
 #include <map>
 #include <string>
 #include <memory>
@@ -21,8 +17,7 @@ struct InputActionMap;
 /** Contains a list of configurations.
  */
 struct KeyConfigs {
- public:
-  /** Constructor.
+   /** Constructor.
    */
   KeyConfigs();
 
@@ -52,8 +47,7 @@ struct KeyConfigs {
    */
   std::shared_ptr<ConnectedUnits> GetFirstAutoDetectedConfig() const;
 
- private:
-  std::map<std::string, std::shared_ptr<KeyConfig>> configs_;
+   std::map<std::string, std::shared_ptr<KeyConfig>> configs_;
 };
 
 namespace config { struct KeyConfigs; }
@@ -63,4 +57,4 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
 
 
 
-#endif  // EUPHORIA_INPUT_KEYCONFIGS_H_
+

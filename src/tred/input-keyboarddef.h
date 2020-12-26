@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_KEYBOARDDEF_H_
-#define EUPHORIA_INPUT_KEYBOARDDEF_H_
-
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -25,8 +21,7 @@ namespace config { struct KeyboardDef; }
 /** Keyboard definition.
  */
 struct KeyboardDef : public UnitDef {
- public:
-  /** Constructor.
+   /** Constructor.
   @param data the data structure to load from
   @param map the input actions to use
    */
@@ -39,12 +34,11 @@ struct KeyboardDef : public UnitDef {
   std::shared_ptr<ActiveUnit> Create(InputDirector* director,
                                      BindMap* map) override;
 
- private:
-  std::vector<BindDef<Key>> keys_;
+   std::vector<BindDef<Key>> keys_;
 };
 
 }  // namespace input
 
 
 
-#endif  // EUPHORIA_INPUT_KEYBOARDDEF_H_
+

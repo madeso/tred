@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-activerange.h"
 #include <cassert>
 #include <string>
@@ -14,8 +12,7 @@ namespace input {
 
 ActiveRange::ActiveRange(InputAction* action, Bind* range)
     : InputActive(action), range_(range) {
-  assert(this);
-  assert(range_);
+    assert(range_);
 
   if (range_->type() != BindType::RANGE) {
     const std::string error = fmt::format("bound type for {} is not a range, is {}", action->name(), range_->type());
@@ -24,8 +21,7 @@ ActiveRange::ActiveRange(InputAction* action, Bind* range)
 }
 
 void ActiveRange::Update(float) {
-  assert(this);
-  assert(range_);
+    assert(range_);
   set_state(range_->value());
 }
 

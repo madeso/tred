@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for input handling.
  */
 
-#ifndef EUPHORIA_INPUT_ACTION_H_
-#define EUPHORIA_INPUT_ACTION_H_
-
+#pragma once
 #include <string>
 
 #include "tred/input-range.h"
@@ -22,7 +18,6 @@ struct GlobalToggle;
 /** A input action.
  */
 struct InputAction {
- public:
   /** Constructor.
   @param scriptvarname the name of the variable in the script.
   @param range the range of valid values for the scriptvar
@@ -49,7 +44,6 @@ struct InputAction {
   void Setup(GlobalToggle* toggle);
   void ClearToggle(GlobalToggle* toggle);
 
- private:
   std::string name_;
   std::string scriptvarname_;
   Range range_;
@@ -61,4 +55,4 @@ struct InputAction {
 
 
 
-#endif  // EUPHORIA_INPUT_ACTION_H_
+

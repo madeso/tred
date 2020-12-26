@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-joystickactiveunit.h"
 #include <cassert>
 
@@ -21,15 +19,13 @@ JoystickActiveUnit::JoystickActiveUnit(
       axis_(ConvertToBindMap<TAxisBind<int>, int>(axis)),
       buttons_(ConvertToBindMap<TRangeBind<int>, int>(buttons)),
       hats_(ConvertToBindMap<TAxisBind<HatAxis>, HatAxis>(hats)) {
-  assert(this);
-  assert(director_);
+    assert(director_);
 
   director_->Add(this);
 }
 
 void JoystickActiveUnit::OnAxis(int axis, float state) {
-  assert(this);
-  auto actionsit = axis_.find(axis);
+    auto actionsit = axis_.find(axis);
   if (actionsit != axis_.end()) {
     BindData data = actionsit->second;
     TransformAndSetBindValue(data, state);
@@ -37,16 +33,14 @@ void JoystickActiveUnit::OnAxis(int axis, float state) {
 }
 
 void JoystickActiveUnit::OnButton(int button, float state) {
-  assert(this);
-  auto actionsit = buttons_.find(button);
+    auto actionsit = buttons_.find(button);
   if (actionsit != buttons_.end()) {
     TransformAndSetBindValue(actionsit->second, state);
   }
 }
 
 void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state) {
-  assert(this);
-  auto actionsit = hats_.find(hatAxis);
+    auto actionsit = hats_.find(hatAxis);
   if (actionsit != hats_.end()) {
     TransformAndSetBindValue(actionsit->second, state);
   }

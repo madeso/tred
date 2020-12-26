@@ -1,12 +1,8 @@
-// Euphoria - Copyright (c) Gustav
-
 /** @file
 Classes for common input def loading.
  */
 
-#ifndef EUPHORIA_INPUT_COMMONDEF_H_
-#define EUPHORIA_INPUT_COMMONDEF_H_
-
+#pragma once
 #include <string>
 #include <vector>
 #include <memory>
@@ -70,4 +66,4 @@ std::map<Type, BindData> ConvertToBindMap(
 
 
 
-#endif  // EUPHORIA_INPUT_COMMONDEF_H_
+

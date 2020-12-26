@@ -1,5 +1,3 @@
-// Euphoria - Copyright (c) Gustav
-
 #include "tred/input-bind.h"
 #include <cassert>
 #include "tred/input-action.h"
@@ -30,8 +28,7 @@ Bind::Bind(InputAction* action, BindType type)
       type_(type),
       toggle_(action ? action->toggle() : 0),
       value_(0.0f) {
-  assert(this);
-  assert(action_);
+    assert(action_);
 
   // if the action is a global, we should have a toggle
   assert(action_->global() == (toggle_ != 0));
@@ -43,30 +40,25 @@ Bind::Bind(InputAction* action, BindType type)
 }
 
 Bind::~Bind() {
-  assert(this);
-  if (toggle_) {
+    if (toggle_) {
     toggle_->Remove(this);
   }
 }
 
 float Bind::value() const {
-  assert(this);
-  return value_;
+    return value_;
 }
 
 void Bind::set_value(float v) {
-  assert(this);
-  value_ = v;
+    value_ = v;
 }
 
 BindType Bind::type() const {
-  assert(this);
-  return type_;
+    return type_;
 }
 
 InputAction* Bind::action() {
-  assert(this);
-  assert(action_);
+    assert(action_);
   return action_;
 }
 
