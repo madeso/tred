@@ -32,7 +32,7 @@ struct InputSystem
     ~InputSystem();
 
     std::shared_ptr<GlobalToggle> GetAction(const std::string& name);
-    void SetUnitForPlayer(const std::string& playerName, const std::string& inputName);
+    void SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputName);
 
     void Update(float dt);
 
@@ -50,7 +50,7 @@ struct InputSystem
     InputActionMap actions;
     std::map<std::string, std::shared_ptr<Player>> players;
     KeyConfigs configs;
-    std::unique_ptr<InputDirector> input;
+    std::unique_ptr<InputDirector> input_director;
 };
 
 }  // namespace input

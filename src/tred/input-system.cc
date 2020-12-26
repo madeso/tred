@@ -26,7 +26,7 @@ void Load(InputSystem* sys, const config::InputSystem& root)
 
 
 InputSystem::InputSystem(const config::InputSystem& config)
-    : input(new InputDirector())
+    : input_director(new InputDirector())
 {
     Load(&actions, config.actions);
     Load(&configs, config.keys, actions);
@@ -48,18 +48,10 @@ std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name)
 }
 
 
-void InputSystem::SetUnitForPlayer(const std::string& playerName, const std::string& inputname)
+void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputname)
 {
-    auto res = players.find(playerName);
-    if (res == players.end())
-    {
-        throw fmt::format("Unable to find player {}", playerName);
-    }
-    std::shared_ptr<Player> player = res->second;
-
     auto config = configs.Get(inputname);
-
-    player->units = config->Connect(actions, input.get());
+    player->units = config->Connect(actions, input_director.get());
 }
 
 
@@ -76,37 +68,37 @@ void InputSystem::Update(float dt)
 
 void InputSystem::OnKeyboardKey(Key key, bool down)
 {
-    input->OnKeyboardKey(key, down);
+    input_director->OnKeyboardKey(key, down);
 }
 
 
 void InputSystem::OnMouseAxis(Axis axis, float value)
 {
-    input->OnMouseAxis(axis, value);
+    input_director->OnMouseAxis(axis, value);
 }
 
 
 void InputSystem::OnMouseButton(MouseButton button, bool down)
 {
-    input->OnMouseButton(button, down);
+    input_director->OnMouseButton(button, down);
 }
 
 
 void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value)
 {
-    input->OnJoystickPov(type, hat, joystick, value);
+    input_director->OnJoystickPov(type, hat, joystick, value);
 }
 
 
 void InputSystem::OnJoystickButton(int button, int joystick, bool down)
 {
-    input->OnJoystickButton(button, joystick, down);
+    input_director->OnJoystickButton(button, joystick, down);
 }
 
 
 void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
 {
-    input->OnJoystickAxis(axis, joystick, value);
+    input_director->OnJoystickAxis(axis, joystick, value);
 }
 
 

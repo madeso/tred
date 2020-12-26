@@ -139,7 +139,7 @@ TEST_CASE("input-test", "[input]")
     SECTION("no input")
     {
         // press enter on playscreen
-        sys.SetUnitForPlayer("player", "mouse+keyboard");
+        sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         const auto table = GetTable(player);
 
@@ -152,7 +152,7 @@ TEST_CASE("input-test", "[input]")
     SECTION("push button")
     {
         // press enter on playscreen
-        sys.SetUnitForPlayer("player", "mouse+keyboard");
+        sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         sys.OnKeyboardKey(Key::A, true);
         sys.Update(0.1f);
@@ -177,7 +177,7 @@ TEST_CASE("input-test", "[input]")
     SECTION("move mouse")
     {
         // press enter on playscreen
-        sys.SetUnitForPlayer("player", "mouse+keyboard");
+        sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         sys.OnMouseAxis(Axis::X, 2.0f);
         sys.Update(0.1f);
