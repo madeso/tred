@@ -1,4 +1,5 @@
 #include "tred/input-mousedef.h"
+
 #include <cassert>
 #include <string>
 #include "fmt/format.h"
@@ -7,12 +8,12 @@
 #include "tred/input-actionmap.h"
 #include "tred/input-bindmap.h"
 #include "tred/input-commondef.h"
-
 #include "tred/input-config.h"
 
 
 namespace input
 {
+
 MouseDef::MouseDef(const config::MouseDef& data, const InputActionMap&)
 {
     for (const auto& d: data.axis)
@@ -31,6 +32,7 @@ MouseDef::MouseDef(const config::MouseDef& data, const InputActionMap&)
     }
 }
 
+
 std::shared_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, BindMap* map)
 {
     assert(director);
@@ -46,5 +48,6 @@ std::shared_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, BindMap* m
             new MouseActiveUnit(axisbinds, keybinds, director));
     return unit;
 }
+
 
 }  // namespace input

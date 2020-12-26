@@ -1,8 +1,5 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
+
 #include <string>
 #include <cassert>
 
@@ -11,8 +8,7 @@ Classes for input handling.
 
 namespace input
 {
-/** Definition of a bind.
- */
+
 
 template <typename Type>
 struct BindDef
@@ -49,5 +45,6 @@ struct BindDef
     bool invert_;
     float scale_;
 };
+
 
 }  // namespace input

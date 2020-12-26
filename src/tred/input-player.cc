@@ -1,12 +1,15 @@
 #include "tred/input-player.h"
+
 #include <cassert>
 
 
 namespace input
 {
+
 Player::Player()
 {
 }
+
 
 void Player::UpdateTable(Table* table)
 {
@@ -14,10 +17,12 @@ void Player::UpdateTable(Table* table)
     units_->UpdateTable(table);
 }
 
+
 void Player::Update(float dt)
 {
     units_->Update(dt);
 }
+
 
 void Player::set_units(std::shared_ptr<ConnectedUnits> units)
 {

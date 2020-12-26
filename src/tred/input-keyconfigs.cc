@@ -10,21 +10,24 @@
 #include "tred/input-keyboarddef.h"
 #include "tred/input-joystickdef.h"
 #include "tred/input-mousedef.h"
-
 #include "tred/input-config.h"
 
 
 namespace input
 {
+
+
 KeyConfigs::KeyConfigs()
 {
 }
+
 
 void KeyConfigs::Add(const std::string& name, std::shared_ptr<KeyConfig> config)
 {
     assert(config);
     configs_.insert(std::make_pair(name, config));
 }
+
 
 std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
 {
@@ -39,15 +42,18 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
     return res->second;
 }
 
+
 void KeyConfigs::BeginAutoDetect()
 {
     assert(false && "Not implemented yet");
 }
 
+
 void KeyConfigs::AbortAutoDetect()
 {
     assert(false && "Not implemented yet");
 }
+
 
 std::shared_ptr<ConnectedUnits> KeyConfigs::GetFirstAutoDetectedConfig() const
 {
@@ -56,7 +62,6 @@ std::shared_ptr<ConnectedUnits> KeyConfigs::GetFirstAutoDetectedConfig() const
     return dummy;
 }
 
-//////////////////////////////////////////////////////////////////////////
 
 std::shared_ptr<UnitDef> CreateUnit(const input::config::UnitInterface& type, const InputActionMap& map)
 {
@@ -84,6 +89,7 @@ std::shared_ptr<UnitDef> CreateUnit(const input::config::UnitInterface& type, co
     }
 }
 
+
 void Load(KeyConfig* config, const input::config::Config& root, const InputActionMap& map)
 {
     assert(config);
@@ -95,6 +101,7 @@ void Load(KeyConfig* config, const input::config::Config& root, const InputActio
         config->Add(def);
     }
 }
+
 
 void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const InputActionMap& map)
 {
@@ -108,5 +115,6 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
         configs->Add(name, config);
     }
 }
+
 
 }  // namespace input

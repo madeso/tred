@@ -1,8 +1,5 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
+
 #include <memory>
 #include <cassert>
 
@@ -22,5 +19,6 @@ struct ActiveMasterAxis : public InputActive
     ActiveAxis* axis_;
     ActiveRangeToAxis* range_;
 };
+
 
 }  // namespace input

@@ -10,6 +10,7 @@
 
 namespace input
 {
+
 ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive, Bind* negative)
     : InputActive(action)
     , positive_(positive)
@@ -20,23 +21,17 @@ ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive, Bind* 
 
     if (positive_->type() != BindType::RANGE)
     {
-        const std::string error = fmt::format(
-                "bound type for positive "
-                " is not a range, is ",
-                action->name(),
-                positive_->type());
+        const std::string error = fmt::format("bound type for positive {} is not a range, is {}", action->name(), positive_->type());
         throw error;
     }
+
     if (negative_->type() != BindType::RANGE)
     {
-        const std::string error = fmt::format(
-                "bound type for negative "
-                " is not a range, is ",
-                action->name(),
-                negative_->type());
+        const std::string error = fmt::format("bound type for negative {} is not a range, is {}", action->name(), negative_->type());
         throw error;
     }
 }
+
 
 void ActiveRangeToAxis::Update(float)
 {
@@ -44,5 +39,6 @@ void ActiveRangeToAxis::Update(float)
     assert(negative_);
     set_state(positive_->value() - negative_->value());
 }
+
 
 }  // namespace input

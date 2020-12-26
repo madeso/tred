@@ -1,8 +1,5 @@
-/** @file
-Classes for input definitions.
- */
-
 #pragma once
+
 #include "tred/input-axis.h"
 
 
@@ -20,5 +17,6 @@ struct HatAxis
     int hat_;
     Axis axis_;
 };
+
 
 }  // namespace input

@@ -1,4 +1,5 @@
 #include "tred/input-keyconfig.h"
+
 #include <cassert>
 
 #include "tred/input-unitdef.h"
@@ -9,9 +10,11 @@
 
 namespace input
 {
+
 KeyConfig::KeyConfig()
 {
 }
+
 
 void KeyConfig::Add(std::shared_ptr<UnitDef> def)
 {
@@ -19,8 +22,8 @@ void KeyConfig::Add(std::shared_ptr<UnitDef> def)
     definitions_.push_back(def);
 }
 
-std::shared_ptr<ConnectedUnits> KeyConfig::Connect(
-        const InputActionMap& actions, InputDirector* director)
+
+std::shared_ptr<ConnectedUnits> KeyConfig::Connect(const InputActionMap& actions, InputDirector* director)
 {
     assert(director);
     std::shared_ptr<ActiveList> actives(new ActiveList());
@@ -35,5 +38,6 @@ std::shared_ptr<ConnectedUnits> KeyConfig::Connect(
     }
     return units;
 }
+
 
 }  // namespace input

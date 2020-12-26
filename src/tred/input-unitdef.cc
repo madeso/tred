@@ -1,10 +1,11 @@
 #include "tred/input-unitdef.h"
-#include <cassert>
+
 
 namespace input
 {
-UnitDef::~UnitDef()
-{
-}
+
+
+UnitDef::~UnitDef() = default;
+
 
 }  // namespace input

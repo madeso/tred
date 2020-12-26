@@ -1,4 +1,5 @@
 #include "tred/input-mouseactiveunit.h"
+
 #include <cassert>
 
 #include "tred/input-director.h"
@@ -8,6 +9,8 @@
 
 namespace input
 {
+
+
 MouseActiveUnit::MouseActiveUnit(
         const std::vector<std::shared_ptr<TAxisBind<Axis>>>& axis,
         const std::vector<std::shared_ptr<TRangeBind<MouseButton>>>& buttons,
@@ -22,6 +25,13 @@ MouseActiveUnit::MouseActiveUnit(
     director_->Add(this);
 }
 
+
+MouseActiveUnit::~MouseActiveUnit()
+{
+    director_->Remove(this);
+}
+
+
 void MouseActiveUnit::OnAxis(const Axis& key, float state)
 {
     auto res = actions_.find(key);
@@ -30,6 +40,7 @@ void MouseActiveUnit::OnAxis(const Axis& key, float state)
         TransformAndSetBindValue(res->second, state);
     }
 }
+
 
 void MouseActiveUnit::OnButton(MouseButton key, float state)
 {
@@ -40,13 +51,10 @@ void MouseActiveUnit::OnButton(MouseButton key, float state)
     }
 }
 
-MouseActiveUnit::~MouseActiveUnit()
-{
-    director_->Remove(this);
-}
 
 void MouseActiveUnit::Rumble()
 {
 }
+
 
 }  // namespace input

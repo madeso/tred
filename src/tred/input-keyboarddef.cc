@@ -6,7 +6,6 @@
 #include "fmt/format.h"
 
 #include "tred/input-config.h"
-
 #include "tred/input-keyboardactiveunit.h"
 #include "tred/input-bindmap.h"
 #include "tred/input-commondef.h"
@@ -14,6 +13,7 @@
 
 namespace input
 {
+
 KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&)
 {
     for (const auto& d: data.binds)
@@ -25,16 +25,17 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&)
     }
 }
 
+
 std::shared_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, BindMap* map)
 {
     assert(director);
     assert(map);
 
-    std::vector<std::shared_ptr<TRangeBind<Key>>> keybinds =
-            CreateBinds<TRangeBind<Key>, Key>(keys_, map);
+    std::vector<std::shared_ptr<TRangeBind<Key>>> keybinds = CreateBinds<TRangeBind<Key>, Key>(keys_, map);
 
     std::shared_ptr<ActiveUnit> unit(new KeyboardActiveUnit(keybinds, director));
     return unit;
 }
+
 
 }  // namespace input

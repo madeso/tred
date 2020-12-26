@@ -10,6 +10,7 @@ namespace input
 {
 const float TRUE_VALUE = 0.8f;
 
+
 GlobalToggle::GlobalToggle(std::shared_ptr<InputAction> action)
     : action_(action)
     , state_(false)
@@ -19,11 +20,14 @@ GlobalToggle::GlobalToggle(std::shared_ptr<InputAction> action)
     assert(action_);
     action_->Setup(this);
 }
+
+
 GlobalToggle::~GlobalToggle()
 {
     assert(action_);
     action_->ClearToggle(this);
 }
+
 
 void GlobalToggle::Update()
 {
@@ -67,19 +71,23 @@ void GlobalToggle::Update()
     last_down_ = down;
 }
 
+
 void GlobalToggle::Add(Bind* bind)
 {
     binds_.push_back(bind);
 }
+
 
 void GlobalToggle::Remove(Bind* bind)
 {
     binds_.erase(std::remove_if(binds_.begin(), binds_.end(), [bind](Bind* rhs) { return rhs == bind; }), binds_.end());
 }
 
+
 bool GlobalToggle::state() const
 {
     return state_;
 }
+
 
 }  // namespace input

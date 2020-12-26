@@ -1,14 +1,13 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
+
 #include <memory>
 #include <vector>
 
 
 namespace input
 {
+
+
 struct InputAction;
 struct Bind;
 

@@ -1,7 +1,6 @@
 #pragma once
 
-/** Definition of the kind of range.
- */
+
 enum class Range
 {
     INVALID,

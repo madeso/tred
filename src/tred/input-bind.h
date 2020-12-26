@@ -1,13 +1,9 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
-#include <string>
 
 
 namespace input
 {
+
 struct InputAction;
 struct GlobalToggle;
 
@@ -17,12 +13,6 @@ enum class BindType
     AXIS
 };
 
-std::string ToString(const BindType& bt);
-
-std::ostream& operator<<(std::ostream& ss, const BindType& bt);
-
-/** A bind.
- */
 struct Bind
 {
     Bind(InputAction* action, BindType type);

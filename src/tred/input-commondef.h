@@ -1,8 +1,5 @@
-/** @file
-Classes for common input def loading.
- */
-
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -11,11 +8,6 @@ Classes for common input def loading.
 #include "tred/input-binddef.h"
 #include "tred/input-bind.h"
 #include "tred/input-bindmap.h"
-
-namespace Json
-{  // no-doxygen-namechecks
-struct Value;
-}
 
 
 namespace input
@@ -51,6 +43,7 @@ std::vector<std::shared_ptr<TBind>> CreateBinds(std::vector<BindDef<Type>> defs,
     return keybinds;
 }
 
+
 template <typename TBind, typename Type>
 std::map<Type, BindData> ConvertToBindMap(
         const std::vector<std::shared_ptr<TBind>>& axis)
@@ -66,5 +59,6 @@ std::map<Type, BindData> ConvertToBindMap(
     }
     return actions_;
 }
+
 
 }  // namespace input

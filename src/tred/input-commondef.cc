@@ -14,6 +14,7 @@
 
 namespace input
 {
+
 void TransformAndSetBindValue(const BindData& data, float value)
 {
     float transformed = value * data.scale;
@@ -23,5 +24,6 @@ void TransformAndSetBindValue(const BindData& data, float value)
     }
     data.bind->set_value(transformed);
 }
+
 
 }  // namespace input

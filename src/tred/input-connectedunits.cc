@@ -9,17 +9,21 @@
 
 namespace input
 {
+
+
 ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> actives)
     : actives_(actives)
 {
     assert(actives);
 }
 
+
 void ConnectedUnits::Add(std::shared_ptr<ActiveUnit> unit)
 {
     assert(unit);
     units_.push_back(unit);
 }
+
 
 void ConnectedUnits::UpdateTable(Table* table)
 {
@@ -36,6 +40,7 @@ void ConnectedUnits::UpdateTable(Table* table)
     actives_->UpdateTable(table);
 }
 
+
 void ConnectedUnits::Update(float dt)
 {
     assert(actives_);
@@ -43,9 +48,11 @@ void ConnectedUnits::Update(float dt)
     actives_->Update(dt);
 }
 
+
 bool ConnectedUnits::IsEmpty() const
 {
     return units_.empty();
 }
+
 
 }  // namespace input

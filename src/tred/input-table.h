@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 
+
 struct Table
 {
     void Set(const std::string& name, float value);

@@ -1,30 +1,25 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "tred/input-actionmap.h"
-
 #include "tred/input-bind.h"
-
 #include "tred/input-activeaxis.h"
 #include "tred/input-activerange.h"
 
 
 struct Table;
 
+
 namespace input
 {
+
 struct InputAction;
 struct ActiveList;
 
-/** A container for all the actives in the game.
- */
 struct BindMap
 {
     BindMap(const InputActionMap& actions, ActiveList* actives);

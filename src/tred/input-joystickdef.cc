@@ -5,7 +5,6 @@
 #include "fmt/format.h"
 
 #include "tred/input-config.h"
-
 #include "tred/input-dummyactiveunit.h"
 #include "tred/input-taxisbind.h"
 #include "tred/input-trangebind.h"
@@ -17,6 +16,8 @@
 
 namespace input
 {
+
+
 JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
 {
     for (const auto& d: data.axis)
@@ -57,6 +58,7 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
     }
 }
 
+
 std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, BindMap* map)
 {
     assert(director);
@@ -78,5 +80,6 @@ std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, BindMap
             new JoystickActiveUnit(js, director, axisbinds, buttonbinds, hatbinds));
     return unit;
 }
+
 
 }  // namespace input

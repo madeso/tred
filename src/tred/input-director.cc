@@ -1,4 +1,5 @@
 #include "tred/input-director.h"
+
 #include <cassert>
 #include <algorithm>
 
@@ -9,13 +10,17 @@
 
 namespace input
 {
+
+
 InputDirector::InputDirector()
 {
 }
 
+
 InputDirector::~InputDirector()
 {
 }
+
 
 void InputDirector::Add(KeyboardActiveUnit* kb)
 {
@@ -23,16 +28,17 @@ void InputDirector::Add(KeyboardActiveUnit* kb)
     keyboards_.push_back(kb);
 }
 
+
 void InputDirector::Remove(KeyboardActiveUnit* kb)
 {
     assert(kb);
     auto res = std::find(keyboards_.begin(), keyboards_.end(), kb);
     if (res != keyboards_.end())
     {
-        /// @todo implement as a swap back and erase function
         keyboards_.erase(res);
     }
 }
+
 
 void InputDirector::Add(MouseActiveUnit* au)
 {
@@ -40,22 +46,24 @@ void InputDirector::Add(MouseActiveUnit* au)
     mouse_.push_back(au);
 }
 
+
 void InputDirector::Remove(MouseActiveUnit* au)
 {
     assert(au);
     auto res = std::find(mouse_.begin(), mouse_.end(), au);
     if (res != mouse_.end())
     {
-        /// @todo implement as a swap back and erase function
         mouse_.erase(res);
     }
 }
+
 
 void InputDirector::Add(JoystickActiveUnit* au)
 {
     assert(au);
     joystick_.push_back(au);
 }
+
 
 void InputDirector::Remove(JoystickActiveUnit* au)
 {
@@ -68,6 +76,7 @@ void InputDirector::Remove(JoystickActiveUnit* au)
     }
 }
 
+
 void InputDirector::OnKeyboardKey(Key key, bool down)
 {
     for (auto kb: keyboards_)
@@ -75,6 +84,7 @@ void InputDirector::OnKeyboardKey(Key key, bool down)
         kb->OnKey(key, down);
     }
 }
+
 
 void InputDirector::OnMouseAxis(Axis axis, float value)
 {
@@ -84,6 +94,7 @@ void InputDirector::OnMouseAxis(Axis axis, float value)
     }
 }
 
+
 void InputDirector::OnMouseButton(MouseButton key, bool down)
 {
     for (auto m: mouse_)
@@ -91,6 +102,7 @@ void InputDirector::OnMouseButton(MouseButton key, bool down)
         m->OnButton(key, down ? 1.0f : 0.0f);
     }
 }
+
 
 void InputDirector::OnJoystickPov(Axis type, int hat, int, float value)
 {
@@ -102,6 +114,7 @@ void InputDirector::OnJoystickPov(Axis type, int hat, int, float value)
     }
 }
 
+
 void InputDirector::OnJoystickButton(int button, int, bool down)
 {
     /// @todo fix the joystick number
@@ -112,6 +125,7 @@ void InputDirector::OnJoystickButton(int button, int, bool down)
     }
 }
 
+
 void InputDirector::OnJoystickAxis(int axis, int, float value)
 {
     /// @todo fix the joystick number
@@ -121,5 +135,6 @@ void InputDirector::OnJoystickAxis(int axis, int, float value)
         j->OnAxis(axis, value);
     }
 }
+
 
 }  // namespace input

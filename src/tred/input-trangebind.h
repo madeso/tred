@@ -1,8 +1,5 @@
-/** @file
-Classes for input handling.
- */
-
 #pragma once
+
 #include <memory>
 #include <cassert>
 
@@ -11,6 +8,7 @@ Classes for input handling.
 
 namespace input
 {
+
 template <typename T>
 struct TRangeBind
 {
@@ -50,5 +48,6 @@ struct TRangeBind
     bool invert_;
     float scale_;
 };
+
 
 }  // namespace input

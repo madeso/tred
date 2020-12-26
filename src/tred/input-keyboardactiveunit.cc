@@ -1,4 +1,5 @@
 #include "tred/input-keyboardactiveunit.h"
+
 #include <cassert>
 
 #include "tred/input-director.h"
@@ -8,6 +9,7 @@
 
 namespace input
 {
+
 KeyboardActiveUnit::KeyboardActiveUnit(
         const std::vector<std::shared_ptr<TRangeBind<Key>>>& binds,
         InputDirector* director)
@@ -19,6 +21,13 @@ KeyboardActiveUnit::KeyboardActiveUnit(
     director_->Add(this);
 }
 
+
+KeyboardActiveUnit::~KeyboardActiveUnit()
+{
+    director_->Remove(this);
+}
+
+
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
     auto actionsit = actions_.find(key);
@@ -28,13 +37,10 @@ void KeyboardActiveUnit::OnKey(const Key& key, bool state)
     }
 }
 
-KeyboardActiveUnit::~KeyboardActiveUnit()
-{
-    director_->Remove(this);
-}
 
 void KeyboardActiveUnit::Rumble()
 {
 }
+
 
 }  // namespace input

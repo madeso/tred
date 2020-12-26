@@ -1,16 +1,14 @@
 #pragma once
 
+
 /** Sign type
  */
 enum class Sign
 {
-    INVALID  /// Invalid sign
-    ,
-    POSITIVE  /// Positive sign
-    ,
-    NEGATIVE  /// Negative sign
-    ,
-    FULL_RANGE  /// Both positive and negative sign
+      INVALID  /// Invalid sign
+    , POSITIVE  /// Positive sign
+    , NEGATIVE  /// Negative sign
+    , FULL_RANGE  /// Both positive and negative sign
 };
 
 
@@ -18,11 +16,8 @@ enum class Sign
  */
 enum class Axis
 {
-    INVALID  /// Invalid axis
-    ,
-    UNBOUND  /// Unbound axis
-    ,
-    X  /// Mouse X
-    ,
-    Y  /// Mouse Y
+      INVALID  /// Invalid axis
+    , UNBOUND  /// Unbound axis
+    , X  /// Mouse X
+    , Y  /// Mouse Y
 };

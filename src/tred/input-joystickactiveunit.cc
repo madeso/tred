@@ -8,21 +8,30 @@
 
 namespace input
 {
-JoystickActiveUnit::JoystickActiveUnit(
-        int, InputDirector* director,
+JoystickActiveUnit::JoystickActiveUnit
+    (
+        int,
+        InputDirector* director,
         const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
         const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
-        const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats)
-    :  //joystick_(joystick),
-    director_(director)
+        const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats
+    )
+    // : joystick_(joystick)
+    : director_(director)
     , axis_(ConvertToBindMap<TAxisBind<int>, int>(axis))
     , buttons_(ConvertToBindMap<TRangeBind<int>, int>(buttons))
     , hats_(ConvertToBindMap<TAxisBind<HatAxis>, HatAxis>(hats))
 {
     assert(director_);
-
     director_->Add(this);
 }
+
+
+JoystickActiveUnit::~JoystickActiveUnit()
+{
+    director_->Remove(this);
+}
+
 
 void JoystickActiveUnit::OnAxis(int axis, float state)
 {
@@ -34,6 +43,7 @@ void JoystickActiveUnit::OnAxis(int axis, float state)
     }
 }
 
+
 void JoystickActiveUnit::OnButton(int button, float state)
 {
     auto actionsit = buttons_.find(button);
@@ -42,6 +52,7 @@ void JoystickActiveUnit::OnButton(int button, float state)
         TransformAndSetBindValue(actionsit->second, state);
     }
 }
+
 
 void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
 {
@@ -52,13 +63,10 @@ void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
     }
 }
 
-JoystickActiveUnit::~JoystickActiveUnit()
-{
-    director_->Remove(this);
-}
 
 void JoystickActiveUnit::Rumble()
 {
 }
+
 
 }  // namespace input

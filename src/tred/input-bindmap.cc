@@ -14,6 +14,8 @@
 
 namespace input
 {
+
+
 BindMap::BindMap(const InputActionMap& actions, ActiveList* actives)
 {
     const auto as = actions.GetActionList();
@@ -37,6 +39,7 @@ BindMap::BindMap(const InputActionMap& actions, ActiveList* actives)
     }
 }
 
+
 std::shared_ptr<Bind> BindMap::GetBindByName(const std::string& name)
 {
     auto res = binds_.find(name);
@@ -47,6 +50,7 @@ std::shared_ptr<Bind> BindMap::GetBindByName(const std::string& name)
     }
     return res->second;
 }
+
 
 void BindMap::AddRange(std::shared_ptr<InputAction> action, ActiveList* actives)
 {
@@ -71,6 +75,7 @@ void BindMap::AddRange(std::shared_ptr<InputAction> action, ActiveList* actives)
     actives->Add(masterRange);
 }
 
+
 void BindMap::AddAxis(std::shared_ptr<InputAction> action, ActiveList* actives)
 {
     std::string actionname = action->name();
@@ -94,5 +99,6 @@ void BindMap::AddAxis(std::shared_ptr<InputAction> action, ActiveList* actives)
             new ActiveMasterAxis(action.get(), active.get(), activeAxis.get()));
     actives->Add(masterAxis);
 }
+
 
 }  // namespace input
