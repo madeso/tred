@@ -33,8 +33,7 @@ BindMap::BindMap(const InputActionMap& actions, ActiveList* actives)
             AddRange(action, actives);
             break;
         default:
-            const std::string error = fmt::format("Invalid range type {}", action->range);
-            throw error;
+            throw fmt::format("Invalid range type {}", action->range);
         }
     }
 }
@@ -62,8 +61,7 @@ std::shared_ptr<Bind> BindMap::GetBindByName(const std::string& name)
     auto res = binds.find(name);
     if (res == binds.end())
     {
-        const std::string error = fmt::format("unable to find bind {}: {}", name, GetKeys(binds));
-        throw error;
+        throw fmt::format("unable to find bind {}: {}", name, GetKeys(binds));
     }
     return res->second;
 }

@@ -21,14 +21,12 @@ ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive, Bind* 
 
     if (positive_->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for positive {} is not a range, is {}", action->name, positive_->type);
-        throw error;
+        throw fmt::format("bound type for positive {} is not a range, is {}", action->name, positive_->type);
     }
 
     if (negative_->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for negative {} is not a range, is {}", action->name, negative_->type);
-        throw error;
+        throw fmt::format("bound type for negative {} is not a range, is {}", action->name, negative_->type);
     }
 }
 

@@ -34,8 +34,7 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
     auto res = configs.find(name);
     if (res == configs.end())
     {
-        const std::string error = fmt::format("Unable to find config: {}", name);
-        throw error;
+        throw fmt::format("Unable to find config: {}", name);
     }
 
     assert(res->second);
@@ -85,7 +84,7 @@ std::shared_ptr<UnitDef> CreateUnit(const input::config::UnitInterface& type, co
     }
     else
     {
-        throw std::logic_error("Unknown unit definition");
+        throw std::string{"Unknown unit definition"};
     }
 }
 

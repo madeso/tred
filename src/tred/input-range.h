@@ -3,7 +3,6 @@
 
 enum class Range
 {
-    Invalid,
     Infinite,
     WithinZeroToOne,
     WithinNegativeOneToPositiveOne

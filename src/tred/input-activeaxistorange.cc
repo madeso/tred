@@ -17,8 +17,7 @@ ActiveAxisToRange::ActiveAxisToRange(InputAction* action, Bind* a)
 
     if (axis->type != BindType::AXIS)
     {
-        const std::string error = fmt::format("bound type for axis {} is not a axis, is {}", action->name, axis->type);
-        throw error;
+        throw fmt::format("bound type for axis {} is not a axis, is {}", action->name, axis->type);
     }
 }
 

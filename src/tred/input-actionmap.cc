@@ -44,8 +44,7 @@ std::shared_ptr<InputAction> InputActionMap::Get(const std::string& name) const
     auto res = actions.find(name);
     if (res == actions.end())
     {
-        const std::string error = fmt::format("Unable to find action: {}", name);
-        throw error;
+        throw fmt::format("Unable to find action: {}", name);
     }
 
     assert(res->second);
@@ -58,8 +57,7 @@ std::shared_ptr<GlobalToggle> InputActionMap::GetGlobalToggle(const std::string&
     auto res = toggles.find(name);
     if (res == toggles.end())
     {
-        const std::string error = fmt::format("Unable to find toggle: {}", name);
-        throw error;
+        throw fmt::format("Unable to find toggle: {}", name);;
     }
 
     assert(res->second);

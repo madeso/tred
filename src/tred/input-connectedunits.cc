@@ -33,8 +33,7 @@ void ConnectedUnits::UpdateTable(Table* table)
     // not really relevant but this is great for error checking
     if (units.empty())
     {
-        const std::string error = "No units connected for table update to be completed";
-        throw error;
+        throw std::string{"No units connected for table update to be completed"};
     }
 
     actives->UpdateTable(table);

@@ -4,6 +4,7 @@
 #include <string>
 #include "fmt/format.h"
 
+#include "tred/log.h"
 #include "tred/input-config.h"
 #include "tred/input-dummyactiveunit.h"
 #include "tred/input-taxisbind.h"
@@ -26,10 +27,12 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
         const int axis = d.axis;
         if (axis < 0)
         {
-            const std::string error = fmt::format("Invalid joystick axis for {} action", common.bindname);
-            throw error;
+            LOG_ERROR("Invalid joystick axis for {} action", common.bindname);
         }
-        axes.push_back(BindDef<int>(common.bindname, axis, d));
+        else
+        {
+            axes.push_back(BindDef<int>(common.bindname, axis, d));
+        }
     }
     for (const auto& d: data.button)
     {
@@ -38,10 +41,12 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
 
         if (key < 0)
         {
-            const std::string error = fmt::format("Invalid joystick button for the {} action", common.bindname);
-            throw error;
+            LOG_ERROR("Invalid joystick button for the {} action", common.bindname);
         }
-        buttons.push_back(BindDef<int>(common.bindname, key, d));
+        else
+        {
+            buttons.push_back(BindDef<int>(common.bindname, key, d));
+        }
     }
     for (const auto& d: data.hat)
     {
@@ -49,12 +54,12 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
         const int hat = d.hat;
         if (hat < 0)
         {
-            const std::string error = fmt::format("Invalid joystick hat for the {} action", common.bindname);
-            throw error;
+            LOG_ERROR("Invalid joystick hat for the {} action", common.bindname);
         }
-
-        const auto axis = d.axis;
-        hats.push_back(BindDef<HatAxis>(common.bindname, HatAxis(hat, axis), d));
+        else
+        {
+            hats.push_back(BindDef<HatAxis>(common.bindname, HatAxis(hat, d.axis), d));
+        }
     }
 }
 

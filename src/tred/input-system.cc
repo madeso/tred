@@ -53,8 +53,7 @@ void InputSystem::SetUnitForPlayer(const std::string& playerName, const std::str
     auto res = players.find(playerName);
     if (res == players.end())
     {
-        const std::string error = fmt::format("Unable to find player {}", playerName);
-        throw error;
+        throw fmt::format("Unable to find player {}", playerName);
     }
     std::shared_ptr<Player> player = res->second;
 
@@ -117,8 +116,7 @@ std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name)
     
     if (found == players.end())
     {
-        const std::string error = fmt::format("Unable to find player {}", name);
-        throw error;
+        throw fmt::format("Unable to find player {}", name);
     }
 
     assert(found->second);

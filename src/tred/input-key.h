@@ -4,8 +4,7 @@
  */
 enum class MouseButton
 {
-      INVALID  /// Invalid key
-    , UNBOUND  /// No key
+      UNBOUND  /// No key
     , LEFT  /// The left mouse button
     , MIDDLE  /// The middle mouse button
     , RIGHT  /// The right mouse button
@@ -18,8 +17,7 @@ enum class MouseButton
  */
 enum class Key
 {
-      INVALID  /// Invalid key
-    , UNBOUND  /// No key
+      UNBOUND  /// No key
     , RETURN  /// The key for Return
     , ESCAPE  /// The key for Escape
     , BACKSPACE  /// The key for Backspace

@@ -17,8 +17,7 @@ ActiveRange::ActiveRange(InputAction* action, Bind* r)
 
     if (range->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for {} is not a range, is {}", action->name, range->type);
-        throw error;
+        throw fmt::format("bound type for {} is not a range, is {}", action->name, range->type);
     }
 }
 

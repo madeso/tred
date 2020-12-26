@@ -41,9 +41,8 @@ float InputActive::GetNormalizedState() const
     case Range::WithinNegativeOneToPositiveOne:
         value = KeepWithin(-1.0f, value, 1.0f);
         break;
-    case Range::Invalid:
     default:
-        assert(0 && "Using invalid value");
+        assert(false && "Using invalid value");
         break;
     }
 
