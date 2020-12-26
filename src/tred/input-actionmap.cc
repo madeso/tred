@@ -82,7 +82,7 @@ void Load(InputActionMap* map, const input::config::ActionMap& root)
 {
     assert(map);
 
-    for (const auto& d: root.actions)
+    for (const auto& d: root)
     {
         std::shared_ptr<InputAction> action(new InputAction(d.name, d.var, d.range, d.global));
         map->Add(d.name, action);

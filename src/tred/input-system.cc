@@ -33,6 +33,14 @@ InputSystem::InputSystem(const config::InputSystem& config)
     Load(this, config);
 }
 
+InputSystem::~InputSystem()
+{
+    // need to clear all players first with 'this' valid
+    // otherwise we crash in destructor for active units and the director has
+    // been destroyed
+    players.clear();
+}
+
 
 std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name)
 {

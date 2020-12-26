@@ -32,16 +32,16 @@ float InputActive::GetNormalizedState() const
 
     switch (action->range)
     {
-    case Range::INFINITE:
+    case Range::Infinite:
         /* do nothing */
         break;
-    case Range::WITHIN_ZERO_ONE:
+    case Range::WithinZeroToOne:
         value = KeepWithin(0.0f, value, 1.0f);
         break;
-    case Range::WITHIN_NEGATIVE_ONE_POSITIVE_ONE:
+    case Range::WithinNegativeOneToPositiveOne:
         value = KeepWithin(-1.0f, value, 1.0f);
         break;
-    case Range::INVALID:
+    case Range::Invalid:
     default:
         assert(0 && "Using invalid value");
         break;

@@ -75,10 +75,11 @@ source_group("" FILES ${src})
 
 set(src_test
     tred/handle.test.cc
+    tred/input-system.test.cc
     ../external/catch/main.cc
 )
 add_executable(test ${src_test})
 target_link_libraries(test
-    PUBLIC catch tred
+    PUBLIC catch tred catchy
     PRIVATE project_options project_warnings
 )

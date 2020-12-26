@@ -107,7 +107,7 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
 {
     assert(configs);
 
-    for (const auto& d: root.configs)
+    for (const auto& d: root)
     {
         const std::string name = d.name;
         std::shared_ptr<KeyConfig> config(new KeyConfig());

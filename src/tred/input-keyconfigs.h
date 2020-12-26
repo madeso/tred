@@ -4,14 +4,11 @@
 #include <string>
 #include <memory>
 
+#include "tred/input-config.h"
+
 
 namespace input
 {
-
-namespace config
-{
-    struct KeyConfigs;
-}
 
 struct KeyConfig;
 struct ConnectedUnits;

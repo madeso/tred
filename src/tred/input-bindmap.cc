@@ -1,6 +1,7 @@
 #include "tred/input-bindmap.h"
 
 #include <cassert>
+#include <sstream>
 #include "fmt/format.h"
 
 #include "tred/input-action.h"
@@ -24,11 +25,11 @@ BindMap::BindMap(const InputActionMap& actions, ActiveList* actives)
     {
         switch (action->range)
         {
-        case Range::INFINITE:
-        case Range::WITHIN_NEGATIVE_ONE_POSITIVE_ONE:
+        case Range::Infinite:
+        case Range::WithinNegativeOneToPositiveOne:
             AddAxis(action, actives);
             break;
-        case Range::WITHIN_ZERO_ONE:
+        case Range::WithinZeroToOne:
             AddRange(action, actives);
             break;
         default:
@@ -39,12 +40,29 @@ BindMap::BindMap(const InputActionMap& actions, ActiveList* actives)
 }
 
 
+template<typename K, typename V>
+std::string GetKeys(const std::map<K, V>& m)
+{
+    std::ostringstream r;
+    r << "[";
+    bool first = true;
+    for(const auto& p: m)
+    {
+        if(first) first = false;
+        else r << " ";
+        r << p.first;
+    }
+    r << "]";
+    return r.str();
+}
+
+
 std::shared_ptr<Bind> BindMap::GetBindByName(const std::string& name)
 {
     auto res = binds.find(name);
     if (res == binds.end())
     {
-        const std::string error = fmt::format("unable to find bind {}", name);
+        const std::string error = fmt::format("unable to find bind {}: {}", name, GetKeys(binds));
         throw error;
     }
     return res->second;

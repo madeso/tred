@@ -1,0 +1,11 @@
+# output
+build/*
+
+#editors
+
+# undo files
+*.un~
+
+# vscode
+.vscode/*
+

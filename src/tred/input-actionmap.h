@@ -6,15 +6,12 @@
 #include <vector>
 
 
+#include "tred/input-config.h"
+
 struct Table;
 
 namespace input
 {
-
-namespace config
-{
-    struct ActionMap;
-}
 
 struct InputAction;
 struct GlobalToggle;

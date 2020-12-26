@@ -29,6 +29,7 @@ struct InputDirector;
 struct InputSystem
 {
     explicit InputSystem(const config::InputSystem& config);
+    ~InputSystem();
 
     std::shared_ptr<GlobalToggle> GetAction(const std::string& name);
     void SetUnitForPlayer(const std::string& playerName, const std::string& inputName);
