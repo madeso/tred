@@ -15,9 +15,6 @@ struct JoystickActiveUnit;
 
 struct InputDirector
 {
-    InputDirector();
-    ~InputDirector();
-
     void Add(KeyboardActiveUnit* kb);
     void Remove(KeyboardActiveUnit* kb);
 
@@ -36,9 +33,9 @@ struct InputDirector
     void OnJoystickButton(int button, int joystick, bool down);
     void OnJoystickAxis(int axis, int joystick, float value);
 
-    std::vector<KeyboardActiveUnit*> keyboards_;
-    std::vector<MouseActiveUnit*> mouse_;
-    std::vector<JoystickActiveUnit*> joystick_;
+    std::vector<KeyboardActiveUnit*> keyboards;
+    std::vector<MouseActiveUnit*> mouses;
+    std::vector<JoystickActiveUnit*> joysticks;
 };
 
 }  // namespace input

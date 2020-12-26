@@ -20,10 +20,8 @@ struct Player
 
     void UpdateTable(Table* table);
     void Update(float dt);
-    
-    void set_units(std::shared_ptr<ConnectedUnits> units);
 
-    std::shared_ptr<ConnectedUnits> units_;
+    std::shared_ptr<ConnectedUnits> units;
 };
 
 }  // namespace input

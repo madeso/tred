@@ -24,8 +24,8 @@ struct KeyConfig
     void Add(std::shared_ptr<UnitDef> def);
     std::shared_ptr<ConnectedUnits> Connect(const InputActionMap& actions, InputDirector* director);
 
-    std::vector<std::shared_ptr<UnitDef>> definitions_;
-    std::shared_ptr<BindMap> binds_;
+    std::vector<std::shared_ptr<UnitDef>> definitions;
+    std::shared_ptr<BindMap> binds;
 };
 
 }  // namespace input

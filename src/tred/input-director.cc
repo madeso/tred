@@ -12,30 +12,20 @@ namespace input
 {
 
 
-InputDirector::InputDirector()
-{
-}
-
-
-InputDirector::~InputDirector()
-{
-}
-
-
 void InputDirector::Add(KeyboardActiveUnit* kb)
 {
     assert(kb);
-    keyboards_.push_back(kb);
+    keyboards.push_back(kb);
 }
 
 
 void InputDirector::Remove(KeyboardActiveUnit* kb)
 {
     assert(kb);
-    auto res = std::find(keyboards_.begin(), keyboards_.end(), kb);
-    if (res != keyboards_.end())
+    auto res = std::find(keyboards.begin(), keyboards.end(), kb);
+    if (res != keyboards.end())
     {
-        keyboards_.erase(res);
+        keyboards.erase(res);
     }
 }
 
@@ -43,17 +33,17 @@ void InputDirector::Remove(KeyboardActiveUnit* kb)
 void InputDirector::Add(MouseActiveUnit* au)
 {
     assert(au);
-    mouse_.push_back(au);
+    mouses.push_back(au);
 }
 
 
 void InputDirector::Remove(MouseActiveUnit* au)
 {
     assert(au);
-    auto res = std::find(mouse_.begin(), mouse_.end(), au);
-    if (res != mouse_.end())
+    auto res = std::find(mouses.begin(), mouses.end(), au);
+    if (res != mouses.end())
     {
-        mouse_.erase(res);
+        mouses.erase(res);
     }
 }
 
@@ -61,25 +51,25 @@ void InputDirector::Remove(MouseActiveUnit* au)
 void InputDirector::Add(JoystickActiveUnit* au)
 {
     assert(au);
-    joystick_.push_back(au);
+    joysticks.push_back(au);
 }
 
 
 void InputDirector::Remove(JoystickActiveUnit* au)
 {
     assert(au);
-    auto res = std::find(joystick_.begin(), joystick_.end(), au);
-    if (res != joystick_.end())
+    auto res = std::find(joysticks.begin(), joysticks.end(), au);
+    if (res != joysticks.end())
     {
         /// @todo implement as a swap back and erase function
-        joystick_.erase(res);
+        joysticks.erase(res);
     }
 }
 
 
 void InputDirector::OnKeyboardKey(Key key, bool down)
 {
-    for (auto kb: keyboards_)
+    for (auto kb: keyboards)
     {
         kb->OnKey(key, down);
     }
@@ -88,7 +78,7 @@ void InputDirector::OnKeyboardKey(Key key, bool down)
 
 void InputDirector::OnMouseAxis(Axis axis, float value)
 {
-    for (auto m: mouse_)
+    for (auto m: mouses)
     {
         m->OnAxis(axis, value);
     }
@@ -97,7 +87,7 @@ void InputDirector::OnMouseAxis(Axis axis, float value)
 
 void InputDirector::OnMouseButton(MouseButton key, bool down)
 {
-    for (auto m: mouse_)
+    for (auto m: mouses)
     {
         m->OnButton(key, down ? 1.0f : 0.0f);
     }
@@ -108,7 +98,7 @@ void InputDirector::OnJoystickPov(Axis type, int hat, int, float value)
 {
     /// @todo fix the joystick number
 
-    for (auto j: joystick_)
+    for (auto j: joysticks)
     {
         j->OnHat(HatAxis(hat, type), value);
     }
@@ -119,7 +109,7 @@ void InputDirector::OnJoystickButton(int button, int, bool down)
 {
     /// @todo fix the joystick number
 
-    for (auto j: joystick_)
+    for (auto j: joysticks)
     {
         j->OnButton(button, down ? 1.0f : 0.0f);
     }
@@ -130,7 +120,7 @@ void InputDirector::OnJoystickAxis(int axis, int, float value)
 {
     /// @todo fix the joystick number
 
-    for (auto j: joystick_)
+    for (auto j: joysticks)
     {
         j->OnAxis(axis, value);
     }

@@ -24,8 +24,8 @@ struct KeyboardActiveUnit : public ActiveUnit
     void OnKey(const Key& key, bool state);
     void Rumble() override;
 
-    InputDirector* director_;
-    const std::map<Key, BindData> actions_;
+    InputDirector* director;
+    const std::map<Key, BindData> actions;
 };
 
 }  // namespace input

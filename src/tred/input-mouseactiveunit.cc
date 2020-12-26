@@ -11,31 +11,32 @@ namespace input
 {
 
 
-MouseActiveUnit::MouseActiveUnit(
+MouseActiveUnit::MouseActiveUnit
+    (
         const std::vector<std::shared_ptr<TAxisBind<Axis>>>& axis,
         const std::vector<std::shared_ptr<TRangeBind<MouseButton>>>& buttons,
-        InputDirector* director)
-    : director_(director)
-    , actions_(ConvertToBindMap<TAxisBind<Axis>, Axis>(axis))
-    , buttons_(
-              ConvertToBindMap<TRangeBind<MouseButton>, MouseButton>(buttons))
+        InputDirector* d
+    )
+    : director(d)
+    , actions(ConvertToBindMap<TAxisBind<Axis>, Axis>(axis))
+    , buttons(ConvertToBindMap<TRangeBind<MouseButton>, MouseButton>(buttons))
 {
-    assert(director_);
+    assert(director);
 
-    director_->Add(this);
+    director->Add(this);
 }
 
 
 MouseActiveUnit::~MouseActiveUnit()
 {
-    director_->Remove(this);
+    director->Remove(this);
 }
 
 
 void MouseActiveUnit::OnAxis(const Axis& key, float state)
 {
-    auto res = actions_.find(key);
-    if (res != actions_.end())
+    auto res = actions.find(key);
+    if (res != actions.end())
     {
         TransformAndSetBindValue(res->second, state);
     }
@@ -44,8 +45,8 @@ void MouseActiveUnit::OnAxis(const Axis& key, float state)
 
 void MouseActiveUnit::OnButton(MouseButton key, float state)
 {
-    auto res = buttons_.find(key);
-    if (res != buttons_.end())
+    auto res = buttons.find(key);
+    if (res != buttons.end())
     {
         TransformAndSetBindValue(res->second, state);
     }

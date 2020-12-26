@@ -19,15 +19,15 @@ ActiveRangeToAxis::ActiveRangeToAxis(InputAction* action, Bind* positive, Bind* 
     assert(positive_);
     assert(negative_);
 
-    if (positive_->type() != BindType::RANGE)
+    if (positive_->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for positive {} is not a range, is {}", action->name(), positive_->type());
+        const std::string error = fmt::format("bound type for positive {} is not a range, is {}", action->name, positive_->type);
         throw error;
     }
 
-    if (negative_->type() != BindType::RANGE)
+    if (negative_->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for negative {} is not a range, is {}", action->name(), negative_->type());
+        const std::string error = fmt::format("bound type for negative {} is not a range, is {}", action->name, negative_->type);
         throw error;
     }
 }
@@ -37,7 +37,7 @@ void ActiveRangeToAxis::Update(float)
 {
     assert(positive_);
     assert(negative_);
-    set_state(positive_->value() - negative_->value());
+    state_ = positive_->value - negative_->value;
 }
 
 

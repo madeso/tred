@@ -12,40 +12,19 @@ namespace input
 template <typename T>
 struct TAxisBind
 {
-    TAxisBind(T axis, std::shared_ptr<Bind> bind, bool invert, float scale)
-        : axis_(axis)
-        , bind_(bind)
-        , invert_(invert)
-        , scale_(scale)
+    TAxisBind(T t, std::shared_ptr<Bind> b, bool i, float s)
+        : type(t)
+        , bind(b)
+        , invert(i)
+        , scale(s)
     {
         assert(bind);
     }
 
-    const T GetType() const
-    {
-        return axis_;
-    }
-
-    std::shared_ptr<Bind> bind()
-    {
-        assert(bind_);
-        return bind_;
-    }
-
-    bool invert() const
-    {
-        return invert_;
-    }
-
-    float scale() const
-    {
-        return scale_;
-    }
-
-    T axis_;
-    std::shared_ptr<Bind> bind_;
-    bool invert_;
-    float scale_;
+    T type;
+    std::shared_ptr<Bind> bind;
+    bool invert;
+    float scale;
 };
 
 

@@ -35,10 +35,10 @@ struct JoystickActiveUnit : public ActiveUnit
     void Rumble() override;
 
     // int joystick_;
-    InputDirector* director_;
-    std::map<int, BindData> axis_;
-    std::map<int, BindData> buttons_;
-    std::map<HatAxis, BindData> hats_;
+    InputDirector* director;
+    std::map<int, BindData> axes;
+    std::map<int, BindData> buttons;
+    std::map<HatAxis, BindData> hats;
 };
 
 

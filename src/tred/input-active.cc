@@ -21,16 +21,16 @@ float KeepWithin(float mi, float v, float ma)
 }
 
 InputActive::InputActive(InputAction* action)
-    : action_(action)
+    : action(action)
     , state_(0.0f)
 {
 }
 
-float InputActive::state() const
+float InputActive::GetNormalizedState() const
 {
     float value = state_;
 
-    switch (action().range())
+    switch (action->range)
     {
     case Range::INFINITE:
         /* do nothing */
@@ -48,17 +48,6 @@ float InputActive::state() const
     }
 
     return value;
-}
-
-const InputAction& InputActive::action() const
-{
-    assert(action_);
-    return *action_;
-}
-
-void InputActive::set_state(float state)
-{
-    state_ = state;
 }
 
 }  // namespace input

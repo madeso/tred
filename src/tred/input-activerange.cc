@@ -9,23 +9,23 @@
 
 namespace input
 {
-ActiveRange::ActiveRange(InputAction* action, Bind* range)
+ActiveRange::ActiveRange(InputAction* action, Bind* r)
     : InputActive(action)
-    , range_(range)
+    , range(r)
 {
-    assert(range_);
+    assert(range);
 
-    if (range_->type() != BindType::RANGE)
+    if (range->type != BindType::RANGE)
     {
-        const std::string error = fmt::format("bound type for {} is not a range, is {}", action->name(), range_->type());
+        const std::string error = fmt::format("bound type for {} is not a range, is {}", action->name, range->type);
         throw error;
     }
 }
 
 void ActiveRange::Update(float)
 {
-    assert(range_);
-    set_state(range_->value());
+    assert(range);
+    state_ = range->value;
 }
 
 }  // namespace input

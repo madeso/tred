@@ -11,55 +11,54 @@ namespace input
 JoystickActiveUnit::JoystickActiveUnit
     (
         int,
-        InputDirector* director,
+        InputDirector* d,
         const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
         const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
         const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats
     )
     // : joystick_(joystick)
-    : director_(director)
-    , axis_(ConvertToBindMap<TAxisBind<int>, int>(axis))
-    , buttons_(ConvertToBindMap<TRangeBind<int>, int>(buttons))
-    , hats_(ConvertToBindMap<TAxisBind<HatAxis>, HatAxis>(hats))
+    : director(d)
+    , axes(ConvertToBindMap<TAxisBind<int>, int>(axis))
+    , buttons(ConvertToBindMap<TRangeBind<int>, int>(buttons))
+    , hats(ConvertToBindMap<TAxisBind<HatAxis>, HatAxis>(hats))
 {
-    assert(director_);
-    director_->Add(this);
+    assert(director);
+    director->Add(this);
 }
 
 
 JoystickActiveUnit::~JoystickActiveUnit()
 {
-    director_->Remove(this);
+    director->Remove(this);
 }
 
 
 void JoystickActiveUnit::OnAxis(int axis, float state)
 {
-    auto actionsit = axis_.find(axis);
-    if (actionsit != axis_.end())
+    auto found = axes.find(axis);
+    if (found != axes.end())
     {
-        BindData data = actionsit->second;
-        TransformAndSetBindValue(data, state);
+        TransformAndSetBindValue(found->second, state);
     }
 }
 
 
 void JoystickActiveUnit::OnButton(int button, float state)
 {
-    auto actionsit = buttons_.find(button);
-    if (actionsit != buttons_.end())
+    auto found = buttons.find(button);
+    if (found != buttons.end())
     {
-        TransformAndSetBindValue(actionsit->second, state);
+        TransformAndSetBindValue(found->second, state);
     }
 }
 
 
 void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
 {
-    auto actionsit = hats_.find(hatAxis);
-    if (actionsit != hats_.end())
+    auto found = hats.find(hatAxis);
+    if (found != hats.end())
     {
-        TransformAndSetBindValue(actionsit->second, state);
+        TransformAndSetBindValue(found->second, state);
     }
 }
 

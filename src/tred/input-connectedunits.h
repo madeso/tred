@@ -22,8 +22,8 @@ struct ConnectedUnits
     void Add(std::shared_ptr<ActiveUnit> unit);
     bool IsEmpty() const;
 
-    std::vector<std::shared_ptr<ActiveUnit>> units_;
-    std::shared_ptr<ActiveList> actives_;
+    std::vector<std::shared_ptr<ActiveUnit>> units;
+    std::shared_ptr<ActiveList> actives;
 };
 
 }  // namespace input

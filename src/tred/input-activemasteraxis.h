@@ -16,8 +16,8 @@ struct ActiveMasterAxis : public InputActive
     explicit ActiveMasterAxis(InputAction* action, ActiveAxis* axis, ActiveRangeToAxis* range);
     void Update(float dt);
 
-    ActiveAxis* axis_;
-    ActiveRangeToAxis* range_;
+    ActiveAxis* axis;
+    ActiveRangeToAxis* range;
 };
 
 

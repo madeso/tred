@@ -9,13 +9,10 @@ struct HatAxis
 {
     HatAxis(int hat, Axis axis);
 
-    Axis axis() const;
-    int hat() const;
-
     bool operator<(const HatAxis& rhs) const;
 
-    int hat_;
-    Axis axis_;
+    int hat;
+    Axis axis;
 };
 
 

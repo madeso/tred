@@ -11,8 +11,8 @@ namespace input
 {
 
 
-ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> actives)
-    : actives_(actives)
+ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> a)
+    : actives(a)
 {
     assert(actives);
 }
@@ -21,37 +21,37 @@ ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> actives)
 void ConnectedUnits::Add(std::shared_ptr<ActiveUnit> unit)
 {
     assert(unit);
-    units_.push_back(unit);
+    units.push_back(unit);
 }
 
 
 void ConnectedUnits::UpdateTable(Table* table)
 {
     assert(table);
-    assert(actives_);
+    assert(actives);
 
     // not really relevant but this is great for error checking
-    if (units_.empty())
+    if (units.empty())
     {
         const std::string error = "No units connected for table update to be completed";
         throw error;
     }
 
-    actives_->UpdateTable(table);
+    actives->UpdateTable(table);
 }
 
 
 void ConnectedUnits::Update(float dt)
 {
-    assert(actives_);
+    assert(actives);
 
-    actives_->Update(dt);
+    actives->Update(dt);
 }
 
 
 bool ConnectedUnits::IsEmpty() const
 {
-    return units_.empty();
+    return units.empty();
 }
 
 

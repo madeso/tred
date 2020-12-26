@@ -37,7 +37,7 @@ std::vector<std::shared_ptr<TBind>> CreateBinds(std::vector<BindDef<Type>> defs,
     std::vector<std::shared_ptr<TBind>> keybinds;
     for (const auto& key: defs)
     {
-        std::shared_ptr<TBind> b(new TBind(key.type(), map->GetBindByName(key.id()), key.invert(), key.scale()));
+        std::shared_ptr<TBind> b(new TBind(key.type, map->GetBindByName(key.id), key.invert, key.scale));
         keybinds.push_back(b);
     }
     return keybinds;
@@ -45,19 +45,20 @@ std::vector<std::shared_ptr<TBind>> CreateBinds(std::vector<BindDef<Type>> defs,
 
 
 template <typename TBind, typename Type>
-std::map<Type, BindData> ConvertToBindMap(
-        const std::vector<std::shared_ptr<TBind>>& axis)
+std::map<Type, BindData> ConvertToBindMap(const std::vector<std::shared_ptr<TBind>>& axis)
 {
-    std::map<Type, BindData> actions_;
+    std::map<Type, BindData> actions;
+    
     for (auto a: axis)
     {
         BindData d;
-        d.bind = a->bind();
-        d.invert = a->invert();
-        d.scale = a->scale();
-        actions_.insert(std::make_pair(a->GetType(), d));
+        d.bind = a->bind;
+        d.invert = a->invert;
+        d.scale = a->scale;
+        actions.insert(std::make_pair(a->type, d));
     }
-    return actions_;
+
+    return actions;
 }
 
 

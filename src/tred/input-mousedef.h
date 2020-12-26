@@ -16,6 +16,7 @@ struct MouseDef;
 namespace input
 {
 
+
 struct InputActionMap;
 
 struct MouseDef : public UnitDef
@@ -23,7 +24,9 @@ struct MouseDef : public UnitDef
     MouseDef(const config::MouseDef& data, const InputActionMap& map);
     std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) override;
 
-    std::vector<BindDef<Axis>> axis_;
-    std::vector<BindDef<MouseButton>> keys_;
+    std::vector<BindDef<Axis>> axis;
+    std::vector<BindDef<MouseButton>> keys;
 };
+
+
 }  // namespace input

@@ -33,12 +33,14 @@ struct ActiveList
     /// @todo move to a global list
     void Update(float dt);
 
-    std::vector<std::shared_ptr<ActiveRange>> range_binds_;
-    std::vector<std::shared_ptr<ActiveAxis>> axis_binds_;
-    std::vector<std::shared_ptr<ActiveAxisToRange>> axis_to_range_binds_;
-    std::vector<std::shared_ptr<ActiveRangeToAxis>> range_to_axis_binds_;
-    std::vector<std::shared_ptr<ActiveMasterAxis>> master_axis_binds_;
-    std::vector<std::shared_ptr<ActiveMasterRange>> master_range_binds_;
+    std::vector<std::shared_ptr<ActiveRange>> range_binds;
+    std::vector<std::shared_ptr<ActiveAxis>> axis_binds;
+
+    std::vector<std::shared_ptr<ActiveAxisToRange>> axis_to_range_binds;
+    std::vector<std::shared_ptr<ActiveRangeToAxis>> range_to_axis_binds;
+    
+    std::vector<std::shared_ptr<ActiveMasterAxis>> master_axis_binds;
+    std::vector<std::shared_ptr<ActiveMasterRange>> master_range_binds;
 };
 
 

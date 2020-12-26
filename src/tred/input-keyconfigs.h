@@ -29,7 +29,7 @@ struct KeyConfigs
 
     std::shared_ptr<ConnectedUnits> GetFirstAutoDetectedConfig() const;
 
-    std::map<std::string, std::shared_ptr<KeyConfig>> configs_;
+    std::map<std::string, std::shared_ptr<KeyConfig>> configs;
 };
 
 

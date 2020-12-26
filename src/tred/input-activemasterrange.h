@@ -16,8 +16,8 @@ struct ActiveMasterRange : public InputActive
     explicit ActiveMasterRange(InputAction* action, ActiveRange* range, ActiveAxisToRange* axis);
     void Update(float dt);
 
-    ActiveRange* range_;
-    ActiveAxisToRange* axis_;
+    ActiveRange* range;
+    ActiveAxisToRange* axis;
 };
 
 

@@ -14,7 +14,7 @@ struct ActiveRange : public InputActive
 
     void Update(float dt);
 
-    Bind* range_;
+    Bind* range;
 };
 
 }  // namespace input

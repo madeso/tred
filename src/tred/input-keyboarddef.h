@@ -26,7 +26,7 @@ struct KeyboardDef : public UnitDef
 
     std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) override;
 
-    std::vector<BindDef<Key>> keys_;
+    std::vector<BindDef<Key>> keys;
 };
 
 }  // namespace input

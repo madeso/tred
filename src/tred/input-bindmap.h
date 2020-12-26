@@ -23,12 +23,12 @@ struct ActiveList;
 struct BindMap
 {
     BindMap(const InputActionMap& actions, ActiveList* actives);
+    
     std::shared_ptr<Bind> GetBindByName(const std::string& name);
-
     void AddRange(std::shared_ptr<InputAction> action, ActiveList* actives);
     void AddAxis(std::shared_ptr<InputAction> action, ActiveList* actives);
 
-    std::map<std::string, std::shared_ptr<Bind>> binds_;
+    std::map<std::string, std::shared_ptr<Bind>> binds;
 };
 
 }  // namespace input

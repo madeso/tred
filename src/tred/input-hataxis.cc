@@ -7,34 +7,22 @@ namespace input
 {
 
 
-HatAxis::HatAxis(int hat, Axis axis)
-    : hat_(hat)
-    , axis_(axis)
+HatAxis::HatAxis(int h, Axis a)
+    : hat(h)
+    , axis(a)
 {
-}
-
-
-Axis HatAxis::axis() const
-{
-    return axis_;
-}
-
-
-int HatAxis::hat() const
-{
-    return hat_;
 }
 
 
 bool HatAxis::operator<(const HatAxis& rhs) const
 {
-    if (axis_ == rhs.axis_)
+    if (axis == rhs.axis)
     {
-        return hat_ < rhs.hat_;
+        return hat < rhs.hat;
     }
     else
     {
-        return axis_ < rhs.axis_;
+        return axis < rhs.axis;
     }
 }
 

@@ -7,21 +7,24 @@
 
 namespace input
 {
-ActiveMasterRange::ActiveMasterRange(InputAction* action, ActiveRange* range, ActiveAxisToRange* axis)
+
+    
+ActiveMasterRange::ActiveMasterRange(InputAction* action, ActiveRange* r, ActiveAxisToRange* a)
     : InputActive(action)
-    , range_(range)
-    , axis_(axis)
+    , range(r)
+    , axis(a)
 {
-    assert(range_);
-    assert(axis_);
+    assert(range);
+    assert(axis);
 }
 
 void ActiveMasterRange::Update(float)
 {
-    const float axisvalue = axis_->state();
-    const float rangevalue = range_->state();
+    const float axisvalue = axis->GetNormalizedState();
+    const float rangevalue = range->GetNormalizedState();
 
-    return set_state(rangevalue + axisvalue);
+    state_ = rangevalue + axisvalue;
 }
+
 
 }  // namespace input

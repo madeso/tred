@@ -18,17 +18,12 @@ MouseDef::MouseDef(const config::MouseDef& data, const InputActionMap&)
 {
     for (const auto& d: data.axis)
     {
-        auto common = d.common;
-
-        const auto axis = d.axis;
-        axis_.push_back(BindDef<Axis>(common.bindname, axis, d));
+        axis.push_back(BindDef<Axis>(d.common.bindname, d.axis, d));
     }
+
     for (const auto& d: data.button)
     {
-        auto common = d.common;
-        const auto key = d.key;
-
-        keys_.push_back(BindDef<MouseButton>(common.bindname, key, d));
+        keys.push_back(BindDef<MouseButton>(d.common.bindname, d.key, d));
     }
 }
 
@@ -38,14 +33,11 @@ std::shared_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, BindMap* m
     assert(director);
     assert(map);
 
-    std::vector<std::shared_ptr<TAxisBind<Axis>>> axisbinds =
-            CreateBinds<TAxisBind<Axis>, Axis>(axis_, map);
+    std::vector<std::shared_ptr<TAxisBind<Axis>>> axisbinds = CreateBinds<TAxisBind<Axis>, Axis>(axis, map);
+    std::vector<std::shared_ptr<TRangeBind<MouseButton>>> keybinds = CreateBinds<TRangeBind<MouseButton>, MouseButton>(keys, map);
 
-    std::vector<std::shared_ptr<TRangeBind<MouseButton>>> keybinds =
-            CreateBinds<TRangeBind<MouseButton>, MouseButton>(keys_, map);
-
-    std::shared_ptr<ActiveUnit> unit(
-            new MouseActiveUnit(axisbinds, keybinds, director));
+    std::shared_ptr<ActiveUnit> unit(new MouseActiveUnit(axisbinds, keybinds, director));
+    
     return unit;
 }
 

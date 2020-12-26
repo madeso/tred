@@ -11,12 +11,9 @@ struct InputActive
 {
     explicit InputActive(InputAction* action);
 
-    float state() const;
-    void set_state(float state);
+    float GetNormalizedState() const;
 
-    const InputAction& action() const;
-
-    InputAction* action_;
+    InputAction* action;
     float state_;
 };
 

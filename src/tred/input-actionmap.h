@@ -33,8 +33,8 @@ struct InputActionMap
 
     std::vector<std::shared_ptr<InputAction>> GetActionList() const;
 
-    std::map<std::string, std::shared_ptr<InputAction>> actions_;
-    std::map<std::string, std::shared_ptr<GlobalToggle>> toggles_;
+    std::map<std::string, std::shared_ptr<InputAction>> actions;
+    std::map<std::string, std::shared_ptr<GlobalToggle>> toggles;
 };
 
 

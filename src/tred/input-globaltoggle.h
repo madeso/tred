@@ -22,13 +22,11 @@ struct GlobalToggle
     void Add(Bind* bind);
     void Remove(Bind* bind);
 
-    bool state() const;
-
-    std::shared_ptr<InputAction> action_;
-    bool state_;
-    bool last_down_;
-    Bind* current_state_holder_;
-    std::vector<Bind*> binds_;
+    std::shared_ptr<InputAction> action;
+    bool state;
+    bool last_down;
+    Bind* current_state_holder;
+    std::vector<Bind*> binds;
 };
 
 }  // namespace input

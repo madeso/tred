@@ -25,14 +25,14 @@ KeyConfigs::KeyConfigs()
 void KeyConfigs::Add(const std::string& name, std::shared_ptr<KeyConfig> config)
 {
     assert(config);
-    configs_.insert(std::make_pair(name, config));
+    configs.insert(std::make_pair(name, config));
 }
 
 
 std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
 {
-    auto res = configs_.find(name);
-    if (res == configs_.end())
+    auto res = configs.find(name);
+    if (res == configs.end())
     {
         const std::string error = fmt::format("Unable to find config: {}", name);
         throw error;

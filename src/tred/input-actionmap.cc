@@ -12,33 +12,37 @@
 
 namespace input
 {
+
 InputActionMap::InputActionMap()
 {
 }
 
+
 void InputActionMap::Update()
 {
-    for (auto t: toggles_)
+    for (auto t: toggles)
     {
         (t.second)->Update();
     }
 }
 
+
 void InputActionMap::Add(const std::string& name, std::shared_ptr<InputAction> action)
 {
     assert(action);
-    actions_.insert(std::make_pair(name, action));
-    if (action->global())
+    actions.insert(std::make_pair(name, action));
+    if (action->global)
     {
         std::shared_ptr<GlobalToggle> toggle(new GlobalToggle(action));
-        toggles_.insert(std::make_pair(name, toggle));
+        toggles.insert(std::make_pair(name, toggle));
     }
 }
 
+
 std::shared_ptr<InputAction> InputActionMap::Get(const std::string& name) const
 {
-    auto res = actions_.find(name);
-    if (res == actions_.end())
+    auto res = actions.find(name);
+    if (res == actions.end())
     {
         const std::string error = fmt::format("Unable to find action: {}", name);
         throw error;
@@ -48,11 +52,11 @@ std::shared_ptr<InputAction> InputActionMap::Get(const std::string& name) const
     return res->second;
 }
 
-std::shared_ptr<GlobalToggle> InputActionMap::GetGlobalToggle(
-        const std::string& name) const
+
+std::shared_ptr<GlobalToggle> InputActionMap::GetGlobalToggle(const std::string& name) const
 {
-    auto res = toggles_.find(name);
-    if (res == toggles_.end())
+    auto res = toggles.find(name);
+    if (res == toggles.end())
     {
         const std::string error = fmt::format("Unable to find toggle: {}", name);
         throw error;
@@ -62,18 +66,17 @@ std::shared_ptr<GlobalToggle> InputActionMap::GetGlobalToggle(
     return res->second;
 }
 
-std::vector<std::shared_ptr<InputAction>> InputActionMap::GetActionList()
-        const
+
+std::vector<std::shared_ptr<InputAction>> InputActionMap::GetActionList() const
 {
     std::vector<std::shared_ptr<InputAction>> ret;
-    for (auto a: actions_)
+    for (auto a: actions)
     {
         ret.push_back(a.second);
     }
     return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////
 
 void Load(InputActionMap* map, const input::config::ActionMap& root)
 {
@@ -81,12 +84,8 @@ void Load(InputActionMap* map, const input::config::ActionMap& root)
 
     for (const auto& d: root.actions)
     {
-        const std::string name = d.name;
-        const std::string varname = d.var;
-        const bool global = d.global;
-        const Range range = d.range;
-        std::shared_ptr<InputAction> action(new InputAction(name, varname, range, global));
-        map->Add(name, action);
+        std::shared_ptr<InputAction> action(new InputAction(d.name, d.var, d.range, d.global));
+        map->Add(d.name, action);
     }
 }
 

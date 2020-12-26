@@ -18,11 +18,13 @@ namespace input
 void TransformAndSetBindValue(const BindData& data, float value)
 {
     float transformed = value * data.scale;
+    
     if (data.invert)
     {
         transformed *= -1;
     }
-    data.bind->set_value(transformed);
+
+    data.bind->value = transformed;
 }
 
 

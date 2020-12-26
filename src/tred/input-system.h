@@ -29,7 +29,6 @@ struct InputDirector;
 struct InputSystem
 {
     explicit InputSystem(const config::InputSystem& config);
-    ~InputSystem();
 
     std::shared_ptr<GlobalToggle> GetAction(const std::string& name);
     void SetUnitForPlayer(const std::string& playerName, const std::string& inputName);
@@ -47,10 +46,10 @@ struct InputSystem
     std::shared_ptr<Player> GetPlayer(const std::string& name);
     void AddPlayer(const std::string& name);
 
-    InputActionMap actions_;
-    std::map<std::string, std::shared_ptr<Player>> players_;
-    KeyConfigs configs_;
-    std::unique_ptr<InputDirector> input_;
+    InputActionMap actions;
+    std::map<std::string, std::shared_ptr<Player>> players;
+    KeyConfigs configs;
+    std::unique_ptr<InputDirector> input;
 };
 
 }  // namespace input

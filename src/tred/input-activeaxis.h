@@ -14,7 +14,7 @@ struct ActiveAxis : public InputActive
 
     void Update(float dt);
 
-    Bind* axis_;
+    Bind* axis;
 };
 
 

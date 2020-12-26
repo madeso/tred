@@ -9,28 +9,30 @@
 
 namespace input
 {
-ActiveAxisToRange::ActiveAxisToRange(InputAction* action, Bind* axis)
+ActiveAxisToRange::ActiveAxisToRange(InputAction* action, Bind* a)
     : InputActive(action)
-    , axis_(axis)
+    , axis(a)
 {
-    assert(axis_);
+    assert(axis);
 
-    if (axis_->type() != BindType::AXIS)
+    if (axis->type != BindType::AXIS)
     {
-        const std::string error = fmt::format("bound type for axis {} is not a axis, is {}", action->name(), axis_->type());
+        const std::string error = fmt::format("bound type for axis {} is not a axis, is {}", action->name, axis->type);
         throw error;
     }
 }
 
 void ActiveAxisToRange::Update(float)
 {
-    assert(axis_);
-    float v = axis_->value();
+    assert(axis);
+    float v = axis->value;
+    
     if (v < 0)
     {
         v = 0;
     }
-    set_state(v);
+
+    state_ = v;
 }
 
 }  // namespace input

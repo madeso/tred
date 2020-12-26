@@ -9,23 +9,23 @@
 
 namespace input
 {
-ActiveAxis::ActiveAxis(InputAction* action, Bind* axis)
+ActiveAxis::ActiveAxis(InputAction* action, Bind* a)
     : InputActive(action)
-    , axis_(axis)
+    , axis(a)
 {
-    assert(axis_);
+    assert(axis);
 
-    if (axis_->type() != BindType::AXIS)
+    if (axis->type != BindType::AXIS)
     {
-        const std::string error = fmt::format("bound type for {} is not a axis, is {}", action->name(), axis_->type());
+        const std::string error = fmt::format("bound type for {} is not a axis, is {}", action->name, axis->type);
         throw error;
     }
 }
 
 void ActiveAxis::Update(float)
 {
-    assert(axis_);
-    set_state(axis_->value());
+    assert(axis);
+    state_ = axis->value;
 }
 
 }  // namespace input

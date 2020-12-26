@@ -10,38 +10,21 @@ namespace input
 {
 
 
+Bind::Bind(InputAction* a, BindType t)
+    : action(a)
+    , type(t)
+    , toggle(nullptr)
+    , value(0.0f)
+{
+}
+
+
 Bind::~Bind()
 {
-    if (toggle_)
+    if (toggle)
     {
-        toggle_->Remove(this);
+        toggle->Remove(this);
     }
 }
-
-
-float Bind::value() const
-{
-    return value_;
-}
-
-
-void Bind::set_value(float v)
-{
-    value_ = v;
-}
-
-
-BindType Bind::type() const
-{
-    return type_;
-}
-
-
-InputAction* Bind::action()
-{
-    assert(action_);
-    return action_;
-}
-
 
 }  // namespace input

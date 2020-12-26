@@ -12,28 +12,28 @@ namespace input
 
 KeyboardActiveUnit::KeyboardActiveUnit(
         const std::vector<std::shared_ptr<TRangeBind<Key>>>& binds,
-        InputDirector* director)
-    : director_(director)
-    , actions_(ConvertToBindMap<TRangeBind<Key>, Key>(binds))
+        InputDirector* d)
+    : director(d)
+    , actions(ConvertToBindMap<TRangeBind<Key>, Key>(binds))
 {
-    assert(director_);
+    assert(director);
 
-    director_->Add(this);
+    director->Add(this);
 }
 
 
 KeyboardActiveUnit::~KeyboardActiveUnit()
 {
-    director_->Remove(this);
+    director->Remove(this);
 }
 
 
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
-    auto actionsit = actions_.find(key);
-    if (actionsit != actions_.end())
+    auto found = actions.find(key);
+    if (found != actions.end())
     {
-        TransformAndSetBindValue(actionsit->second, state ? 1.0f : 0.0f);
+        TransformAndSetBindValue(found->second, state ? 1.0f : 0.0f);
     }
 }
 

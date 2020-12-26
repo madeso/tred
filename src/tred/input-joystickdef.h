@@ -27,9 +27,9 @@ struct JoystickDef : public UnitDef
 
     std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map);
 
-    std::vector<BindDef<int>> axis_;
-    std::vector<BindDef<int>> buttons_;
-    std::vector<BindDef<HatAxis>> hats_;
+    std::vector<BindDef<int>> axes;
+    std::vector<BindDef<int>> buttons;
+    std::vector<BindDef<HatAxis>> hats;
 };
 
 

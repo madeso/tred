@@ -18,10 +18,7 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, const InputActionMap&)
 {
     for (const auto& d: data.binds)
     {
-        auto common = d.common;
-
-        const auto key = d.key;
-        keys_.push_back(BindDef<Key>(common.bindname, key, d));
+        keys.push_back(BindDef<Key>(d.common.bindname, d.key, d));
     }
 }
 
@@ -31,9 +28,10 @@ std::shared_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, BindMap
     assert(director);
     assert(map);
 
-    std::vector<std::shared_ptr<TRangeBind<Key>>> keybinds = CreateBinds<TRangeBind<Key>, Key>(keys_, map);
+    std::vector<std::shared_ptr<TRangeBind<Key>>> keybinds = CreateBinds<TRangeBind<Key>, Key>(keys, map);
 
     std::shared_ptr<ActiveUnit> unit(new KeyboardActiveUnit(keybinds, director));
+    
     return unit;
 }
 

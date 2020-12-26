@@ -35,9 +35,9 @@ struct MouseActiveUnit : public ActiveUnit
 
     void Rumble() override;
 
-    InputDirector* director_;
-    const std::map<Axis, BindData> actions_;
-    const std::map<MouseButton, BindData> buttons_;
+    InputDirector* director;
+    const std::map<Axis, BindData> actions;
+    const std::map<MouseButton, BindData> buttons;
 };
 
 
