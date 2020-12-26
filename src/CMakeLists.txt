@@ -3,6 +3,48 @@ set(src
     tred/embedded_types.cc tred/embedded_types.h
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
+
+    tred/input-config.cc tred/input-config.h
+    tred/input-table.cc tred/input-table.h
+
+    tred/input-action.cc tred/input-action.h
+    tred/input-actionmap.cc tred/input-actionmap.h
+    tred/input-activeaxis.cc tred/input-activeaxis.h
+    tred/input-activeaxistorange.cc tred/input-activeaxistorange.h
+    tred/input-active.cc tred/input-active.h
+    tred/input-activelist.cc tred/input-activelist.h
+    tred/input-activemasteraxis.cc tred/input-activemasteraxis.h
+    tred/input-activemasterrange.cc tred/input-activemasterrange.h
+    tred/input-activerange.cc tred/input-activerange.h
+    tred/input-activerangetoaxis.cc tred/input-activerangetoaxis.h
+    tred/input-activeunit.cc tred/input-activeunit.h
+    tred/input-axis.cc tred/input-axis.h
+    tred/input-bind.cc tred/input-bind.h
+    tred/input-binddef.cc tred/input-binddef.h
+    tred/input-bindmap.cc tred/input-bindmap.h
+    tred/input.cc tred/input.h
+    tred/input-commondef.cc tred/input-commondef.h
+    tred/input-connectedunits.cc tred/input-connectedunits.h
+    tred/input-director.cc tred/input-director.h
+    tred/input-dummyactiveunit.cc tred/input-dummyactiveunit.h
+    tred/input-globaltoggle.cc tred/input-globaltoggle.h
+    tred/input-hataxis.cc tred/input-hataxis.h
+    tred/input-joystickactiveunit.cc tred/input-joystickactiveunit.h
+    tred/input-joystickdef.cc tred/input-joystickdef.h
+    tred/input-keyboardactiveunit.cc tred/input-keyboardactiveunit.h
+    tred/input-keyboarddef.cc tred/input-keyboarddef.h
+    tred/input-key.cc tred/input-key.h
+    tred/input-keyconfig.cc tred/input-keyconfig.h
+    tred/input-keyconfigs.cc tred/input-keyconfigs.h
+    tred/input-mouseactiveunit.cc tred/input-mouseactiveunit.h
+    tred/input-mousedef.cc tred/input-mousedef.h
+    tred/input-player.cc tred/input-player.h
+    tred/input-range.cc tred/input-range.h
+    tred/input-system.cc tred/input-system.h
+    tred/input-taxisbind.cc tred/input-taxisbind.h
+    tred/input-trangebind.cc tred/input-trangebind.h
+    tred/input-unitdef.cc tred/input-unitdef.h
+
     tred/input.cc tred/input.h
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
