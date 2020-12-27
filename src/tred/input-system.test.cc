@@ -88,12 +88,12 @@ TEST_CASE("input-test", "[input]")
     {
         {
             // actions
-            // todo(Gustav): split global and player input
+            // todo(Gustav): add back support for globals, input not tied to player
             // todo(Gustav): add groupings... car/walk/swim ...?
             // todo(Gustav): how does "converters" work? extend to 2d
             {
-                {"shoot", "var_shoot", Range::WithinZeroToOne, false},
-                {"look", "var_look", Range::WithinNegativeOneToPositiveOne, false}
+                {"shoot", "var_shoot", Range::WithinZeroToOne},
+                {"look", "var_look", Range::WithinNegativeOneToPositiveOne}
             },
 
             // controller setup (bind)

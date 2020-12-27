@@ -23,7 +23,6 @@ namespace config
 }
 
 struct Player;
-struct GlobalToggle;
 struct InputDirector;
 
 struct InputSystem
@@ -31,7 +30,6 @@ struct InputSystem
     explicit InputSystem(const config::InputSystem& config);
     ~InputSystem();
 
-    std::shared_ptr<GlobalToggle> GetAction(const std::string& name);
     void SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputName);
 
     void Update(float dt);

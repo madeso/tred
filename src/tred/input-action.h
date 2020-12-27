@@ -10,18 +10,15 @@ struct Table;
 namespace input
 {
 
-struct GlobalToggle;
 
 struct InputAction
 {
-    InputAction(const std::string& name, const std::string& scriptvarname, Range range, bool global);
-    ~InputAction();
+    InputAction(const std::string& name, const std::string& scriptvarname, Range range);
 
     std::string name;
     std::string scriptvarname;
     Range range;
-    bool global;
-    GlobalToggle* toggle;
 };
+
 
 }  // namespace input

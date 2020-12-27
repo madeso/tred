@@ -7,35 +7,16 @@
 #include "tred/input-config.h"
 #include "tred/input-range.h"
 #include "tred/input-action.h"
-#include "tred/input-globaltoggle.h"
 
 
 namespace input
 {
 
-InputActionMap::InputActionMap()
-{
-}
-
-
-void InputActionMap::Update()
-{
-    for (auto t: toggles)
-    {
-        (t.second)->Update();
-    }
-}
-
-
+    
 void InputActionMap::Add(const std::string& name, std::shared_ptr<InputAction> action)
 {
     assert(action);
     actions.insert(std::make_pair(name, action));
-    if (action->global)
-    {
-        std::shared_ptr<GlobalToggle> toggle(new GlobalToggle(action));
-        toggles.insert(std::make_pair(name, toggle));
-    }
 }
 
 
@@ -45,19 +26,6 @@ std::shared_ptr<InputAction> InputActionMap::Get(const std::string& name) const
     if (res == actions.end())
     {
         throw fmt::format("Unable to find action: {}", name);
-    }
-
-    assert(res->second);
-    return res->second;
-}
-
-
-std::shared_ptr<GlobalToggle> InputActionMap::GetGlobalToggle(const std::string& name) const
-{
-    auto res = toggles.find(name);
-    if (res == toggles.end())
-    {
-        throw fmt::format("Unable to find toggle: {}", name);;
     }
 
     assert(res->second);
@@ -82,7 +50,7 @@ void Load(InputActionMap* map, const input::config::ActionMap& root)
 
     for (const auto& d: root)
     {
-        std::shared_ptr<InputAction> action(new InputAction(d.name, d.var, d.range, d.global));
+        std::shared_ptr<InputAction> action(new InputAction(d.name, d.var, d.range));
         map->Add(d.name, action);
     }
 }

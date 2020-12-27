@@ -12,11 +12,10 @@ namespace input::config
 {
 struct Action
 {
-    Action(const std::string& name, const std::string& var, ::Range, bool global=false);
+    Action(const std::string& name, const std::string& var, ::Range);
     std::string name;
     std::string var;
     ::Range range;
-    bool global;
 };
 
 struct KeyboardButton

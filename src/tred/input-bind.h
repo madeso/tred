@@ -5,7 +5,6 @@ namespace input
 {
 
 struct InputAction;
-struct GlobalToggle;
 
 enum class BindType
 {
@@ -16,11 +15,9 @@ enum class BindType
 struct Bind
 {
     Bind(InputAction* action, BindType type);
-    ~Bind();
 
     InputAction* action;
     BindType type;
-    GlobalToggle* toggle;
     float value;
 };
 

@@ -33,18 +33,13 @@ InputSystem::InputSystem(const config::InputSystem& config)
     Load(this, config);
 }
 
+
 InputSystem::~InputSystem()
 {
     // need to clear all players first with 'this' valid
     // otherwise we crash in destructor for active units and the director has
     // been destroyed
     players.clear();
-}
-
-
-std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name)
-{
-    return actions.GetGlobalToggle(name);
 }
 
 
@@ -57,8 +52,6 @@ void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::st
 
 void InputSystem::Update(float dt)
 {
-    actions.Update();
-
     for (auto p: players)
     {
         p.second->Update(dt);

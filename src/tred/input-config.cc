@@ -3,11 +3,10 @@
 namespace input::config
 {
 
-Action::Action(const std::string& n, const std::string& v, ::Range r, bool g)
+Action::Action(const std::string& n, const std::string& v, ::Range r)
     : name(n)
     , var(v)
     , range(r)
-    , global(g)
 {
 }
 

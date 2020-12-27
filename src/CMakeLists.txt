@@ -27,7 +27,6 @@ set(src
     tred/input-connectedunits.cc tred/input-connectedunits.h
     tred/input-director.cc tred/input-director.h
     tred/input-dummyactiveunit.cc tred/input-dummyactiveunit.h
-    tred/input-globaltoggle.cc tred/input-globaltoggle.h
     tred/input-hataxis.cc tred/input-hataxis.h
     tred/input-joystickactiveunit.cc tred/input-joystickactiveunit.h
     tred/input-joystickdef.cc tred/input-joystickdef.h
