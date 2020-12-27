@@ -15,18 +15,18 @@ Player::Player()
 void Player::UpdateTable(Table* table)
 {
     assert(table);
-    if(units)
+    if(connected_units)
     {
-        units->UpdateTable(table);
+        connected_units->UpdateTable(table);
     }
 }
 
 
 void Player::Update(float dt)
 {
-    if(units)
+    if(connected_units)
     {
-        units->Update(dt);
+        connected_units->Update(dt);
     }
 }
 

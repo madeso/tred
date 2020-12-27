@@ -21,7 +21,7 @@ struct Player
     void UpdateTable(Table* table);
     void Update(float dt);
 
-    std::shared_ptr<ConnectedUnits> units;
+    std::shared_ptr<ConnectedUnits> connected_units;
 };
 
 }  // namespace input

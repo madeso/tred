@@ -51,7 +51,7 @@ std::shared_ptr<GlobalToggle> InputSystem::GetAction(const std::string& name)
 void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputname)
 {
     auto config = configs.Get(inputname);
-    player->units = config->Connect(actions, input_director.get());
+    player->connected_units = config->Connect(actions, input_director.get());
 }
 
 

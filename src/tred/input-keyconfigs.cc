@@ -42,26 +42,6 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
 }
 
 
-void KeyConfigs::BeginAutoDetect()
-{
-    assert(false && "Not implemented yet");
-}
-
-
-void KeyConfigs::AbortAutoDetect()
-{
-    assert(false && "Not implemented yet");
-}
-
-
-std::shared_ptr<ConnectedUnits> KeyConfigs::GetFirstAutoDetectedConfig() const
-{
-    assert(false && "Not implemented yet");
-    std::shared_ptr<ConnectedUnits> dummy;
-    return dummy;
-}
-
-
 void Load(KeyConfig* config, const input::config::Config& root, const InputActionMap& map)
 {
     assert(config);

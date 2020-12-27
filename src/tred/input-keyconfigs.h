@@ -21,11 +21,6 @@ struct KeyConfigs
     void Add(const std::string& name, std::shared_ptr<KeyConfig> config);
     std::shared_ptr<KeyConfig> Get(const std::string& name) const;
 
-    void BeginAutoDetect();
-    void AbortAutoDetect();
-
-    std::shared_ptr<ConnectedUnits> GetFirstAutoDetectedConfig() const;
-
     std::map<std::string, std::shared_ptr<KeyConfig>> configs;
 };
 
