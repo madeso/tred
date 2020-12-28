@@ -11,7 +11,6 @@ namespace input
 {
 
 struct KeyConfig;
-struct ConnectedUnits;
 struct InputActionMap;
 
 struct KeyConfigs
