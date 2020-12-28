@@ -9,7 +9,7 @@
 #include "tred/input-axis.h"
 #include "tred/input-keyconfigs.h"
 #include "tred/input-actionmap.h"
-
+#include "tred/input-director.h"
 
 struct Table;
 
@@ -23,7 +23,6 @@ namespace config
 }
 
 struct Player;
-struct InputDirector;
 
 struct InputSystem
 {
@@ -48,7 +47,7 @@ struct InputSystem
     InputActionMap actions;
     std::map<std::string, std::shared_ptr<Player>> players;
     KeyConfigs configs;
-    std::unique_ptr<InputDirector> input_director;
+    InputDirector input_director;
 };
 
 }  // namespace input

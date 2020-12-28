@@ -26,7 +26,6 @@ void Load(InputSystem* sys, const config::InputSystem& root)
 
 
 InputSystem::InputSystem(const config::InputSystem& config)
-    : input_director(new InputDirector())
 {
     Load(&actions, config.actions);
     Load(&configs, config.keys, actions);
@@ -46,7 +45,7 @@ InputSystem::~InputSystem()
 void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputname)
 {
     auto config = configs.Get(inputname);
-    player->connected_units = config->Connect(actions, input_director.get());
+    player->connected_units = config->Connect(actions, &input_director);
 }
 
 
@@ -61,37 +60,37 @@ void InputSystem::Update(float dt)
 
 void InputSystem::OnKeyboardKey(Key key, bool down)
 {
-    input_director->OnKeyboardKey(key, down);
+    input_director.OnKeyboardKey(key, down);
 }
 
 
 void InputSystem::OnMouseAxis(Axis axis, float value)
 {
-    input_director->OnMouseAxis(axis, value);
+    input_director.OnMouseAxis(axis, value);
 }
 
 
 void InputSystem::OnMouseButton(MouseButton button, bool down)
 {
-    input_director->OnMouseButton(button, down);
+    input_director.OnMouseButton(button, down);
 }
 
 
 void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value)
 {
-    input_director->OnJoystickPov(type, hat, joystick, value);
+    input_director.OnJoystickPov(type, hat, joystick, value);
 }
 
 
 void InputSystem::OnJoystickButton(int button, int joystick, bool down)
 {
-    input_director->OnJoystickButton(button, joystick, down);
+    input_director.OnJoystickButton(button, joystick, down);
 }
 
 
 void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
 {
-    input_director->OnJoystickAxis(axis, joystick, value);
+    input_director.OnJoystickAxis(axis, joystick, value);
 }
 
 
