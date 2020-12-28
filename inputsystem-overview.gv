@@ -9,7 +9,7 @@ digraph G {
 		
 		{
 			edge[dir="both"; arrowhead="none"; arrowtail="diamond";];
-			InputActionMap -> InputAction;
+			ActionMap -> Action;
 		}
 	}
 	
@@ -76,7 +76,7 @@ digraph G {
 
 	{
 		edge[dir="both"; arrowhead="none"; arrowtail="diamond";];	
-		InputSystem -> InputActionMap;
+		InputSystem -> ActionMap;
 		InputSystem -> KeyConfigs;
 		InputSystem -> InputDirector;
 		InputSystem -> Player;
@@ -84,7 +84,7 @@ digraph G {
 	
 	{
 		edge[arrowhead="vee"; style="dotted"];
-		ActiveUnit -> InputAction [constraint=false];
+		ActiveUnit -> Action [constraint=false];
 	}
 	
 	UnitDef[style=dashed];
