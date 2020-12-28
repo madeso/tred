@@ -31,8 +31,6 @@ struct JoystickActiveUnit : public ActiveUnit
     void OnAxis(int axis, float state);
     void OnButton(int button, float state);
     void OnHat(const HatAxis& hatAxis, float state);
-    
-    void Rumble() override;
 
     // int joystick_;
     InputDirector* director;

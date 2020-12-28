@@ -38,9 +38,4 @@ void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 }
 
 
-void KeyboardActiveUnit::Rumble()
-{
-}
-
-
 }  // namespace input

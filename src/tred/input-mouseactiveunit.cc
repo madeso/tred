@@ -53,9 +53,4 @@ void MouseActiveUnit::OnButton(MouseButton key, float state)
 }
 
 
-void MouseActiveUnit::Rumble()
-{
-}
-
-
 }  // namespace input

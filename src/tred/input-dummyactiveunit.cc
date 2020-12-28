@@ -7,9 +7,4 @@ namespace input
 {
 
 
-void DummyActiveUnit::Rumble()
-{
-}
-
-
 }  // namespace input

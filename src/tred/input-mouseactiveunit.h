@@ -33,8 +33,6 @@ struct MouseActiveUnit : public ActiveUnit
     void OnAxis(const Axis& key, float state);
     void OnButton(MouseButton key, float state);
 
-    void Rumble() override;
-
     InputDirector* director;
     const std::map<Axis, BindData> actions;
     const std::map<MouseButton, BindData> buttons;

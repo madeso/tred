@@ -15,8 +15,6 @@ A perfect example is a connected joystick.
 struct ActiveUnit
 {
     virtual ~ActiveUnit();
-
-    virtual void Rumble() = 0;
 };
 
 }  // namespace input

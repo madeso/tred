@@ -22,7 +22,6 @@ struct KeyboardActiveUnit : public ActiveUnit
     ~KeyboardActiveUnit();
 
     void OnKey(const Key& key, bool state);
-    void Rumble() override;
 
     InputDirector* director;
     const std::map<Key, BindData> actions;

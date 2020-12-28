@@ -63,9 +63,4 @@ void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
 }
 
 
-void JoystickActiveUnit::Rumble()
-{
-}
-
-
 }  // namespace input

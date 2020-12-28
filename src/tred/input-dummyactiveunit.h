@@ -9,7 +9,6 @@ namespace input
 
 struct DummyActiveUnit : public ActiveUnit
 {
-    void Rumble() override;
 };
 
 
