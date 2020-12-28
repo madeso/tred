@@ -4,17 +4,15 @@
 
 #include "tred/input-director.h"
 #include "tred/input-action.h"
-#include "tred/input-commondef.h"
+#include "tred/input-bind.h"
 
 
 namespace input
 {
 
-KeyboardActiveUnit::KeyboardActiveUnit(
-        const std::vector<std::shared_ptr<TBind<Key>>>& binds,
-        InputDirector* d)
+KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, const std::vector<BindDef<Key>>& k)
     : director(d)
-    , actions(ConvertToBindMap<TBind<Key>, Key>(binds))
+    , keys(ConvertToBindMap(k))
 {
     assert(director);
 
@@ -28,12 +26,18 @@ KeyboardActiveUnit::~KeyboardActiveUnit()
 }
 
 
+void KeyboardActiveUnit::Recieve(ValueReciever* reciever)
+{
+    CallRecieve(keys, reciever);
+}
+
+
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
-    auto found = actions.find(key);
-    if (found != actions.end())
+    auto found = keys.find(key);
+    if (found != keys.end())
     {
-        TransformAndSetBindValue(found->second, state ? 1.0f : 0.0f);
+        found->second.SetRawState(state ? 1.0f : 0.0f);
     }
 }
 

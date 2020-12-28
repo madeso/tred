@@ -110,10 +110,9 @@ Config::Config(const std::string& n, const std::vector<KeyboardDef>& k, const st
 }
 
 
-InputSystem::InputSystem(const ActionMap& a, const KeyConfigs& k, const std::vector<std::string>& p)
+InputSystem::InputSystem(const ActionMap& a, const KeyConfigs& k)
     : actions(a)
     , keys(k)
-    , players(p)
 {
 }
 

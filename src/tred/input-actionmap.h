@@ -8,11 +8,12 @@
 
 #include "tred/input-config.h"
 
-struct Table;
 
 namespace input
 {
 
+
+struct Table;
 struct InputAction;
 
 

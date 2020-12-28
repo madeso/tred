@@ -3,11 +3,11 @@
 #include <vector>
 
 #include "tred/input-unitdef.h"
-#include "tred/input-binddef.h"
+#include "tred/input-bind.h"
 #include "tred/input-hataxis.h"
 
 
-namespace config
+namespace input::config
 {
 struct JoystickDef;
 }
@@ -23,9 +23,9 @@ struct InputActionMap;
 
 struct JoystickDef : public UnitDef
 {
-    JoystickDef(const config::JoystickDef& data, const InputActionMap& map);
+    JoystickDef(const config::JoystickDef& data, Converter* converter);
 
-    std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map);
+    std::shared_ptr<ActiveUnit> Create(InputDirector* director);
 
     std::vector<BindDef<int>> axes;
     std::vector<BindDef<int>> buttons;

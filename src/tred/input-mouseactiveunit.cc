@@ -4,7 +4,6 @@
 
 #include "tred/input-director.h"
 #include "tred/input-action.h"
-#include "tred/input-commondef.h"
 
 
 namespace input
@@ -13,13 +12,13 @@ namespace input
 
 MouseActiveUnit::MouseActiveUnit
     (
-        const std::vector<std::shared_ptr<TBind<Axis>>>& axis,
-        const std::vector<std::shared_ptr<TBind<MouseButton>>>& buttons,
-        InputDirector* d
+        InputDirector* d,
+        const std::vector<BindDef<Axis>>& a,
+        const std::vector<BindDef<MouseButton>>& b
     )
     : director(d)
-    , actions(ConvertToBindMap<TBind<Axis>, Axis>(axis))
-    , buttons(ConvertToBindMap<TBind<MouseButton>, MouseButton>(buttons))
+    , axes(ConvertToBindMap(a))
+    , buttons(ConvertToBindMap(b))
 {
     assert(director);
 
@@ -33,12 +32,19 @@ MouseActiveUnit::~MouseActiveUnit()
 }
 
 
+void MouseActiveUnit::Recieve(ValueReciever* reciever)
+{
+    CallRecieve(axes, reciever);
+    CallRecieve(buttons, reciever);
+}
+
+
 void MouseActiveUnit::OnAxis(const Axis& key, float state)
 {
-    auto res = actions.find(key);
-    if (res != actions.end())
+    auto res = axes.find(key);
+    if (res != axes.end())
     {
-        TransformAndSetBindValue(res->second, state);
+        res->second.SetRawState(state);
     }
 }
 
@@ -48,7 +54,7 @@ void MouseActiveUnit::OnButton(MouseButton key, float state)
     auto res = buttons.find(key);
     if (res != buttons.end())
     {
-        TransformAndSetBindValue(res->second, state);
+        res->second.SetRawState(state);
     }
 }
 

@@ -13,23 +13,10 @@
 
 namespace input
 {
-
-void Load(InputSystem* sys, const config::InputSystem& root)
-{
-    assert(sys);
-
-    for (const auto& name: root.players)
-    {
-        sys->AddPlayer(name);
-    }
-}
-
-
 InputSystem::InputSystem(const config::InputSystem& config)
 {
     Load(&actions, config.actions);
     Load(&configs, config.keys, actions);
-    Load(this, config);
 }
 
 
@@ -45,7 +32,7 @@ InputSystem::~InputSystem()
 void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputname)
 {
     auto config = configs.Get(inputname);
-    player->connected_units = config->Connect(actions, &input_director);
+    player->connected_units = config->Connect(&input_director);
 }
 
 
@@ -53,7 +40,7 @@ void InputSystem::Update(float dt)
 {
     for (auto p: players)
     {
-        p.second->Update(dt);
+        p->Update(dt);
     }
 }
 
@@ -94,24 +81,11 @@ void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
 }
 
 
-std::shared_ptr<Player> InputSystem::GetPlayer(const std::string& name)
+std::shared_ptr<Player> InputSystem::AddPlayer()
 {
-    auto found = players.find(name);
-    
-    if (found == players.end())
-    {
-        throw fmt::format("Unable to find player {}", name);
-    }
-
-    assert(found->second);
-    return found->second;
-}
-
-
-void InputSystem::AddPlayer(const std::string& name)
-{
-    std::shared_ptr<Player> p(new Player());
-    players.insert(std::make_pair(name, p));
+    auto p = std::make_shared<Player>();
+    players.emplace_back(p);
+    return p;
 }
 
 

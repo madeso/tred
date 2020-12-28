@@ -3,18 +3,17 @@
 #include <cassert>
 #include <string>
 
+#include "tred/input-bind.h"
 #include "tred/input-activeunit.h"
-#include "tred/input-activelist.h"
 
 
 namespace input
 {
 
 
-ConnectedUnits::ConnectedUnits(std::shared_ptr<ActiveList> a)
-    : actives(a)
+ConnectedUnits::ConnectedUnits(const Converter& c)
+    : converter(c)
 {
-    assert(actives);
 }
 
 
@@ -28,23 +27,21 @@ void ConnectedUnits::Add(std::shared_ptr<ActiveUnit> unit)
 void ConnectedUnits::UpdateTable(Table* table)
 {
     assert(table);
-    assert(actives);
 
-    // not really relevant but this is great for error checking
-    if (units.empty())
+    assert(units.size() > 0);
+
+    auto reciever = ValueReciever{table, converter};
+
+    for(auto& u: units)
     {
-        throw std::string{"No units connected for table update to be completed"};
+        u->Recieve(&reciever);
     }
-
-    actives->UpdateTable(table);
 }
 
 
-void ConnectedUnits::Update(float dt)
+void ConnectedUnits::Update(float)
 {
-    assert(actives);
-
-    actives->Update(dt);
+    // actives->Update(dt);
 }
 
 

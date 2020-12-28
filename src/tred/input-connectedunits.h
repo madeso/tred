@@ -4,26 +4,29 @@
 #include <memory>
 
 
-struct Table;
+#include "input-bind.h"
+
+
 
 namespace input
 {
 
 
+struct Table;
 struct ActiveUnit;
-struct ActiveList;
+
 
 struct ConnectedUnits
 {
-    explicit ConnectedUnits(std::shared_ptr<ActiveList> actives);
-
+    ConnectedUnits(const Converter& converter);
+    
     void UpdateTable(Table* table);
     void Update(float dt);
     void Add(std::shared_ptr<ActiveUnit> unit);
     bool IsEmpty() const;
 
+    Converter converter;
     std::vector<std::shared_ptr<ActiveUnit>> units;
-    std::shared_ptr<ActiveList> actives;
 };
 
 }  // namespace input

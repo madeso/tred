@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "tred/input-connectedunits.h"
+#include "tred/input-bind.h"
 
 
 namespace input
@@ -12,20 +13,20 @@ namespace input
 struct UnitDef;
 struct InputDirector;
 struct InputActionMap;
-struct BindMap;
 
 /** Contains a list of configurations.
     A good example is Mouse+Keyboard.
     */
 struct KeyConfig
 {
-    KeyConfig();
+    explicit KeyConfig(const InputActionMap& map);
 
     void Add(std::shared_ptr<UnitDef> def);
-    std::shared_ptr<ConnectedUnits> Connect(const InputActionMap& actions, InputDirector* director);
 
+    std::shared_ptr<ConnectedUnits> Connect(InputDirector* director);
+
+    Converter converter;
     std::vector<std::shared_ptr<UnitDef>> definitions;
-    std::shared_ptr<BindMap> binds;
 };
 
 }  // namespace input

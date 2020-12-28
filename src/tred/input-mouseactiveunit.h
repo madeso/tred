@@ -6,7 +6,7 @@
 #include "tred/input-axis.h"
 #include "tred/input-key.h"
 #include "tred/input-activeunit.h"
-#include "tred/input-tbind.h"
+#include "tred/input-bind.h"
 
 
 struct Table;
@@ -16,25 +16,26 @@ namespace input
 {
 
 struct InputDirector;
-struct BindData;
 
 
 struct MouseActiveUnit : public ActiveUnit
 {
     MouseActiveUnit
     (
-        const std::vector<std::shared_ptr<TBind<Axis>>>& axis,
-        const std::vector<std::shared_ptr<TBind<MouseButton>>>& buttons,
-        InputDirector* director
+        InputDirector* director,
+        const std::vector<BindDef<Axis>>& axes,
+        const std::vector<BindDef<MouseButton>>& buttons
     );
     ~MouseActiveUnit();
+
+    void Recieve(ValueReciever* reciever) override;
 
     void OnAxis(const Axis& key, float state);
     void OnButton(MouseButton key, float state);
 
     InputDirector* director;
-    const std::map<Axis, BindData> actions;
-    const std::map<MouseButton, BindData> buttons;
+    std::map<Axis, Bind> axes;
+    std::map<MouseButton, Bind> buttons;
 };
 
 

@@ -5,7 +5,7 @@
 
 #include "tred/input-key.h"
 #include "tred/input-unitdef.h"
-#include "tred/input-binddef.h"
+#include "tred/input-bind.h"
 
 
 namespace input
@@ -22,9 +22,9 @@ struct InputDirector;
 
 struct KeyboardDef : public UnitDef
 {
-    KeyboardDef(const config::KeyboardDef& data, const InputActionMap& map);
+    KeyboardDef(const config::KeyboardDef& data, Converter* converter);
 
-    std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) override;
+    std::shared_ptr<ActiveUnit> Create(InputDirector* director) override;
 
     std::vector<BindDef<Key>> keys;
 };

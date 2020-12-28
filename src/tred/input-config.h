@@ -139,11 +139,10 @@ using KeyConfigs = std::vector<Config>;
 
 struct InputSystem
 {
-    InputSystem(const ActionMap&, const KeyConfigs&, const std::vector<std::string>&);
+    InputSystem(const ActionMap&, const KeyConfigs&);
 
     ActionMap actions;
     KeyConfigs keys;
-    std::vector<std::string> players;
 };
 
 }

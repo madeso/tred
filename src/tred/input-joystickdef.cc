@@ -6,11 +6,8 @@
 
 #include "tred/log.h"
 #include "tred/input-config.h"
-#include "tred/input-dummyactiveunit.h"
-#include "tred/input-tbind.h"
+#include "tred/input-bind.h"
 #include "tred/input-actionmap.h"
-#include "tred/input-bindmap.h"
-#include "tred/input-commondef.h"
 #include "tred/input-joystickactiveunit.h"
 
 
@@ -18,7 +15,7 @@ namespace input
 {
 
 
-JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
+JoystickDef::JoystickDef(const config::JoystickDef& data, Converter* converter)
 {
     for (const auto& d: data.axis)
     {
@@ -29,7 +26,7 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
         }
         else
         {
-            axes.push_back(BindDef<int>(d.bindname, axis, d));
+            axes.push_back(BindDef<int>(d.bindname, axis, d, converter));
         }
     }
     for (const auto& d: data.button)
@@ -42,7 +39,7 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
         }
         else
         {
-            buttons.push_back(BindDef<int>(d.bindname, key, d));
+            buttons.push_back(BindDef<int>(d.bindname, key, d, converter));
         }
     }
     for (const auto& d: data.hat)
@@ -54,25 +51,20 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, const InputActionMap&)
         }
         else
         {
-            hats.push_back(BindDef<HatAxis>(d.bindname, HatAxis(hat, d.axis), d));
+            hats.push_back(BindDef<HatAxis>(d.bindname, HatAxis(hat, d.axis), d, converter));
         }
     }
 }
 
 
-std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, BindMap* map)
+std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director)
 {
     assert(director);
-    assert(map);
 
     /// @todo fix the joystick number
     int js = 0;
 
-    std::vector<std::shared_ptr<TBind<int>>> axisbinds = CreateBinds<TBind<int>, int>(axes, map);
-    std::vector<std::shared_ptr<TBind<int>>> buttonbinds = CreateBinds<TBind<int>, int>(buttons, map);
-    std::vector<std::shared_ptr<TBind<HatAxis>>> hatbinds = CreateBinds<TBind<HatAxis>, HatAxis>(hats, map);
-
-    std::shared_ptr<ActiveUnit> unit(new JoystickActiveUnit(js, director, axisbinds, buttonbinds, hatbinds));
+    std::shared_ptr<ActiveUnit> unit(new JoystickActiveUnit(js, director, axes, buttons, hats));
     return unit;
 }
 

@@ -4,27 +4,28 @@
 
 #include "tred/input-unitdef.h"
 #include "tred/input-axis.h"
-#include "tred/input-binddef.h"
+#include "tred/input-bind.h"
 #include "tred/input-key.h"
 
 
-namespace config
+namespace input::config
 {
 struct MouseDef;
 }
 
+
 namespace input
 {
-
 
 struct InputActionMap;
 
 struct MouseDef : public UnitDef
 {
-    MouseDef(const config::MouseDef& data, const InputActionMap& map);
-    std::shared_ptr<ActiveUnit> Create(InputDirector* director, BindMap* map) override;
+    MouseDef(const config::MouseDef& data, Converter* converter);
 
-    std::vector<BindDef<Axis>> axis;
+    std::shared_ptr<ActiveUnit> Create(InputDirector* director) override;
+
+    std::vector<BindDef<Axis>> axes;
     std::vector<BindDef<MouseButton>> keys;
 };
 

@@ -124,17 +124,11 @@ TEST_CASE("input-test", "[input]")
                     {
                     }
                 }
-            },
-
-            // players
-            // todo(Gustav): remove list of player... concept is good, list is bad
-            {
-                "player"
             }
         }
     };
 
-    auto player = sys.GetPlayer("player");
+    auto player = sys.AddPlayer();
 
     SECTION("no assigned control is valid")
     {

@@ -11,8 +11,6 @@
 #include "tred/input-actionmap.h"
 #include "tred/input-director.h"
 
-struct Table;
-
 
 namespace input
 {
@@ -22,6 +20,7 @@ namespace config
     struct InputSystem;
 }
 
+struct Table;
 struct Player;
 
 struct InputSystem
@@ -41,11 +40,10 @@ struct InputSystem
     void OnJoystickButton(int button, int joystick, bool down);
     void OnJoystickAxis(int axis, int joystick, float value);
 
-    std::shared_ptr<Player> GetPlayer(const std::string& name);
-    void AddPlayer(const std::string& name);
+    std::shared_ptr<Player> AddPlayer();
 
     InputActionMap actions;
-    std::map<std::string, std::shared_ptr<Player>> players;
+    std::vector<std::shared_ptr<Player>> players;
     KeyConfigs configs;
     InputDirector input_director;
 };

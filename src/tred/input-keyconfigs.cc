@@ -42,23 +42,23 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
 }
 
 
-void Load(KeyConfig* config, const input::config::Config& root, const InputActionMap& map)
+void Load(KeyConfig* config, const input::config::Config& root)
 {
     assert(config);
 
     for (const auto& d: root.keyboards)
     {
-        config->Add(std::make_shared<KeyboardDef>(d, map));
+        config->Add(std::make_shared<KeyboardDef>(d, &config->converter));
     }
 
     for (const auto& d: root.mouses)
     {
-        config->Add(std::make_shared<MouseDef>(d, map));
+        config->Add(std::make_shared<MouseDef>(d, &config->converter));
     }
 
     for (const auto& d: root.joysticks)
     {
-        config->Add(std::make_shared<JoystickDef>(d, map));
+        config->Add(std::make_shared<JoystickDef>(d, &config->converter));
     }
 }
 
@@ -70,8 +70,8 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
     for (const auto& d: root)
     {
         const std::string name = d.name;
-        std::shared_ptr<KeyConfig> config(new KeyConfig());
-        Load(config.get(), d, map);
+        std::shared_ptr<KeyConfig> config(new KeyConfig(map));
+        Load(config.get(), d);
         configs->Add(name, config);
     }
 }
