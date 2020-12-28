@@ -10,9 +10,9 @@ namespace input
 {
 
 template <typename T>
-struct TRangeBind
+struct TBind
 {
-    TRangeBind(T t, std::shared_ptr<Bind> b, bool i, float s)
+    TBind(T t, std::shared_ptr<Bind> b, bool i, float s)
         : type(t)
         , bind(b)
         , invert(i)
@@ -23,7 +23,6 @@ struct TRangeBind
 
     T type;
     std::shared_ptr<Bind> bind;
-
     bool invert;
     float scale;
 };

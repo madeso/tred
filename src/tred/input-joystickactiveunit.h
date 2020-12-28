@@ -6,8 +6,7 @@
 #include "tred/input-axis.h"
 #include "tred/input-hataxis.h"
 #include "tred/input-activeunit.h"
-#include "tred/input-taxisbind.h"
-#include "tred/input-trangebind.h"
+#include "tred/input-tbind.h"
 
 
 struct Table;
@@ -22,9 +21,9 @@ struct JoystickActiveUnit : public ActiveUnit
     JoystickActiveUnit
     (
         int joystick, InputDirector* director,
-        const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
-        const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
-        const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats
+        const std::vector<std::shared_ptr<TBind<int>>>& axis,
+        const std::vector<std::shared_ptr<TBind<int>>>& buttons,
+        const std::vector<std::shared_ptr<TBind<HatAxis>>>& hats
     );
     ~JoystickActiveUnit();
 

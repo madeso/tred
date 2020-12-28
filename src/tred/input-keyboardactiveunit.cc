@@ -11,10 +11,10 @@ namespace input
 {
 
 KeyboardActiveUnit::KeyboardActiveUnit(
-        const std::vector<std::shared_ptr<TRangeBind<Key>>>& binds,
+        const std::vector<std::shared_ptr<TBind<Key>>>& binds,
         InputDirector* d)
     : director(d)
-    , actions(ConvertToBindMap<TRangeBind<Key>, Key>(binds))
+    , actions(ConvertToBindMap<TBind<Key>, Key>(binds))
 {
     assert(director);
 

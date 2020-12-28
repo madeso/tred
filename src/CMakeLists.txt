@@ -40,8 +40,7 @@ set(src
     tred/input-player.cc tred/input-player.h
     tred/input-range.cc tred/input-range.h
     tred/input-system.cc tred/input-system.h
-    tred/input-taxisbind.cc tred/input-taxisbind.h
-    tred/input-trangebind.cc tred/input-trangebind.h
+    tred/input-tbind.cc tred/input-tbind.h
     tred/input-unitdef.cc tred/input-unitdef.h
 
     tred/input.cc tred/input.h

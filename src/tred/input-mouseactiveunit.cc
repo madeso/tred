@@ -13,13 +13,13 @@ namespace input
 
 MouseActiveUnit::MouseActiveUnit
     (
-        const std::vector<std::shared_ptr<TAxisBind<Axis>>>& axis,
-        const std::vector<std::shared_ptr<TRangeBind<MouseButton>>>& buttons,
+        const std::vector<std::shared_ptr<TBind<Axis>>>& axis,
+        const std::vector<std::shared_ptr<TBind<MouseButton>>>& buttons,
         InputDirector* d
     )
     : director(d)
-    , actions(ConvertToBindMap<TAxisBind<Axis>, Axis>(axis))
-    , buttons(ConvertToBindMap<TRangeBind<MouseButton>, MouseButton>(buttons))
+    , actions(ConvertToBindMap<TBind<Axis>, Axis>(axis))
+    , buttons(ConvertToBindMap<TBind<MouseButton>, MouseButton>(buttons))
 {
     assert(director);
 

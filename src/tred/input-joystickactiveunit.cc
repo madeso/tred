@@ -12,15 +12,15 @@ JoystickActiveUnit::JoystickActiveUnit
     (
         int,
         InputDirector* d,
-        const std::vector<std::shared_ptr<TAxisBind<int>>>& axis,
-        const std::vector<std::shared_ptr<TRangeBind<int>>>& buttons,
-        const std::vector<std::shared_ptr<TAxisBind<HatAxis>>>& hats
+        const std::vector<std::shared_ptr<TBind<int>>>& axis,
+        const std::vector<std::shared_ptr<TBind<int>>>& buttons,
+        const std::vector<std::shared_ptr<TBind<HatAxis>>>& hats
     )
     // : joystick_(joystick)
     : director(d)
-    , axes(ConvertToBindMap<TAxisBind<int>, int>(axis))
-    , buttons(ConvertToBindMap<TRangeBind<int>, int>(buttons))
-    , hats(ConvertToBindMap<TAxisBind<HatAxis>, HatAxis>(hats))
+    , axes(ConvertToBindMap<TBind<int>, int>(axis))
+    , buttons(ConvertToBindMap<TBind<int>, int>(buttons))
+    , hats(ConvertToBindMap<TBind<HatAxis>, HatAxis>(hats))
 {
     assert(director);
     director->Add(this);

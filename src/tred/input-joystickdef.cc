@@ -7,8 +7,7 @@
 #include "tred/log.h"
 #include "tred/input-config.h"
 #include "tred/input-dummyactiveunit.h"
-#include "tred/input-taxisbind.h"
-#include "tred/input-trangebind.h"
+#include "tred/input-tbind.h"
 #include "tred/input-actionmap.h"
 #include "tred/input-bindmap.h"
 #include "tred/input-commondef.h"
@@ -69,9 +68,9 @@ std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, BindMap
     /// @todo fix the joystick number
     int js = 0;
 
-    std::vector<std::shared_ptr<TAxisBind<int>>> axisbinds = CreateBinds<TAxisBind<int>, int>(axes, map);
-    std::vector<std::shared_ptr<TRangeBind<int>>> buttonbinds = CreateBinds<TRangeBind<int>, int>(buttons, map);
-    std::vector<std::shared_ptr<TAxisBind<HatAxis>>> hatbinds = CreateBinds<TAxisBind<HatAxis>, HatAxis>(hats, map);
+    std::vector<std::shared_ptr<TBind<int>>> axisbinds = CreateBinds<TBind<int>, int>(axes, map);
+    std::vector<std::shared_ptr<TBind<int>>> buttonbinds = CreateBinds<TBind<int>, int>(buttons, map);
+    std::vector<std::shared_ptr<TBind<HatAxis>>> hatbinds = CreateBinds<TBind<HatAxis>, HatAxis>(hats, map);
 
     std::shared_ptr<ActiveUnit> unit(new JoystickActiveUnit(js, director, axisbinds, buttonbinds, hatbinds));
     return unit;

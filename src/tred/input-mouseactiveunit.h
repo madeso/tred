@@ -6,8 +6,7 @@
 #include "tred/input-axis.h"
 #include "tred/input-key.h"
 #include "tred/input-activeunit.h"
-#include "tred/input-taxisbind.h"
-#include "tred/input-trangebind.h"
+#include "tred/input-tbind.h"
 
 
 struct Table;
@@ -24,8 +23,8 @@ struct MouseActiveUnit : public ActiveUnit
 {
     MouseActiveUnit
     (
-        const std::vector<std::shared_ptr<TAxisBind<Axis>>>& axis,
-        const std::vector<std::shared_ptr<TRangeBind<MouseButton>>>& buttons,
+        const std::vector<std::shared_ptr<TBind<Axis>>>& axis,
+        const std::vector<std::shared_ptr<TBind<MouseButton>>>& buttons,
         InputDirector* director
     );
     ~MouseActiveUnit();
