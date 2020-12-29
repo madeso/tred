@@ -17,10 +17,10 @@ using namespace input;
 using namespace Catch::Matchers;
 using namespace catchy;
 
-Table GetTable(Player* player)
+Table GetTable(InputSystem* system, PlayerHandle player)
 {
     Table table;
-    player->UpdateTable(&table);
+    system->UpdateTable(player, &table);
     return table;
 }
 
@@ -132,7 +132,7 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("no assigned control is valid")
     {
-        const auto table = GetTable(player);
+        const auto table = GetTable(&sys, player);
 
         REQUIRE(MapEquals(table.data, {
         }));
@@ -143,7 +143,7 @@ TEST_CASE("input-test", "[input]")
         // press enter on playscreen
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
-        const auto table = GetTable(player);
+        const auto table = GetTable(&sys, player);;
 
         REQUIRE(MapEquals(table.data, {
             {"var_shoot", 0.0f},
@@ -159,12 +159,12 @@ TEST_CASE("input-test", "[input]")
         sys.OnKeyboardKey(Key::A, true);
         sys.Update(0.1f);
 
-        const auto before = GetTable(player);
+        const auto before = GetTable(&sys, player);;
 
         sys.OnKeyboardKey(Key::A, false);
         sys.Update(0.1f);
 
-        const auto after = GetTable(player);
+        const auto after = GetTable(&sys, player);;
 
         REQUIRE(MapEquals(before.data, {
             {"var_shoot", 1.0f},
@@ -184,12 +184,12 @@ TEST_CASE("input-test", "[input]")
         sys.OnMouseAxis(Axis::X, 2.0f);
         sys.Update(0.1f);
 
-        const auto before = GetTable(player);
+        const auto before = GetTable(&sys, player);;
 
         sys.OnMouseAxis(Axis::X, 0.0f);
         sys.Update(0.1f);
 
-        const auto after = GetTable(player);
+        const auto after = GetTable(&sys, player);;
 
         REQUIRE(MapEquals(before.data, {
             {"var_shoot", 0.0f},

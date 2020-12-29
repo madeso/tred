@@ -7,9 +7,8 @@
 
 #include "tred/input-key.h"
 #include "tred/input-axis.h"
-#include "tred/input-keyconfigs.h"
-#include "tred/input-actionmap.h"
-#include "tred/input-director.h"
+
+#include "tred/types.h"
 
 namespace input
 {
@@ -20,14 +19,20 @@ namespace config
 }
 
 struct Table;
-struct Player;
+
+
+enum class PlayerHandle : u64 {};
+
+
+struct InputSystemPiml;
 
 struct InputSystem
 {
     explicit InputSystem(const config::InputSystem& config);
     ~InputSystem();
 
-    void SetUnitForPlayer(Player* player, const std::string& inputName);
+    void SetUnitForPlayer(PlayerHandle player, const std::string& inputName);
+    void UpdateTable(PlayerHandle player, Table* table);
 
     void Update(float dt);
 
@@ -39,13 +44,9 @@ struct InputSystem
     void OnJoystickButton(int button, int joystick, bool down);
     void OnJoystickAxis(int axis, int joystick, float value);
 
-    // todo(Gustav): replace with handle
-    Player* AddPlayer();
+    PlayerHandle AddPlayer();
 
-    InputActionMap actions;
-    std::vector<std::unique_ptr<Player>> players;
-    KeyConfigs configs;
-    InputDirector input_director;
+    std::unique_ptr<InputSystemPiml> m;
 };
 
 }  // namespace input
