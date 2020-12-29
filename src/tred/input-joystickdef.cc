@@ -57,15 +57,14 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, Converter* converter)
 }
 
 
-std::shared_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director)
+std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director)
 {
     assert(director);
 
     /// @todo fix the joystick number
     int js = 0;
-
-    std::shared_ptr<ActiveUnit> unit(new JoystickActiveUnit(js, director, axes, buttons, hats));
-    return unit;
+    
+    return std::make_unique<JoystickActiveUnit>(js, director, axes, buttons, hats);
 }
 
 

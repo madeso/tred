@@ -21,15 +21,19 @@ KeyConfigs::KeyConfigs()
 {
 }
 
-
-void KeyConfigs::Add(const std::string& name, std::shared_ptr<KeyConfig> config)
+KeyConfigs::~KeyConfigs()
 {
-    assert(config);
-    configs.insert(std::make_pair(name, config));
 }
 
 
-std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
+void KeyConfigs::Add(const std::string& name, std::unique_ptr<KeyConfig>&& config)
+{
+    assert(config);
+    configs.insert(std::make_pair(name, std::move(config)));
+}
+
+
+KeyConfig& KeyConfigs::Get(const std::string& name) const
 {
     auto res = configs.find(name);
     if (res == configs.end())
@@ -38,7 +42,7 @@ std::shared_ptr<KeyConfig> KeyConfigs::Get(const std::string& name) const
     }
 
     assert(res->second);
-    return res->second;
+    return *res->second;
 }
 
 
@@ -48,17 +52,17 @@ void Load(KeyConfig* config, const input::config::Config& root)
 
     for (const auto& d: root.keyboards)
     {
-        config->Add(std::make_shared<KeyboardDef>(d, &config->converter));
+        config->Add(std::make_unique<KeyboardDef>(d, &config->converter));
     }
 
     for (const auto& d: root.mouses)
     {
-        config->Add(std::make_shared<MouseDef>(d, &config->converter));
+        config->Add(std::make_unique<MouseDef>(d, &config->converter));
     }
 
     for (const auto& d: root.joysticks)
     {
-        config->Add(std::make_shared<JoystickDef>(d, &config->converter));
+        config->Add(std::make_unique<JoystickDef>(d, &config->converter));
     }
 }
 
@@ -70,9 +74,9 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
     for (const auto& d: root)
     {
         const std::string name = d.name;
-        std::shared_ptr<KeyConfig> config(new KeyConfig(map));
+        auto config = std::make_unique<KeyConfig>(map);
         Load(config.get(), d);
-        configs->Add(name, config);
+        configs->Add(name, std::move(config));
     }
 }
 

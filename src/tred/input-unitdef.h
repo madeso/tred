@@ -14,7 +14,7 @@ struct UnitDef
 {
     virtual ~UnitDef();
 
-    virtual std::shared_ptr<ActiveUnit> Create(InputDirector* director) = 0;
+    virtual std::unique_ptr<ActiveUnit> Create(InputDirector* director) = 0;
 };
 
 }  // namespace input

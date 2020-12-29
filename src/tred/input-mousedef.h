@@ -23,7 +23,7 @@ struct MouseDef : public UnitDef
 {
     MouseDef(const config::MouseDef& data, Converter* converter);
 
-    std::shared_ptr<ActiveUnit> Create(InputDirector* director) override;
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director) override;
 
     std::vector<BindDef<Axis>> axes;
     std::vector<BindDef<MouseButton>> keys;

@@ -17,7 +17,7 @@ using namespace input;
 using namespace Catch::Matchers;
 using namespace catchy;
 
-Table GetTable(std::shared_ptr<Player> player)
+Table GetTable(Player* player)
 {
     Table table;
     player->UpdateTable(&table);

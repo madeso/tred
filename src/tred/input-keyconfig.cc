@@ -6,37 +6,44 @@
 #include "tred/input-director.h"
 #include "tred/input-actionmap.h"
 #include "tred/input-action.h"
+#include "tred/input-activeunit.h"
+#include "tred/input-connectedunits.h"
 
 namespace input
 {
 
 KeyConfig::KeyConfig(const InputActionMap& map)
 {
-    auto actions = map.GetActionList();
-    for(const auto& action: actions)
+    for(const auto& action_pair: map.actions)
     {
+        const auto& action = action_pair.second;
         converter.AddOutput(action->name, action->scriptvarname, action->range);
     }
 }
 
 
-void KeyConfig::Add(std::shared_ptr<UnitDef> def)
+KeyConfig::~KeyConfig()
 {
-    assert(def);
-    definitions.push_back(def);
 }
 
 
-std::shared_ptr<ConnectedUnits> KeyConfig::Connect(InputDirector* director)
+void KeyConfig::Add(std::unique_ptr<UnitDef>&& def)
+{
+    assert(def);
+    definitions.push_back(std::move(def));
+}
+
+
+std::unique_ptr<ConnectedUnits> KeyConfig::Connect(InputDirector* director)
 {
     assert(director);
+    auto units = std::make_unique<ConnectedUnits>(converter);
 
-    std::shared_ptr<ConnectedUnits> units(new ConnectedUnits(converter));
-    for (auto def: definitions)
+    for (auto& def: definitions)
     {
         auto unit = def->Create(director);
         assert(unit);
-        units->Add(unit);
+        units->Add(std::move(unit));
     }
 
     return units;

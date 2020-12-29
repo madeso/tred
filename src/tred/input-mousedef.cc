@@ -26,13 +26,11 @@ MouseDef::MouseDef(const config::MouseDef& data, Converter* converter)
 }
 
 
-std::shared_ptr<ActiveUnit> MouseDef::Create(InputDirector* director)
+std::unique_ptr<ActiveUnit> MouseDef::Create(InputDirector* director)
 {
     assert(director);
 
-    std::shared_ptr<ActiveUnit> unit(new MouseActiveUnit(director, axes, keys));
-    
-    return unit;
+    return std::make_unique<MouseActiveUnit>(director, axes, keys);
 }
 
 

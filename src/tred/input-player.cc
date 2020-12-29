@@ -2,12 +2,19 @@
 
 #include <cassert>
 
+#include "tred/input-connectedunits.h"
+
 
 namespace input
 {
 
 
 Player::Player()
+{
+}
+
+
+Player::~Player()
 {
 }
 

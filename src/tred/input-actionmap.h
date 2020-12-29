@@ -8,7 +8,6 @@
 
 #include "tred/input-config.h"
 
-
 namespace input
 {
 
@@ -19,13 +18,11 @@ struct InputAction;
 
 struct InputActionMap
 {
-    void Add(const std::string& name, std::shared_ptr<InputAction> action);
+    InputActionMap();
+    ~InputActionMap();
+    void Add(const std::string& name, std::unique_ptr<InputAction>&& action);
 
-    std::shared_ptr<InputAction> Get(const std::string& name) const;
-
-    std::vector<std::shared_ptr<InputAction>> GetActionList() const;
-
-    std::map<std::string, std::shared_ptr<InputAction>> actions;
+    std::map<std::string, std::unique_ptr<InputAction>> actions;
 };
 
 

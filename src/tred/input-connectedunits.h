@@ -7,7 +7,6 @@
 #include "input-bind.h"
 
 
-
 namespace input
 {
 
@@ -19,14 +18,15 @@ struct ActiveUnit;
 struct ConnectedUnits
 {
     ConnectedUnits(const Converter& converter);
+    ~ConnectedUnits();
     
     void UpdateTable(Table* table);
     void Update(float dt);
-    void Add(std::shared_ptr<ActiveUnit> unit);
+    void Add(std::unique_ptr<ActiveUnit>&& unit);
     bool IsEmpty() const;
 
     Converter converter;
-    std::vector<std::shared_ptr<ActiveUnit>> units;
+    std::vector<std::unique_ptr<ActiveUnit>> units;
 };
 
 }  // namespace input

@@ -5,8 +5,6 @@
 #include "tred/input-range.h"
 
 
-struct Table;
-
 namespace input
 {
 

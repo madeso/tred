@@ -9,6 +9,7 @@
 #include "tred/input-director.h"
 #include "tred/input-player.h"
 #include "tred/input-keyconfig.h"
+#include "tred/input-connectedunits.h"
 
 
 namespace input
@@ -29,16 +30,16 @@ InputSystem::~InputSystem()
 }
 
 
-void InputSystem::SetUnitForPlayer(std::shared_ptr<Player> player, const std::string& inputname)
+void InputSystem::SetUnitForPlayer(Player* player, const std::string& inputname)
 {
-    auto config = configs.Get(inputname);
-    player->connected_units = config->Connect(&input_director);
+    auto& config = configs.Get(inputname);
+    player->connected_units = config.Connect(&input_director);
 }
 
 
 void InputSystem::Update(float dt)
 {
-    for (auto p: players)
+    for (auto& p: players)
     {
         p->Update(dt);
     }
@@ -81,11 +82,12 @@ void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
 }
 
 
-std::shared_ptr<Player> InputSystem::AddPlayer()
+Player* InputSystem::AddPlayer()
 {
-    auto p = std::make_shared<Player>();
-    players.emplace_back(p);
-    return p;
+    auto p = std::make_unique<Player>();
+    auto* r = p.get();
+    players.emplace_back(std::move(p));
+    return r;
 }
 
 

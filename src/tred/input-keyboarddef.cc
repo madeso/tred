@@ -21,13 +21,11 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, Converter* converter)
 }
 
 
-std::shared_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director)
+std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director)
 {
     assert(director);
-
-    std::shared_ptr<ActiveUnit> unit(new KeyboardActiveUnit(director, keys));
     
-    return unit;
+    return std::make_unique<KeyboardActiveUnit>(director, keys);
 }
 
 

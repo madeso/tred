@@ -16,11 +16,13 @@ struct InputActionMap;
 struct KeyConfigs
 {
     KeyConfigs();
+    ~KeyConfigs();
 
-    void Add(const std::string& name, std::shared_ptr<KeyConfig> config);
-    std::shared_ptr<KeyConfig> Get(const std::string& name) const;
+    void Add(const std::string& name, std::unique_ptr<KeyConfig>&& config);
 
-    std::map<std::string, std::shared_ptr<KeyConfig>> configs;
+    KeyConfig& Get(const std::string& name) const;
+
+    std::map<std::string, std::unique_ptr<KeyConfig>> configs;
 };
 
 

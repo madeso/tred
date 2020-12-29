@@ -16,11 +16,15 @@ ConnectedUnits::ConnectedUnits(const Converter& c)
 {
 }
 
+ConnectedUnits::~ConnectedUnits()
+{
+}
 
-void ConnectedUnits::Add(std::shared_ptr<ActiveUnit> unit)
+
+void ConnectedUnits::Add(std::unique_ptr<ActiveUnit>&& unit)
 {
     assert(unit);
-    units.push_back(unit);
+    units.push_back(std::move(unit));
 }
 
 
