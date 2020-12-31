@@ -11,11 +11,12 @@
 #include "tred/input/config.h"
 #include "tred/input/table.h"
 
-#include "catchy/falsestring.h"
+#include "catchy/mapeq.h"
 
 using namespace input;
 using namespace Catch::Matchers;
 using namespace catchy;
+
 
 Table GetTable(InputSystem* system, PlayerHandle player)
 {
@@ -24,55 +25,10 @@ Table GetTable(InputSystem* system, PlayerHandle player)
     return table;
 }
 
-template<typename K, typename V, typename C>
-FalseString BaseMapEquals(const std::map<K, V>& lhs, const std::map<K, V>& rhs, const C& compare)
+
+FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::string, float>& rhs)
 {
-    std::vector<std::string> issues;
-
-    for(const auto& lhsp: lhs)
-    {
-        auto found = rhs.find(lhsp.first);
-        if(found == rhs.end())
-        {
-            issues.emplace_back(fmt::format("{} missing in rhs", lhsp.first));
-        }
-        else
-        {
-            const catchy::FalseString result = compare(lhsp.second, found->second);
-            if(result == false)
-            {
-                issues.emplace_back(fmt::format("{} was different: {}", lhsp.first, result.reason));
-            }
-        }
-    }
-
-    for(const auto& rhsp: rhs)
-    {
-        auto found = lhs.find(rhsp.first);
-        if(found == lhs.end())
-        {
-            issues.emplace_back(fmt::format("{} missing in lhs", rhsp.first));
-        }
-    }
-
-    if(issues.empty()) { return FalseString::True();}
-
-    std::ostringstream ss;
-    bool first = true;
-    for(const auto& s: issues)
-    {
-        if(first) first = false;
-        else ss << "\n";
-        ss << s;
-    }
-    
-    return catchy::FalseString::False(ss.str());
-};
-
-
-catchy::FalseString MapEquals(const std::map<std::string, float>& lhs, const std::map<std::string, float>& rhs)
-{
-    return BaseMapEquals(lhs, rhs, [](float l, float r) -> FalseString
+    return catchy::MapEq(lhs, rhs, [](float l, float r) -> FalseString
     {
         const auto eps = std::numeric_limits<float>::epsilon() * 100;
         const bool same = std::abs(r-l) < eps;
@@ -134,7 +90,7 @@ TEST_CASE("input-test", "[input]")
     {
         const auto table = GetTable(&sys, player);
 
-        REQUIRE(MapEquals(table.data, {
+        REQUIRE(MapEq(table.data, {
         }));
     }
 
@@ -145,7 +101,7 @@ TEST_CASE("input-test", "[input]")
 
         const auto table = GetTable(&sys, player);;
 
-        REQUIRE(MapEquals(table.data, {
+        REQUIRE(MapEq(table.data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f}
         }));
@@ -166,11 +122,11 @@ TEST_CASE("input-test", "[input]")
 
         const auto after = GetTable(&sys, player);;
 
-        REQUIRE(MapEquals(before.data, {
+        REQUIRE(MapEq(before.data, {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f}
         }));
-        REQUIRE(MapEquals(after.data, {
+        REQUIRE(MapEq(after.data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f}
         }));
@@ -191,11 +147,11 @@ TEST_CASE("input-test", "[input]")
 
         const auto after = GetTable(&sys, player);;
 
-        REQUIRE(MapEquals(before.data, {
+        REQUIRE(MapEq(before.data, {
             {"var_shoot", 0.0f},
             {"var_look", 1.0f}
         }));
-        REQUIRE(MapEquals(after.data, {
+        REQUIRE(MapEq(after.data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f}
         }));

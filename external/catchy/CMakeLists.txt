@@ -19,6 +19,7 @@ project(catchy CXX)
 set(catchy_src
     catchy/approx.cc catchy/approx.h
     catchy/stringeq.cc catchy/stringeq.h
+    catchy/mapeq.cc catchy/mapeq.h
     catchy/falsestring.cc catchy/falsestring.h
     catchy/catch_utils.h
     catchy/vectortostring.h
