@@ -23,7 +23,7 @@ struct InputActionMap;
 
 struct JoystickDef : public UnitDef
 {
-    JoystickDef(const config::JoystickDef& data, Converter* converter);
+    JoystickDef(const config::JoystickDef& data, ConverterDef* converter);
 
     std::unique_ptr<ActiveUnit> Create(InputDirector* director);
 

@@ -15,7 +15,7 @@ namespace input
 {
 
 
-JoystickDef::JoystickDef(const config::JoystickDef& data, Converter* converter)
+JoystickDef::JoystickDef(const config::JoystickDef& data, ConverterDef* converter)
 {
     for (const auto& d: data.axis)
     {

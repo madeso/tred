@@ -28,7 +28,7 @@ struct KeyConfig
 
     std::unique_ptr<ConnectedUnits> Connect(InputDirector* director);
 
-    Converter converter;
+    ConverterDef converter;
     std::vector<std::unique_ptr<UnitDef>> definitions;
 };
 

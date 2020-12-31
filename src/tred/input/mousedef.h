@@ -23,7 +23,7 @@ struct InputActionMap;
 
 struct MouseDef : public UnitDef
 {
-    MouseDef(const config::MouseDef& data, Converter* converter);
+    MouseDef(const config::MouseDef& data, ConverterDef* converter);
 
     std::unique_ptr<ActiveUnit> Create(InputDirector* director) override;
 

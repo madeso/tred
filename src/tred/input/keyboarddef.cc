@@ -12,7 +12,7 @@
 namespace input
 {
 
-KeyboardDef::KeyboardDef(const config::KeyboardDef& data, Converter* converter)
+KeyboardDef::KeyboardDef(const config::KeyboardDef& data, ConverterDef* converter)
 {
     for (const auto& d: data.binds)
     {

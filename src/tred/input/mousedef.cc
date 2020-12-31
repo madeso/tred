@@ -12,7 +12,7 @@
 namespace input
 {
 
-MouseDef::MouseDef(const config::MouseDef& data, Converter* converter)
+MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
 {
     for (const auto& d: data.axis)
     {

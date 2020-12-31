@@ -11,7 +11,7 @@ namespace input
 {
 
 
-ConnectedUnits::ConnectedUnits(const Converter& c)
+ConnectedUnits::ConnectedUnits(const ConverterDef& c)
     : converter(c)
 {
 }
@@ -34,7 +34,7 @@ void ConnectedUnits::UpdateTable(Table* table)
 
     assert(units.size() > 0);
 
-    auto reciever = ValueReciever{table, converter};
+    auto reciever = ValueReciever{table, &converter};
 
     for(auto& u: units)
     {

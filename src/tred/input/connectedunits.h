@@ -17,7 +17,7 @@ struct ActiveUnit;
 
 struct ConnectedUnits
 {
-    ConnectedUnits(const Converter& converter);
+    ConnectedUnits(const ConverterDef& converter);
     ~ConnectedUnits();
     
     void UpdateTable(Table* table);

@@ -7,38 +7,6 @@ namespace input
 {
 
 
-Output::Output(const std::string& s, Range r)
-    : scriptvarname(s)
-    , range(r)
-{
-}
-
-
-void Converter::AddOutput(const std::string& name, const std::string& var, Range range)
-{
-    using P = typename std::map<std::string, int>::value_type;
-    nodes.insert(P{name, static_cast<int>(nodes.size())});
-    vars.emplace_back(var, range);
-}
-
-
-int Converter::GetNode(const std::string& name)
-{
-    const auto found = nodes.find(name);
-    if(found == nodes.end())
-    {
-        return -1;
-    }
-    return found->second;
-}
-
-
-ValueReciever::ValueReciever(Table* t, const Converter& converter)
-    : table(t)
-    , vars(converter.vars)
-{
-}
-
 
 float KeepWithin(float mi, float v, float ma)
 {
@@ -61,10 +29,100 @@ float KeepWithin(Range r, float v)
 }
 
 
+struct TableOutput : public Output
+{
+    TableOutput(const std::string& s, Range r)
+        : scriptvarname(s)
+        , range(r)
+    {
+    }
+
+    void SetValue(Table* table, float value) override
+    {
+        table->Set(scriptvarname, KeepWithin(range, value));
+    }
+
+    std::string scriptvarname;
+    Range range;
+};
+
+
+struct TableOutputDef : public OutputDef
+{
+    TableOutputDef(const std::string& s, Range r)
+        : scriptvarname(s)
+        , range(r)
+    {
+    }
+
+    std::unique_ptr<Output> Create() override
+    {
+        return std::make_unique<TableOutput>(scriptvarname, range);
+    }
+
+    std::string scriptvarname;
+    Range range;
+};
+
+
+void ConverterDef::AddOutput(const std::string& name, const std::string& var, Range range)
+{
+    AddVar(name, std::make_unique<TableOutputDef>(var, range));
+}
+
+
+void ConverterDef::AddVar(const std::string& name, std::unique_ptr<OutputDef>&& output)
+{
+    using P = typename std::map<std::string, int>::value_type;
+    nodes.insert(P{name, static_cast<int>(nodes.size())});
+    vars.emplace_back(std::move(output));
+}
+
+
+int ConverterDef::GetNode(const std::string& name)
+{
+    const auto found = nodes.find(name);
+    if(found == nodes.end())
+    {
+        return -1;
+    }
+    return found->second;
+}
+
+
+Converter::Converter(const ConverterDef& def)
+{
+    for(const auto& v: def.vars)
+    {
+        vars.emplace_back(v->Create());
+    }
+}
+
+
+void Converter::Set(int var, Table* table, float value)
+{
+    if(var < 0)
+    {
+        return;
+    }
+    else
+    {
+        auto& o = vars[static_cast<size_t>(var)];
+        o->SetValue(table, value);
+    }
+}
+
+
+ValueReciever::ValueReciever(Table* t, Converter* c)
+    : table(t)
+    , converter(c)
+{
+}
+
+
 void ValueReciever::Set(int var, float value)
 {
-    const auto& o = vars[static_cast<size_t>(var)];
-    table->Set(o.scriptvarname, KeepWithin(o.range, value));
+    converter->Set(var, table, value);
 }
 
 
