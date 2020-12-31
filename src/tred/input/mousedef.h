@@ -17,7 +17,9 @@ struct MouseDef;
 namespace input
 {
 
+
 struct InputActionMap;
+
 
 struct MouseDef : public UnitDef
 {

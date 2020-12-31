@@ -8,13 +8,15 @@
 #include "tred/input/bind.h"
 
 
+namespace input::config
+{
+struct KeyboardDef;
+}
+
+
 namespace input
 {
 
-namespace config
-{
-    struct KeyboardDef;
-}
 
 struct InputActionMap;
 struct ActiveUnit;
@@ -28,5 +30,6 @@ struct KeyboardDef : public UnitDef
 
     std::vector<BindDef<Key>> keys;
 };
+
 
 }  // namespace input

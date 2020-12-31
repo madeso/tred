@@ -9,9 +9,11 @@
 namespace input
 {
 
+
 struct KeyboardActiveUnit;
 struct MouseActiveUnit;
 struct JoystickActiveUnit;
+
 
 struct InputDirector
 {

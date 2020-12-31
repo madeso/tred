@@ -9,10 +9,12 @@
 namespace input
 {
 
+
 struct UnitDef;
 struct InputDirector;
 struct InputActionMap;
 struct ConnectedUnits;
+
 
 /** Contains a list of configurations.
     A good example is Mouse+Keyboard.
@@ -29,5 +31,6 @@ struct KeyConfig
     Converter converter;
     std::vector<std::unique_ptr<UnitDef>> definitions;
 };
+
 
 }  // namespace input

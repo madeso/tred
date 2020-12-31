@@ -6,6 +6,7 @@
 namespace input
 {
 
+
 struct InputDirector;
 struct ActiveUnit;
 

@@ -3,7 +3,7 @@
 namespace input::config
 {
 
-Action::Action(const std::string& n, const std::string& v, ::Range r)
+Action::Action(const std::string& n, const std::string& v, input::Range r)
     : name(n)
     , var(v)
     , range(r)
@@ -11,7 +11,7 @@ Action::Action(const std::string& n, const std::string& v, ::Range r)
 }
 
 
-KeyboardButton::KeyboardButton(const std::string& bind, ::Key k, bool i, float s)
+KeyboardButton::KeyboardButton(const std::string& bind, input::Key k, bool i, float s)
     : bindname(bind)
     , key(k)
     , invert(i)
@@ -19,7 +19,7 @@ KeyboardButton::KeyboardButton(const std::string& bind, ::Key k, bool i, float s
 {
 }
 
-MouseAxis::MouseAxis(const std::string& bind, ::Axis a, bool i, float s)
+MouseAxis::MouseAxis(const std::string& bind, input::Axis a, bool i, float s)
     : bindname(bind)
     , axis(a)
     , invert(i)
@@ -28,7 +28,7 @@ MouseAxis::MouseAxis(const std::string& bind, ::Axis a, bool i, float s)
 }
 
 
-MouseButton::MouseButton(const std::string& bind, ::MouseButton k, bool i, float s)
+MouseButton::MouseButton(const std::string& bind, input::MouseButton k, bool i, float s)
     : bindname(bind)
     , key(k)
     , invert(i)
@@ -55,7 +55,7 @@ JoystickButton::JoystickButton(const std::string& bind, int b, bool i, float s)
 }
 
 
-JoystickHat::JoystickHat(const std::string& bind, int h, ::Axis a, bool i, float s)
+JoystickHat::JoystickHat(const std::string& bind, int h, input::Axis a, bool i, float s)
     : bindname(bind)
     , hat(h)
     , axis(a)

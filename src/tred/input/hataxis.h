@@ -5,6 +5,8 @@
 
 namespace input
 {
+
+
 struct HatAxis
 {
     HatAxis(int hat, Axis axis);

@@ -12,19 +12,19 @@ namespace input::config
 {
 struct Action
 {
-    Action(const std::string& name, const std::string& var, ::Range);
+    Action(const std::string& name, const std::string& var, input::Range);
     std::string name;
     std::string var;
-    ::Range range;
+    input::Range range;
 };
 
 struct KeyboardButton
 {
-    KeyboardButton(const std::string&, ::Key, bool invert=false, float scale=1.0f);
+    KeyboardButton(const std::string&, input::Key, bool invert=false, float scale=1.0f);
 
     std::string bindname;
 
-    ::Key key;
+    input::Key key;
 
     bool invert;
     float scale;
@@ -32,11 +32,11 @@ struct KeyboardButton
 
 struct MouseAxis
 {
-    MouseAxis(const std::string&, ::Axis, bool invert=false, float scale=1.0f);
+    MouseAxis(const std::string&, input::Axis, bool invert=false, float scale=1.0f);
 
     std::string bindname;
 
-    ::Axis axis;
+    input::Axis axis;
 
     bool invert;
     float scale;
@@ -44,10 +44,10 @@ struct MouseAxis
 
 struct MouseButton
 {
-    MouseButton(const std::string&, ::MouseButton, bool invert=false, float scale=1.0f);
+    MouseButton(const std::string&, input::MouseButton, bool invert=false, float scale=1.0f);
     std::string bindname;
 
-    ::MouseButton key;
+    input::MouseButton key;
 
     bool invert;
     float scale;
@@ -79,12 +79,12 @@ struct JoystickButton
 
 struct JoystickHat
 {
-    JoystickHat(const std::string&, int, ::Axis, bool invert=false, float scale=1.0f);
+    JoystickHat(const std::string&, int, input::Axis, bool invert=false, float scale=1.0f);
 
     std::string bindname;
 
     int hat;
-    ::Axis axis;
+    input::Axis axis;
 
     bool invert;
     float scale;

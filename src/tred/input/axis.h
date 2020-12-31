@@ -1,5 +1,8 @@
 #pragma once
 
+namespace input
+{
+
 
 enum class Axis
 {
@@ -7,3 +10,6 @@ enum class Axis
     , X
     , Y
 };
+
+
+}

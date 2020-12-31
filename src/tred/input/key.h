@@ -1,7 +1,9 @@
 #pragma once
 
-/** The mouse button
- */
+
+namespace input
+{
+
 enum class MouseButton
 {
       UNBOUND  /// No key
@@ -13,8 +15,6 @@ enum class MouseButton
 };
 
 
-/** A key code
- */
 enum class Key
 {
       UNBOUND  /// No key
@@ -254,3 +254,6 @@ enum class Key
     , EJECT  /// The key for Eject
     , SLEEP  /// The key for Sleep
 };
+
+
+}

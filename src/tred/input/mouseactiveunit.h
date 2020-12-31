@@ -9,12 +9,11 @@
 #include "tred/input/bind.h"
 
 
-struct Table;
-
-
 namespace input
 {
 
+
+struct Table;
 struct InputDirector;
 
 

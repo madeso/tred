@@ -15,6 +15,7 @@ namespace input
 struct AxisKey;
 struct InputDirector;
 
+
 struct KeyboardActiveUnit : public ActiveUnit
 {
     KeyboardActiveUnit(InputDirector* director, const std::vector<BindDef<Key>>& binds);
@@ -27,5 +28,6 @@ struct KeyboardActiveUnit : public ActiveUnit
     InputDirector* director;
     std::map<Key, Bind> keys;
 };
+
 
 }  // namespace input

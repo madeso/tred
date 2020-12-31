@@ -5,18 +5,21 @@
 #include <string>
 #include <memory>
 
+#include "tred/types.h"
+
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 
-#include "tred/types.h"
+
+namespace input::config
+{
+    struct InputSystem;
+}
+
 
 namespace input
 {
 
-namespace config
-{
-    struct InputSystem;
-}
 
 struct Table;
 
