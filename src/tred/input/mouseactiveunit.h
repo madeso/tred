@@ -29,12 +29,12 @@ struct MouseActiveUnit : public ActiveUnit
 
     void Recieve(ValueReciever* reciever) override;
 
-    void OnAxis(const Axis& key, float state);
-    void OnButton(MouseButton key, float state);
+    void OnAxis(const Axis& axis, float state);
+    void OnButton(MouseButton button, float state);
 
     InputDirector* director;
-    std::map<Axis, Bind> axes;
-    std::map<MouseButton, Bind> buttons;
+    BindMap<Axis> axes;
+    BindMap<MouseButton> buttons;
 };
 
 

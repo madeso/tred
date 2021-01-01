@@ -26,7 +26,7 @@ struct KeyboardActiveUnit : public ActiveUnit
     void OnKey(const Key& key, bool state);
 
     InputDirector* director;
-    std::map<Key, Bind> keys;
+    BindMap<Key> keys;
 };
 
 

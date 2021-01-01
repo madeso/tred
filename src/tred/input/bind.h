@@ -98,27 +98,35 @@ struct Bind
 
 
 template<typename T>
-std::map<T, Bind> ConvertToBindMap(const std::vector<BindDef<T>>& binds)
+struct BindMap
 {
-    auto r = std::map<T, Bind>{};
-
-    for(const auto& b: binds)
+    explicit BindMap(const std::vector<BindDef<T>>& src)
     {
-        using P = typename std::map<T, Bind>::value_type;
-        r.insert(P{b.type, Bind{b.var, b.invert, b.scale}});
+        for(const auto& b: src)
+        {
+            using P = typename std::map<T, Bind>::value_type;
+            binds.insert(P{b.type, Bind{b.var, b.invert, b.scale}});
+        }
     }
 
-    return r;
-}
-
-
-template<typename T>
-void CallRecieve(const std::map<T, Bind>& binds, ValueReciever* reciever)
-{
-    for(const auto& b: binds)
+    void Recieve(ValueReciever* reciever)
     {
-        reciever->Set(b.second.var, b.second.state);
+        for(const auto& b: binds)
+        {
+            reciever->Set(b.second.var, b.second.state);
+        }
     }
-}
+
+    void SetRaw(const T& t, float state)
+    {
+        auto found = binds.find(t);
+        if (found != binds.end())
+        {
+            found->second.SetRawState(state);
+        }
+    }
+
+    std::map<T, Bind> binds;
+};
 
 }

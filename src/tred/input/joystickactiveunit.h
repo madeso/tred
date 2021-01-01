@@ -37,9 +37,9 @@ struct JoystickActiveUnit : public ActiveUnit
 
     // int joystick_;
     InputDirector* director;
-    std::map<int, Bind> axes;
-    std::map<int, Bind> buttons;
-    std::map<HatAxis, Bind> hats;
+    BindMap<int> axes;
+    BindMap<int> buttons;
+    BindMap<HatAxis> hats;
 };
 
 

@@ -17,8 +17,8 @@ MouseActiveUnit::MouseActiveUnit
         const std::vector<BindDef<MouseButton>>& b
     )
     : director(d)
-    , axes(ConvertToBindMap(a))
-    , buttons(ConvertToBindMap(b))
+    , axes(a)
+    , buttons(b)
 {
     assert(director);
 
@@ -34,28 +34,20 @@ MouseActiveUnit::~MouseActiveUnit()
 
 void MouseActiveUnit::Recieve(ValueReciever* reciever)
 {
-    CallRecieve(axes, reciever);
-    CallRecieve(buttons, reciever);
+    axes.Recieve(reciever);
+    buttons.Recieve(reciever);
 }
 
 
-void MouseActiveUnit::OnAxis(const Axis& key, float state)
+void MouseActiveUnit::OnAxis(const Axis& axis, float state)
 {
-    auto res = axes.find(key);
-    if (res != axes.end())
-    {
-        res->second.SetRawState(state);
-    }
+    axes.SetRaw(axis, state);
 }
 
 
-void MouseActiveUnit::OnButton(MouseButton key, float state)
+void MouseActiveUnit::OnButton(MouseButton button, float state)
 {
-    auto res = buttons.find(key);
-    if (res != buttons.end())
-    {
-        res->second.SetRawState(state);
-    }
+    buttons.SetRaw(button, state);
 }
 
 

@@ -12,7 +12,7 @@ namespace input
 
 KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, const std::vector<BindDef<Key>>& k)
     : director(d)
-    , keys(ConvertToBindMap(k))
+    , keys(k)
 {
     assert(director);
 
@@ -28,17 +28,13 @@ KeyboardActiveUnit::~KeyboardActiveUnit()
 
 void KeyboardActiveUnit::Recieve(ValueReciever* reciever)
 {
-    CallRecieve(keys, reciever);
+    keys.Recieve(reciever);
 }
 
 
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
-    auto found = keys.find(key);
-    if (found != keys.end())
-    {
-        found->second.SetRawState(state ? 1.0f : 0.0f);
-    }
+    keys.SetRaw(key, state ? 1.0f : 0.0f);
 }
 
 

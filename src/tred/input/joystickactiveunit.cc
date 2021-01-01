@@ -11,15 +11,15 @@ JoystickActiveUnit::JoystickActiveUnit
     (
         int,
         InputDirector* d,
-        const std::vector<BindDef<int>>& axis,
-        const std::vector<BindDef<int>>& buttons,
-        const std::vector<BindDef<HatAxis>>& hats
+        const std::vector<BindDef<int>>& a,
+        const std::vector<BindDef<int>>& b,
+        const std::vector<BindDef<HatAxis>>& h
     )
     // : joystick_(joystick)
     : director(d)
-    , axes(ConvertToBindMap(axis))
-    , buttons(ConvertToBindMap(buttons))
-    , hats(ConvertToBindMap(hats))
+    , axes(a)
+    , buttons(b)
+    , hats(h)
 {
     assert(director);
     director->Add(this);
@@ -34,39 +34,27 @@ JoystickActiveUnit::~JoystickActiveUnit()
 
 void JoystickActiveUnit::Recieve(ValueReciever* reciever)
 {
-    CallRecieve(axes, reciever);
-    CallRecieve(buttons, reciever);
-    CallRecieve(hats, reciever);
+    axes.Recieve(reciever);
+    buttons.Recieve(reciever);
+    hats.Recieve(reciever);
 }
 
 
 void JoystickActiveUnit::OnAxis(int axis, float state)
 {
-    auto found = axes.find(axis);
-    if (found != axes.end())
-    {
-        found->second.SetRawState(state);
-    }
+    axes.SetRaw(axis, state);
 }
 
 
 void JoystickActiveUnit::OnButton(int button, float state)
 {
-    auto found = buttons.find(button);
-    if (found != buttons.end())
-    {
-        found->second.SetRawState(state);
-    }
+    buttons.SetRaw(button, state);
 }
 
 
 void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
 {
-    auto found = hats.find(hatAxis);
-    if (found != hats.end())
-    {
-        found->second.SetRawState(state);
-    }
+    hats.SetRaw(hatAxis, state);
 }
 
 
