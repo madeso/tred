@@ -1,6 +1,9 @@
 #include "tred/input/bind.h"
 
+#include <cassert>
+
 #include "tred/input/table.h"
+#include "tred/log.h"
 
 
 namespace input
@@ -41,7 +44,7 @@ InputNode::InputNode()
 }
 
 
-float InputNode::GetValue()
+float InputNode::GetValue(Converter*)
 {
     return state;
 }
@@ -49,10 +52,56 @@ float InputNode::GetValue()
 
 struct InputNodeDef : public NodeDef
 {
+    bool IsInput() override
+    {
+        return true;
+    }
+
     std::unique_ptr<Node> Create() override
     {
         return std::make_unique<InputNode>();
     }
+};
+
+
+struct TwoButtonConverter : Node
+{
+    TwoButtonConverter(int p, int n)
+        : positive(p)
+        , negative(n)
+    {
+    }
+
+    float GetValue(Converter* converter) override
+    {
+        return converter->GetState(positive) - converter->GetState(negative);
+    }
+
+    int positive;
+    int negative;
+};
+
+
+struct TwoButtonConverterDef : public NodeDef
+{
+    TwoButtonConverterDef(int p, int n)
+        : positive(p)
+        , negative(n)
+    {
+    }
+
+    bool IsInput() override
+    {
+        return false;
+    }
+
+    std::unique_ptr<Node> Create() override
+    {
+        return std::make_unique<TwoButtonConverter>(positive, negative);
+    }
+
+    int positive;
+    int negative;
 };
 
 
@@ -71,23 +120,55 @@ void ConverterDef::AddOutput(const std::string& name, const std::string& var, Ra
 }
 
 
+void ConverterDef::AddTwoButton(const std::string& name)
+{
+    const auto pos = AddVar(name+"+", std::make_unique<InputNodeDef>());
+    const auto neg = AddVar(name+"-", std::make_unique<InputNodeDef>());
+    AddVar(name, std::make_unique<TwoButtonConverterDef>(pos, neg));
+}
+
+
 int ConverterDef::AddVar(const std::string& name, std::unique_ptr<NodeDef>&& output)
 {
+    assert(is_adding);
+
     using M = decltype(nodes);
     using P = typename M::value_type;
 
-    const auto node_index = static_cast<int>(vars.size());
-    nodes.insert(P{name, node_index});
-    vars.emplace_back(std::move(output));
-    return node_index;
+    auto found = nodes.find(name);
+    if(found != nodes.end())
+    {
+        // if the node exists, replace the old node with the new node
+        const auto node_index = found->second;
+        auto& node = vars[static_cast<std::size_t>(node_index)];
+        node = std::move(output);
+        return node_index;
+    }
+    else
+    {
+        const auto node_index = static_cast<int>(vars.size());
+        nodes.insert(P{name, node_index});
+        vars.emplace_back(std::move(output));
+        return node_index;
+    }
 }
 
 
 int ConverterDef::GetNode(const std::string& name)
 {
+    is_adding = false;
+
     const auto found = nodes.find(name);
     if(found == nodes.end())
     {
+        LOG_WARNING("Unable to find a node named '{}'", name);
+        return -1;
+    }
+    int index = found->second;
+    auto& node = vars[static_cast<size_t>(index)];
+    if(node->IsInput() == false)
+    {
+        LOG_WARNING("Node '{}' is not marked as input", name);
         return -1;
     }
     return found->second;
@@ -122,16 +203,23 @@ void Converter::SetTable(Table* table)
 {
     for(const auto& output: outputs)
     {
-        if(output.node < 0)
-        {
-            return;
-        }
-        else
-        {
-            const auto& node = vars[static_cast<size_t>(output.node)];
-            const auto state = node->GetValue();
-            SetValue(table, output.var, output.range, state);
-        }
+        const auto state = GetState(output.node);
+        SetValue(table, output.var, output.range, state);
+    }
+}
+
+
+float Converter::GetState(int node_index)
+{
+    if(node_index < 0)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        const auto& node = vars[static_cast<size_t>(node_index)];
+        const auto state = node->GetValue(this);
+        return state;
     }
 }
 

@@ -92,6 +92,8 @@ struct JoystickHat
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using TwoButtonConverter = std::string;
+
 struct KeyboardDef
 {
     KeyboardDef();
@@ -120,11 +122,13 @@ struct JoystickDef
 };
 
 
-struct Config
+struct KeyConfig
 {
-    Config(const std::string&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
+    KeyConfig(const std::string&, const std::vector<TwoButtonConverter>&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
 
     std::string name;
+
+    std::vector<TwoButtonConverter> two_button_converter;
     
     std::vector<KeyboardDef> keyboards;
     std::vector<MouseDef> mouses;
@@ -135,7 +139,7 @@ struct Config
 // roots
 
 using ActionMap = std::vector<Action>;
-using KeyConfigs = std::vector<Config>;
+using KeyConfigs = std::vector<KeyConfig>;
 
 struct InputSystem
 {

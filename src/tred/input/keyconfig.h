@@ -6,6 +6,12 @@
 #include "tred/input/bind.h"
 
 
+namespace input::config
+{
+    struct KeyConfig;
+}
+
+
 namespace input
 {
 
@@ -21,7 +27,7 @@ struct ConnectedUnits;
     */
 struct KeyConfig
 {
-    explicit KeyConfig(const InputActionMap& map);
+    KeyConfig(const InputActionMap& map, const config::KeyConfig& root);
     ~KeyConfig();
 
     void Add(std::unique_ptr<UnitDef>&& def);

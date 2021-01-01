@@ -101,8 +101,9 @@ JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<J
 }
 
 
-Config::Config(const std::string& n, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
+KeyConfig::KeyConfig(const std::string& n, const std::vector<TwoButtonConverter>& tbc, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
     : name(n)
+    , two_button_converter(tbc)
     , keyboards(k)
     , mouses(m)
     , joysticks(j)

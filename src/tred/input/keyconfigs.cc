@@ -46,7 +46,7 @@ KeyConfig& KeyConfigs::Get(const std::string& name) const
 }
 
 
-void Load(KeyConfig* config, const input::config::Config& root)
+void Load(KeyConfig* config, const input::config::KeyConfig& root)
 {
     assert(config);
 
@@ -74,7 +74,7 @@ void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const Inpu
     for (const auto& d: root)
     {
         const std::string name = d.name;
-        auto config = std::make_unique<KeyConfig>(map);
+        auto config = std::make_unique<KeyConfig>(map, d);
         Load(config.get(), d);
         configs->Add(name, std::move(config));
     }

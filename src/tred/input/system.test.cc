@@ -49,19 +49,26 @@ TEST_CASE("input-test", "[input]")
             // todo(Gustav): how does "converters" work? extend to 2d
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
-                {"look", "var_look", Range::WithinNegativeOneToPositiveOne}
+                {"look", "var_look", Range::WithinNegativeOneToPositiveOne},
+                {"move", "var_move", Range::WithinNegativeOneToPositiveOne},
             },
 
             // controller setup (bind)
             {
                 {
                     "mouse+keyboard",
+                    // two button converters
+                    {
+                        "move"
+                    },
                     // keyboards
                     {
                         config::KeyboardDef
                         {
                             {
-                                {"shoot", Key::A}
+                                {"shoot", Key::A},
+                                {"move-", Key::LEFT},
+                                {"move+", Key::RIGHT},
                             }
                         }
                     },
@@ -103,7 +110,8 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE(MapEq(table.data, {
             {"var_shoot", 0.0f},
-            {"var_look", 0.0f}
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
         }));
     }
 
@@ -124,11 +132,13 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE(MapEq(before.data, {
             {"var_shoot", 1.0f},
-            {"var_look", 0.0f}
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
         }));
         REQUIRE(MapEq(after.data, {
             {"var_shoot", 0.0f},
-            {"var_look", 0.0f}
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
         }));
     }
 
@@ -149,11 +159,63 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE(MapEq(before.data, {
             {"var_shoot", 0.0f},
-            {"var_look", 1.0f}
+            {"var_look", 1.0f},
+            {"var_move", 0.0f}
         }));
         REQUIRE(MapEq(after.data, {
             {"var_shoot", 0.0f},
-            {"var_look", 0.0f}
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+    }
+
+    SECTION("move with keyboard")
+    {
+        // press enter on playscreen
+        sys.SetUnitForPlayer(player, "mouse+keyboard");
+
+        const auto start = GetTable(&sys, player);
+
+        sys.OnKeyboardKey(Key::LEFT, true);
+        sys.Update(0.1f);
+        const auto left = GetTable(&sys, player);
+
+        sys.OnKeyboardKey(Key::RIGHT, true);
+        sys.Update(0.1f);
+        const auto both = GetTable(&sys, player);
+
+        sys.OnKeyboardKey(Key::LEFT, false);
+        sys.Update(0.1f);
+        const auto right = GetTable(&sys, player);
+
+        sys.OnKeyboardKey(Key::RIGHT, false);
+        sys.Update(0.1f);
+        const auto after = GetTable(&sys, player);
+
+        CHECK(MapEq(start.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+        CHECK(MapEq(left.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", -1.0f}
+        }));
+        CHECK(MapEq(both.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+        CHECK(MapEq(right.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 1.0f}
+        }));
+        CHECK(MapEq(after.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
         }));
     }
 }

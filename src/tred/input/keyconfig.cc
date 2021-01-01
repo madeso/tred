@@ -8,16 +8,22 @@
 #include "tred/input/action.h"
 #include "tred/input/activeunit.h"
 #include "tred/input/connectedunits.h"
+#include "tred/input/config.h"
 
 namespace input
 {
 
-KeyConfig::KeyConfig(const InputActionMap& map)
+KeyConfig::KeyConfig(const InputActionMap& map, const config::KeyConfig& root)
 {
     for(const auto& action_pair: map.actions)
     {
         const auto& action = action_pair.second;
         converter.AddOutput(action->name, action->scriptvarname, action->range);
+    }
+
+    for(const auto& conv: root.two_button_converter)
+    {
+        converter.AddTwoButton(conv);
     }
 }
 

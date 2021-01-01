@@ -15,11 +15,15 @@ namespace input
 struct Table;
 
 
+// later in the file
+struct Converter;
+
+
 struct Node
 {
     virtual ~Node() = default;
 
-    virtual float GetValue() = 0;
+    virtual float GetValue(Converter*) = 0;
 };
 
 
@@ -29,13 +33,15 @@ struct InputNode : public Node
 
     float state;
 
-    float GetValue() override;
+    float GetValue(Converter*) override;
 };
 
 
 struct NodeDef
 {
     virtual ~NodeDef() = default;
+
+    virtual bool IsInput() = 0;
 
     virtual std::unique_ptr<Node> Create() = 0;
 };
@@ -54,6 +60,8 @@ struct Output
 struct ConverterDef
 {
     void AddOutput(const std::string& name, const std::string& var, Range range);
+    void AddTwoButton(const std::string& name);
+
     int AddVar(const std::string& name, std::unique_ptr<NodeDef>&& Node);
 
     int GetNode(const std::string& name);
@@ -61,6 +69,7 @@ struct ConverterDef
     std::vector<std::unique_ptr<NodeDef>> vars;
     std::map<std::string, int> nodes;
     std::vector<Output> outputs;
+    bool is_adding = true;
 };
 
 
@@ -70,6 +79,8 @@ struct Converter
     
     void SetRawState(int var, float value);
     void SetTable(Table* table);
+
+    float GetState(int node);
 
     std::vector<std::unique_ptr<Node>> vars;
     std::vector<Output> outputs;
