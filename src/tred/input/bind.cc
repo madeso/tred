@@ -29,53 +29,57 @@ float KeepWithin(Range r, float v)
 }
 
 
-struct TableOutput : public Output
+void SetValue(Table* table, const std::string& scriptvarname, Range range, float value)
 {
-    TableOutput(const std::string& s, Range r)
-        : scriptvarname(s)
-        , range(r)
-    {
-    }
+    table->Set(scriptvarname, KeepWithin(range, value));
+}
 
-    void SetValue(Table* table, float value) override
-    {
-        table->Set(scriptvarname, KeepWithin(range, value));
-    }
 
-    std::string scriptvarname;
-    Range range;
+InputNode::InputNode()
+    : state(0.0f)
+{
+}
+
+
+float InputNode::GetValue()
+{
+    return state;
+}
+
+
+struct InputNodeDef : public NodeDef
+{
+    std::unique_ptr<Node> Create() override
+    {
+        return std::make_unique<InputNode>();
+    }
 };
 
 
-struct TableOutputDef : public OutputDef
-{
-    TableOutputDef(const std::string& s, Range r)
-        : scriptvarname(s)
+Output::Output(int n, const std::string& v, Range r)
+        : node(n)
+        , var(v)
         , range(r)
-    {
-    }
-
-    std::unique_ptr<Output> Create() override
-    {
-        return std::make_unique<TableOutput>(scriptvarname, range);
-    }
-
-    std::string scriptvarname;
-    Range range;
-};
+{
+}
 
 
 void ConverterDef::AddOutput(const std::string& name, const std::string& var, Range range)
 {
-    AddVar(name, std::make_unique<TableOutputDef>(var, range));
+    const auto node = AddVar(name, std::make_unique<InputNodeDef>());
+    outputs.emplace_back(node, var, range);
 }
 
 
-void ConverterDef::AddVar(const std::string& name, std::unique_ptr<OutputDef>&& output)
+int ConverterDef::AddVar(const std::string& name, std::unique_ptr<NodeDef>&& output)
 {
-    using P = typename std::map<std::string, int>::value_type;
-    nodes.insert(P{name, static_cast<int>(nodes.size())});
+    using M = decltype(nodes);
+    using P = typename M::value_type;
+
+    const auto node_index = static_cast<int>(vars.size());
+    nodes.insert(P{name, node_index});
     vars.emplace_back(std::move(output));
+    return node_index;
 }
 
 
@@ -91,6 +95,7 @@ int ConverterDef::GetNode(const std::string& name)
 
 
 Converter::Converter(const ConverterDef& def)
+    : outputs(def.outputs)
 {
     for(const auto& v: def.vars)
     {
@@ -99,7 +104,7 @@ Converter::Converter(const ConverterDef& def)
 }
 
 
-void Converter::Set(int var, Table* table, float value)
+void Converter::SetRawState(int var, float value)
 {
     if(var < 0)
     {
@@ -108,7 +113,25 @@ void Converter::Set(int var, Table* table, float value)
     else
     {
         auto& o = vars[static_cast<size_t>(var)];
-        o->SetValue(table, value);
+        auto* input = static_cast<InputNode*>(o.get());
+        input->state = value;
+    }
+}
+
+void Converter::SetTable(Table* table)
+{
+    for(const auto& output: outputs)
+    {
+        if(output.node < 0)
+        {
+            return;
+        }
+        else
+        {
+            const auto& node = vars[static_cast<size_t>(output.node)];
+            const auto state = node->GetValue();
+            SetValue(table, output.var, output.range, state);
+        }
     }
 }
 
@@ -117,21 +140,6 @@ ValueReciever::ValueReciever(Table* t, Converter* c)
     : table(t)
     , converter(c)
 {
-}
-
-
-Bind::Bind(int v, bool i, float s)
-    : state(0.0f)
-    , var(v)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
-void Bind::SetRawState(float raw)
-{
-    state = (invert ? -1.0f : 1.0f) * (raw * scale);
 }
 
 

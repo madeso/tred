@@ -40,6 +40,8 @@ void ConnectedUnits::UpdateTable(Table* table)
     {
         u->Recieve(&reciever);
     }
+
+    converter.SetTable(table);
 }
 
 

@@ -15,31 +15,52 @@ namespace input
 struct Table;
 
 
-struct Output
+struct Node
 {
-    virtual ~Output() = default;
+    virtual ~Node() = default;
 
-    virtual void SetValue(Table* table, float value) = 0;
+    virtual float GetValue() = 0;
 };
 
 
-struct OutputDef
+struct InputNode : public Node
 {
-    virtual ~OutputDef() = default;
+    InputNode();
 
-    virtual std::unique_ptr<Output> Create() = 0;
+    float state;
+
+    float GetValue() override;
+};
+
+
+struct NodeDef
+{
+    virtual ~NodeDef() = default;
+
+    virtual std::unique_ptr<Node> Create() = 0;
+};
+
+
+struct Output
+{
+    Output(int node, const std::string& var, Range range);
+
+    int node;
+    std::string var;
+    Range range;
 };
 
 
 struct ConverterDef
 {
     void AddOutput(const std::string& name, const std::string& var, Range range);
-    void AddVar(const std::string& name, std::unique_ptr<OutputDef>&& output);
+    int AddVar(const std::string& name, std::unique_ptr<NodeDef>&& Node);
 
     int GetNode(const std::string& name);
 
-    std::vector<std::unique_ptr<OutputDef>> vars;
+    std::vector<std::unique_ptr<NodeDef>> vars;
     std::map<std::string, int> nodes;
+    std::vector<Output> outputs;
 };
 
 
@@ -47,9 +68,11 @@ struct Converter
 {
     explicit Converter(const ConverterDef& converter);
     
-    void Set(int var, Table* table, float value);
+    void SetRawState(int var, float value);
+    void SetTable(Table* table);
 
-    std::vector<std::unique_ptr<Output>> vars;
+    std::vector<std::unique_ptr<Node>> vars;
+    std::vector<Output> outputs;
 };
 
 
@@ -66,51 +89,36 @@ template<typename T>
 struct BindDef
 {
     template<typename TT> BindDef(const std::string& v, const T& t, const TT& tt, ConverterDef* converter)
-        : var(converter->GetNode(v))
+        : node(converter->GetNode(v))
         , type(t)
         , invert(tt.invert)
         , scale(tt.scale)
     {
     }
 
-    int var;
+    int node;
     T type;
     bool invert;
     float scale;
 };
 
 
-struct Bind
-{
-    Bind(int v, bool i, float s);
-
-    float state;
-    int var;
-    bool invert;
-    float scale;
-
-    void SetRawState(float raw);
-};
-
-
 template<typename T>
 struct BindMap
 {
-    explicit BindMap(const std::vector<BindDef<T>>& src, Converter*)
+    BindMap(const std::vector<BindDef<T>>& src, Converter* c)
+        : converter(c)
     {
         for(const auto& b: src)
         {
-            using P = typename std::map<T, Bind>::value_type;
-            binds.insert(P{b.type, Bind{b.var, b.invert, b.scale}});
+            using M = decltype(binds);
+            using P = typename M::value_type;
+            binds.insert(P{b.type, b.node});
         }
     }
 
-    void Recieve(ValueReciever* r)
+    void Recieve(ValueReciever*)
     {
-        for(const auto& b: binds)
-        {
-            r->converter->Set(b.second.var, r->table, b.second.state);
-        }
     }
 
     void SetRaw(const T& t, float state)
@@ -118,11 +126,12 @@ struct BindMap
         auto found = binds.find(t);
         if (found != binds.end())
         {
-            found->second.SetRawState(state);
+            converter->SetRawState(found->second, state);
         }
     }
 
-    std::map<T, Bind> binds;
+    Converter* converter;
+    std::map<T, int> binds;
 };
 
 }
