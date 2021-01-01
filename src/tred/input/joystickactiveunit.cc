@@ -10,16 +10,16 @@ namespace input
 JoystickActiveUnit::JoystickActiveUnit
     (
         int,
-        InputDirector* d,
+        InputDirector* d, Converter* converter,
         const std::vector<BindDef<int>>& a,
         const std::vector<BindDef<int>>& b,
         const std::vector<BindDef<HatAxis>>& h
     )
     // : joystick_(joystick)
     : director(d)
-    , axes(a)
-    , buttons(b)
-    , hats(h)
+    , axes(a, converter)
+    , buttons(b, converter)
+    , hats(h, converter)
 {
     assert(director);
     director->Add(this);

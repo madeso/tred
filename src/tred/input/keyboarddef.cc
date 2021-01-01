@@ -21,11 +21,11 @@ KeyboardDef::KeyboardDef(const config::KeyboardDef& data, ConverterDef* converte
 }
 
 
-std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director)
+std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, Converter* converter)
 {
     assert(director);
     
-    return std::make_unique<KeyboardActiveUnit>(director, keys);
+    return std::make_unique<KeyboardActiveUnit>(director, converter, keys);
 }
 
 

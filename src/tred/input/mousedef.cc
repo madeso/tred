@@ -26,11 +26,11 @@ MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
 }
 
 
-std::unique_ptr<ActiveUnit> MouseDef::Create(InputDirector* director)
+std::unique_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, Converter* converter)
 {
     assert(director);
 
-    return std::make_unique<MouseActiveUnit>(director, axes, keys);
+    return std::make_unique<MouseActiveUnit>(director, converter, axes, keys);
 }
 
 

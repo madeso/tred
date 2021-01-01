@@ -10,9 +10,9 @@
 namespace input
 {
 
-KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, const std::vector<BindDef<Key>>& k)
+KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, Converter* converter, const std::vector<BindDef<Key>>& k)
     : director(d)
-    , keys(k)
+    , keys(k, converter)
 {
     assert(director);
 

@@ -21,7 +21,7 @@ struct MouseActiveUnit : public ActiveUnit
 {
     MouseActiveUnit
     (
-        InputDirector* director,
+        InputDirector* director, Converter* converter,
         const std::vector<BindDef<Axis>>& axes,
         const std::vector<BindDef<MouseButton>>& buttons
     );

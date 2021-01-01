@@ -41,7 +41,7 @@ std::unique_ptr<ConnectedUnits> KeyConfig::Connect(InputDirector* director)
 
     for (auto& def: definitions)
     {
-        auto unit = def->Create(director);
+        auto unit = def->Create(director, &units->converter);
         assert(unit);
         units->Add(std::move(unit));
     }

@@ -25,7 +25,7 @@ struct JoystickDef : public UnitDef
 {
     JoystickDef(const config::JoystickDef& data, ConverterDef* converter);
 
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director);
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, Converter* converter);
 
     std::vector<BindDef<int>> axes;
     std::vector<BindDef<int>> buttons;

@@ -26,7 +26,7 @@ struct KeyboardDef : public UnitDef
 {
     KeyboardDef(const config::KeyboardDef& data, ConverterDef* converter);
 
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director) override;
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, Converter* converter) override;
 
     std::vector<BindDef<Key>> keys;
 };

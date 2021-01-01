@@ -12,13 +12,13 @@ namespace input
 
 MouseActiveUnit::MouseActiveUnit
     (
-        InputDirector* d,
+        InputDirector* d, Converter* converter,
         const std::vector<BindDef<Axis>>& a,
         const std::vector<BindDef<MouseButton>>& b
     )
     : director(d)
-    , axes(a)
-    , buttons(b)
+    , axes(a, converter)
+    , buttons(b, converter)
 {
     assert(director);
 

@@ -96,7 +96,7 @@ struct Bind
 template<typename T>
 struct BindMap
 {
-    explicit BindMap(const std::vector<BindDef<T>>& src)
+    explicit BindMap(const std::vector<BindDef<T>>& src, Converter*)
     {
         for(const auto& b: src)
         {

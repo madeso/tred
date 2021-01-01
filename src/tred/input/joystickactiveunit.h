@@ -22,7 +22,7 @@ struct JoystickActiveUnit : public ActiveUnit
 {
     JoystickActiveUnit
     (
-        int joystick, InputDirector* director,
+        int joystick, InputDirector* director, Converter* converter,
         const std::vector<BindDef<int>>& axis,
         const std::vector<BindDef<int>>& buttons,
         const std::vector<BindDef<HatAxis>>& hats

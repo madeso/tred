@@ -18,7 +18,7 @@ struct InputDirector;
 
 struct KeyboardActiveUnit : public ActiveUnit
 {
-    KeyboardActiveUnit(InputDirector* director, const std::vector<BindDef<Key>>& binds);
+    KeyboardActiveUnit(InputDirector* director, Converter* converter, const std::vector<BindDef<Key>>& binds);
     ~KeyboardActiveUnit();
 
     void Recieve(ValueReciever* reciever) override;
