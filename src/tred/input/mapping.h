@@ -23,7 +23,7 @@ struct ConnectedUnits;
 
 
 /** Contains a list of configurations.
-    A good example is Mouse+Keyboard.
+    A good example is Mouse+Keyboard. The list could also be one gamepad.
     */
 struct Mapping
 {

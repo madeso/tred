@@ -18,8 +18,8 @@ set(src
     tred/input/keyboardactiveunit.cc tred/input/keyboardactiveunit.h
     tred/input/keyboarddef.cc tred/input/keyboarddef.h
     tred/input/key.cc tred/input/key.h
-    tred/input/keyconfig.cc tred/input/keyconfig.h
-    tred/input/keyconfigs.cc tred/input/keyconfigs.h
+    tred/input/mapping.cc tred/input/mapping.h
+    tred/input/mappinglist.cc tred/input/mappinglist.h
     tred/input/mouseactiveunit.cc tred/input/mouseactiveunit.h
     tred/input/mousedef.cc tred/input/mousedef.h
     tred/input/player.cc tred/input/player.h

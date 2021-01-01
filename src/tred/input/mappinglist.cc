@@ -1,4 +1,4 @@
-#include "tred/input/keyconfigs.h"
+#include "tred/input/mappinglist.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -6,7 +6,7 @@
 #include "fmt/format.h"
 
 
-#include "tred/input/keyconfig.h"
+#include "tred/input/mapping.h"
 #include "tred/input/keyboarddef.h"
 #include "tred/input/joystickdef.h"
 #include "tred/input/mousedef.h"

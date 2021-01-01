@@ -1,4 +1,4 @@
-#include "tred/input/keyconfig.h"
+#include "tred/input/mapping.h"
 
 #include <cassert>
 
