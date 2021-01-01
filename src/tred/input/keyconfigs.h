@@ -11,23 +11,23 @@ namespace input
 {
 
 
-struct KeyConfig;
+struct Mapping;
 struct InputActionMap;
 
 
-struct KeyConfigs
+struct MappingList
 {
-    KeyConfigs();
-    ~KeyConfigs();
+    MappingList();
+    ~MappingList();
 
-    void Add(const std::string& name, std::unique_ptr<KeyConfig>&& config);
+    void Add(const std::string& name, std::unique_ptr<Mapping>&& config);
 
-    KeyConfig& Get(const std::string& name) const;
+    Mapping& Get(const std::string& name) const;
 
-    std::map<std::string, std::unique_ptr<KeyConfig>> configs;
+    std::map<std::string, std::unique_ptr<Mapping>> configs;
 };
 
 
-void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const InputActionMap& map);
+void Load(MappingList* configs, const input::config::MappingList& root, const InputActionMap& map);
 
 }  // namespace input

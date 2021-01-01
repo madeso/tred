@@ -13,7 +13,7 @@
 namespace input
 {
 
-KeyConfig::KeyConfig(const InputActionMap& map, const config::KeyConfig& root)
+Mapping::Mapping(const InputActionMap& map, const config::Mapping& root)
 {
     for(const auto& action_pair: map.actions)
     {
@@ -28,19 +28,19 @@ KeyConfig::KeyConfig(const InputActionMap& map, const config::KeyConfig& root)
 }
 
 
-KeyConfig::~KeyConfig()
+Mapping::~Mapping()
 {
 }
 
 
-void KeyConfig::Add(std::unique_ptr<UnitDef>&& def)
+void Mapping::Add(std::unique_ptr<UnitDef>&& def)
 {
     assert(def);
     definitions.push_back(std::move(def));
 }
 
 
-std::unique_ptr<ConnectedUnits> KeyConfig::Connect(InputDirector* director)
+std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director)
 {
     assert(director);
     auto units = std::make_unique<ConnectedUnits>(converter);

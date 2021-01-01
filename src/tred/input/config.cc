@@ -101,7 +101,7 @@ JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<J
 }
 
 
-KeyConfig::KeyConfig(const std::string& n, const std::vector<TwoButtonConverter>& tbc, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
+Mapping::Mapping(const std::string& n, const std::vector<TwoButtonConverter>& tbc, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
     : name(n)
     , two_button_converter(tbc)
     , keyboards(k)
@@ -111,7 +111,7 @@ KeyConfig::KeyConfig(const std::string& n, const std::vector<TwoButtonConverter>
 }
 
 
-InputSystem::InputSystem(const ActionMap& a, const KeyConfigs& k)
+InputSystem::InputSystem(const ActionMap& a, const MappingList& k)
     : actions(a)
     , keys(k)
 {

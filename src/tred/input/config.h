@@ -122,9 +122,9 @@ struct JoystickDef
 };
 
 
-struct KeyConfig
+struct Mapping
 {
-    KeyConfig(const std::string&, const std::vector<TwoButtonConverter>&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
+    Mapping(const std::string&, const std::vector<TwoButtonConverter>&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
 
     std::string name;
 
@@ -139,14 +139,14 @@ struct KeyConfig
 // roots
 
 using ActionMap = std::vector<Action>;
-using KeyConfigs = std::vector<KeyConfig>;
+using MappingList = std::vector<Mapping>;
 
 struct InputSystem
 {
-    InputSystem(const ActionMap&, const KeyConfigs&);
+    InputSystem(const ActionMap&, const MappingList&);
 
     ActionMap actions;
-    KeyConfigs keys;
+    MappingList keys;
 };
 
 }

@@ -17,23 +17,23 @@ namespace input
 {
 
 
-KeyConfigs::KeyConfigs()
+MappingList::MappingList()
 {
 }
 
-KeyConfigs::~KeyConfigs()
+MappingList::~MappingList()
 {
 }
 
 
-void KeyConfigs::Add(const std::string& name, std::unique_ptr<KeyConfig>&& config)
+void MappingList::Add(const std::string& name, std::unique_ptr<Mapping>&& config)
 {
     assert(config);
     configs.insert(std::make_pair(name, std::move(config)));
 }
 
 
-KeyConfig& KeyConfigs::Get(const std::string& name) const
+Mapping& MappingList::Get(const std::string& name) const
 {
     auto res = configs.find(name);
     if (res == configs.end())
@@ -46,7 +46,7 @@ KeyConfig& KeyConfigs::Get(const std::string& name) const
 }
 
 
-void Load(KeyConfig* config, const input::config::KeyConfig& root)
+void Load(Mapping* config, const input::config::Mapping& root)
 {
     assert(config);
 
@@ -67,14 +67,14 @@ void Load(KeyConfig* config, const input::config::KeyConfig& root)
 }
 
 
-void Load(KeyConfigs* configs, const input::config::KeyConfigs& root, const InputActionMap& map)
+void Load(MappingList* configs, const input::config::MappingList& root, const InputActionMap& map)
 {
     assert(configs);
 
     for (const auto& d: root)
     {
         const std::string name = d.name;
-        auto config = std::make_unique<KeyConfig>(map, d);
+        auto config = std::make_unique<Mapping>(map, d);
         Load(config.get(), d);
         configs->Add(name, std::move(config));
     }

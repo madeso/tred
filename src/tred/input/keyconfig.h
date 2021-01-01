@@ -8,7 +8,7 @@
 
 namespace input::config
 {
-    struct KeyConfig;
+    struct Mapping;
 }
 
 
@@ -25,10 +25,10 @@ struct ConnectedUnits;
 /** Contains a list of configurations.
     A good example is Mouse+Keyboard.
     */
-struct KeyConfig
+struct Mapping
 {
-    KeyConfig(const InputActionMap& map, const config::KeyConfig& root);
-    ~KeyConfig();
+    Mapping(const InputActionMap& map, const config::Mapping& root);
+    ~Mapping();
 
     void Add(std::unique_ptr<UnitDef>&& def);
 

@@ -28,7 +28,7 @@ struct InputSystemPiml
 
     InputActionMap actions;
     PlayerHandleVector players;
-    KeyConfigs configs;
+    MappingList configs;
     InputDirector input_director;
 };
 
