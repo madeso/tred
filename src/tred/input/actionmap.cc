@@ -29,21 +29,6 @@ void InputActionMap::Add(const std::string& name, std::unique_ptr<InputAction>&&
 }
 
 
-/*
-std::unique_ptr<InputAction> InputActionMap::Get(const std::string& name) const
-{
-    auto res = actions.find(name);
-    if (res == actions.end())
-    {
-        throw fmt::format("Unable to find action: {}", name);
-    }
-
-    assert(res->second);
-    return res->second;
-}
-*/
-
-
 void Load(InputActionMap* map, const input::config::ActionMap& root)
 {
     assert(map);
@@ -53,5 +38,6 @@ void Load(InputActionMap* map, const input::config::ActionMap& root)
         map->Add(d.name, std::make_unique<InputAction>(d.name, d.var, d.range));
     }
 }
+
 
 }  // namespace input

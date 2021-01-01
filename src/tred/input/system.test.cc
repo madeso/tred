@@ -106,7 +106,7 @@ TEST_CASE("input-test", "[input]")
         // press enter on playscreen
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
-        const auto table = GetTable(&sys, player);;
+        const auto table = GetTable(&sys, player);
 
         REQUIRE(MapEq(table.data, {
             {"var_shoot", 0.0f},
@@ -123,12 +123,12 @@ TEST_CASE("input-test", "[input]")
         sys.OnKeyboardKey(Key::A, true);
         sys.Update(0.1f);
 
-        const auto before = GetTable(&sys, player);;
+        const auto before = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::A, false);
         sys.Update(0.1f);
 
-        const auto after = GetTable(&sys, player);;
+        const auto after = GetTable(&sys, player);
 
         REQUIRE(MapEq(before.data, {
             {"var_shoot", 1.0f},
@@ -150,12 +150,12 @@ TEST_CASE("input-test", "[input]")
         sys.OnMouseAxis(Axis::X, 2.0f);
         sys.Update(0.1f);
 
-        const auto before = GetTable(&sys, player);;
+        const auto before = GetTable(&sys, player);
 
         sys.OnMouseAxis(Axis::X, 0.0f);
         sys.Update(0.1f);
 
-        const auto after = GetTable(&sys, player);;
+        const auto after = GetTable(&sys, player);
 
         REQUIRE(MapEq(before.data, {
             {"var_shoot", 0.0f},
