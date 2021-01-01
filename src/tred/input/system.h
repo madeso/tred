@@ -37,8 +37,6 @@ struct InputSystem
     void SetUnitForPlayer(PlayerHandle player, const std::string& inputName);
     void UpdateTable(PlayerHandle player, Table* table);
 
-    void Update(float dt);
-
     void OnKeyboardKey(Key key, bool down);
     void OnMouseAxis(Axis axis, float value);
     void OnMouseButton(MouseButton button, bool down);

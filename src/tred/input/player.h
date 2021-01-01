@@ -21,7 +21,6 @@ struct Player
     ~Player();
 
     void UpdateTable(Table* table);
-    void Update(float dt);
 
     std::unique_ptr<ConnectedUnits> connected_units;
 };

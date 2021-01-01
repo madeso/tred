@@ -63,15 +63,6 @@ void InputSystem::UpdateTable(PlayerHandle player, Table* table)
 }
 
 
-void InputSystem::Update(float dt)
-{
-    for (auto& p: m->players)
-    {
-        p->Update(dt);
-    }
-}
-
-
 void InputSystem::OnKeyboardKey(Key key, bool down)
 {
     m->input_director.OnKeyboardKey(key, down);

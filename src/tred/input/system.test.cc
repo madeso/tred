@@ -121,12 +121,10 @@ TEST_CASE("input-test", "[input]")
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         sys.OnKeyboardKey(Key::A, true);
-        sys.Update(0.1f);
 
         const auto before = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::A, false);
-        sys.Update(0.1f);
 
         const auto after = GetTable(&sys, player);
 
@@ -148,13 +146,9 @@ TEST_CASE("input-test", "[input]")
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         sys.OnMouseAxis(Axis::X, 2.0f);
-        sys.Update(0.1f);
-
         const auto before = GetTable(&sys, player);
 
         sys.OnMouseAxis(Axis::X, 0.0f);
-        sys.Update(0.1f);
-
         const auto after = GetTable(&sys, player);
 
         REQUIRE(MapEq(before.data, {
@@ -177,19 +171,15 @@ TEST_CASE("input-test", "[input]")
         const auto start = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::LEFT, true);
-        sys.Update(0.1f);
         const auto left = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::RIGHT, true);
-        sys.Update(0.1f);
         const auto both = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::LEFT, false);
-        sys.Update(0.1f);
         const auto right = GetTable(&sys, player);
 
         sys.OnKeyboardKey(Key::RIGHT, false);
-        sys.Update(0.1f);
         const auto after = GetTable(&sys, player);
 
         CHECK(MapEq(start.data, {

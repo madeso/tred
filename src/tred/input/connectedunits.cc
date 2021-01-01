@@ -38,12 +38,6 @@ void ConnectedUnits::UpdateTable(Table* table)
 }
 
 
-void ConnectedUnits::Update(float)
-{
-    // actives->Update(dt);
-}
-
-
 bool ConnectedUnits::IsEmpty() const
 {
     return units.empty();

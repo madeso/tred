@@ -29,13 +29,4 @@ void Player::UpdateTable(Table* table)
 }
 
 
-void Player::Update(float dt)
-{
-    if(connected_units)
-    {
-        connected_units->Update(dt);
-    }
-}
-
-
 }  // namespace input

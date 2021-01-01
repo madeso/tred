@@ -21,7 +21,6 @@ struct ConnectedUnits
     ~ConnectedUnits();
     
     void UpdateTable(Table* table);
-    void Update(float dt);
     void Add(std::unique_ptr<ActiveUnit>&& unit);
     bool IsEmpty() const;
 
