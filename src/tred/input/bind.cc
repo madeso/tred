@@ -120,12 +120,6 @@ ValueReciever::ValueReciever(Table* t, Converter* c)
 }
 
 
-void ValueReciever::Set(int var, float value)
-{
-    converter->Set(var, table, value);
-}
-
-
 Bind::Bind(int v, bool i, float s)
     : state(0.0f)
     , var(v)

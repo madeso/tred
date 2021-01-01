@@ -53,13 +53,9 @@ struct Converter
 };
 
 
-// could probably be replaced with a std::function as all it ever does
-// is call Converter::Set
 struct ValueReciever
 {
     ValueReciever(Table* table, Converter* converter);
-
-    void Set(int var, float value);
 
     Table* table;
     Converter* converter;
@@ -109,11 +105,11 @@ struct BindMap
         }
     }
 
-    void Recieve(ValueReciever* reciever)
+    void Recieve(ValueReciever* r)
     {
         for(const auto& b: binds)
         {
-            reciever->Set(b.second.var, b.second.state);
+            r->converter->Set(b.second.var, r->table, b.second.state);
         }
     }
 
