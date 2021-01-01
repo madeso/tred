@@ -76,15 +76,6 @@ struct Converter
 };
 
 
-struct ValueReciever
-{
-    ValueReciever(Table* table, Converter* converter);
-
-    Table* table;
-    Converter* converter;
-};
-
-
 template<typename T>
 struct BindDef
 {
@@ -115,10 +106,6 @@ struct BindMap
             using P = typename M::value_type;
             binds.insert(P{b.type, b.node});
         }
-    }
-
-    void Recieve(ValueReciever*)
-    {
     }
 
     void SetRaw(const T& t, float state)

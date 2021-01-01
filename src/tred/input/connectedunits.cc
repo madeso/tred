@@ -34,13 +34,6 @@ void ConnectedUnits::UpdateTable(Table* table)
 
     assert(units.size() > 0);
 
-    auto reciever = ValueReciever{table, &converter};
-
-    for(auto& u: units)
-    {
-        u->Recieve(&reciever);
-    }
-
     converter.SetTable(table);
 }
 

@@ -27,8 +27,6 @@ struct MouseActiveUnit : public ActiveUnit
     );
     ~MouseActiveUnit();
 
-    void Recieve(ValueReciever* reciever) override;
-
     void OnAxis(const Axis& axis, float state);
     void OnButton(MouseButton button, float state);
 

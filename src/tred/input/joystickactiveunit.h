@@ -29,8 +29,6 @@ struct JoystickActiveUnit : public ActiveUnit
     );
     ~JoystickActiveUnit();
 
-    void Recieve(ValueReciever* reciever) override;
-
     void OnAxis(int axis, float state);
     void OnButton(int button, float state);
     void OnHat(const HatAxis& hatAxis, float state);

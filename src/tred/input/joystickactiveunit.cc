@@ -32,14 +32,6 @@ JoystickActiveUnit::~JoystickActiveUnit()
 }
 
 
-void JoystickActiveUnit::Recieve(ValueReciever* reciever)
-{
-    axes.Recieve(reciever);
-    buttons.Recieve(reciever);
-    hats.Recieve(reciever);
-}
-
-
 void JoystickActiveUnit::OnAxis(int axis, float state)
 {
     axes.SetRaw(axis, state);

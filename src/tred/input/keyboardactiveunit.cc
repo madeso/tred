@@ -26,12 +26,6 @@ KeyboardActiveUnit::~KeyboardActiveUnit()
 }
 
 
-void KeyboardActiveUnit::Recieve(ValueReciever* reciever)
-{
-    keys.Recieve(reciever);
-}
-
-
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
     keys.SetRaw(key, state ? 1.0f : 0.0f);

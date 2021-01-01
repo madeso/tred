@@ -32,13 +32,6 @@ MouseActiveUnit::~MouseActiveUnit()
 }
 
 
-void MouseActiveUnit::Recieve(ValueReciever* reciever)
-{
-    axes.Recieve(reciever);
-    buttons.Recieve(reciever);
-}
-
-
 void MouseActiveUnit::OnAxis(const Axis& axis, float state)
 {
     axes.SetRaw(axis, state);

@@ -136,11 +136,4 @@ void Converter::SetTable(Table* table)
 }
 
 
-ValueReciever::ValueReciever(Table* t, Converter* c)
-    : table(t)
-    , converter(c)
-{
-}
-
-
 }
