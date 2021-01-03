@@ -261,7 +261,13 @@ struct WindowsImpl : public Windows
 
 std::unique_ptr<Windows> Setup()
 {
-    if(SDL_Init(SDL_INIT_VIDEO) != 0)
+    constexpr Uint32 flags =
+          SDL_INIT_VIDEO
+        | SDL_INIT_JOYSTICK
+        | SDL_INIT_GAMECONTROLLER
+        | SDL_INIT_HAPTIC
+        ;
+    if(SDL_Init(flags) != 0)
     {
         LOG_ERROR("Unable to initialize SDL: {}", SDL_GetError());
         return nullptr;

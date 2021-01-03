@@ -26,6 +26,7 @@ set(src
     tred/input/player.cc tred/input/player.h
     tred/input/range.cc tred/input/range.h
     tred/input/system.cc tred/input/system.h
+    tred/input/sdl-system.cc tred/input/sdl-system.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
 

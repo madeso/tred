@@ -38,6 +38,7 @@
 #include "tred/image.h"
 #include "tred/windows.h"
 #include "tred/input.h"
+#include "tred/input/sdl-system.h"
 
 
 // resource headers
@@ -405,6 +406,7 @@ main(int, char**)
 
     bool running = true;
     Input input;
+    auto sdl_input = input::SdlSystem{};
 
     input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
