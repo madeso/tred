@@ -1,4 +1,4 @@
-#include "tred/input/convert-sdl.h"
+#include "tred/input/sdl-convert.h"
 
 
 namespace input

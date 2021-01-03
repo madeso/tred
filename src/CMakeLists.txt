@@ -10,7 +10,6 @@ set(src
     tred/input/axis.cc tred/input/axis.h
     tred/input/bind.cc tred/input/bind.h
     tred/input/config.cc tred/input/config.h
-    tred/input/convert-sdl.cc tred/input/convert-sdl.h
     tred/input/connectedunits.cc tred/input/connectedunits.h
     tred/input/director.cc tred/input/director.h
     tred/input/hataxis.cc tred/input/hataxis.h
@@ -26,6 +25,7 @@ set(src
     tred/input/player.cc tred/input/player.h
     tred/input/range.cc tred/input/range.h
     tred/input/system.cc tred/input/system.h
+    tred/input/sdl-convert.cc tred/input/sdl-convert.h
     tred/input/sdl-system.cc tred/input/sdl-system.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
