@@ -139,6 +139,44 @@ struct Joystick
 };
 
 
+struct Haptic
+{
+    Haptic(Joystick* joystick)
+        : haptic(SDL_HapticOpenFromJoystick(joystick->joystick))
+    {
+    }
+
+    ~Haptic()
+    {
+        if(haptic != nullptr)
+        {
+            SDL_HapticClose(haptic);
+        }
+    }
+
+    bool HasHaptic()
+    {
+        return haptic != nullptr;
+    }
+
+    bool HasSine()
+    {
+        if(haptic == nullptr) { return false; }
+        const auto query = SDL_HapticQuery(haptic);
+        return 0 != (query & SDL_HAPTIC_SINE);
+    }
+
+    std::string_view GetStatus()
+    {
+        if(HasHaptic() == false) { return "no haptic"; }
+        if(HasSine() == false) { return "has haptics"; }
+        else return "has (sine) haptics";
+    }
+
+     SDL_Haptic* haptic;
+};
+
+
 struct GameController
 {
     GameController(int device_index)
@@ -186,6 +224,10 @@ void LogInfoAboutJoystick(Joystick* joy)
     LOG_INFO("  Buttons: {}", joy->GetNumberOfButtons());
     LOG_INFO("  Hats: {}", joy->GetNumberOfHats());
     LOG_INFO("  Power: {}", ToString(joy->GetPowerLevel()));
+    {
+        auto haptics = Haptic{joy};
+        LOG_INFO("  Haptic: {}", haptics.GetStatus());
+    }
     LOG_INFO("  Guid: {}", joy->GetGuid());
 }
 
