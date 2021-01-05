@@ -23,13 +23,15 @@ struct InputActionMap;
 
 struct JoystickDef : public UnitDef
 {
-    JoystickDef(const config::JoystickDef& data, ConverterDef* converter);
+    JoystickDef(int index, const config::JoystickDef& data, ConverterDef* converter);
 
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director, Converter* converter);
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter);
 
+    int index;
     std::vector<BindDef<int>> axes;
     std::vector<BindDef<int>> buttons;
     std::vector<BindDef<HatAxis>> hats;
+    std::vector<BindDef<HatAxis>> balls;
 };
 
 

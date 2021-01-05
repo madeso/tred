@@ -51,19 +51,14 @@ void InputDirector::Remove(MouseActiveUnit* au)
 void InputDirector::Add(JoystickActiveUnit* au)
 {
     assert(au);
-    joysticks.push_back(au);
+    joysticks.insert({au->joystick, au});
 }
 
 
 void InputDirector::Remove(JoystickActiveUnit* au)
 {
     assert(au);
-    auto res = std::find(joysticks.begin(), joysticks.end(), au);
-    if (res != joysticks.end())
-    {
-        /// @todo implement as a swap back and erase function
-        joysticks.erase(res);
-    }
+    joysticks.erase(au->joystick);
 }
 
 
@@ -84,6 +79,14 @@ void InputDirector::OnMouseAxis(Axis axis, float value)
     }
 }
 
+void InputDirector::OnMouseWheel(Axis axis, float value)
+{
+    for (auto m: mouses)
+    {
+        m->OnWheel(axis, value);
+    }
+}
+
 
 void InputDirector::OnMouseButton(MouseButton key, bool down)
 {
@@ -94,37 +97,42 @@ void InputDirector::OnMouseButton(MouseButton key, bool down)
 }
 
 
-void InputDirector::OnJoystickPov(Axis type, int hat, int, float value)
+void InputDirector::OnJoystickBall(JoystickId joystick, Axis axis, int ball, float value)
 {
-    /// @todo fix the joystick number
+    auto found = joysticks.find(joystick);
+    if(found == joysticks.end()) { return; }
 
-    for (auto j: joysticks)
-    {
-        j->OnHat(HatAxis(hat, type), value);
-    }
+    found->second->OnBall({ball, axis}, value);
 }
 
 
-void InputDirector::OnJoystickButton(int button, int, bool down)
+void InputDirector::OnJoystickHat(JoystickId joystick, Axis axis, int hat, float value)
 {
-    /// @todo fix the joystick number
+    auto found = joysticks.find(joystick);
+    if(found == joysticks.end()) { return; }
 
-    for (auto j: joysticks)
-    {
-        j->OnButton(button, down ? 1.0f : 0.0f);
-    }
+    found->second->OnHat({hat, axis}, value);
 }
 
 
-void InputDirector::OnJoystickAxis(int axis, int, float value)
+void InputDirector::OnJoystickButton(JoystickId joystick, int button, bool down)
 {
-    /// @todo fix the joystick number
+    auto found = joysticks.find(joystick);
+    if(found == joysticks.end()) { return; }
 
-    for (auto j: joysticks)
-    {
-        j->OnAxis(axis, value);
-    }
+    found->second->OnButton(button, down);
 }
+
+
+void InputDirector::OnJoystickAxis(JoystickId joystick, int axis, float value)
+{
+    auto found = joysticks.find(joystick);
+    if(found == joysticks.end()) { return; }
+
+    found->second->OnAxis(axis, value);
+}
+
+
 
 
 }  // namespace input

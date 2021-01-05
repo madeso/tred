@@ -11,6 +11,22 @@ Action::Action(const std::string& n, const std::string& v, input::Range r)
 }
 
 
+Action::Action(const std::string& nv, input::Range r)
+    : name(nv)
+    , var(nv)
+    , range(r)
+{
+}
+
+
+Action::Action(const std::string_view& nv, input::Range r)
+    : name(nv)
+    , var(nv)
+    , range(r)
+{
+}
+
+
 KeyboardButton::KeyboardButton(const std::string& bind, input::Key k, bool i, float s)
     : bindname(bind)
     , key(k)
@@ -81,8 +97,9 @@ MouseDef::MouseDef()
 }
 
 
-MouseDef::MouseDef(const std::vector<MouseAxis>& a, const std::vector<MouseButton>& b)
+MouseDef::MouseDef(const std::vector<MouseAxis>& a, const std::vector<MouseAxis>& w, const std::vector<MouseButton>& b)
     : axis(a)
+    , wheel(w)
     , button(b)
 {
 }
@@ -93,10 +110,11 @@ JoystickDef::JoystickDef()
 }
 
 
-JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<JoystickButton>& b, const std::vector<JoystickHat>& h)
+JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<JoystickButton>& b, const std::vector<JoystickHat>& h, const std::vector<JoystickHat>& ba)
     : axis(a)
     , button(b)
     , hat(h)
+    , ball(ba)
 {
 }
 

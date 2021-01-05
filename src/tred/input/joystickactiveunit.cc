@@ -7,19 +7,23 @@
 
 namespace input
 {
+
+
 JoystickActiveUnit::JoystickActiveUnit
     (
-        int,
+        JoystickId j,
         InputDirector* d, Converter* converter,
         const std::vector<BindDef<int>>& a,
         const std::vector<BindDef<int>>& b,
-        const std::vector<BindDef<HatAxis>>& h
+        const std::vector<BindDef<HatAxis>>& h,
+        const std::vector<BindDef<HatAxis>>& ba
     )
-    // : joystick_(joystick)
-    : director(d)
+    : joystick(j)
+    , director(d)
     , axes(a, converter)
     , buttons(b, converter)
     , hats(h, converter)
+    , balls(ba, converter)
 {
     assert(director);
     director->Add(this);
@@ -47,6 +51,12 @@ void JoystickActiveUnit::OnButton(int button, float state)
 void JoystickActiveUnit::OnHat(const HatAxis& hatAxis, float state)
 {
     hats.SetRaw(hatAxis, state);
+}
+
+
+void JoystickActiveUnit::OnBall(const HatAxis& hatAxis, float state)
+{
+    balls.SetRaw(hatAxis, state);
 }
 
 

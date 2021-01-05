@@ -1,5 +1,7 @@
 #include "tred/input/sdl-convert.h"
 
+#include <cassert>
+
 
 namespace input
 {
@@ -22,13 +24,6 @@ glm::ivec2 GetHatValues(Uint8 hat)
             assert(false && "Invalid hat value");
             return glm::ivec2(0, 0);
     }
-}
-
-
-glm::ivec2 GetHatValues(SDL_Joystick* joystick, int hat_index)
-{
-    const auto hat = SDL_JoystickGetHat(joystick, hat_index);
-    return GetHatValues(hat);
 }
 
 
@@ -278,9 +273,9 @@ Key ToKey(SDL_Keysym key)
 }
 
 
-MouseButton ToKey(SDL_MouseButtonEvent mb)
+MouseButton ToMouseButton(Uint8 mb)
 {
-    switch (mb.button)
+    switch (mb)
     {
         case SDL_BUTTON_LEFT: return MouseButton::LEFT;
         case SDL_BUTTON_MIDDLE: return MouseButton::MIDDLE;
@@ -288,7 +283,7 @@ MouseButton ToKey(SDL_MouseButtonEvent mb)
         case SDL_BUTTON_X1: return MouseButton::X1;
         case SDL_BUTTON_X2: return MouseButton::X2;
         default:
-            assert(false && mb.button && "Invalid mouse button");
+            assert(false && mb && "Invalid mouse button");
             return MouseButton::INVALID;
     }
 }

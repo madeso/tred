@@ -23,15 +23,18 @@ struct MouseActiveUnit : public ActiveUnit
     (
         InputDirector* director, Converter* converter,
         const std::vector<BindDef<Axis>>& axes,
+        const std::vector<BindDef<Axis>>& wheels,
         const std::vector<BindDef<MouseButton>>& buttons
     );
     ~MouseActiveUnit();
 
     void OnAxis(const Axis& axis, float state);
+    void OnWheel(const Axis& axis, float state);
     void OnButton(MouseButton button, float state);
 
     InputDirector* director;
     BindMap<Axis> axes;
+    BindMap<Axis> wheels;
     BindMap<MouseButton> buttons;
 };
 

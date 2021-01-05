@@ -22,6 +22,7 @@ set(src
     tred/input/mappinglist.cc tred/input/mappinglist.h
     tred/input/mouseactiveunit.cc tred/input/mouseactiveunit.h
     tred/input/mousedef.cc tred/input/mousedef.h
+    tred/input/platform.cc tred/input/platform.h
     tred/input/player.cc tred/input/player.h
     tred/input/range.cc tred/input/range.h
     tred/input/system.cc tred/input/system.h

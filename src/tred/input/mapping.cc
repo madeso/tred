@@ -40,14 +40,14 @@ void Mapping::Add(std::unique_ptr<UnitDef>&& def)
 }
 
 
-std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director)
+std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director, const UnitSetup& setup)
 {
     assert(director);
     auto units = std::make_unique<ConnectedUnits>(converter);
 
     for (auto& def: definitions)
     {
-        auto unit = def->Create(director, &units->converter);
+        auto unit = def->Create(director, setup, &units->converter);
         assert(unit);
         units->Add(std::move(unit));
     }

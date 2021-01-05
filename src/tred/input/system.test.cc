@@ -79,6 +79,8 @@ TEST_CASE("input-test", "[input]")
                             {
                                 {"look", Axis::X}
                             },
+                            // no mouse wheeels
+                            {},
                             // no mouse buttons
                             {}
                         }

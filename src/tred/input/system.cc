@@ -13,6 +13,7 @@
 #include "tred/input/mappinglist.h"
 #include "tred/input/actionmap.h"
 #include "tred/input/director.h"
+#include "tred/input/unitdef.h"
 
 #include "tred/handle.h"
 
@@ -53,7 +54,8 @@ InputSystem::~InputSystem()
 void InputSystem::SetUnitForPlayer(PlayerHandle player, const std::string& inputname)
 {
     auto& config = m->configs.Get(inputname);
-    m->players[player]->connected_units = config.Connect(&m->input_director);
+    auto setup = UnitSetup{};
+    m->players[player]->connected_units = config.Connect(&m->input_director, setup);
 }
 
 
@@ -75,28 +77,42 @@ void InputSystem::OnMouseAxis(Axis axis, float value)
 }
 
 
+void InputSystem::OnMouseWheel(Axis axis, float value)
+{
+    m->input_director.OnMouseWheel(axis, value);
+}
+
+
 void InputSystem::OnMouseButton(MouseButton button, bool down)
 {
     m->input_director.OnMouseButton(button, down);
 }
 
 
-void InputSystem::OnJoystickPov(Axis type, int hat, int joystick, float value)
+void InputSystem::OnJoystickBall(JoystickId joystick, Axis type, int ball, float value)
 {
-    m->input_director.OnJoystickPov(type, hat, joystick, value);
+    m->input_director.OnJoystickBall(joystick, type, ball, value);
 }
 
 
-void InputSystem::OnJoystickButton(int button, int joystick, bool down)
+void InputSystem::OnJoystickHat(JoystickId joystick, Axis type, int hat, float value)
 {
-    m->input_director.OnJoystickButton(button, joystick, down);
+    m->input_director.OnJoystickHat(joystick, type, hat, value);
 }
 
 
-void InputSystem::OnJoystickAxis(int axis, int joystick, float value)
+void InputSystem::OnJoystickButton(JoystickId joystick, int button, bool down)
 {
-    m->input_director.OnJoystickAxis(axis, joystick, value);
+    m->input_director.OnJoystickButton(joystick, button, down);
 }
+
+
+void InputSystem::OnJoystickAxis(JoystickId joystick, int axis, float value)
+{
+    m->input_director.OnJoystickAxis(joystick, axis, value);
+}
+
+
 
 
 PlayerHandle InputSystem::AddPlayer()

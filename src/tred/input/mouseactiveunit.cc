@@ -14,10 +14,12 @@ MouseActiveUnit::MouseActiveUnit
     (
         InputDirector* d, Converter* converter,
         const std::vector<BindDef<Axis>>& a,
+        const std::vector<BindDef<Axis>>& w,
         const std::vector<BindDef<MouseButton>>& b
     )
     : director(d)
     , axes(a, converter)
+    , wheels(w, converter)
     , buttons(b, converter)
 {
     assert(director);
@@ -35,6 +37,12 @@ MouseActiveUnit::~MouseActiveUnit()
 void MouseActiveUnit::OnAxis(const Axis& axis, float state)
 {
     axes.SetRaw(axis, state);
+}
+
+
+void MouseActiveUnit::OnWheel(const Axis& axis, float state)
+{
+    wheels.SetRaw(axis, state);
 }
 
 

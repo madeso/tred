@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <string_view>
 
 #include "tred/input/range.h"
 #include "tred/input/axis.h"
@@ -13,6 +14,8 @@ namespace input::config
 struct Action
 {
     Action(const std::string& name, const std::string& var, input::Range);
+    Action(const std::string& name_and_var, input::Range);
+    Action(const std::string_view& name_and_var, input::Range);
     std::string name;
     std::string var;
     input::Range range;
@@ -105,20 +108,22 @@ struct KeyboardDef
 struct MouseDef
 {
     MouseDef();
-    MouseDef(const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
+    MouseDef(const std::vector<MouseAxis>&, const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
 
     std::vector<MouseAxis> axis;
+    std::vector<MouseAxis> wheel;
     std::vector<MouseButton> button;
 };
 
 struct JoystickDef
 {
     JoystickDef();
-    JoystickDef(const std::vector<JoystickAxis>&, const std::vector<JoystickButton>&, const std::vector<JoystickHat>&);
+    JoystickDef(const std::vector<JoystickAxis>&, const std::vector<JoystickButton>&, const std::vector<JoystickHat>&, const std::vector<JoystickHat>&);
 
     std::vector<JoystickAxis> axis;
     std::vector<JoystickButton> button;
     std::vector<JoystickHat> hat;
+    std::vector<JoystickHat> ball;
 };
 
 

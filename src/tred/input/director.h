@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
-
+#include "tred/input/platform.h"
 
 namespace input
 {
@@ -29,15 +30,17 @@ struct InputDirector
     void OnKeyboardKey(Key key, bool down);
 
     void OnMouseAxis(Axis axis, float value);
+    void OnMouseWheel(Axis axis, float value);
     void OnMouseButton(MouseButton button, bool down);
 
-    void OnJoystickPov(Axis type, int hat, int joystick, float value);
-    void OnJoystickButton(int button, int joystick, bool down);
-    void OnJoystickAxis(int axis, int joystick, float value);
+    void OnJoystickBall(JoystickId joystick, Axis type, int ball, float value);
+    void OnJoystickHat(JoystickId joystick, Axis type, int hat, float value);
+    void OnJoystickButton(JoystickId joystick, int button, bool down);
+    void OnJoystickAxis(JoystickId joystick, int axis, float value);
 
     std::vector<KeyboardActiveUnit*> keyboards;
     std::vector<MouseActiveUnit*> mouses;
-    std::vector<JoystickActiveUnit*> joysticks;
+    std::map<JoystickId, JoystickActiveUnit*> joysticks;
 };
 
 }  // namespace input

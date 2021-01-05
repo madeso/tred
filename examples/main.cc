@@ -39,6 +39,7 @@
 #include "tred/windows.h"
 #include "tred/input.h"
 #include "tred/input/sdl-system.h"
+#include "tred/input/config.h"
 
 
 // resource headers
@@ -405,8 +406,70 @@ main(int, char**)
     }
 
     bool running = true;
+
     Input input;
-    auto sdl_input = input::SdlSystem{};
+
+    constexpr std::string_view quit = "quit";
+    constexpr std::string_view leftright = "leftright";
+    constexpr std::string_view inout = "inout";
+    constexpr std::string_view updown = "updown";
+    constexpr std::string_view look_updown = "look_updown";
+    constexpr std::string_view look_leftright = "look_leftright";
+
+    auto sdl_input = input::SdlSystem
+    {
+        {
+            {
+                {quit, input::Range::WithinZeroToOne},
+                {leftright, input::Range::WithinNegativeOneToPositiveOne},
+                {inout, input::Range::WithinNegativeOneToPositiveOne},
+                {updown, input::Range::WithinNegativeOneToPositiveOne},
+                {look_updown, input::Range::Infinite},
+                {look_leftright, input::Range::Infinite},
+            },
+            {
+                {
+                    "mouse+keyboard",
+                    // two button converters
+                    {
+                        "leftright",
+                        "inout",
+                        "updown"
+                    },
+                    // keyboards
+                    {
+                        {
+                            {
+                                {"quit", input::Key::ESCAPE},
+                                {"leftright-", input::Key::A},
+                                {"leftright+", input::Key::D},
+                                {"inout-", input::Key::S},
+                                {"inout+", input::Key::W},
+                                {"updown+", input::Key::CTRL_LEFT},
+                                {"updown-", input::Key::SPACE}
+                            }
+                        }
+                    },
+                    // mouses
+                    {
+                        {
+                            {
+                                {"look_updown", input::Axis::Y},
+                                {"look_leftright", input::Axis::X}
+                            },
+                            // no mouse wheeels
+                            {},
+                            // no mouse buttons
+                            {}
+                        }
+                    },
+                    // joysticks
+                    {
+                    }
+                }
+            }
+        }
+    };
 
     input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
@@ -580,8 +643,13 @@ main(int, char**)
     const auto range_right = input.AddRange(Keybind{SDLK_a}, Keybind{SDLK_d});
     const auto range_up = input.AddRange(Keybind{SDLK_LCTRL}, Keybind{SDLK_SPACE});
 
-    return MainLoop(std::move(windows), &input, [&](float dt) -> bool
+    // auto player = sdl_input.AddPlayer();
+
+    return MainLoop(std::move(windows), &input, &sdl_input, [&](float dt) -> bool
     {
+        // input::Table table;
+        // sdl_system.UpdateTable(player, &table);
+
         const auto v = camera.CreateVectors();
         const auto camera_movement
             = v.front * input.Get(range_in)

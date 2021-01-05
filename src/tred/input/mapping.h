@@ -20,6 +20,7 @@ struct UnitDef;
 struct InputDirector;
 struct InputActionMap;
 struct ConnectedUnits;
+struct UnitSetup;
 
 
 /** Contains a list of configurations.
@@ -32,7 +33,7 @@ struct Mapping
 
     void Add(std::unique_ptr<UnitDef>&& def);
 
-    std::unique_ptr<ConnectedUnits> Connect(InputDirector* director);
+    std::unique_ptr<ConnectedUnits> Connect(InputDirector* director, const UnitSetup& setup);
 
     ConverterDef converter;
     std::vector<std::unique_ptr<UnitDef>> definitions;

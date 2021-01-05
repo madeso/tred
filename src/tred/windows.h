@@ -22,6 +22,11 @@ struct Window
 };
 }
 
+namespace input
+{
+struct SdlSystem;
+}
+
 struct Windows
 {
     bool running = true;
@@ -33,10 +38,10 @@ struct Windows
 
     virtual void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<ImguiFunction>&& imgui) = 0;
     virtual void Render() = 0;
-    virtual void PumpEvents(Input* input) = 0;
+    virtual void PumpEvents(Input* input, input::SdlSystem* sdl_input) = 0;
 };
 
 
 std::unique_ptr<Windows> Setup();
 
-int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, UpdateFunction&& on_update);
+int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::SdlSystem* sdl_input, UpdateFunction&& on_update);

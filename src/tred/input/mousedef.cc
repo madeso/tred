@@ -19,6 +19,11 @@ MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
         axes.push_back(BindDef<Axis>(d.bindname, d.axis, d, converter));
     }
 
+    for (const auto& d: data.wheel)
+    {
+        wheels.push_back(BindDef<Axis>(d.bindname, d.axis, d, converter));
+    }
+
     for (const auto& d: data.button)
     {
         keys.push_back(BindDef<MouseButton>(d.bindname, d.key, d, converter));
@@ -26,11 +31,11 @@ MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
 }
 
 
-std::unique_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, Converter* converter)
+std::unique_ptr<ActiveUnit> MouseDef::Create(InputDirector* director, const UnitSetup&, Converter* converter)
 {
     assert(director);
 
-    return std::make_unique<MouseActiveUnit>(director, converter, axes, keys);
+    return std::make_unique<MouseActiveUnit>(director, converter, axes, wheels, keys);
 }
 
 

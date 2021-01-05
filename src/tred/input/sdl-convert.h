@@ -8,10 +8,10 @@
 
 namespace input
 {
-    glm::ivec2 GetHatValues(SDL_Joystick* joystick, int hat_index);
+    glm::ivec2 GetHatValues(Uint8 hat);
     
     Key ToKey(SDL_Keysym key);
 
-    MouseButton ToKey(SDL_MouseButtonEvent mb);
+    MouseButton ToMouseButton(Uint8 mb);
 }
 

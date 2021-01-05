@@ -14,6 +14,8 @@
 #include "tred/opengl.debug.h"
 #include "tred/input.h"
 
+#include "tred/input/sdl-system.h"
+
 using WindowId = Uint32;
 
 
@@ -214,7 +216,7 @@ struct WindowsImpl : public Windows
         return false;
     }
 
-    void PumpEvents(Input* input) override
+    void PumpEvents(Input* input, input::SdlSystem* sdl_input) override
     {
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
@@ -223,6 +225,8 @@ struct WindowsImpl : public Windows
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
+
+            sdl_input->OnEvent(e);
 
             switch(e.type)
             {
@@ -289,7 +293,7 @@ std::unique_ptr<Windows> Setup()
 }
 
 
-int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, UpdateFunction&& on_update)
+int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::SdlSystem* sdl_system, UpdateFunction&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
 
@@ -299,7 +303,7 @@ int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, UpdateFunction&& 
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        windows->PumpEvents(input);
+        windows->PumpEvents(input, sdl_system);
         if(false == on_update(dt))
         {
             return 0;

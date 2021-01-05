@@ -15,7 +15,8 @@ namespace input
 {
 
 
-JoystickDef::JoystickDef(const config::JoystickDef& data, ConverterDef* converter)
+JoystickDef::JoystickDef(int id, const config::JoystickDef& data, ConverterDef* converter)
+    : index(id)
 {
     for (const auto& d: data.axis)
     {
@@ -54,17 +55,30 @@ JoystickDef::JoystickDef(const config::JoystickDef& data, ConverterDef* converte
             hats.push_back(BindDef<HatAxis>(d.bindname, HatAxis(hat, d.axis), d, converter));
         }
     }
+
+    for (const auto& d: data.ball)
+    {
+        const int ball = d.hat;
+        if (ball < 0)
+        {
+            LOG_ERROR("Invalid joystick ball for the {} action", d.bindname);
+        }
+        else
+        {
+            balls.push_back(BindDef<HatAxis>(d.bindname, HatAxis(ball, d.axis), d, converter));
+        }
+    }
 }
 
 
-std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, Converter* converter)
+std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup, Converter* converter)
 {
     assert(director);
 
-    /// @todo fix the joystick number
-    int js = 0;
+    auto found = setup.joysticks.find(index);
+    assert(found != setup.joysticks.end());
     
-    return std::make_unique<JoystickActiveUnit>(js, director, converter, axes, buttons, hats);
+    return std::make_unique<JoystickActiveUnit>(found->second, director, converter, axes, buttons, hats, balls);
 }
 
 

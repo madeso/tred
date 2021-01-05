@@ -60,9 +60,11 @@ void Load(Mapping* config, const input::config::Mapping& root)
         config->Add(std::make_unique<MouseDef>(d, &config->converter));
     }
 
+    int joystick_id = 0;
     for (const auto& d: root.joysticks)
     {
-        config->Add(std::make_unique<JoystickDef>(d, &config->converter));
+        config->Add(std::make_unique<JoystickDef>(joystick_id, d, &config->converter));
+        joystick_id += 1;
     }
 }
 
