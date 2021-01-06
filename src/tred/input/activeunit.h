@@ -13,6 +13,8 @@ A perfect example is a connected joystick.
 struct ActiveUnit
 {
     virtual ~ActiveUnit();
+
+    virtual bool IsConsideredJoystick() = 0;
 };
 
 }  // namespace input

@@ -10,6 +10,7 @@
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 #include "tred/input/platform.h"
+#include "tred/input/unitdiscovery.h"
 
 
 namespace input::config
@@ -23,6 +24,7 @@ namespace input
 
 
 struct Table;
+struct Platform;
 
 
 enum class PlayerHandle : u64 {};
@@ -32,11 +34,12 @@ struct InputSystemPiml;
 
 struct InputSystem
 {
-    explicit InputSystem(const config::InputSystem& config);
+    InputSystem(const config::InputSystem& config);
     ~InputSystem();
 
     void SetUnitForPlayer(PlayerHandle player, const std::string& inputName);
     void UpdateTable(PlayerHandle player, Table* table);
+    void UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform);
 
     void OnKeyboardKey(Key key, bool down);
     void OnMouseAxis(Axis axis, float value);
@@ -47,6 +50,8 @@ struct InputSystem
     void OnJoystickHat(JoystickId joystick, Axis type, int hat, float value);
     void OnJoystickButton(JoystickId joystick, int button, bool down);
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
+
+    void RemoveJustPressed();
 
     PlayerHandle AddPlayer();
 

@@ -101,7 +101,9 @@ struct KeyboardDef
 {
     KeyboardDef();
     KeyboardDef(const std::vector<KeyboardButton>&);
+    KeyboardDef(Key, const std::vector<KeyboardButton>&);
 
+    Key detection_key;
     std::vector<KeyboardButton> binds;
 };
 
@@ -109,7 +111,9 @@ struct MouseDef
 {
     MouseDef();
     MouseDef(const std::vector<MouseAxis>&, const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
+    MouseDef(input::MouseButton, const std::vector<MouseAxis>&, const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
 
+    input::MouseButton detection_button;
     std::vector<MouseAxis> axis;
     std::vector<MouseAxis> wheel;
     std::vector<MouseButton> button;
@@ -118,8 +122,10 @@ struct MouseDef
 struct JoystickDef
 {
     JoystickDef();
-    JoystickDef(const std::vector<JoystickAxis>&, const std::vector<JoystickButton>&, const std::vector<JoystickHat>&, const std::vector<JoystickHat>&);
+    JoystickDef(int, const std::string&, const std::vector<JoystickAxis>&, const std::vector<JoystickButton>&, const std::vector<JoystickHat>&, const std::vector<JoystickHat>&);
 
+    int start_button;
+    std::string unit;
     std::vector<JoystickAxis> axis;
     std::vector<JoystickButton> button;
     std::vector<JoystickHat> hat;

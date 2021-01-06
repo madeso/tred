@@ -14,6 +14,7 @@
 #include "tred/input/actionmap.h"
 #include "tred/input/director.h"
 #include "tred/input/unitdef.h"
+#include "tred/input/unitsetup.h"
 
 #include "tred/handle.h"
 
@@ -65,6 +66,28 @@ void InputSystem::UpdateTable(PlayerHandle player, Table* table)
 }
 
 
+void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform)
+{
+    for(auto& p: m->players)
+    {
+        const bool force_check = discovery == UnitDiscovery::FindHighest && p->IsAnyConnectionConsideredJoystick() == false;
+        if(p->IsConnected() == false || force_check)
+        {
+            auto setup = UnitSetup{};
+            for(auto& config_pair: m->configs.configs)
+            {
+                const auto ignore_this = p->IsConnected() == true && config_pair.second->IsAnyConsideredJoystick() == false;
+                const auto detected = ignore_this == false && config_pair.second->CanDetect(&m->input_director, discovery, &setup, platform);
+                if(detected)
+                {
+                    p->connected_units = config_pair.second->Connect(&m->input_director, setup);
+                }
+            }
+        }
+    }
+}
+
+
 void InputSystem::OnKeyboardKey(Key key, bool down)
 {
     m->input_director.OnKeyboardKey(key, down);
@@ -113,6 +136,10 @@ void InputSystem::OnJoystickAxis(JoystickId joystick, int axis, float value)
 }
 
 
+void InputSystem::RemoveJustPressed()
+{
+    m->input_director.RemoveJustPressed();
+}
 
 
 PlayerHandle InputSystem::AddPlayer()

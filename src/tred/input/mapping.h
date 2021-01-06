@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "tred/input/bind.h"
+#include "tred/input/unitdiscovery.h"
 
 
 namespace input::config
@@ -21,6 +22,7 @@ struct InputDirector;
 struct InputActionMap;
 struct ConnectedUnits;
 struct UnitSetup;
+struct Platform;
 
 
 /** Contains a list of configurations.
@@ -33,6 +35,8 @@ struct Mapping
 
     void Add(std::unique_ptr<UnitDef>&& def);
 
+    bool IsAnyConsideredJoystick();
+    bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform);
     std::unique_ptr<ConnectedUnits> Connect(InputDirector* director, const UnitSetup& setup);
 
     ConverterDef converter;

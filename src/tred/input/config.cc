@@ -82,23 +82,43 @@ JoystickHat::JoystickHat(const std::string& bind, int h, input::Axis a, bool i, 
 
 
 KeyboardDef::KeyboardDef()
+    : detection_key(input::Key::UNBOUND)
 {
 }
 
 
 KeyboardDef::KeyboardDef(const std::vector<KeyboardButton>& b)
-    : binds(b)
+    : detection_key(input::Key::UNBOUND)
+    , binds(b)
+{
+}
+
+
+KeyboardDef::KeyboardDef(input::Key dk, const std::vector<KeyboardButton>& b)
+    : detection_key(dk)
+    , binds(b)
 {
 }
 
 
 MouseDef::MouseDef()
+    : detection_button(input::MouseButton::UNBOUND)
 {
 }
 
 
 MouseDef::MouseDef(const std::vector<MouseAxis>& a, const std::vector<MouseAxis>& w, const std::vector<MouseButton>& b)
-    : axis(a)
+    : detection_button(input::MouseButton::UNBOUND)
+    , axis(a)
+    , wheel(w)
+    , button(b)
+{
+}
+
+
+MouseDef::MouseDef(input::MouseButton db, const std::vector<MouseAxis>& a, const std::vector<MouseAxis>& w, const std::vector<MouseButton>& b)
+    : detection_button(db)
+    , axis(a)
     , wheel(w)
     , button(b)
 {
@@ -106,12 +126,16 @@ MouseDef::MouseDef(const std::vector<MouseAxis>& a, const std::vector<MouseAxis>
 
 
 JoystickDef::JoystickDef()
+    : start_button(0)
+    , unit("")
 {
 }
 
 
-JoystickDef::JoystickDef(const std::vector<JoystickAxis>& a, const std::vector<JoystickButton>& b, const std::vector<JoystickHat>& h, const std::vector<JoystickHat>& ba)
-    : axis(a)
+JoystickDef::JoystickDef(int sb, const std::string& u, const std::vector<JoystickAxis>& a, const std::vector<JoystickButton>& b, const std::vector<JoystickHat>& h, const std::vector<JoystickHat>& ba)
+    : start_button(sb)
+    , unit(u)
+    , axis(a)
     , button(b)
     , hat(h)
     , ball(ba)

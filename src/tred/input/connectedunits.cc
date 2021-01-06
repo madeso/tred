@@ -44,4 +44,18 @@ bool ConnectedUnits::IsEmpty() const
 }
 
 
+bool ConnectedUnits::IsAnyConnectionConsideredJoystick()
+{
+    for(auto& u: units)
+    {
+        if( u->IsConsideredJoystick() )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 }  // namespace input

@@ -28,6 +28,8 @@ struct MouseActiveUnit : public ActiveUnit
     );
     ~MouseActiveUnit();
 
+    bool IsConsideredJoystick() override;
+
     void OnAxis(const Axis& axis, float state);
     void OnWheel(const Axis& axis, float state);
     void OnButton(MouseButton button, float state);

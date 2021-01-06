@@ -24,6 +24,8 @@ struct ConnectedUnits
     void Add(std::unique_ptr<ActiveUnit>&& unit);
     bool IsEmpty() const;
 
+    bool IsAnyConnectionConsideredJoystick();
+
     Converter converter;
     std::vector<std::unique_ptr<ActiveUnit>> units;
 };

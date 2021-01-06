@@ -1,8 +1,9 @@
-#include "tred/input/sdl-system.h"
+#include "tred/input/sdl-platform.h"
 
 #include <string_view>
 #include <string>
 #include <array>
+#include <set>
 
 #include "SDL.h"
 
@@ -10,6 +11,8 @@
 #include "tred/input/system.h"
 #include "tred/input/sdl-convert.h"
 
+#include "tred/sortablepair.h"
+#include "tred/handle.h"
 
 namespace
 {
@@ -282,10 +285,9 @@ namespace input
 {
 
 
-struct SdlSystemImpl
+struct SdlPlatformImpl
 {
-    SdlSystemImpl(InputSystem* s)
-        : system(s)
+    SdlPlatformImpl()
     {
         const auto number_of_joysticks = SDL_NumJoysticks();
 
@@ -293,13 +295,11 @@ struct SdlSystemImpl
         for (int i = 0; i < number_of_joysticks; ++i)
         {
             LogInfoAboutJoystick(i);
+            AddJoystickFromDevice(i);
         }
     }
 
-    InputSystem* system;
-    std::map<SDL_JoystickID, JoystickId> sdljoystick_to_id;
-
-    void OnEvent(const SDL_Event& event)
+    void OnEvent(InputSystem* system, const SDL_Event& event)
     {
         switch(event.type)
         {
@@ -338,17 +338,26 @@ struct SdlSystemImpl
             case SDL_JOYBUTTONDOWN:
             case SDL_JOYBUTTONUP:
                 {
+                    const auto down = event.type == SDL_JOYBUTTONDOWN;
+                    const auto joystick_button = event.jbutton.button;
+
                     auto found = sdljoystick_to_id.find(event.jbutton.which);
                     if(found == sdljoystick_to_id.end()) { return; }
-                    system->OnJoystickButton(found->second, event.jbutton.button, event.type == SDL_JOYBUTTONDOWN);
+                    const auto joystick_id = found->second;
+
+                    if(!down && joysticks[joystick_id].in_use)
+                    {
+                        JustPressed(joystick_id, joystick_button);
+                    }
+                    system->OnJoystickButton(joystick_id, joystick_button, down);
                 }
                 break;
 
             case SDL_JOYDEVICEADDED:
+                AddJoystickFromDevice(event.jdevice.which);
+                break;
             case SDL_JOYDEVICEREMOVED:
-                // HandleEvent(event.jdevice, event.type == SDL_JOYDEVICEADDED);
-                // todo(Gustav): handle this
-                LOG_INFO("Device {} {}", event.jdevice.which, event.type == SDL_JOYDEVICEADDED ? "added" : "removed");
+                AddJoystickFromDevice(event.jdevice.which);
                 break;
 
             case SDL_MOUSEMOTION:
@@ -383,23 +392,123 @@ struct SdlSystemImpl
                 return;
         }
     }
+
+    
+    std::vector<JoystickId> ActiveAndFreeJoysticks()
+    {
+        auto r = std::vector<JoystickId>{};
+
+        for(auto joy: joysticks.AsPairs())
+        {
+            if(joy.second.in_use == false)
+            {
+                r.emplace_back(joy.first);
+            }
+        }
+
+        return r;
+    }
+
+    struct JoystickData
+    {
+        std::unique_ptr<Joystick> joystick;
+        SDL_JoystickID instance_id;
+        bool in_use = false;
+    };
+    using JoystickFunctions = HandleFunctions64<JoystickId>;
+    HandleVector<JoystickData, JoystickFunctions> joysticks;
+    std::map<SDL_JoystickID, JoystickId> sdljoystick_to_id;
+
+    JoystickId AddJoystickFromDevice(int device_id)
+    {
+        const auto id = joysticks.Add();
+
+        joysticks[id].joystick = std::make_unique<Joystick>(device_id);
+        joysticks[id].instance_id = joysticks[id].joystick->GetDeviceIndex();
+        joysticks[id].in_use = false;
+
+        LOG_INFO("Added a joystick named {}", joysticks[id].joystick->GetName());
+
+        return id;
+    }
+
+    void RemoveJoystickFromInstance(SDL_JoystickID instance_id)
+    {
+        const auto found_id = sdljoystick_to_id.find(instance_id);
+        if(found_id == sdljoystick_to_id.end())
+        {
+            LOG_WARNING("Unable to remove {}", instance_id);
+            return;
+        }
+        const auto id = found_id->second;
+        // LOG_INFO("Removed joystick: {}", joysticks[id].joystick->GetName());
+        LOG_INFO("Removed joystick (todo): add name here");
+        joysticks.Remove(id);
+        sdljoystick_to_id.erase(instance_id);
+    }
+
+    bool MatchUnit(JoystickId joy, const std::string& unit)
+    {
+        return joysticks[joy].joystick->GetGuid() == unit;
+    }
+
+    bool WasJustPressed(JoystickId joy, int button)
+    {
+        return just_pressed_buttons.find({joy, button}) != just_pressed_buttons.end();
+    }
+
+    void JustPressed(JoystickId joy, int button)
+    {
+        just_pressed_buttons.insert({joy, button});
+    }
+
+    void RemoveJustPressed()
+    {
+        just_pressed_buttons.clear();
+    }
+
+    std::set<SortablePair<JoystickId, int>> just_pressed_buttons; 
 };
 
 
-SdlSystem::SdlSystem(InputSystem* system)
-    : impl(std::make_unique<SdlSystemImpl>(system))
+SdlPlatform::SdlPlatform()
+    : impl(std::make_unique<SdlPlatformImpl>())
 {
 }
 
 
-SdlSystem::~SdlSystem()
+SdlPlatform::~SdlPlatform()
 {
 }
 
 
-void SdlSystem::OnEvent(const SDL_Event& event)
+void SdlPlatform::OnEvent(InputSystem* system, const SDL_Event& event)
 {
-    impl->OnEvent(event);
+    impl->OnEvent(system, event);
+}
+
+
+void SdlPlatform::RemoveJustPressed()
+{
+    impl->RemoveJustPressed();
+}
+
+
+std::vector<JoystickId> SdlPlatform::ActiveAndFreeJoysticks()
+{
+    return impl->ActiveAndFreeJoysticks();
+}
+
+
+bool SdlPlatform::MatchUnit(JoystickId joy, const std::string& unit)
+{
+    return impl->MatchUnit(joy, unit);
+}
+
+
+bool SdlPlatform::WasJustPressed(JoystickId joy, int button)
+{
+    return impl->WasJustPressed(joy, button);
 }
 
 

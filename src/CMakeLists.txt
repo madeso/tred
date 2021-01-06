@@ -27,9 +27,11 @@ set(src
     tred/input/range.cc tred/input/range.h
     tred/input/system.cc tred/input/system.h
     tred/input/sdl-convert.cc tred/input/sdl-convert.h
-    tred/input/sdl-system.cc tred/input/sdl-system.h
+    tred/input/sdl-platform.cc tred/input/sdl-platform.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
+    tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
+    tred/input/unitsetup.cc tred/input/unitsetup.h
 
     tred/input.cc tred/input.h
     tred/log.cc tred/log.h
@@ -41,6 +43,7 @@ set(src
     tred/profiler.cc tred/profiler.h
     tred/shader.cc tred/shader.h
     tred/shader.util.cc tred/shader.util.h
+    tred/sortablepair.cc tred/sortablepair.h
     tred/texture.cc tred/texture.h
     tred/types.cc tred/types.h
     tred/uniform.cc tred/uniform.h

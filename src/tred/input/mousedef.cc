@@ -7,12 +7,14 @@
 #include "tred/input/mouseactiveunit.h"
 #include "tred/input/actionmap.h"
 #include "tred/input/config.h"
+#include "tred/input/director.h"
 
 
 namespace input
 {
 
 MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
+    : detection_button(data.detection_button)
 {
     for (const auto& d: data.axis)
     {
@@ -28,6 +30,23 @@ MouseDef::MouseDef(const config::MouseDef& data, ConverterDef* converter)
     {
         keys.push_back(BindDef<MouseButton>(d.bindname, d.key, d, converter));
     }
+}
+
+
+bool MouseDef::IsConsideredJoystick()
+{
+    return false;
+}
+
+
+bool MouseDef::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup*, Platform*)
+{
+    if(discovery == UnitDiscovery::FindHighest)
+    {
+        return true;
+    }
+
+    return director->WasJustPressed(detection_button);
 }
 
 

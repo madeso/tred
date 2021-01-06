@@ -40,6 +40,51 @@ void Mapping::Add(std::unique_ptr<UnitDef>&& def)
 }
 
 
+bool Mapping::IsAnyConsideredJoystick()
+{
+    for (auto& def: definitions)
+    {
+        if( def->IsConsideredJoystick() )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool Mapping::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform)
+{
+    if(definitions.empty())
+    {
+        return false;
+    }
+
+    auto non_joystick_detected = false;
+
+    for (auto& def: definitions)
+    {
+        const auto already_detected = def->IsConsideredJoystick() == false && non_joystick_detected == true;
+        const auto can_detect = already_detected || def->CanDetect(director, discovery, setup, platform);
+
+        if(can_detect == false)
+        {
+            return false;
+        }
+
+        non_joystick_detected = true;
+    }
+
+    // only one non-keyboard need to be detected
+    // all joysticks need to be detected
+    // bug: keyboard+joystick and joystick+keyboard works differently
+    // bug: keyboard+mouse and mouse+keyboard works differently
+
+    return true;
+}
+
+
 std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director, const UnitSetup& setup)
 {
     assert(director);

@@ -36,6 +36,12 @@ JoystickActiveUnit::~JoystickActiveUnit()
 }
 
 
+bool JoystickActiveUnit::IsConsideredJoystick()
+{
+    return true;
+}
+
+
 void JoystickActiveUnit::OnAxis(int axis, float state)
 {
     axes.SetRaw(axis, state);

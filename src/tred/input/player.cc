@@ -29,4 +29,23 @@ void Player::UpdateTable(Table* table)
 }
 
 
+bool Player::IsConnected()
+{
+    return connected_units != nullptr;
+}
+
+
+bool Player::IsAnyConnectionConsideredJoystick()
+{
+    if(connected_units)
+    {
+        return connected_units->IsAnyConnectionConsideredJoystick();
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 }  // namespace input

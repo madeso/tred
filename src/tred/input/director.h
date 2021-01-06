@@ -2,10 +2,12 @@
 
 #include <vector>
 #include <map>
+#include <set>
 
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 #include "tred/input/platform.h"
+
 
 namespace input
 {
@@ -37,6 +39,13 @@ struct InputDirector
     void OnJoystickHat(JoystickId joystick, Axis type, int hat, float value);
     void OnJoystickButton(JoystickId joystick, int button, bool down);
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
+
+    bool WasJustPressed(Key key);
+    bool WasJustPressed(MouseButton button);
+    void RemoveJustPressed();
+
+    std::set<Key> just_pressed_keys;
+    std::set<MouseButton> just_pressed_mouse_buttons;
 
     std::vector<KeyboardActiveUnit*> keyboards;
     std::vector<MouseActiveUnit*> mouses;

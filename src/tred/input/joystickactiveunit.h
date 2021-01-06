@@ -29,6 +29,7 @@ struct JoystickActiveUnit : public ActiveUnit
         const std::vector<BindDef<HatAxis>>& balls
     );
     ~JoystickActiveUnit();
+    bool IsConsideredJoystick() override;
 
     void OnAxis(int axis, float state);
     void OnButton(int button, float state);

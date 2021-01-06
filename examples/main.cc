@@ -645,7 +645,7 @@ main(int, char**)
 
     // auto player = sdl_input.AddPlayer();
 
-    return MainLoop(std::move(windows), &input, &sdl_input, [&](float dt) -> bool
+    return MainLoop(input::UnitDiscovery::FindHighest, std::move(windows), &input, &sdl_input, [&](float dt) -> bool
     {
         // input::Table table;
         // sdl_system.UpdateTable(player, &table);

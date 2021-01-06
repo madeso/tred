@@ -26,6 +26,12 @@ KeyboardActiveUnit::~KeyboardActiveUnit()
 }
 
 
+bool KeyboardActiveUnit::IsConsideredJoystick()
+{
+    return false;
+}
+
+
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
     keys.SetRaw(key, state ? 1.0f : 0.0f);

@@ -21,6 +21,8 @@ struct Player
     ~Player();
 
     void UpdateTable(Table* table);
+    bool IsConnected();
+    bool IsAnyConnectionConsideredJoystick();
 
     std::unique_ptr<ConnectedUnits> connected_units;
 };

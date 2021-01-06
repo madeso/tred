@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <type_traits>
+#include <cassert>
 
 #include "tred/to_base.h"
 #include "tred/types.h"
@@ -76,14 +77,17 @@ struct HandleVector
     {
         TData data;
         TVersion version;
+        bool in_use;
 
         Pair()
             : version(EMPTY_VERSION)
+            , in_use(false)
         {
         }
 
         explicit Pair(TVersion v)
             : version(v)
+            , in_use(true)
         {
         }
     };
@@ -91,14 +95,41 @@ struct HandleVector
     using TVec = std::vector<Pair>;
 
     TVec vector;
+    std::vector<THandle> free_handles;
 
     THandle Add()
     {
-        const TVersion version = FIRST_VERSION;
-        const auto index = vector.size();
-        vector.emplace_back(version);
-        assert(vector[index].version == version && "pair constructor failed");
-        return TFunctions::Compress(static_cast<TId>(index), version);
+        if(free_handles.empty() == false)
+        {
+            const auto handle = *free_handles.rbegin();
+            free_handles.pop_back();
+            GetPair(handle).in_use = true;
+            return handle;
+        }
+        else
+        {
+            const TVersion version = FIRST_VERSION;
+            const auto index = vector.size();
+            vector.emplace_back(version);
+            assert(vector[index].version == version && "pair constructor failed");
+            assert(vector[index].in_use == true && "pair constructor failed");
+            return TFunctions::Compress(static_cast<TId>(index), version);
+        }
+    }
+
+    void Remove(THandle handle)
+    {
+        auto& p = GetPair(handle);
+        p.in_use = false;
+
+        const auto id = TFunctions::GetId(handle);
+
+        p.version += 1;
+        if(p.version != TFunctions::VersionMask)
+        {
+            // if the version is not max reuse it
+            free_handles.emplace_back(TFunctions::Compress(id, p.version));
+        }
     }
 
     void Clear()
@@ -106,12 +137,18 @@ struct HandleVector
         vector.clear();
     }
 
-    TData& operator[](THandle handle)
+    Pair& GetPair(THandle handle)
     {
         const auto id = static_cast<size_t>(TFunctions::GetId(handle));
         const auto version = TFunctions::GetVersion(handle);
         assert(vector[id].version == version && "invalid handle (use after free)");
-        return vector[id].data;
+        return vector[id];
+    }
+
+    TData& operator[](THandle handle)
+    {
+        assert(GetPair(handle).in_use == true);
+        return GetPair(handle).data;
     }
 
     struct Iterator
@@ -123,19 +160,30 @@ struct HandleVector
             : vector(v)
             , index(i)
         {
+            AdvanceUntilCurrentIsUsed();
         }
 
         Iterator operator++()
         {
             Iterator r = *this;
             index += 1;
+            AdvanceUntilCurrentIsUsed();
             return r;
         }
 
         Iterator& operator++(int)
         {
             index += 1;
+            AdvanceUntilCurrentIsUsed();
             return *this;
+        }
+
+        void AdvanceUntilCurrentIsUsed()
+        {
+            while(index < vector->vector.size() && vector->vector[index].in_use == false)
+            {
+                index += 1;
+            }
         }
 
         TData& operator*()
@@ -150,7 +198,59 @@ struct HandleVector
 
         bool operator!=(const Iterator& rhs) const
         {
-            return vector != rhs.vector && index != rhs.index;
+            return vector != rhs.vector || index != rhs.index;
+        }
+    };
+
+    struct PairIterator
+    {
+        TSelf* vector;
+        size_t index;
+
+        PairIterator(TSelf* v, size_t i)
+            : vector(v)
+            , index(i)
+        {
+            AdvanceUntilCurrentIsUsed();
+        }
+
+        PairIterator operator++()
+        {
+            PairIterator r = *this;
+            index += 1;
+            AdvanceUntilCurrentIsUsed();
+            return r;
+        }
+
+        PairIterator& operator++(int)
+        {
+            index += 1;
+            AdvanceUntilCurrentIsUsed();
+            return *this;
+        }
+
+        void AdvanceUntilCurrentIsUsed()
+        {
+            while(index < vector->vector.size() && vector->vector[index].in_use == false)
+            {
+                index += 1;
+            }
+        }
+
+        std::pair<THandle, TData&> operator*()
+        {
+            auto& r = vector->vector[index];
+            return {TFunctions::Compress(static_cast<TId>(index), r.version), r.data};
+        }
+
+        bool operator==(const PairIterator& rhs) const
+        {
+            return vector == rhs.vector && index == rhs.index;
+        }
+
+        bool operator!=(const PairIterator& rhs) const
+        {
+            return vector != rhs.vector || index != rhs.index;
         }
     };
 
@@ -161,6 +261,29 @@ struct HandleVector
 
     Iterator end()
     {
-        return {this, vector.size() + 1};
+        return {this, vector.size()};
+    }
+
+    struct PairIteratorContainer
+    {
+        TSelf* self;
+
+        explicit PairIteratorContainer(TSelf* s) : self(s) {}
+
+        PairIterator begin()
+        {
+            return {self, 0};
+        }
+
+        PairIterator end()
+        {
+            return {self, self->vector.size()};
+        }
+    };
+
+    PairIteratorContainer AsPairs()
+    {
+        return PairIteratorContainer{this};
     }
 };
+

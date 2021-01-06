@@ -64,6 +64,11 @@ void InputDirector::Remove(JoystickActiveUnit* au)
 
 void InputDirector::OnKeyboardKey(Key key, bool down)
 {
+    if(!down && WasJustPressed(key) == false)
+    {
+        just_pressed_keys.insert(key);
+    }
+
     for (auto kb: keyboards)
     {
         kb->OnKey(key, down);
@@ -90,6 +95,11 @@ void InputDirector::OnMouseWheel(Axis axis, float value)
 
 void InputDirector::OnMouseButton(MouseButton key, bool down)
 {
+    if(!down && WasJustPressed(key) == false)
+    {
+        just_pressed_mouse_buttons.insert(key);
+    }
+
     for (auto m: mouses)
     {
         m->OnButton(key, down ? 1.0f : 0.0f);
@@ -133,6 +143,23 @@ void InputDirector::OnJoystickAxis(JoystickId joystick, int axis, float value)
 }
 
 
+bool InputDirector::WasJustPressed(Key key)
+{
+    return just_pressed_keys.find(key) != just_pressed_keys.end();
+}
+
+
+bool InputDirector::WasJustPressed(MouseButton button)
+{
+    return just_pressed_mouse_buttons.find(button) != just_pressed_mouse_buttons.end();
+}
+
+
+void InputDirector::RemoveJustPressed()
+{
+    just_pressed_keys.clear();
+    just_pressed_mouse_buttons.clear();
+}
 
 
 }  // namespace input

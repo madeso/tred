@@ -34,6 +34,12 @@ MouseActiveUnit::~MouseActiveUnit()
 }
 
 
+bool MouseActiveUnit::IsConsideredJoystick()
+{
+    return false;
+}
+
+
 void MouseActiveUnit::OnAxis(const Axis& axis, float state)
 {
     axes.SetRaw(axis, state);

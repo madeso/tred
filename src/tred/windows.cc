@@ -15,7 +15,7 @@
 #include "tred/input.h"
 
 #include "tred/input/system.h"
-#include "tred/input/sdl-system.h"
+#include "tred/input/sdl-platform.h"
 
 using WindowId = Uint32;
 
@@ -180,6 +180,7 @@ void Windows::AddWindow(const std::string& title, const glm::ivec2& size, Render
 struct WindowsImpl : public Windows
 {
     std::map<WindowId, std::unique_ptr<WindowImpl>> windows;
+    input::SdlPlatform platform;
 
     explicit WindowsImpl()
     {
@@ -217,7 +218,12 @@ struct WindowsImpl : public Windows
         return false;
     }
 
-    void PumpEvents(Input* input, input::SdlSystem* sdl_input) override
+    input::Platform* GetInputPlatform() override
+    {
+        return &platform;
+    }
+
+    void PumpEvents(Input* input, input::InputSystem* input_system) override
     {
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
@@ -227,7 +233,7 @@ struct WindowsImpl : public Windows
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
 
-            sdl_input->OnEvent(e);
+            platform.OnEvent(input_system, e);
 
             switch(e.type)
             {
@@ -294,9 +300,8 @@ std::unique_ptr<Windows> Setup()
 }
 
 
-int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::InputSystem* input_system, UpdateFunction&& on_update)
+int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows, Input* input, input::InputSystem* input_system, UpdateFunction&& on_update)
 {
-    auto sdl_system = input::SdlSystem{input_system};
     auto last = SDL_GetPerformanceCounter();
 
     while(windows->running)
@@ -305,7 +310,10 @@ int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::InputSyste
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        windows->PumpEvents(input, &sdl_system);
+        windows->PumpEvents(input, input_system);
+        input_system->UpdatePlayerConnections(discovery, windows->GetInputPlatform());
+        windows->GetInputPlatform()->RemoveJustPressed();
+        input_system->RemoveJustPressed();
         if(false == on_update(dt))
         {
             return 0;

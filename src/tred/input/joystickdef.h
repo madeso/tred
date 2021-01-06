@@ -19,15 +19,20 @@ namespace input
 struct InputDirector;
 struct ActiveUnit;
 struct InputActionMap;
+struct Platform;
 
 
 struct JoystickDef : public UnitDef
 {
     JoystickDef(int index, const config::JoystickDef& data, ConverterDef* converter);
 
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter);
+    bool IsConsideredJoystick() override;
+    bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter) override;
 
     int index;
+    int start_button;
+    std::string unit;
     std::vector<BindDef<int>> axes;
     std::vector<BindDef<int>> buttons;
     std::vector<BindDef<HatAxis>> hats;

@@ -26,8 +26,11 @@ struct KeyboardDef : public UnitDef
 {
     KeyboardDef(const config::KeyboardDef& data, ConverterDef* converter);
 
+    bool IsConsideredJoystick() override;
+    bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
     std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter) override;
 
+    Key detection_key;
     std::vector<BindDef<Key>> keys;
 };
 

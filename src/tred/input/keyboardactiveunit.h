@@ -21,6 +21,8 @@ struct KeyboardActiveUnit : public ActiveUnit
     KeyboardActiveUnit(InputDirector* director, Converter* converter, const std::vector<BindDef<Key>>& binds);
     ~KeyboardActiveUnit();
 
+    bool IsConsideredJoystick() override;
+
     void OnKey(const Key& key, bool state);
 
     InputDirector* director;

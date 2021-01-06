@@ -9,7 +9,8 @@
 #include "tred/input/bind.h"
 #include "tred/input/actionmap.h"
 #include "tred/input/joystickactiveunit.h"
-
+#include "tred/input/unitsetup.h"
+#include "tred/input/platform.h"
 
 namespace input
 {
@@ -17,6 +18,8 @@ namespace input
 
 JoystickDef::JoystickDef(int id, const config::JoystickDef& data, ConverterDef* converter)
     : index(id)
+    , start_button(data.start_button)
+    , unit(data.unit)
 {
     for (const auto& d: data.axis)
     {
@@ -71,14 +74,34 @@ JoystickDef::JoystickDef(int id, const config::JoystickDef& data, ConverterDef* 
 }
 
 
+bool JoystickDef::IsConsideredJoystick()
+{
+    return true;
+}
+
+
+bool JoystickDef::CanDetect(InputDirector*, UnitDiscovery, UnitSetup* setup, Platform* platform)
+{
+    const auto potential_joysticks = platform->ActiveAndFreeJoysticks();
+    for(auto joy: potential_joysticks)
+    {
+        const auto selected = setup->HasJoystick(joy) == false && platform->MatchUnit(joy, unit) && platform->WasJustPressed(joy, start_button);
+        if(selected)
+        {
+            setup->AddJoystick(index, joy);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+
 std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup, Converter* converter)
 {
     assert(director);
-
-    auto found = setup.joysticks.find(index);
-    assert(found != setup.joysticks.end());
     
-    return std::make_unique<JoystickActiveUnit>(found->second, director, converter, axes, buttons, hats, balls);
+    return std::make_unique<JoystickActiveUnit>(setup.GetJoystick(index), director, converter, axes, buttons, hats, balls);
 }
 
 
