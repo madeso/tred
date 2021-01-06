@@ -38,7 +38,7 @@
 #include "tred/image.h"
 #include "tred/windows.h"
 #include "tred/input.h"
-#include "tred/input/sdl-system.h"
+#include "tred/input/system.h"
 #include "tred/input/config.h"
 
 
@@ -416,7 +416,7 @@ main(int, char**)
     constexpr std::string_view look_updown = "look_updown";
     constexpr std::string_view look_leftright = "look_leftright";
 
-    auto sdl_input = input::SdlSystem
+    auto sdl_input = input::InputSystem
     {
         {
             {

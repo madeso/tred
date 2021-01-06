@@ -284,8 +284,8 @@ namespace input
 
 struct SdlSystemImpl
 {
-    SdlSystemImpl(const config::InputSystem& config)
-        : system(config)
+    SdlSystemImpl(InputSystem* s)
+        : system(s)
     {
         const auto number_of_joysticks = SDL_NumJoysticks();
 
@@ -296,7 +296,7 @@ struct SdlSystemImpl
         }
     }
 
-    InputSystem system;
+    InputSystem* system;
     std::map<SDL_JoystickID, JoystickId> sdljoystick_to_id;
 
     void OnEvent(const SDL_Event& event)
@@ -305,14 +305,14 @@ struct SdlSystemImpl
         {
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                system.OnKeyboardKey(ToKey(event.key.keysym), event.type == SDL_KEYDOWN);
+                system->OnKeyboardKey(ToKey(event.key.keysym), event.type == SDL_KEYDOWN);
                 break;
 
             case SDL_JOYAXISMOTION:
                 {
                     auto found = sdljoystick_to_id.find(event.jaxis.which);
                     if(found == sdljoystick_to_id.end()) { return; }
-                    system.OnJoystickAxis(found->second, event.jaxis.axis, event.jaxis.value/-32768.0f);
+                    system->OnJoystickAxis(found->second, event.jaxis.axis, event.jaxis.value/-32768.0f);
                 }
                 break;
 
@@ -320,8 +320,8 @@ struct SdlSystemImpl
                 {
                     auto found = sdljoystick_to_id.find(event.jball.which);
                     if(found == sdljoystick_to_id.end()) { return; }
-                    system.OnJoystickBall(found->second, Axis::X, event.jball.ball, event.jball.xrel);
-                    system.OnJoystickBall(found->second, Axis::Y, event.jball.ball, event.jball.yrel);
+                    system->OnJoystickBall(found->second, Axis::X, event.jball.ball, event.jball.xrel);
+                    system->OnJoystickBall(found->second, Axis::Y, event.jball.ball, event.jball.yrel);
                 }
                 break;
 
@@ -330,8 +330,8 @@ struct SdlSystemImpl
                     auto found = sdljoystick_to_id.find(event.jhat.which);
                     if(found == sdljoystick_to_id.end()) { return; }
                     const auto hat = GetHatValues(event.jhat.value);
-                    system.OnJoystickHat(found->second, Axis::X, event.jhat.hat, static_cast<float>(hat.x));
-                    system.OnJoystickHat(found->second, Axis::Y, event.jhat.hat, static_cast<float>(hat.y));
+                    system->OnJoystickHat(found->second, Axis::X, event.jhat.hat, static_cast<float>(hat.x));
+                    system->OnJoystickHat(found->second, Axis::Y, event.jhat.hat, static_cast<float>(hat.y));
                 }
                 break;
 
@@ -340,7 +340,7 @@ struct SdlSystemImpl
                 {
                     auto found = sdljoystick_to_id.find(event.jbutton.which);
                     if(found == sdljoystick_to_id.end()) { return; }
-                    system.OnJoystickButton(found->second, event.jbutton.button, event.type == SDL_JOYBUTTONDOWN);
+                    system->OnJoystickButton(found->second, event.jbutton.button, event.type == SDL_JOYBUTTONDOWN);
                 }
                 break;
 
@@ -352,8 +352,8 @@ struct SdlSystemImpl
                 break;
 
             case SDL_MOUSEMOTION:
-                system.OnMouseAxis(Axis::X, static_cast<float>(event.motion.xrel));
-                system.OnMouseAxis(Axis::Y, static_cast<float>(event.motion.yrel));
+                system->OnMouseAxis(Axis::X, static_cast<float>(event.motion.xrel));
+                system->OnMouseAxis(Axis::Y, static_cast<float>(event.motion.yrel));
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -361,7 +361,7 @@ struct SdlSystemImpl
                 // old-style cast error: ignore for now
                 // if(event.button.which != SDL_TOUCH_MOUSEID)
                 {
-                    system.OnMouseButton(ToMouseButton(event.button.button), event.type == SDL_MOUSEBUTTONDOWN);
+                    system->OnMouseButton(ToMouseButton(event.button.button), event.type == SDL_MOUSEBUTTONDOWN);
                 }
                 break;
 
@@ -370,11 +370,11 @@ struct SdlSystemImpl
                     const auto direction = event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
                     if(event.wheel.x != 0)
                     {
-                        system.OnMouseWheel(Axis::X, static_cast<float>(event.wheel.x) * direction);
+                        system->OnMouseWheel(Axis::X, static_cast<float>(event.wheel.x) * direction);
                     }
                     if(event.wheel.y != 0)
                     {
-                        system.OnMouseWheel(Axis::Y, static_cast<float>(event.wheel.y) * direction);
+                        system->OnMouseWheel(Axis::Y, static_cast<float>(event.wheel.y) * direction);
                     }
                 }
                 break;
@@ -386,8 +386,8 @@ struct SdlSystemImpl
 };
 
 
-SdlSystem::SdlSystem(const config::InputSystem& config)
-    : impl(std::make_unique<SdlSystemImpl>(config))
+SdlSystem::SdlSystem(InputSystem* system)
+    : impl(std::make_unique<SdlSystemImpl>(system))
 {
 }
 

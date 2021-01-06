@@ -24,6 +24,7 @@ struct Window
 
 namespace input
 {
+struct InputSystem;
 struct SdlSystem;
 }
 
@@ -44,4 +45,4 @@ struct Windows
 
 std::unique_ptr<Windows> Setup();
 
-int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::SdlSystem* sdl_input, UpdateFunction&& on_update);
+int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::InputSystem* sdl_input, UpdateFunction&& on_update);

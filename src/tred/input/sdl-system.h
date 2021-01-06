@@ -5,12 +5,6 @@
 #include "SDL.h"
 
 
-namespace input::config
-{
-    struct InputSystem;
-}
-
-
 namespace input
 {
 
@@ -20,7 +14,7 @@ struct SdlSystemImpl;
 
 struct SdlSystem
 {
-    SdlSystem(const config::InputSystem& config);
+    SdlSystem(InputSystem* system);
     ~SdlSystem();
 
     void OnEvent(const SDL_Event& event);

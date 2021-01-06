@@ -14,6 +14,7 @@
 #include "tred/opengl.debug.h"
 #include "tred/input.h"
 
+#include "tred/input/system.h"
 #include "tred/input/sdl-system.h"
 
 using WindowId = Uint32;
@@ -293,8 +294,9 @@ std::unique_ptr<Windows> Setup()
 }
 
 
-int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::SdlSystem* sdl_system, UpdateFunction&& on_update)
+int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::InputSystem* input_system, UpdateFunction&& on_update)
 {
+    auto sdl_system = input::SdlSystem{input_system};
     auto last = SDL_GetPerformanceCounter();
 
     while(windows->running)
@@ -303,7 +305,7 @@ int MainLoop(std::unique_ptr<Windows>&& windows, Input* input, input::SdlSystem*
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        windows->PumpEvents(input, sdl_system);
+        windows->PumpEvents(input, &sdl_system);
         if(false == on_update(dt))
         {
             return 0;
