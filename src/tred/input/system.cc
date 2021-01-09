@@ -15,24 +15,13 @@
 #include "tred/input/director.h"
 #include "tred/input/unitdef.h"
 #include "tred/input/unitsetup.h"
+#include "tred/input/system.pimpl.h"
 
 #include "tred/handle.h"
 
 
 namespace input
 {
-
-
-struct InputSystemPiml
-{
-    using PlayerHandleFunctions = HandleFunctions64<PlayerHandle>;
-    using PlayerHandleVector = HandleVector<std::unique_ptr<Player>, PlayerHandleFunctions>;
-
-    InputActionMap actions;
-    PlayerHandleVector players;
-    MappingList configs;
-    InputDirector input_director;
-};
 
 
 InputSystem::InputSystem(const config::InputSystem& config)

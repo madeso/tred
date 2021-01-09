@@ -11,11 +11,42 @@
 #include "tred/input/config.h"
 #include "tred/input/table.h"
 
+#include "tred/input/system.pimpl.h"
+#include "tred/input/connectedunits.h"
+
 #include "catchy/mapeq.h"
 
 using namespace input;
 using namespace Catch::Matchers;
 using namespace catchy;
+
+
+namespace
+{
+
+
+struct TestPlatform : public Platform
+{
+    void RemoveJustPressed() override
+    {
+    }
+
+    // todo(Gustav): rename to GetAvailableJoysticks
+    std::vector<JoystickId> ActiveAndFreeJoysticks() override
+    {
+        return {};
+    }
+
+    bool MatchUnit(JoystickId, const std::string&) override
+    {
+        return false;
+    }
+
+    bool WasJustPressed(JoystickId, int) override
+    {
+        return false;
+    }
+};
 
 
 Table GetTable(InputSystem* system, PlayerHandle player)
@@ -35,6 +66,9 @@ FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::s
         if(same) return FalseString::True();
         return FalseString::False(fmt::format("{} != {}", l, r));
     });
+}
+
+
 }
 
 
@@ -93,6 +127,8 @@ TEST_CASE("input-test", "[input]")
         }
     };
 
+    auto test_platform = TestPlatform{};
+
     auto player = sys.AddPlayer();
 
     SECTION("no assigned control is valid")
@@ -101,6 +137,17 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE(MapEq(table.data, {
         }));
+    }
+
+    SECTION("test auto assignments")
+    {
+        auto& p = sys.m->players[player];
+        REQUIRE(p->connected_units == nullptr);
+
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        REQUIRE(p->connected_units != nullptr);
+        REQUIRE(p->connected_units->units.size() == 2);
     }
 
     SECTION("no input")
