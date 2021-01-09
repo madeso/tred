@@ -186,11 +186,14 @@ TEST_CASE("handle vector", "[handle]")
         CHECK(v.vector.size() == 3);
 
         const auto d = v.Add();
-        const auto e = v.Add();
-        const auto f = v.Add();
         v[d] = 4;
+
+        const auto e = v.Add();
         v[e] = 5;
+
+        const auto f = v.Add();
         v[f] = 6;
+
         CHECK(VectorEquals(Extract<int>(v), {6, 5, 4}));
         CHECK(v.free_handles.size() == 0);
         CHECK(v.vector.size() == 3);
@@ -206,14 +209,36 @@ TEST_CASE("handle vector", "[handle]")
         CHECK(v.vector.size() == 3);
 
         const auto d = v.Add();
-        const auto e = v.Add();
-        const auto f = v.Add();
         v[d] = 4;
+
+        const auto e = v.Add();
         v[e] = 5;
+
+        const auto f = v.Add();
         v[f] = 6;
+
         CHECK(VectorEquals(Extract<int>(v), {4, 5, 6}));
         CHECK(v.free_handles.size() == 0);
         CHECK(v.vector.size() == 3);
+    }
+
+    SECTION("pair")
+    {
+        auto h = std::vector<H>{};
+        auto i = std::vector<int>{};
+
+        for(const auto& p: v.AsPairs())
+        {
+            h.emplace_back(p.first);
+            i.emplace_back(p.second);
+        }
+
+        REQUIRE(VectorEquals(Extract<int>(v), {1, 2, 3}));
+        CHECK(VectorEquals(i, {1, 2, 3}));
+        REQUIRE(h.size() == 3);
+        CHECK(h[0] == a);
+        CHECK(h[1] == b);
+        CHECK(h[2] == c);
     }
 }
 
