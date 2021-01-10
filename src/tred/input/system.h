@@ -54,6 +54,7 @@ struct InputSystem
     void RemoveJustPressed();
 
     PlayerHandle AddPlayer();
+    bool IsConnected(PlayerHandle player);
 
     std::unique_ptr<InputSystemPiml> m;
 };

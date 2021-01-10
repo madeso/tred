@@ -11,9 +11,6 @@
 #include "tred/input/config.h"
 #include "tred/input/table.h"
 
-#include "tred/input/system.pimpl.h"
-#include "tred/input/connectedunits.h"
-
 #include "catchy/mapeq.h"
 
 using namespace input;
@@ -142,13 +139,11 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("test auto assignments")
     {
-        auto& p = sys.m->players[player];
-        REQUIRE(p->connected_units == nullptr);
+        REQUIRE_FALSE(sys.IsConnected(player));
 
         sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
 
-        REQUIRE(p->connected_units != nullptr);
-        REQUIRE(p->connected_units->units.size() == 2);
+        REQUIRE(sys.IsConnected(player));
     }
 
     SECTION("no input")

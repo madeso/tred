@@ -139,4 +139,11 @@ PlayerHandle InputSystem::AddPlayer()
 }
 
 
+bool InputSystem::IsConnected(PlayerHandle player)
+{
+    auto& p = m->players[player];
+    return p && p->IsConnected();
+}
+
+
 }  // namespace input
