@@ -99,6 +99,7 @@ TEST_CASE("input-test", "[input]")
                     {
                         config::KeyboardDef
                         {
+                            Key::RETURN,
                             {
                                 {"shoot", Key::A},
                                 {"move-", Key::LEFT},
