@@ -24,10 +24,6 @@ namespace
 
 struct TestPlatform : public Platform
 {
-    void RemoveJustPressed() override
-    {
-    }
-
     // todo(Gustav): rename to GetAvailableJoysticks
     std::vector<JoystickId> ActiveAndFreeJoysticks() override
     {
@@ -39,9 +35,8 @@ struct TestPlatform : public Platform
         return false;
     }
 
-    bool WasJustPressed(JoystickId, int) override
+    void StartUsing(JoystickId) override
     {
-        return false;
     }
 };
 

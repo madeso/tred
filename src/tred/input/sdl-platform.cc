@@ -11,8 +11,8 @@
 #include "tred/input/system.h"
 #include "tred/input/sdl-convert.h"
 
-#include "tred/sortablepair.h"
 #include "tred/handle.h"
+
 
 namespace
 {
@@ -344,11 +344,6 @@ struct SdlPlatformImpl
                     auto found = sdljoystick_to_id.find(event.jbutton.which);
                     if(found == sdljoystick_to_id.end()) { return; }
                     const auto joystick_id = found->second;
-
-                    if(!down && joysticks[joystick_id].in_use)
-                    {
-                        JustPressed(joystick_id, joystick_button);
-                    }
                     system->OnJoystickButton(joystick_id, joystick_button, down);
                 }
                 break;
@@ -452,22 +447,10 @@ struct SdlPlatformImpl
         return joysticks[joy].joystick->GetGuid() == unit;
     }
 
-    bool WasJustPressed(JoystickId joy, int button)
+    void StartUsing(JoystickId joy)
     {
-        return just_pressed_buttons.find({joy, button}) != just_pressed_buttons.end();
+        joysticks[joy].in_use = true;
     }
-
-    void JustPressed(JoystickId joy, int button)
-    {
-        just_pressed_buttons.insert({joy, button});
-    }
-
-    void RemoveJustPressed()
-    {
-        just_pressed_buttons.clear();
-    }
-
-    std::set<SortablePair<JoystickId, int>> just_pressed_buttons; 
 };
 
 
@@ -488,27 +471,21 @@ void SdlPlatform::OnEvent(InputSystem* system, const SDL_Event& event)
 }
 
 
-void SdlPlatform::RemoveJustPressed()
-{
-    impl->RemoveJustPressed();
-}
-
-
 std::vector<JoystickId> SdlPlatform::ActiveAndFreeJoysticks()
 {
     return impl->ActiveAndFreeJoysticks();
 }
 
 
-bool SdlPlatform::MatchUnit(JoystickId joy, const std::string& unit)
+void SdlPlatform::StartUsing(JoystickId joy)
 {
-    return impl->MatchUnit(joy, unit);
+    impl->StartUsing(joy);
 }
 
 
-bool SdlPlatform::WasJustPressed(JoystickId joy, int button)
+bool SdlPlatform::MatchUnit(JoystickId joy, const std::string& unit)
 {
-    return impl->WasJustPressed(joy, button);
+    return impl->MatchUnit(joy, unit);
 }
 
 

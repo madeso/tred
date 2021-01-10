@@ -11,6 +11,8 @@
 #include "tred/input/joystickactiveunit.h"
 #include "tred/input/unitsetup.h"
 #include "tred/input/platform.h"
+#include "tred/input/director.h"
+
 
 namespace input
 {
@@ -80,14 +82,15 @@ bool JoystickDef::IsConsideredJoystick()
 }
 
 
-bool JoystickDef::CanDetect(InputDirector*, UnitDiscovery, UnitSetup* setup, Platform* platform)
+bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* setup, Platform* platform)
 {
     const auto potential_joysticks = platform->ActiveAndFreeJoysticks();
     for(auto joy: potential_joysticks)
     {
-        const auto selected = setup->HasJoystick(joy) == false && platform->MatchUnit(joy, unit) && platform->WasJustPressed(joy, start_button);
+        const auto selected = setup->HasJoystick(joy) == false && director->WasJustPressed(joy, start_button) && platform->MatchUnit(joy, unit);
         if(selected)
         {
+            platform->StartUsing(joy);
             setup->AddJoystick(index, joy);
             return true;
         }

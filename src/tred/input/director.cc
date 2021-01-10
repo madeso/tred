@@ -128,7 +128,15 @@ void InputDirector::OnJoystickHat(JoystickId joystick, Axis axis, int hat, float
 void InputDirector::OnJoystickButton(JoystickId joystick, int button, bool down)
 {
     auto found = joysticks.find(joystick);
-    if(found == joysticks.end()) { return; }
+    if(found == joysticks.end())
+    {
+        if(down == false)
+        {
+            just_pressed_buttons.insert({joystick, button});
+        }
+
+        return;
+    }
 
     found->second->OnButton(button, down);
 }
@@ -155,10 +163,17 @@ bool InputDirector::WasJustPressed(MouseButton button)
 }
 
 
+bool InputDirector::WasJustPressed(JoystickId joy, int button)
+{
+    return just_pressed_buttons.find({joy, button}) != just_pressed_buttons.end();
+}
+
+
 void InputDirector::RemoveJustPressed()
 {
     just_pressed_keys.clear();
     just_pressed_mouse_buttons.clear();
+    just_pressed_buttons.clear();
 }
 
 

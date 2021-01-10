@@ -15,11 +15,11 @@ struct Platform
 {
     virtual ~Platform() = default;
 
-    virtual void RemoveJustPressed() = 0;
     virtual std::vector<JoystickId> ActiveAndFreeJoysticks() = 0;
 
+    virtual void StartUsing(JoystickId joy) = 0;
+
     virtual bool MatchUnit(JoystickId joy, const std::string& unit) = 0;
-    virtual bool WasJustPressed(JoystickId joy, int button) = 0;
 };
 
 }

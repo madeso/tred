@@ -20,11 +20,10 @@ struct SdlPlatform : public Platform
     ~SdlPlatform();
 
     void OnEvent(InputSystem* system, const SDL_Event& event);
-
-    void RemoveJustPressed() override;
+    
     std::vector<JoystickId> ActiveAndFreeJoysticks() override;
+    void StartUsing(JoystickId joy) override;
     bool MatchUnit(JoystickId joy, const std::string& unit) override;
-    bool WasJustPressed(JoystickId joy, int button) override;
 
     std::unique_ptr<SdlPlatformImpl> impl;
 };

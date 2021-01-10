@@ -7,6 +7,7 @@
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 #include "tred/input/platform.h"
+#include "tred/sortablepair.h"
 
 
 namespace input
@@ -42,10 +43,12 @@ struct InputDirector
 
     bool WasJustPressed(Key key);
     bool WasJustPressed(MouseButton button);
+    bool WasJustPressed(JoystickId joy, int button);
     void RemoveJustPressed();
 
     std::set<Key> just_pressed_keys;
     std::set<MouseButton> just_pressed_mouse_buttons;
+    std::set<SortablePair<JoystickId, int>> just_pressed_buttons;
 
     std::vector<KeyboardActiveUnit*> keyboards;
     std::vector<MouseActiveUnit*> mouses;
