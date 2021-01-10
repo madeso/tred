@@ -146,6 +146,25 @@ TEST_CASE("input-test", "[input]")
         REQUIRE(sys.IsConnected(player));
     }
 
+    SECTION("test explicit assignments")
+    {
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.OnKeyboardKey(Key::RETURN, true);
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.OnKeyboardKey(Key::RETURN, false);
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+
+        REQUIRE(sys.IsConnected(player));
+    }
+
+
     SECTION("no input")
     {
         // press enter on playscreen
