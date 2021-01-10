@@ -79,6 +79,7 @@ FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::s
 
 TEST_CASE("input-test", "[input]")
 {
+    constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
     constexpr int JOYSTICK_START = 0;
     constexpr int JOYSTICK_SHOOT = 1;
     const std::string JOYSTICK_GUID = "joystick-guid";
@@ -200,8 +201,6 @@ TEST_CASE("input-test", "[input]")
             {"var_move", 0.0f}
         }));
         
-
-        constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
         test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
         REQUIRE(test_platform.joysticks.size() == 1);
 
@@ -242,7 +241,7 @@ TEST_CASE("input-test", "[input]")
         }));
     }
 
-    SECTION("test explicit assignments")
+    SECTION("test explicit assignments keyboard")
     {
         const auto use_keyboard = true;  // GENERATE(true, false);
         INFO("Use keyboard " << use_keyboard);
@@ -266,6 +265,102 @@ TEST_CASE("input-test", "[input]")
         sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
 
         REQUIRE(sys.IsConnected(player));
+
+        // keyboard input works
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        sys.OnKeyboardKey(Key::A, false);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        // add a joystick
+        test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
+        REQUIRE(test_platform.joysticks.size() == 1);
+
+        // press start
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+
+        // but it is not picked up
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        REQUIRE(test_platform.joysticks.size() == 1);
+
+        // and joystick is ignored
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+    }
+
+    SECTION("test explicit assignments joystick")
+    {
+        // add a joystick
+        test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
+        REQUIRE(test_platform.joysticks.size() == 1);
+
+        const auto use_keyboard = GENERATE(true, false);
+        INFO("Use keyboard " << use_keyboard);
+        auto press = [&](bool down)
+        {
+            if(use_keyboard) { sys.OnKeyboardKey(Key::RETURN, down); }
+            else { sys.OnMouseButton(MouseButton::LEFT, down); }
+        };
+
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+
+        REQUIRE(sys.IsConnected(player));
+        REQUIRE(test_platform.joysticks.size() == 0);
+
+        // keyboard input works
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        // press start
+        press(true);
+        press(false);
+
+        // update but it shouldn't be picked up
+        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+
+        // and keyboard is ignored
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
     }
 
 
