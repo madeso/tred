@@ -108,6 +108,7 @@ TEST_CASE("input-test", "[input]")
                     {
                         config::MouseDef
                         {
+                            MouseButton::LEFT,
                             {
                                 {"look", Axis::X}
                             },
@@ -148,17 +149,25 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("test explicit assignments")
     {
+        const auto use_keyboard = true;  // GENERATE(true, false);
+        INFO("Use keyboard " << use_keyboard);
+        auto press = [&](bool down)
+        {
+            if(use_keyboard) { sys.OnKeyboardKey(Key::RETURN, down); }
+            else { sys.OnMouseButton(MouseButton::LEFT, down); }
+        };
+
         REQUIRE_FALSE(sys.IsConnected(player));
 
         sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
         REQUIRE_FALSE(sys.IsConnected(player));
 
-        sys.OnKeyboardKey(Key::RETURN, true);
+        press(true);
         sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
 
         REQUIRE_FALSE(sys.IsConnected(player));
 
-        sys.OnKeyboardKey(Key::RETURN, false);
+        press(false);
         sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
 
         REQUIRE(sys.IsConnected(player));
