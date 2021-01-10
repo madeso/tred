@@ -24,19 +24,32 @@ namespace
 
 struct TestPlatform : public Platform
 {
+    std::map<JoystickId, std::string> joysticks;
+
     // todo(Gustav): rename to GetAvailableJoysticks
     std::vector<JoystickId> ActiveAndFreeJoysticks() override
     {
-        return {};
+        auto r = std::vector<JoystickId>{};
+        for(const auto& i: joysticks)
+        {
+            r.emplace_back(i.first);
+        }
+        return r;
     }
 
-    bool MatchUnit(JoystickId, const std::string&) override
+    bool MatchUnit(JoystickId id, const std::string& guid) override
     {
-        return false;
+        auto found = joysticks.find(id);
+        if(found == joysticks.end())
+        {
+            return false;
+        }
+        return found->second == guid;
     }
 
-    void StartUsing(JoystickId) override
+    void StartUsing(JoystickId joy) override
     {
+        joysticks.erase(joy);
     }
 };
 
@@ -66,6 +79,12 @@ FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::s
 
 TEST_CASE("input-test", "[input]")
 {
+    constexpr int JOYSTICK_START = 0;
+    constexpr int JOYSTICK_SHOOT = 1;
+    const std::string JOYSTICK_GUID = "joystick-guid";
+    constexpr int JOYSTICK_MOVE = 0;
+    constexpr int JOYSTICK_LOOK = 1;
+
     auto sys = InputSystem
     {
         {
@@ -114,7 +133,35 @@ TEST_CASE("input-test", "[input]")
                         }
                     },
                     // joysticks
+                    {}
+                },
+                {
+                    "joystick",
+                    // two button converters
+                    {},
+                    // keyboards
+                    {},
+                    // mouses
+                    {},
+                    // joysticks
                     {
+                        config::JoystickDef
+                        {
+                            JOYSTICK_START, JOYSTICK_GUID,
+                            // axis
+                            {
+                                {"move", JOYSTICK_MOVE},
+                                {"look", JOYSTICK_LOOK},
+                            },
+                            // buttons
+                            {
+                                {"shoot", JOYSTICK_SHOOT}
+                            },
+                            // no hats
+                            {},
+                            // no balls
+                            {}
+                        }
                     }
                 }
             }
@@ -138,8 +185,63 @@ TEST_CASE("input-test", "[input]")
         REQUIRE_FALSE(sys.IsConnected(player));
 
         sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
-
+        
         REQUIRE(sys.IsConnected(player));
+
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        sys.OnKeyboardKey(Key::A, false);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+        
+
+        constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
+        test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
+        REQUIRE(test_platform.joysticks.size() == 1);
+
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        // joystick was grabbed
+        REQUIRE(test_platform.joysticks.size() == 0);
+
+        // player is still connected
+        REQUIRE(sys.IsConnected(player));
+
+
+        sys.OnKeyboardKey(Key::A, true);
+        const auto keyboard = GetTable(&sys, player);
+
+        // keyboard input is ignored
+        REQUIRE(MapEq(keyboard.data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        // but joystick works
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
     }
 
     SECTION("test explicit assignments")
