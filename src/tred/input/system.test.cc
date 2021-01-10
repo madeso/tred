@@ -216,17 +216,17 @@ TEST_CASE("input-test", "[input]")
         REQUIRE(sys.IsConnected(player));
 
 
-        sys.OnKeyboardKey(Key::A, true);
-        const auto keyboard = GetTable(&sys, player);
+        // keyboard input is ignored...
 
-        // keyboard input is ignored
-        REQUIRE(MapEq(keyboard.data, {
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        // but joystick works
+        // but joystick works...
+
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 1.0f},
@@ -290,18 +290,15 @@ TEST_CASE("input-test", "[input]")
 
         sys.OnKeyboardKey(Key::A, true);
 
-        const auto before = GetTable(&sys, player);
-
-        sys.OnKeyboardKey(Key::A, false);
-
-        const auto after = GetTable(&sys, player);
-
-        REQUIRE(MapEq(before.data, {
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
-        REQUIRE(MapEq(after.data, {
+
+        sys.OnKeyboardKey(Key::A, false);
+
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -314,17 +311,14 @@ TEST_CASE("input-test", "[input]")
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
         sys.OnMouseAxis(Axis::X, 2.0f);
-        const auto before = GetTable(&sys, player);
-
-        sys.OnMouseAxis(Axis::X, 0.0f);
-        const auto after = GetTable(&sys, player);
-
-        REQUIRE(MapEq(before.data, {
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 1.0f},
             {"var_move", 0.0f}
         }));
-        REQUIRE(MapEq(after.data, {
+
+        sys.OnMouseAxis(Axis::X, 0.0f);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -336,41 +330,40 @@ TEST_CASE("input-test", "[input]")
         // press enter on playscreen
         sys.SetUnitForPlayer(player, "mouse+keyboard");
 
-        const auto start = GetTable(&sys, player);
-
-        sys.OnKeyboardKey(Key::LEFT, true);
-        const auto left = GetTable(&sys, player);
-
-        sys.OnKeyboardKey(Key::RIGHT, true);
-        const auto both = GetTable(&sys, player);
-
-        sys.OnKeyboardKey(Key::LEFT, false);
-        const auto right = GetTable(&sys, player);
-
-        sys.OnKeyboardKey(Key::RIGHT, false);
-        const auto after = GetTable(&sys, player);
-
-        CHECK(MapEq(start.data, {
+        // start clean
+        CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
-        CHECK(MapEq(left.data, {
+
+        // left down
+        sys.OnKeyboardKey(Key::LEFT, true);
+        CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", -1.0f}
         }));
-        CHECK(MapEq(both.data, {
+
+        // left and right down
+        sys.OnKeyboardKey(Key::RIGHT, true);
+        CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
-        CHECK(MapEq(right.data, {
+
+        // only right down
+        sys.OnKeyboardKey(Key::LEFT, false);
+        CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 1.0f}
         }));
-        CHECK(MapEq(after.data, {
+
+        // nothing down
+        sys.OnKeyboardKey(Key::RIGHT, false);
+        CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
