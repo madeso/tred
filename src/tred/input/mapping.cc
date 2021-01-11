@@ -1,6 +1,7 @@
 #include "tred/input/mapping.h"
 
 #include <cassert>
+#include <algorithm>
 
 #include "tred/input/unitdef.h"
 #include "tred/input/director.h"
@@ -9,6 +10,8 @@
 #include "tred/input/activeunit.h"
 #include "tred/input/connectedunits.h"
 #include "tred/input/config.h"
+#include "tred/input/mapping.detection.h"
+
 
 namespace input
 {
@@ -56,32 +59,12 @@ bool Mapping::IsAnyConsideredJoystick()
 
 bool Mapping::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform)
 {
-    if(definitions.empty())
-    {
-        return false;
-    }
-
-    auto non_joystick_detected = false;
-
-    for (auto& def: definitions)
-    {
-        const auto already_detected = def->IsConsideredJoystick() == false && non_joystick_detected == true;
-        const auto can_detect = already_detected || def->CanDetect(director, discovery, setup, platform);
-
-        if(can_detect == false)
-        {
-            return false;
-        }
-
-        non_joystick_detected = true;
-    }
-
-    // only one non-keyboard need to be detected
-    // all joysticks need to be detected
-    // bug: keyboard+joystick and joystick+keyboard works differently
-    // bug: keyboard+mouse and mouse+keyboard works differently
-
-    return true;
+    return MappingDetection
+    (
+        definitions,
+        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->IsConsideredJoystick(); },
+        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->CanDetect(director, discovery, setup, platform); }
+    );
 }
 
 

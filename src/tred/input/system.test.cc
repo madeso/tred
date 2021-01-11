@@ -243,7 +243,7 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("test explicit assignments keyboard")
     {
-        const auto use_keyboard = true;  // GENERATE(true, false);
+        const auto use_keyboard = GENERATE(true, false);
         INFO("Use keyboard " << use_keyboard);
         auto press = [&](bool down)
         {

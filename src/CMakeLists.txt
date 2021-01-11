@@ -19,6 +19,7 @@ set(src
     tred/input/keyboarddef.cc tred/input/keyboarddef.h
     tred/input/key.cc tred/input/key.h
     tred/input/mapping.cc tred/input/mapping.h
+    tred/input/mapping.detection.cc tred/input/mapping.detection.h
     tred/input/mappinglist.cc tred/input/mappinglist.h
     tred/input/mouseactiveunit.cc tred/input/mouseactiveunit.h
     tred/input/mousedef.cc tred/input/mousedef.h
@@ -65,6 +66,7 @@ source_group("" FILES ${src})
 set(src_test
     tred/handle.test.cc
     tred/input/system.test.cc
+    tred/input/mapping.detection.test.cc
     ../external/catch/main.cc
 )
 add_executable(test ${src_test})
