@@ -90,7 +90,10 @@ TEST_CASE("input-test", "[input]")
     {
         {
             // actions
-            // todo(Gustav): add groupings... car/walk/swim ...?
+            // todo(Gustav): add multiple key bindings
+            // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
+            // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
+            // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
                 {"look", "var_look", Range::WithinNegativeOneToPositiveOne},
