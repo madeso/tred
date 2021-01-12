@@ -445,12 +445,11 @@ TEST_CASE("input-test", "[input]")
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
     }
 
+    // now... for the rest of the tests select the player input ("mouse and keyboard")
+    sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
 
     SECTION("no input")
     {
-        // press enter on playscreen
-        sys.SetUnitForPlayer(player, "mouse+keyboard");
-
         const auto table = GetTable(&sys, player);
 
         REQUIRE(MapEq(table.data, {
@@ -462,9 +461,6 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("push button")
     {
-        // press enter on playscreen
-        sys.SetUnitForPlayer(player, "mouse+keyboard");
-
         sys.OnKeyboardKey(Key::A, true);
 
         REQUIRE(MapEq(GetTable(&sys, player).data, {
@@ -484,9 +480,6 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("move mouse")
     {
-        // press enter on playscreen
-        sys.SetUnitForPlayer(player, "mouse+keyboard");
-
         sys.OnMouseAxis(Axis::X, 2.0f);
         REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
@@ -504,9 +497,6 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("move with keyboard")
     {
-        // press enter on playscreen
-        sys.SetUnitForPlayer(player, "mouse+keyboard");
-
         // start clean
         CHECK(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},

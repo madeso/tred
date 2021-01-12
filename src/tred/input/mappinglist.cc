@@ -33,19 +33,6 @@ void MappingList::Add(const std::string& name, std::unique_ptr<Mapping>&& config
 }
 
 
-Mapping& MappingList::Get(const std::string& name) const
-{
-    auto res = configs.find(name);
-    if (res == configs.end())
-    {
-        throw fmt::format("Unable to find config: {}", name);
-    }
-
-    assert(res->second);
-    return *res->second;
-}
-
-
 void Load(Mapping* config, const input::config::Mapping& root)
 {
     assert(config);

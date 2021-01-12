@@ -41,14 +41,6 @@ InputSystem::~InputSystem()
 }
 
 
-void InputSystem::SetUnitForPlayer(PlayerHandle player, const std::string& inputname)
-{
-    auto& config = m->configs.Get(inputname);
-    auto setup = UnitSetup{};
-    m->players[player]->connected_units = config.Connect(&m->input_director, setup);
-}
-
-
 void InputSystem::UpdateTable(PlayerHandle player, Table* table)
 {
     m->players[player]->UpdateTable(table);

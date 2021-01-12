@@ -22,8 +22,6 @@ struct MappingList
 
     void Add(const std::string& name, std::unique_ptr<Mapping>&& config);
 
-    Mapping& Get(const std::string& name) const;
-
     std::map<std::string, std::unique_ptr<Mapping>> configs;
 };
 

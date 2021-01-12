@@ -37,7 +37,6 @@ struct InputSystem
     InputSystem(const config::InputSystem& config);
     ~InputSystem();
 
-    void SetUnitForPlayer(PlayerHandle player, const std::string& inputName);
     void UpdateTable(PlayerHandle player, Table* table);
     void UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform);
 
