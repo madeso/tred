@@ -24,6 +24,8 @@ struct Player
     bool IsConnected();
     bool IsAnyConnectionConsideredJoystick();
 
+    void UpdateConnectionStatus();
+
     std::unique_ptr<ConnectedUnits> connected_units;
 };
 

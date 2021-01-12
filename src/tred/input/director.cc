@@ -151,6 +151,16 @@ void InputDirector::OnJoystickAxis(JoystickId joystick, int axis, float value)
 }
 
 
+void InputDirector::OnJoystickLost(JoystickId joystick)
+{
+    auto found = joysticks.find(joystick);
+    if(found == joysticks.end()) { return; }
+
+    found->second->sheduled_delete = true;
+    joysticks.erase(joystick);
+}
+
+
 bool InputDirector::WasJustPressed(Key key)
 {
     return just_pressed_keys.find(key) != just_pressed_keys.end();

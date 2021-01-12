@@ -40,6 +40,7 @@ struct InputDirector
     void OnJoystickHat(JoystickId joystick, Axis type, int hat, float value);
     void OnJoystickButton(JoystickId joystick, int button, bool down);
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
+    void OnJoystickLost(JoystickId joystick);
 
     bool WasJustPressed(Key key);
     bool WasJustPressed(MouseButton button);

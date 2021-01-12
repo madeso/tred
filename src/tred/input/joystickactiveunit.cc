@@ -24,6 +24,7 @@ JoystickActiveUnit::JoystickActiveUnit
     , buttons(b, converter)
     , hats(h, converter)
     , balls(ba, converter)
+    , sheduled_delete(false)
 {
     assert(director);
     director->Add(this);
@@ -39,6 +40,12 @@ JoystickActiveUnit::~JoystickActiveUnit()
 bool JoystickActiveUnit::IsConsideredJoystick()
 {
     return true;
+}
+
+
+bool JoystickActiveUnit::IsDeleteSheduled()
+{
+    return sheduled_delete;
 }
 
 

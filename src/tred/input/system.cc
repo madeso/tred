@@ -59,6 +59,8 @@ void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* pla
 {
     for(auto& p: m->players)
     {
+        p->UpdateConnectionStatus();
+
         const bool force_check = discovery == UnitDiscovery::FindHighest && p->IsAnyConnectionConsideredJoystick() == false;
         if(p->IsConnected() == false || force_check)
         {
@@ -74,6 +76,8 @@ void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* pla
             }
         }
     }
+
+    m->input_director.RemoveJustPressed();
 }
 
 
@@ -125,9 +129,9 @@ void InputSystem::OnJoystickAxis(JoystickId joystick, int axis, float value)
 }
 
 
-void InputSystem::RemoveJustPressed()
+void InputSystem::OnJoystickLost(JoystickId joystick)
 {
-    m->input_director.RemoveJustPressed();
+    m->input_director.OnJoystickLost(joystick);
 }
 
 

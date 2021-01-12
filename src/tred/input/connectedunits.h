@@ -25,6 +25,7 @@ struct ConnectedUnits
     bool IsEmpty() const;
 
     bool IsAnyConnectionConsideredJoystick();
+    bool IsDeleteSheduled();
 
     Converter converter;
     std::vector<std::unique_ptr<ActiveUnit>> units;

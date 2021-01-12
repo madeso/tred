@@ -29,6 +29,7 @@ struct MouseActiveUnit : public ActiveUnit
     ~MouseActiveUnit();
 
     bool IsConsideredJoystick() override;
+    bool IsDeleteSheduled() override;
 
     void OnAxis(const Axis& axis, float state);
     void OnWheel(const Axis& axis, float state);

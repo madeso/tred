@@ -22,6 +22,7 @@ struct KeyboardActiveUnit : public ActiveUnit
     ~KeyboardActiveUnit();
 
     bool IsConsideredJoystick() override;
+    bool IsDeleteSheduled() override;
 
     void OnKey(const Key& key, bool state);
 

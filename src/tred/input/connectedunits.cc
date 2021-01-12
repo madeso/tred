@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <string>
+#include <algorithm>
 
 #include "tred/input/bind.h"
 #include "tred/input/activeunit.h"
@@ -55,6 +56,15 @@ bool ConnectedUnits::IsAnyConnectionConsideredJoystick()
     }
 
     return false;
+}
+
+
+bool ConnectedUnits::IsDeleteSheduled()
+{
+    return std::any_of(units.begin(), units.end(), [](std::unique_ptr<ActiveUnit>& u) -> bool
+    {
+        return u->IsDeleteSheduled();
+    });
 }
 
 

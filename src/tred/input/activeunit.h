@@ -15,6 +15,7 @@ struct ActiveUnit
     virtual ~ActiveUnit();
 
     virtual bool IsConsideredJoystick() = 0;
+    virtual bool IsDeleteSheduled() = 0;
 };
 
 }  // namespace input

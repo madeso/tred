@@ -312,7 +312,6 @@ int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows,
 
         windows->PumpEvents(input, input_system);
         input_system->UpdatePlayerConnections(discovery, windows->GetInputPlatform());
-        input_system->RemoveJustPressed();
         if(false == on_update(dt))
         {
             return 0;

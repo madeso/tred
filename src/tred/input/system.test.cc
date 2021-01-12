@@ -186,7 +186,8 @@ TEST_CASE("input-test", "[input]")
     {
         REQUIRE_FALSE(sys.IsConnected(player));
 
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform); };
+        update();
         
         REQUIRE(sys.IsConnected(player));
 
@@ -209,7 +210,7 @@ TEST_CASE("input-test", "[input]")
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        update();
 
         // joystick was grabbed
         REQUIRE(test_platform.joysticks.size() == 0);
@@ -242,9 +243,53 @@ TEST_CASE("input-test", "[input]")
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
+
+        // loose joystick...
+        const auto joystickbutton_was_down_when_lost = GENERATE(false, true);
+        INFO("joystickbutton_was_down_when_lost: " << joystickbutton_was_down_when_lost);
+        if(joystickbutton_was_down_when_lost)
+        {
+            sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        }
+        sys.OnJoystickLost(JOYSTICK_HANDLE);
+        update();
+
+        // no input
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        // joystick should be ignored
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+
+        // player is still connected
+        REQUIRE(sys.IsConnected(player));
+
+        // and keyboard works
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        sys.OnKeyboardKey(Key::A, false);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
     }
 
-    SECTION("test explicit assignments keyboard")
+    SECTION("test explicit assignments keyboard keyboard+mouse")
     {
         const auto use_keyboard = GENERATE(true, false);
         INFO("Use keyboard " << use_keyboard);
@@ -256,16 +301,18 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE_FALSE(sys.IsConnected(player));
 
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform); };
+        update();
+
         REQUIRE_FALSE(sys.IsConnected(player));
 
         press(true);
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
 
         REQUIRE_FALSE(sys.IsConnected(player));
 
         press(false);
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
 
         REQUIRE(sys.IsConnected(player));
 
@@ -293,13 +340,21 @@ TEST_CASE("input-test", "[input]")
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
 
         // but it is not picked up
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
         REQUIRE(test_platform.joysticks.size() == 1);
 
         // and joystick is ignored
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
+            {"var_look", 0.0f},
+            {"var_move", 0.0f}
+        }));
+
+        // but input is keyboard+mouse again
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+            {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
@@ -321,16 +376,18 @@ TEST_CASE("input-test", "[input]")
 
         REQUIRE_FALSE(sys.IsConnected(player));
 
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform); };
+        update();
+
         REQUIRE_FALSE(sys.IsConnected(player));
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
 
         REQUIRE_FALSE(sys.IsConnected(player));
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
 
         REQUIRE(sys.IsConnected(player));
         REQUIRE(test_platform.joysticks.size() == 0);
@@ -355,7 +412,7 @@ TEST_CASE("input-test", "[input]")
         press(false);
 
         // update but it shouldn't be picked up
-        sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform);
+        update();
 
         // and keyboard is ignored
         sys.OnKeyboardKey(Key::A, true);
@@ -364,6 +421,28 @@ TEST_CASE("input-test", "[input]")
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
+
+        // loose joystick...
+        const auto joystickbutton_was_down_when_lost = GENERATE(false, true);
+        INFO("joystickbutton_was_down_when_lost: " << joystickbutton_was_down_when_lost);
+        if(joystickbutton_was_down_when_lost)
+        {
+            sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        }
+        sys.OnJoystickLost(JOYSTICK_HANDLE);
+        update();
+
+        REQUIRE_FALSE(sys.IsConnected(player));
+
+        // no input
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        }));
+
+        // joystick should be ignored
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        }));
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
     }
 
 

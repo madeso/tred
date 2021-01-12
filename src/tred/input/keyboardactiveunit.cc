@@ -32,6 +32,12 @@ bool KeyboardActiveUnit::IsConsideredJoystick()
 }
 
 
+bool KeyboardActiveUnit::IsDeleteSheduled()
+{
+    return false;
+}
+
+
 void KeyboardActiveUnit::OnKey(const Key& key, bool state)
 {
     keys.SetRaw(key, state ? 1.0f : 0.0f);

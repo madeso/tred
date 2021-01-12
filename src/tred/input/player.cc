@@ -48,4 +48,16 @@ bool Player::IsAnyConnectionConsideredJoystick()
 }
 
 
+void Player::UpdateConnectionStatus()
+{
+    if(connected_units)
+    {
+        if(connected_units->IsDeleteSheduled())
+        {
+            connected_units.reset();
+        }
+    }
+}
+
+
 }  // namespace input

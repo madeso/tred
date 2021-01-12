@@ -30,6 +30,7 @@ struct JoystickActiveUnit : public ActiveUnit
     );
     ~JoystickActiveUnit();
     bool IsConsideredJoystick() override;
+    bool IsDeleteSheduled() override;
 
     void OnAxis(int axis, float state);
     void OnButton(int button, float state);
@@ -42,6 +43,7 @@ struct JoystickActiveUnit : public ActiveUnit
     BindMap<int> buttons;
     BindMap<HatAxis> hats;
     BindMap<HatAxis> balls;
+    bool sheduled_delete;
 };
 
 

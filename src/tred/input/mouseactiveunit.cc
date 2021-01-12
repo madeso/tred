@@ -40,6 +40,12 @@ bool MouseActiveUnit::IsConsideredJoystick()
 }
 
 
+bool MouseActiveUnit::IsDeleteSheduled()
+{
+    return false;
+}
+
+
 void MouseActiveUnit::OnAxis(const Axis& axis, float state)
 {
     axes.SetRaw(axis, state);

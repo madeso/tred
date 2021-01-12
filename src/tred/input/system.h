@@ -50,8 +50,7 @@ struct InputSystem
     void OnJoystickHat(JoystickId joystick, Axis type, int hat, float value);
     void OnJoystickButton(JoystickId joystick, int button, bool down);
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
-
-    void RemoveJustPressed();
+    void OnJoystickLost(JoystickId joystick);
 
     PlayerHandle AddPlayer();
     bool IsConnected(PlayerHandle player);
