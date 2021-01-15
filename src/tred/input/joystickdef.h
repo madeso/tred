@@ -24,19 +24,15 @@ struct Platform;
 
 struct JoystickDef : public UnitDef
 {
-    JoystickDef(int index, const config::JoystickDef& data, ConverterDef* converter);
+    JoystickDef(int index, const config::JoystickDef& data);
 
     bool IsConsideredJoystick() override;
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter) override;
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) override;
 
     int index;
     int start_button;
     std::string unit;
-    std::vector<BindDef<int>> axes;
-    std::vector<BindDef<int>> buttons;
-    std::vector<BindDef<HatAxis>> hats;
-    std::vector<BindDef<HatAxis>> balls;
 };
 
 

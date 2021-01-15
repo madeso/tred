@@ -5,16 +5,31 @@
 #include "tred/input/director.h"
 #include "tred/input/action.h"
 #include "tred/input/bind.h"
+#include "tred/input/index.h"
 
 
 namespace input
 {
 
-KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, Converter* converter, const std::vector<BindDef<Key>>& k)
+
+void impl::KeyboardKeyUnit::RegisterKey(int key)
+{
+    parent->keys.Add(FromIndex<Key>(key));
+}
+
+
+float impl::KeyboardKeyUnit::GetState(int key)
+{
+    return parent->keys.GetRaw(FromIndex<Key>(key));
+}
+
+
+KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d)
     : director(d)
-    , keys(k, converter)
 {
     assert(director);
+
+    key_unit.parent = this;
 
     director->Add(this);
 }
@@ -23,6 +38,26 @@ KeyboardActiveUnit::KeyboardActiveUnit(InputDirector* d, Converter* converter, c
 KeyboardActiveUnit::~KeyboardActiveUnit()
 {
     director->Remove(this);
+}
+
+
+KeyUnit* KeyboardActiveUnit::GetKeyUnit()
+{
+    return &key_unit;
+}
+
+
+AxisUnit* KeyboardActiveUnit::GetRelativeAxisUnit()
+{
+    assert(false && "invalid call");
+    return nullptr;
+}
+
+
+AxisUnit* KeyboardActiveUnit::GetAbsoluteAxisUnit()
+{
+    assert(false && "invalid call");
+    return nullptr;
 }
 
 

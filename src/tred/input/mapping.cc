@@ -16,18 +16,9 @@
 namespace input
 {
 
-Mapping::Mapping(const InputActionMap& map, const config::Mapping& root)
-{
-    for(const auto& action_pair: map.actions)
-    {
-        const auto& action = action_pair.second;
-        converter.AddOutput(action->name, action->scriptvarname, action->range);
-    }
 
-    for(const auto& conv: root.two_button_converter)
-    {
-        converter.AddTwoButton(conv);
-    }
+Mapping::Mapping(const InputActionMap&, const config::Mapping&)
+{
 }
 
 
@@ -36,16 +27,23 @@ Mapping::~Mapping()
 }
 
 
-void Mapping::Add(std::unique_ptr<UnitDef>&& def)
+void Mapping::Add(std::unique_ptr<UnitDef>&& unit)
 {
-    assert(def);
-    definitions.push_back(std::move(def));
+    assert(unit);
+    units.push_back(std::move(unit));
+}
+
+
+void Mapping::Add(std::unique_ptr<BindDef>&& bind)
+{
+    assert(bind);
+    binds.push_back(std::move(bind));
 }
 
 
 bool Mapping::IsAnyConsideredJoystick()
 {
-    for (auto& def: definitions)
+    for (auto& def: units)
     {
         if( def->IsConsideredJoystick() )
         {
@@ -61,7 +59,7 @@ bool Mapping::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSe
 {
     return MappingDetection
     (
-        definitions,
+        units,
         [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->IsConsideredJoystick(); },
         [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->CanDetect(director, discovery, setup, platform); }
     );
@@ -71,16 +69,23 @@ bool Mapping::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSe
 std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director, const UnitSetup& setup)
 {
     assert(director);
-    auto units = std::make_unique<ConnectedUnits>(converter);
+    auto connected = std::make_unique<ConnectedUnits>();
 
-    for (auto& def: definitions)
+    for (auto& def: units)
     {
-        auto unit = def->Create(director, setup, &units->converter);
+        auto unit = def->Create(director, setup);
         assert(unit);
-        units->Add(std::move(unit));
+        connected->Add(std::move(unit));
     }
 
-    return units;
+    for(auto& bind: binds)
+    {
+        auto created_bind = bind->Create(connected.get());
+        assert(created_bind);
+        connected->Add(std::move(created_bind));
+    }
+
+    return connected;
 }
 
 

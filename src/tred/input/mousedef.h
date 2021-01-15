@@ -23,16 +23,13 @@ struct InputActionMap;
 
 struct MouseDef : public UnitDef
 {
-    MouseDef(const config::MouseDef& data, ConverterDef* converter);
+    MouseDef(const config::MouseDef& data);
 
     bool IsConsideredJoystick() override;
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
-    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter) override;
+    std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) override;
 
     MouseButton detection_button;
-    std::vector<BindDef<Axis>> axes;
-    std::vector<BindDef<Axis>> wheels;
-    std::vector<BindDef<MouseButton>> keys;
 };
 
 

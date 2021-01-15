@@ -22,7 +22,7 @@ struct UnitDef
 
     virtual bool IsConsideredJoystick() = 0;
     virtual bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) = 0;
-    virtual std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup, Converter* converter) = 0;
+    virtual std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) = 0;
 };
 
 }  // namespace input

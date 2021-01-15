@@ -17,18 +17,42 @@ namespace input
 struct Table;
 struct InputDirector;
 
+struct JoystickActiveUnit;
+
+
+namespace impl
+{
+    struct JoystickKeyUnit : public KeyUnit
+    {
+        JoystickActiveUnit* parent;
+
+        void RegisterKey(int key) override;
+        float GetState(int key) override;
+    };
+
+    struct JoystickAxisUnit : public AxisUnit
+    {
+        explicit JoystickAxisUnit(bool is_relative);
+
+        bool is_relative;
+
+        JoystickActiveUnit* parent;
+
+        void RegisterAxis(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis) override;
+    };
+}
+
 
 struct JoystickActiveUnit : public ActiveUnit
 {
-    JoystickActiveUnit
-    (
-        JoystickId joystick, InputDirector* director, Converter* converter,
-        const std::vector<BindDef<int>>& axis,
-        const std::vector<BindDef<int>>& buttons,
-        const std::vector<BindDef<HatAxis>>& hats,
-        const std::vector<BindDef<HatAxis>>& balls
-    );
+    JoystickActiveUnit(JoystickId joystick, InputDirector* director);
     ~JoystickActiveUnit();
+
+    KeyUnit* GetKeyUnit() override;
+    AxisUnit* GetRelativeAxisUnit() override;
+    AxisUnit* GetAbsoluteAxisUnit() override;
+
     bool IsConsideredJoystick() override;
     bool IsDeleteSheduled() override;
 
@@ -39,11 +63,16 @@ struct JoystickActiveUnit : public ActiveUnit
 
     JoystickId joystick;
     InputDirector* director;
+    bool sheduled_delete;
+
     BindMap<int> axes;
     BindMap<int> buttons;
     BindMap<HatAxis> hats;
     BindMap<HatAxis> balls;
-    bool sheduled_delete;
+
+    impl::JoystickKeyUnit key_unit;
+    impl::JoystickAxisUnit relative_axis_unit;
+    impl::JoystickAxisUnit absolute_axis_unit;
 };
 
 

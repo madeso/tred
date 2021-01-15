@@ -13,13 +13,9 @@
 namespace input
 {
 
-KeyboardDef::KeyboardDef(const config::KeyboardDef& data, ConverterDef* converter)
+KeyboardDef::KeyboardDef(const config::KeyboardDef& data)
     : detection_key(data.detection_key)
 {
-    for (const auto& d: data.binds)
-    {
-        keys.push_back(BindDef<Key>(d.bindname, d.key, d, converter));
-    }
 }
 
 
@@ -40,11 +36,11 @@ bool KeyboardDef::CanDetect(InputDirector* director, UnitDiscovery discovery, Un
 }
 
 
-std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, const UnitSetup&, Converter* converter)
+std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, const UnitSetup&)
 {
     assert(director);
     
-    return std::make_unique<KeyboardActiveUnit>(director, converter, keys);
+    return std::make_unique<KeyboardActiveUnit>(director);
 }
 
 

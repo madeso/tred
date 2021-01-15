@@ -90,13 +90,15 @@ TEST_CASE("input-test", "[input]")
     {
         {
             // actions
+            // todo(Gustav): add delta time + absolute mouse bindings
             // todo(Gustav): add multiple key bindings
             // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
             // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
             // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
+            // todo(Gustav): support button images for help text and display in config files
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
-                {"look", "var_look", Range::WithinNegativeOneToPositiveOne},
+                {"look", "var_look", Range::Infinite},
                 {"move", "var_move", Range::WithinNegativeOneToPositiveOne},
             },
 
@@ -104,66 +106,25 @@ TEST_CASE("input-test", "[input]")
             {
                 {
                     "mouse+keyboard",
-                    // two button converters
                     {
-                        "move"
+                        config::KeyboardDef{Key::RETURN},
+                        config::MouseDef{MouseButton::LEFT}
                     },
-                    // keyboards
                     {
-                        config::KeyboardDef
-                        {
-                            Key::RETURN,
-                            {
-                                {"shoot", Key::A},
-                                {"move-", Key::LEFT},
-                                {"move+", Key::RIGHT},
-                            }
-                        }
-                    },
-                    // mouses
-                    {
-                        config::MouseDef
-                        {
-                            MouseButton::LEFT,
-                            {
-                                {"look", Axis::X}
-                            },
-                            // no mouse wheeels
-                            {},
-                            // no mouse buttons
-                            {}
-                        }
-                    },
-                    // joysticks
-                    {}
+                        config::KeyBindDef{"shoot", 0, Key::A},
+                        config::TwoKeyBindDef{"move", 0, Key::LEFT, Key::RIGHT},
+                        config::AxisBindDef{"look", 1, Axis::X}
+                    }
                 },
                 {
                     "joystick",
-                    // two button converters
-                    {},
-                    // keyboards
-                    {},
-                    // mouses
-                    {},
-                    // joysticks
                     {
-                        config::JoystickDef
-                        {
-                            JOYSTICK_START, JOYSTICK_GUID,
-                            // axis
-                            {
-                                {"move", JOYSTICK_MOVE},
-                                {"look", JOYSTICK_LOOK},
-                            },
-                            // buttons
-                            {
-                                {"shoot", JOYSTICK_SHOOT}
-                            },
-                            // no hats
-                            {},
-                            // no balls
-                            {}
-                        }
+                        config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID}
+                    },
+                    {
+                        config::KeyBindDef{"shoot", 0, JOYSTICK_SHOOT},
+                        config::AxisBindDef{"move", 0, AxisType::GeneralAxis, 0, JOYSTICK_MOVE},
+                        config::AxisBindDef{"look", 0, AxisType::GeneralAxis, 0, JOYSTICK_LOOK}
                     }
                 }
             }
@@ -188,7 +149,7 @@ TEST_CASE("input-test", "[input]")
 
         auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform); };
         update();
-        
+
         REQUIRE(sys.IsConnected(player));
 
         sys.OnKeyboardKey(Key::A, true);
@@ -204,7 +165,7 @@ TEST_CASE("input-test", "[input]")
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
-        
+
         test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
         REQUIRE(test_platform.joysticks.size() == 1);
 
@@ -483,7 +444,7 @@ TEST_CASE("input-test", "[input]")
         sys.OnMouseAxis(Axis::X, 2.0f);
         REQUIRE(MapEq(GetTable(&sys, player).data, {
             {"var_shoot", 0.0f},
-            {"var_look", 1.0f},
+            {"var_look", 2.0f},
             {"var_move", 0.0f}
         }));
 

@@ -18,61 +18,11 @@ namespace input
 {
 
 
-JoystickDef::JoystickDef(int id, const config::JoystickDef& data, ConverterDef* converter)
+JoystickDef::JoystickDef(int id, const config::JoystickDef& data)
     : index(id)
     , start_button(data.start_button)
     , unit(data.unit)
 {
-    for (const auto& d: data.axis)
-    {
-        const int axis = d.axis;
-        if (axis < 0)
-        {
-            LOG_ERROR("Invalid joystick axis for {} action", d.bindname);
-        }
-        else
-        {
-            axes.push_back(BindDef<int>(d.bindname, axis, d, converter));
-        }
-    }
-    for (const auto& d: data.button)
-    {
-        const int key = d.button;
-
-        if (key < 0)
-        {
-            LOG_ERROR("Invalid joystick button for the {} action", d.bindname);
-        }
-        else
-        {
-            buttons.push_back(BindDef<int>(d.bindname, key, d, converter));
-        }
-    }
-    for (const auto& d: data.hat)
-    {
-        const int hat = d.hat;
-        if (hat < 0)
-        {
-            LOG_ERROR("Invalid joystick hat for the {} action", d.bindname);
-        }
-        else
-        {
-            hats.push_back(BindDef<HatAxis>(d.bindname, HatAxis(hat, d.axis), d, converter));
-        }
-    }
-
-    for (const auto& d: data.ball)
-    {
-        const int ball = d.hat;
-        if (ball < 0)
-        {
-            LOG_ERROR("Invalid joystick ball for the {} action", d.bindname);
-        }
-        else
-        {
-            balls.push_back(BindDef<HatAxis>(d.bindname, HatAxis(ball, d.axis), d, converter));
-        }
-    }
 }
 
 
@@ -100,11 +50,11 @@ bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* s
 }
 
 
-std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup, Converter* converter)
+std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup)
 {
     assert(director);
     
-    return std::make_unique<JoystickActiveUnit>(setup.GetJoystick(index), director, converter, axes, buttons, hats, balls);
+    return std::make_unique<JoystickActiveUnit>(setup.GetJoystick(index), director);
 }
 
 

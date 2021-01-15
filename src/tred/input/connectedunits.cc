@@ -6,14 +6,14 @@
 
 #include "tred/input/bind.h"
 #include "tred/input/activeunit.h"
+#include "tred/input/bind.h"
 
 
 namespace input
 {
 
 
-ConnectedUnits::ConnectedUnits(const ConverterDef& c)
-    : converter(c)
+ConnectedUnits::ConnectedUnits()
 {
 }
 
@@ -29,13 +29,23 @@ void ConnectedUnits::Add(std::unique_ptr<ActiveUnit>&& unit)
 }
 
 
+void ConnectedUnits::Add(std::unique_ptr<ActiveBind>&& bind)
+{
+    assert(bind);
+    binds.push_back(std::move(bind));
+}
+
+
 void ConnectedUnits::UpdateTable(Table* table)
 {
     assert(table);
 
     assert(units.size() > 0);
 
-    converter.SetTable(table);
+    for(auto& bind: binds)
+    {
+        bind->SetValueInTable(table);
+    }
 }
 
 
@@ -65,6 +75,12 @@ bool ConnectedUnits::IsDeleteSheduled()
     {
         return u->IsDeleteSheduled();
     });
+}
+
+
+ActiveUnit* ConnectedUnits::GetUnit(int index)
+{
+    return units[static_cast<std::size_t>(index)].get();
 }
 
 

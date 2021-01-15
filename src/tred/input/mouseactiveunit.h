@@ -16,17 +16,45 @@ namespace input
 struct Table;
 struct InputDirector;
 
+struct MouseActiveUnit;
+
+
+namespace impl
+{
+    struct MouseKeyUnit : public KeyUnit
+    {
+        MouseActiveUnit* parent;
+
+        void RegisterKey(int key) override;
+        float GetState(int key) override;
+    };
+
+    struct RelativeMouseAxisUnit : public AxisUnit
+    {
+        MouseActiveUnit* parent;
+
+        void RegisterAxis(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis) override;
+    };
+
+    struct AbsoluteMouseAxisUnit : public AxisUnit
+    {
+        MouseActiveUnit* parent;
+
+        void RegisterAxis(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis) override;
+    };
+}
+
 
 struct MouseActiveUnit : public ActiveUnit
 {
-    MouseActiveUnit
-    (
-        InputDirector* director, Converter* converter,
-        const std::vector<BindDef<Axis>>& axes,
-        const std::vector<BindDef<Axis>>& wheels,
-        const std::vector<BindDef<MouseButton>>& buttons
-    );
+    MouseActiveUnit(InputDirector* director);
     ~MouseActiveUnit();
+
+    KeyUnit* GetKeyUnit() override;
+    AxisUnit* GetRelativeAxisUnit() override;
+    AxisUnit* GetAbsoluteAxisUnit() override;
 
     bool IsConsideredJoystick() override;
     bool IsDeleteSheduled() override;
@@ -39,6 +67,10 @@ struct MouseActiveUnit : public ActiveUnit
     BindMap<Axis> axes;
     BindMap<Axis> wheels;
     BindMap<MouseButton> buttons;
+
+    impl::MouseKeyUnit key_unit;
+    impl::RelativeMouseAxisUnit relative_axis_unit;
+    impl::AbsoluteMouseAxisUnit absolute_axis_unit;
 };
 
 

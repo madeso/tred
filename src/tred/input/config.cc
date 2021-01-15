@@ -1,7 +1,10 @@
 #include "tred/input/config.h"
+#include "tred/input/index.h"
+
 
 namespace input::config
 {
+
 
 Action::Action(const std::string& n, const std::string& v, input::Range r)
     : name(n)
@@ -27,76 +30,14 @@ Action::Action(const std::string_view& nv, input::Range r)
 }
 
 
-KeyboardButton::KeyboardButton(const std::string& bind, input::Key k, bool i, float s)
-    : bindname(bind)
-    , key(k)
-    , invert(i)
-    , scale(s)
-{
-}
-
-MouseAxis::MouseAxis(const std::string& bind, input::Axis a, bool i, float s)
-    : bindname(bind)
-    , axis(a)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
-MouseButton::MouseButton(const std::string& bind, input::MouseButton k, bool i, float s)
-    : bindname(bind)
-    , key(k)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
-JoystickAxis::JoystickAxis(const std::string& bind, int a, bool i, float s)
-    : bindname(bind)
-    , axis(a)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
-JoystickButton::JoystickButton(const std::string& bind, int b, bool i, float s)
-    : bindname(bind)
-    , button(b)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
-JoystickHat::JoystickHat(const std::string& bind, int h, input::Axis a, bool i, float s)
-    : bindname(bind)
-    , hat(h)
-    , axis(a)
-    , invert(i)
-    , scale(s)
-{
-}
-
-
 KeyboardDef::KeyboardDef()
     : detection_key(input::Key::UNBOUND)
 {
 }
 
 
-KeyboardDef::KeyboardDef(const std::vector<KeyboardButton>& b)
-    : detection_key(input::Key::UNBOUND)
-    , binds(b)
-{
-}
-
-
-KeyboardDef::KeyboardDef(input::Key dk, const std::vector<KeyboardButton>& b)
+KeyboardDef::KeyboardDef(input::Key dk)
     : detection_key(dk)
-    , binds(b)
 {
 }
 
@@ -107,20 +48,8 @@ MouseDef::MouseDef()
 }
 
 
-MouseDef::MouseDef(const std::vector<MouseAxis>& a, const std::vector<MouseAxis>& w, const std::vector<MouseButton>& b)
-    : detection_button(input::MouseButton::UNBOUND)
-    , axis(a)
-    , wheel(w)
-    , button(b)
-{
-}
-
-
-MouseDef::MouseDef(input::MouseButton db, const std::vector<MouseAxis>& a, const std::vector<MouseAxis>& w, const std::vector<MouseButton>& b)
+MouseDef::MouseDef(input::MouseButton db)
     : detection_button(db)
-    , axis(a)
-    , wheel(w)
-    , button(b)
 {
 }
 
@@ -132,23 +61,112 @@ JoystickDef::JoystickDef()
 }
 
 
-JoystickDef::JoystickDef(int sb, const std::string& u, const std::vector<JoystickAxis>& a, const std::vector<JoystickButton>& b, const std::vector<JoystickHat>& h, const std::vector<JoystickHat>& ba)
+JoystickDef::JoystickDef(int sb, const std::string& u)
     : start_button(sb)
     , unit(u)
-    , axis(a)
-    , button(b)
-    , hat(h)
-    , ball(ba)
 {
 }
 
 
-Mapping::Mapping(const std::string& n, const std::vector<TwoButtonConverter>& tbc, const std::vector<KeyboardDef>& k, const std::vector<MouseDef>& m, const std::vector<JoystickDef>& j)
+
+UnitDef::UnitDef(const KeyboardDef& k)
+    : keyboard(k)
+{
+}
+
+
+UnitDef::UnitDef(const MouseDef& m)
+    : mouse(m)
+{
+}
+
+
+UnitDef::UnitDef(const JoystickDef& j)
+    : joystick(j)
+{
+}
+
+
+KeyBindDef::KeyBindDef(const std::string& a, int u, input::Key k)
+    : action(a)
+    , unit(u)
+    , key(ToIndex(k))
+{
+}
+
+KeyBindDef::KeyBindDef(const std::string& a, int u, input::MouseButton k)
+    : action(a)
+    , unit(u)
+    , key(ToIndex(k))
+{
+}
+
+KeyBindDef::KeyBindDef(const std::string& a, int u, int k)
+    : action(a)
+    , unit(u)
+    , key(k)
+{
+}
+
+
+AxisBindDef::AxisBindDef(const std::string& a, int u, input::Axis ax)
+    : action(a)
+    , unit(u)
+    , type(AxisType::GeneralAxis)
+    , target(0)
+    , axis(ToIndex(ax))
+{
+}
+
+AxisBindDef::AxisBindDef(const std::string& a, int u, AxisType ty, int ta, int ax)
+    : action(a)
+    , unit(u)
+    , type(ty)
+    , target(ta)
+    , axis(ax)
+{
+}
+
+
+TwoKeyBindDef::TwoKeyBindDef(const std::string& a, int u, input::Key n, input::Key p)
+    : action(a)
+    , unit(u)
+    , negative(ToIndex(n))
+    , positive(ToIndex(p))
+{
+}
+
+TwoKeyBindDef::TwoKeyBindDef(const std::string& a, int u, int n, int p)
+    : action(a)
+    , unit(u)
+    , negative(n)
+    , positive(p)
+{
+}
+
+
+BindDef::BindDef(const KeyBindDef& k)
+    : key(k)
+{
+}
+
+
+BindDef::BindDef(const AxisBindDef& a)
+    : axis(a)
+{
+}
+
+
+BindDef::BindDef(const TwoKeyBindDef& t)
+    : twokey(t)
+{
+}
+
+
+Mapping::Mapping(const std::string& n, const std::vector<UnitDef>& u, const std::vector<BindDef>& b)
     : name(n)
-    , two_button_converter(tbc)
-    , keyboards(k)
-    , mouses(m)
-    , joysticks(j)
+    , units(u)
+    , binds(b)
 {
 }
 

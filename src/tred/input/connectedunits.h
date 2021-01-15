@@ -4,31 +4,31 @@
 #include <memory>
 
 
-#include "tred/input/bind.h"
-
-
 namespace input
 {
 
-
 struct Table;
 struct ActiveUnit;
+struct ActiveBind;
 
 
 struct ConnectedUnits
 {
-    ConnectedUnits(const ConverterDef& converter);
+    ConnectedUnits();
     ~ConnectedUnits();
-    
+
     void UpdateTable(Table* table);
     void Add(std::unique_ptr<ActiveUnit>&& unit);
+    void Add(std::unique_ptr<ActiveBind>&& bind);
     bool IsEmpty() const;
 
     bool IsAnyConnectionConsideredJoystick();
     bool IsDeleteSheduled();
 
-    Converter converter;
+    ActiveUnit* GetUnit(int index);
+
     std::vector<std::unique_ptr<ActiveUnit>> units;
+    std::vector<std::unique_ptr<ActiveBind>> binds;
 };
 
 }  // namespace input

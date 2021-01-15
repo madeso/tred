@@ -8,142 +8,126 @@
 #include "tred/input/range.h"
 #include "tred/input/axis.h"
 #include "tred/input/key.h"
+#include "tred/input/axistype.h"
+
 
 namespace input::config
 {
+
+
 struct Action
 {
     Action(const std::string& name, const std::string& var, input::Range);
     Action(const std::string& name_and_var, input::Range);
     Action(const std::string_view& name_and_var, input::Range);
+
     std::string name;
     std::string var;
     input::Range range;
 };
 
-struct KeyboardButton
-{
-    KeyboardButton(const std::string&, input::Key, bool invert=false, float scale=1.0f);
-
-    std::string bindname;
-
-    input::Key key;
-
-    bool invert;
-    float scale;
-};
-
-struct MouseAxis
-{
-    MouseAxis(const std::string&, input::Axis, bool invert=false, float scale=1.0f);
-
-    std::string bindname;
-
-    input::Axis axis;
-
-    bool invert;
-    float scale;
-};
-
-struct MouseButton
-{
-    MouseButton(const std::string&, input::MouseButton, bool invert=false, float scale=1.0f);
-    std::string bindname;
-
-    input::MouseButton key;
-
-    bool invert;
-    float scale;
-};
-
-
-struct JoystickAxis
-{
-    JoystickAxis(const std::string&, int, bool invert=false, float scale=1.0f);
-
-    std::string bindname;
-
-    int axis;
-
-    bool invert;
-    float scale;
-};
-
-struct JoystickButton
-{
-    JoystickButton(const std::string&, int, bool invert=false, float scale=1.0f);
-    std::string bindname;
-
-    int button;
-
-    bool invert;
-    float scale;
-};
-
-struct JoystickHat
-{
-    JoystickHat(const std::string&, int, input::Axis, bool invert=false, float scale=1.0f);
-
-    std::string bindname;
-
-    int hat;
-    input::Axis axis;
-
-    bool invert;
-    float scale;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-using TwoButtonConverter = std::string;
 
 struct KeyboardDef
 {
     KeyboardDef();
-    KeyboardDef(const std::vector<KeyboardButton>&);
-    KeyboardDef(Key, const std::vector<KeyboardButton>&);
+    KeyboardDef(Key);
 
     Key detection_key;
-    std::vector<KeyboardButton> binds;
 };
+
 
 struct MouseDef
 {
     MouseDef();
-    MouseDef(const std::vector<MouseAxis>&, const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
-    MouseDef(input::MouseButton, const std::vector<MouseAxis>&, const std::vector<MouseAxis>&, const std::vector<MouseButton>&);
+    MouseDef(input::MouseButton);
 
     input::MouseButton detection_button;
-    std::vector<MouseAxis> axis;
-    std::vector<MouseAxis> wheel;
-    std::vector<MouseButton> button;
 };
+
 
 struct JoystickDef
 {
     JoystickDef();
-    JoystickDef(int, const std::string&, const std::vector<JoystickAxis>&, const std::vector<JoystickButton>&, const std::vector<JoystickHat>&, const std::vector<JoystickHat>&);
+    JoystickDef(int, const std::string&);
 
     int start_button;
     std::string unit;
-    std::vector<JoystickAxis> axis;
-    std::vector<JoystickButton> button;
-    std::vector<JoystickHat> hat;
-    std::vector<JoystickHat> ball;
 };
+
+
+struct UnitDef
+{
+    UnitDef(const KeyboardDef&);
+    UnitDef(const MouseDef&);
+    UnitDef(const JoystickDef&);
+
+    std::optional<KeyboardDef> keyboard;
+    std::optional<MouseDef> mouse;
+    std::optional<JoystickDef> joystick;
+};
+
+
+struct KeyBindDef
+{
+    KeyBindDef(const std::string&, int, input::Key);
+    KeyBindDef(const std::string&, int, input::MouseButton);
+    KeyBindDef(const std::string&, int, int);
+
+    std::string action;
+    int unit;
+    int key;
+};
+
+
+struct AxisBindDef
+{
+    AxisBindDef(const std::string&, int, input::Axis);
+    AxisBindDef(const std::string&, int, input::AxisType, int, int);
+
+    std::string action;
+    int unit;
+    AxisType type;
+    int target; // (joystick axis, hat or ball index)
+    int axis;
+};
+
+
+struct TwoKeyBindDef
+{
+    TwoKeyBindDef(const std::string&, int, input::Key, input::Key);
+    TwoKeyBindDef(const std::string&, int, int, int);
+
+    std::string action;
+    int unit;
+    int negative;
+    int positive;
+};
+
+
+struct BindDef
+{
+    BindDef(const KeyBindDef&);
+    BindDef(const AxisBindDef&);
+    BindDef(const TwoKeyBindDef&);
+
+    std::optional<KeyBindDef> key;
+    std::optional<AxisBindDef> axis;
+    std::optional<TwoKeyBindDef> twokey;
+};
+
+
+using UnitDefs = std::vector<UnitDef>;
+using BindDefs = std::vector<BindDef>;
 
 
 struct Mapping
 {
-    Mapping(const std::string&, const std::vector<TwoButtonConverter>&, const std::vector<KeyboardDef>&, const std::vector<MouseDef>&, const std::vector<JoystickDef>&);
+    Mapping(const std::string&, const std::vector<UnitDef>&, const std::vector<BindDef>&);
 
     std::string name;
 
-    std::vector<TwoButtonConverter> two_button_converter;
-    
-    std::vector<KeyboardDef> keyboards;
-    std::vector<MouseDef> mouses;
-    std::vector<JoystickDef> joysticks;
+    std::vector<UnitDef> units;
+    std::vector<BindDef> binds;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

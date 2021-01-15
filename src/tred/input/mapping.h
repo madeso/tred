@@ -33,14 +33,15 @@ struct Mapping
     Mapping(const InputActionMap& map, const config::Mapping& root);
     ~Mapping();
 
-    void Add(std::unique_ptr<UnitDef>&& def);
+    void Add(std::unique_ptr<UnitDef>&& unit);
+    void Add(std::unique_ptr<BindDef>&& bind);
 
     bool IsAnyConsideredJoystick();
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform);
     std::unique_ptr<ConnectedUnits> Connect(InputDirector* director, const UnitSetup& setup);
 
-    ConverterDef converter;
-    std::vector<std::unique_ptr<UnitDef>> definitions;
+    std::vector<std::unique_ptr<UnitDef>> units;
+    std::vector<std::unique_ptr<BindDef>> binds;
 };
 
 

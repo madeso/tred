@@ -7,12 +7,15 @@ set(src
     tred/input/action.cc tred/input/action.h
     tred/input/actionmap.cc tred/input/actionmap.h
     tred/input/activeunit.cc tred/input/activeunit.h
+    tred/input/axistype.cc tred/input/axistype.h
     tred/input/axis.cc tred/input/axis.h
     tred/input/bind.cc tred/input/bind.h
+    tred/input/bindunit.cc tred/input/bindunit.h
     tred/input/config.cc tred/input/config.h
     tred/input/connectedunits.cc tred/input/connectedunits.h
     tred/input/director.cc tred/input/director.h
     tred/input/hataxis.cc tred/input/hataxis.h
+    tred/input/index.cc tred/input/index.h
     tred/input/joystickactiveunit.cc tred/input/joystickactiveunit.h
     tred/input/joystickdef.cc tred/input/joystickdef.h
     tred/input/keyboardactiveunit.cc tred/input/keyboardactiveunit.h
