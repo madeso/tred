@@ -37,7 +37,7 @@ struct InputSystem
     InputSystem(const config::InputSystem& config);
     ~InputSystem();
 
-    void UpdateTable(PlayerHandle player, Table* table);
+    void UpdateTable(PlayerHandle player, Table* table, float dt);
     void UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform);
 
     void OnKeyboardKey(Key key, bool down);

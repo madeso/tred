@@ -36,7 +36,7 @@ void ConnectedUnits::Add(std::unique_ptr<ActiveBind>&& bind)
 }
 
 
-void ConnectedUnits::UpdateTable(Table* table)
+void ConnectedUnits::UpdateTable(Table* table, float dt)
 {
     assert(table);
 
@@ -44,7 +44,7 @@ void ConnectedUnits::UpdateTable(Table* table)
 
     for(auto& bind: binds)
     {
-        bind->SetValueInTable(table);
+        bind->SetValueInTable(table, dt);
     }
 }
 

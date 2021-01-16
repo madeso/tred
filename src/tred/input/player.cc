@@ -19,12 +19,12 @@ Player::~Player()
 }
 
 
-void Player::UpdateTable(Table* table)
+void Player::UpdateTable(Table* table, float dt)
 {
     assert(table);
     if(connected_units)
     {
-        connected_units->UpdateTable(table);
+        connected_units->UpdateTable(table, dt);
     }
 }
 

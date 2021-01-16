@@ -48,10 +48,8 @@ void impl::JoystickAxisUnit::RegisterAxis(AxisType type, int target, int axis)
 }
 
 
-float impl::JoystickAxisUnit::GetState(AxisType type, int target, int axis)
+float impl::JoystickAxisUnit::GetState(AxisType type, int target, int axis, float dt)
 {
-    // todo(Gustav): replace dt when we start implementing dt
-    const float dt = 1.0f;
     switch(type)
     {
     case AxisType::GeneralAxis:

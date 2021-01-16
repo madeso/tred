@@ -23,7 +23,7 @@ struct AxisUnit
     virtual ~AxisUnit() = default;
 
     virtual void RegisterAxis(AxisType type, int target, int axis) = 0;
-    virtual float GetState(AxisType type, int target, int axis) = 0;
+    virtual float GetState(AxisType type, int target, int axis, float dt) = 0;
 };
 
 

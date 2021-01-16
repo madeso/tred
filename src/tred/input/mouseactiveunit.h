@@ -34,7 +34,7 @@ namespace impl
         MouseActiveUnit* parent;
 
         void RegisterAxis(AxisType type, int target, int axis) override;
-        float GetState(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis, float) override;
     };
 
     struct AbsoluteMouseAxisUnit : public AxisUnit
@@ -42,7 +42,7 @@ namespace impl
         MouseActiveUnit* parent;
 
         void RegisterAxis(AxisType type, int target, int axis) override;
-        float GetState(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis, float) override;
     };
 }
 

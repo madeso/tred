@@ -20,7 +20,7 @@ struct Player
     Player();
     ~Player();
 
-    void UpdateTable(Table* table);
+    void UpdateTable(Table* table, float dt);
     bool IsConnected();
     bool IsAnyConnectionConsideredJoystick();
 

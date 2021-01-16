@@ -17,7 +17,7 @@ struct ConnectedUnits
     ConnectedUnits();
     ~ConnectedUnits();
 
-    void UpdateTable(Table* table);
+    void UpdateTable(Table* table, float dt);
     void Add(std::unique_ptr<ActiveUnit>&& unit);
     void Add(std::unique_ptr<ActiveBind>&& bind);
     bool IsEmpty() const;

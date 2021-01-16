@@ -39,7 +39,7 @@ namespace impl
         JoystickActiveUnit* parent;
 
         void RegisterAxis(AxisType type, int target, int axis) override;
-        float GetState(AxisType type, int target, int axis) override;
+        float GetState(AxisType type, int target, int axis, float dt) override;
     };
 }
 

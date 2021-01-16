@@ -54,10 +54,10 @@ struct TestPlatform : public Platform
 };
 
 
-Table GetTable(InputSystem* system, PlayerHandle player)
+Table GetTable(InputSystem* system, PlayerHandle player, float dt = 1.0f)
 {
     Table table;
-    system->UpdateTable(player, &table);
+    system->UpdateTable(player, &table, dt);
     return table;
 }
 
@@ -90,12 +90,15 @@ TEST_CASE("input-test", "[input]")
     {
         {
             // actions
-            // todo(Gustav): add delta time + absolute mouse bindings
             // todo(Gustav): add multiple key bindings
             // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
             // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
             // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
             // todo(Gustav): support button images for help text and display in config files
+
+            // todo(Gustav): add bad config tests
+            // todo(Gustav): add dt tests
+            // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
                 {"look", "var_look", Range::Infinite},

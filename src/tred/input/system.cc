@@ -41,9 +41,9 @@ InputSystem::~InputSystem()
 }
 
 
-void InputSystem::UpdateTable(PlayerHandle player, Table* table)
+void InputSystem::UpdateTable(PlayerHandle player, Table* table, float dt)
 {
-    m->players[player]->UpdateTable(table);
+    m->players[player]->UpdateTable(table, dt);
 }
 
 

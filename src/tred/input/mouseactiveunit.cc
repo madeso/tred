@@ -41,7 +41,7 @@ void impl::RelativeMouseAxisUnit::RegisterAxis(AxisType type, int target, int ax
 }
 
 
-float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis)
+float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis, float)
 {
     assert(target == 0);
     if(type == AxisType::GeneralAxis)
@@ -67,8 +67,8 @@ void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType, int, int)
 }
 
 
-// float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis)
-float impl::AbsoluteMouseAxisUnit::GetState(AxisType, int, int)
+// float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float dt)
+float impl::AbsoluteMouseAxisUnit::GetState(AxisType, int, int, float)
 {
     // todo(Gustav): implement absolute mouse
     assert(false && "not implemented yet");

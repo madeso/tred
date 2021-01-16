@@ -22,7 +22,7 @@ struct ConnectedUnits;
 struct ActiveBind
 {
     virtual ~ActiveBind() = default;
-    virtual void SetValueInTable(Table*) = 0;
+    virtual void SetValueInTable(Table* table, float dt) = 0;
 };
 
 
