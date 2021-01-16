@@ -53,12 +53,13 @@ struct TestPlatform : public Platform
     }
 };
 
+using Data = decltype(Table::data);
 
-Table GetTable(InputSystem* system, PlayerHandle player, float dt = 1.0f)
+Data GetTable(InputSystem* system, PlayerHandle player, float dt = 1.0f)
 {
     Table table;
     system->UpdateTable(player, &table, dt);
-    return table;
+    return table.data;
 }
 
 
@@ -140,9 +141,7 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("no assigned control is valid")
     {
-        const auto table = GetTable(&sys, player);
-
-        REQUIRE(MapEq(table.data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
         }));
     }
 
@@ -156,14 +155,14 @@ TEST_CASE("input-test", "[input]")
         REQUIRE(sys.IsConnected(player));
 
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnKeyboardKey(Key::A, false);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -186,7 +185,7 @@ TEST_CASE("input-test", "[input]")
         // keyboard input is ignored...
 
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -195,14 +194,14 @@ TEST_CASE("input-test", "[input]")
         // but joystick works...
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -219,7 +218,7 @@ TEST_CASE("input-test", "[input]")
         update();
 
         // no input
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -227,7 +226,7 @@ TEST_CASE("input-test", "[input]")
 
         // joystick should be ignored
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -239,14 +238,14 @@ TEST_CASE("input-test", "[input]")
 
         // and keyboard works
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnKeyboardKey(Key::A, false);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -282,14 +281,14 @@ TEST_CASE("input-test", "[input]")
 
         // keyboard input works
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnKeyboardKey(Key::A, false);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -309,7 +308,7 @@ TEST_CASE("input-test", "[input]")
 
         // and joystick is ignored
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -317,7 +316,7 @@ TEST_CASE("input-test", "[input]")
 
         // but input is keyboard+mouse again
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -358,14 +357,14 @@ TEST_CASE("input-test", "[input]")
 
         // keyboard input works
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -380,7 +379,7 @@ TEST_CASE("input-test", "[input]")
 
         // and keyboard is ignored
         sys.OnKeyboardKey(Key::A, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -399,12 +398,12 @@ TEST_CASE("input-test", "[input]")
         REQUIRE_FALSE(sys.IsConnected(player));
 
         // no input
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
         }));
 
         // joystick should be ignored
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
         }));
         sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
     }
@@ -414,9 +413,7 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("no input")
     {
-        const auto table = GetTable(&sys, player);
-
-        REQUIRE(MapEq(table.data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -427,7 +424,7 @@ TEST_CASE("input-test", "[input]")
     {
         sys.OnKeyboardKey(Key::A, true);
 
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -435,7 +432,7 @@ TEST_CASE("input-test", "[input]")
 
         sys.OnKeyboardKey(Key::A, false);
 
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -445,14 +442,14 @@ TEST_CASE("input-test", "[input]")
     SECTION("move mouse")
     {
         sys.OnMouseAxis(Axis::X, 2.0f);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 2.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnMouseAxis(Axis::X, 0.0f);
-        REQUIRE(MapEq(GetTable(&sys, player).data, {
+        REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -462,7 +459,7 @@ TEST_CASE("input-test", "[input]")
     SECTION("move with keyboard")
     {
         // start clean
-        CHECK(MapEq(GetTable(&sys, player).data, {
+        CHECK(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -470,7 +467,7 @@ TEST_CASE("input-test", "[input]")
 
         // left down
         sys.OnKeyboardKey(Key::LEFT, true);
-        CHECK(MapEq(GetTable(&sys, player).data, {
+        CHECK(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", -1.0f}
@@ -478,7 +475,7 @@ TEST_CASE("input-test", "[input]")
 
         // left and right down
         sys.OnKeyboardKey(Key::RIGHT, true);
-        CHECK(MapEq(GetTable(&sys, player).data, {
+        CHECK(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
@@ -486,7 +483,7 @@ TEST_CASE("input-test", "[input]")
 
         // only right down
         sys.OnKeyboardKey(Key::LEFT, false);
-        CHECK(MapEq(GetTable(&sys, player).data, {
+        CHECK(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 1.0f}
@@ -494,7 +491,7 @@ TEST_CASE("input-test", "[input]")
 
         // nothing down
         sys.OnKeyboardKey(Key::RIGHT, false);
-        CHECK(MapEq(GetTable(&sys, player).data, {
+        CHECK(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
