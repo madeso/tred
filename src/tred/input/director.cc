@@ -76,11 +76,11 @@ void InputDirector::OnKeyboardKey(Key key, bool down)
 }
 
 
-void InputDirector::OnMouseAxis(Axis axis, float value)
+void InputDirector::OnMouseAxis(Axis axis, float relative_state, float absolute_state)
 {
     for (auto m: mouses)
     {
-        m->OnAxis(axis, value);
+        m->OnAxis(axis, relative_state, absolute_state);
     }
 }
 

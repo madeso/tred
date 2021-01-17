@@ -28,7 +28,7 @@ void impl::RelativeMouseAxisUnit::RegisterAxis(AxisType type, int target, int ax
     assert(target == 0);
     if(type == AxisType::GeneralAxis)
     {
-        parent->axes.Add(FromIndex<Axis>(axis));
+        parent->relative_axes.Add(FromIndex<Axis>(axis));
     }
     else if(type == AxisType::Wheel)
     {
@@ -46,7 +46,7 @@ float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis,
     assert(target == 0);
     if(type == AxisType::GeneralAxis)
     {
-        return parent->axes.GetRaw(FromIndex<Axis>(axis));
+        return parent->relative_axes.GetRaw(FromIndex<Axis>(axis));
     }
     else if(type == AxisType::Wheel)
     {
@@ -60,19 +60,44 @@ float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis,
 }
 
 
-// void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType type, int target, int axis)
-void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType, int, int)
+void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType type, int target, int axis)
 {
-    assert(false && "not implemented yet");
+    assert(target == 0);
+    if(type == AxisType::GeneralAxis)
+    {
+        parent->absolute_axes.Add(FromIndex<Axis>(axis));
+    }
+    else if(type == AxisType::Wheel)
+    {
+        // todo(Gustav): implement absolute mouse wheel
+        assert(false && "not implemented yet");
+    }
+    else
+    {
+        assert(false && "invalid mouse axis");
+    }
 }
 
 
 // float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float dt)
-float impl::AbsoluteMouseAxisUnit::GetState(AxisType, int, int, float)
+float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float)
 {
-    // todo(Gustav): implement absolute mouse
-    assert(false && "not implemented yet");
-    return 0.0f;
+    assert(target == 0);
+    if(type == AxisType::GeneralAxis)
+    {
+        return parent->absolute_axes.GetRaw(FromIndex<Axis>(axis));
+    }
+    else if(type == AxisType::Wheel)
+    {
+        // todo(Gustav): implement absolute mouse wheel
+        assert(false && "not implemented yet");
+        return 0.0f;
+    }
+    else
+    {
+        assert(false && "invalid mouse axis");
+        return 0.0f;
+    }
 }
 
 
@@ -124,9 +149,10 @@ bool MouseActiveUnit::IsDeleteSheduled()
 }
 
 
-void MouseActiveUnit::OnAxis(const Axis& axis, float state)
+void MouseActiveUnit::OnAxis(const Axis& axis, float relative_state, float absolute_state)
 {
-    axes.SetRaw(axis, state);
+    relative_axes.SetRaw(axis, relative_state);
+    absolute_axes.SetRaw(axis, absolute_state);
 }
 
 

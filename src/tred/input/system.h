@@ -41,7 +41,7 @@ struct InputSystem
     void UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform);
 
     void OnKeyboardKey(Key key, bool down);
-    void OnMouseAxis(Axis axis, float value);
+    void OnMouseAxis(Axis axis, float relative_state, float absolute_state);
     void OnMouseWheel(Axis axis, float value);
     void OnMouseButton(MouseButton button, bool down);
 

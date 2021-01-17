@@ -79,9 +79,9 @@ void InputSystem::OnKeyboardKey(Key key, bool down)
 }
 
 
-void InputSystem::OnMouseAxis(Axis axis, float value)
+void InputSystem::OnMouseAxis(Axis axis, float relative_state, float absolute_state)
 {
-    m->input_director.OnMouseAxis(axis, value);
+    m->input_director.OnMouseAxis(axis, relative_state, absolute_state);
 }
 
 

@@ -94,10 +94,15 @@ TEST_CASE("input-test", "[input]")
             // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
             // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
             // todo(Gustav): support button images for help text and display in config files
+            // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
+            // todo(Gustav): add multiple key bindings
 
             // todo(Gustav): add bad config tests
-            // todo(Gustav): add multiple key bindings
-            // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
+            // todo(Gustav): add invert axis bools
+            // todo(Gustav): add axis sensitivity
+            // todo(Gustav): add axis scales functions
+            // todo(Gustav): add haptic feedback
+            // todo(Gustav): add joystick smoothing for use in sdl implementation or global
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
                 {"look", "var_look", Range::Infinite},
@@ -475,14 +480,14 @@ TEST_CASE("input-test", "[input]")
 
         SECTION("mouse")
         {
-            sys.OnMouseAxis(Axis::X, 2.0f);
+            sys.OnMouseAxis(Axis::X, 2.0f, 0.0f);
             REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 2.0f},
                 {"var_move", 0.0f}
             }));
 
-            sys.OnMouseAxis(Axis::X, 0.0f);
+            sys.OnMouseAxis(Axis::X, 0.0f, 0.0f);
             REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},

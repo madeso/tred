@@ -59,12 +59,13 @@ struct MouseActiveUnit : public ActiveUnit
     bool IsConsideredJoystick() override;
     bool IsDeleteSheduled() override;
 
-    void OnAxis(const Axis& axis, float state);
+    void OnAxis(const Axis& axis, float relative_state, float absolute_state);
     void OnWheel(const Axis& axis, float state);
     void OnButton(MouseButton button, float state);
 
     InputDirector* director;
-    BindMap<Axis> axes;
+    BindMap<Axis> relative_axes;
+    BindMap<Axis> absolute_axes;
     BindMap<Axis> wheels;
     BindMap<MouseButton> buttons;
 

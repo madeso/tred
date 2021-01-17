@@ -41,7 +41,7 @@ void SetupOpenGl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
     ImGui::StyleColorsLight();
-    
+
     ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
 
     const char* glsl_version = "#version 130";
@@ -58,7 +58,7 @@ struct WindowImpl : public detail::Window
 
     SDL_Window* window;
     SDL_GLContext glcontext;
-    
+
     WindowImpl(const std::string& t, const glm::ivec2& s, RenderFunction&& r, std::optional<ImguiFunction>&& i)
         : title(t)
         , size(s)
@@ -88,7 +88,7 @@ struct WindowImpl : public detail::Window
         if(glcontext == nullptr)
         {
             LOG_ERROR("Could not create window: {}", SDL_GetError());
-            
+
             SDL_DestroyWindow(window);
             window = nullptr;
 
@@ -190,7 +190,7 @@ struct WindowsImpl : public Windows
     {
         SDL_Quit();
     }
-    
+
     void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<ImguiFunction>&& imgui) override
     {
         auto window = std::make_unique<WindowImpl>(title, size, std::move(on_render), std::move(imgui));
@@ -233,7 +233,7 @@ struct WindowsImpl : public Windows
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
 
-            platform.OnEvent(input_system, e);
+            platform.OnEvent(input_system, e, [&](u32 id) {return windows[id]->size;});
 
             switch(e.type)
             {

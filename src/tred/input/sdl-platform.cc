@@ -116,7 +116,7 @@ struct Joystick
         if(joystick) return SDL_JoystickNumAxes(joystick);
         else return -1;
     }
-    
+
     int GetNumberOfBalls()
     {
         if(joystick) return SDL_JoystickNumBalls(joystick);
@@ -262,7 +262,7 @@ void LogInfoAboutController(GameController* controller)
 void LogInfoAboutJoystick(int device_index)
 {
     const bool is_game_controller = SDL_IsGameController(device_index);
-    
+
     if(is_game_controller)
     {
         LOG_INFO("Joystick {} (gamecontroller)", device_index + 1);
@@ -299,7 +299,7 @@ struct SdlPlatformImpl
         }
     }
 
-    void OnEvent(InputSystem* system, const SDL_Event& event)
+    void OnEvent(InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
     {
         switch(event.type)
         {
@@ -356,8 +356,19 @@ struct SdlPlatformImpl
                 break;
 
             case SDL_MOUSEMOTION:
-                system->OnMouseAxis(Axis::X, static_cast<float>(event.motion.xrel));
-                system->OnMouseAxis(Axis::Y, static_cast<float>(event.motion.yrel));
+                {
+                    const auto size = window_size(event.motion.windowID);
+                    auto pos_to_abs = [](int p, int s) -> float
+                    {
+                        // normalize to [0 1] range
+                        const auto r = static_cast<float>(p)/static_cast<float>(s);
+
+                        // scale to to [-1 +1] range
+                        return (r - 0.5f) * 2.0f;
+                    };
+                    system->OnMouseAxis(Axis::X, static_cast<float>(event.motion.xrel), pos_to_abs(event.motion.x, size.x));
+                    system->OnMouseAxis(Axis::Y, static_cast<float>(event.motion.yrel), pos_to_abs(event.motion.y, size.y));
+                }
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -388,7 +399,7 @@ struct SdlPlatformImpl
         }
     }
 
-    
+
     std::vector<JoystickId> ActiveAndFreeJoysticks()
     {
         auto r = std::vector<JoystickId>{};
@@ -465,9 +476,9 @@ SdlPlatform::~SdlPlatform()
 }
 
 
-void SdlPlatform::OnEvent(InputSystem* system, const SDL_Event& event)
+void SdlPlatform::OnEvent(InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
 {
-    impl->OnEvent(system, event);
+    impl->OnEvent(system, event, window_size);
 }
 
 
