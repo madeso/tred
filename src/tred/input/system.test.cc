@@ -96,6 +96,7 @@ TEST_CASE("input-test", "[input]")
             // todo(Gustav): support button images for help text and display in config files
             // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
             // todo(Gustav): add multiple key bindings
+            // todo(Gustav): add support for runtime rebinding
 
             // todo(Gustav): add bad config tests
             // todo(Gustav): add invert axis bools
