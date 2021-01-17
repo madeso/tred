@@ -90,15 +90,13 @@ TEST_CASE("input-test", "[input]")
     auto sys = InputSystem
     {
         {
-            // actions
-            // todo(Gustav): add multiple key bindings
             // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
             // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
             // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
             // todo(Gustav): support button images for help text and display in config files
 
             // todo(Gustav): add bad config tests
-            // todo(Gustav): add dt tests
+            // todo(Gustav): add multiple key bindings
             // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
             {
                 {"shoot", "var_shoot", Range::WithinZeroToOne},
@@ -411,6 +409,14 @@ TEST_CASE("input-test", "[input]")
     // now... for the rest of the tests select the player input ("mouse and keyboard")
     sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
 
+    auto use_joystick_now = [&]()
+    {
+        test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+    };
+
     SECTION("no input")
     {
         REQUIRE(MapEq(GetTable(&sys, player), {
@@ -422,80 +428,148 @@ TEST_CASE("input-test", "[input]")
 
     SECTION("push button")
     {
-        sys.OnKeyboardKey(Key::A, true);
+        const auto ignore_dt = GENERATE(0.5f, 1.0f);
 
-        REQUIRE(MapEq(GetTable(&sys, player), {
+        sys.OnKeyboardKey(Key::A, true);
+        REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
         sys.OnKeyboardKey(Key::A, false);
-
-        REQUIRE(MapEq(GetTable(&sys, player), {
+        REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
     }
 
-    SECTION("move mouse")
+    SECTION("look with")
     {
-        sys.OnMouseAxis(Axis::X, 2.0f);
-        REQUIRE(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 2.0f},
-            {"var_move", 0.0f}
-        }));
+        const auto ignore_dt = GENERATE(0.5f, 1.0f);
 
-        sys.OnMouseAxis(Axis::X, 0.0f);
-        REQUIRE(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", 0.0f}
-        }));
+        SECTION("joystick")
+        {
+            use_joystick_now();
+
+            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 1.0f);
+            REQUIRE(MapEq(GetTable(&sys, player, 1.0f), {
+                {"var_shoot", 0.0f},
+                {"var_look", 1.0f},
+                {"var_move", 0.0f}
+            }));
+            REQUIRE(MapEq(GetTable(&sys, player, 0.5f), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.5f},
+                {"var_move", 0.0f}
+            }));
+
+            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 0.0f);
+            REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+        }
+
+        SECTION("mouse")
+        {
+            sys.OnMouseAxis(Axis::X, 2.0f);
+            REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 2.0f},
+                {"var_move", 0.0f}
+            }));
+
+            sys.OnMouseAxis(Axis::X, 0.0f);
+            REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+        }
     }
 
-    SECTION("move with keyboard")
+    SECTION("move with")
     {
-        // start clean
-        CHECK(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", 0.0f}
-        }));
+        const auto ignore_dt = GENERATE(0.5f, 1.0f);
 
-        // left down
-        sys.OnKeyboardKey(Key::LEFT, true);
-        CHECK(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", -1.0f}
-        }));
+        SECTION("joystick")
+        {
+            use_joystick_now();
 
-        // left and right down
-        sys.OnKeyboardKey(Key::RIGHT, true);
-        CHECK(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", 0.0f}
-        }));
+            // start clean
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
 
-        // only right down
-        sys.OnKeyboardKey(Key::LEFT, false);
-        CHECK(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", 1.0f}
-        }));
+            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, -1.0f);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", -1.0f}
+            }));
 
-        // nothing down
-        sys.OnKeyboardKey(Key::RIGHT, false);
-        CHECK(MapEq(GetTable(&sys, player), {
-            {"var_shoot", 0.0f},
-            {"var_look", 0.0f},
-            {"var_move", 0.0f}
-        }));
+            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 0.0f);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+
+            // only right down
+            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 1.0f);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 1.0f}
+            }));
+        }
+
+        SECTION("keyboard")
+        {
+            // start clean
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+
+            // left down
+            sys.OnKeyboardKey(Key::LEFT, true);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", -1.0f}
+            }));
+
+            // left and right down
+            sys.OnKeyboardKey(Key::RIGHT, true);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+
+            // only right down
+            sys.OnKeyboardKey(Key::LEFT, false);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 1.0f}
+            }));
+
+            // nothing down
+            sys.OnKeyboardKey(Key::RIGHT, false);
+            CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
+                {"var_shoot", 0.0f},
+                {"var_look", 0.0f},
+                {"var_move", 0.0f}
+            }));
+        }
     }
 }
 

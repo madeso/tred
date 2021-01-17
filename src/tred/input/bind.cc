@@ -80,7 +80,7 @@ struct AxisActiveBind : public ActiveBind
 
     void SetValueInTable(Table* t, float dt)
     {
-        const auto state = unit->GetState(type, target, axis, dt);
+        const auto state = unit->GetState(type, target, axis, keep_within ? 1.0f : dt);
         t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state);
     }
 };
@@ -198,7 +198,7 @@ std::unique_ptr<ActiveBind> AbsoluteTwoKeyBindDef::Create(ConnectedUnits* units)
 {
     auto* active_unit = units->GetUnit(unit);
     assert(active_unit);
-    return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->GetKeyUnit(), false);
+    return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->GetKeyUnit(), true);
 }
 
 
