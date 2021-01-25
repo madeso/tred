@@ -17,11 +17,24 @@ InputActionMap::InputActionMap()
 {
 }
 
+
+InputActionMap::InputActionMap(InputActionMap&& m)
+    : actions(std::move(m.actions))
+{
+}
+
+
+void InputActionMap::operator=(InputActionMap&& m)
+{
+    actions = std::move(m.actions);
+}
+
+
 InputActionMap::~InputActionMap()
 {
 }
 
-    
+
 void InputActionMap::Add(const std::string& name, std::unique_ptr<InputAction>&& action)
 {
     assert(action);
@@ -29,14 +42,21 @@ void InputActionMap::Add(const std::string& name, std::unique_ptr<InputAction>&&
 }
 
 
-void Load(InputActionMap* map, const input::config::ActionMap& root)
+Result<InputActionMap> LoadActionMap(const input::config::ActionMap& root)
 {
-    assert(map);
+    InputActionMap map;
 
     for (const auto& d: root)
     {
-        map->Add(d.name, std::make_unique<InputAction>(d.name, d.var, d.range));
+        const auto existing = map.actions.find(d.name) != map.actions.end();
+        if(existing)
+        {
+            return fmt::format("Duplicate action found {}", d.name);
+        }
+        map.Add(d.name, std::make_unique<InputAction>(d.name, d.var, d.range));
     }
+
+    return std::move(map);
 }
 
 

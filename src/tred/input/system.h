@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "tred/types.h"
+#include "tred/result.h"
 
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
@@ -34,7 +35,8 @@ struct InputSystemPiml;
 
 struct InputSystem
 {
-    InputSystem(const config::InputSystem& config);
+    InputSystem();
+    InputSystem(InputSystem&& is);
     ~InputSystem();
 
     void UpdateTable(PlayerHandle player, Table* table, float dt);
@@ -56,5 +58,7 @@ struct InputSystem
 
     std::unique_ptr<InputSystemPiml> m;
 };
+
+Result<InputSystem> Load(const config::InputSystem& config);
 
 }  // namespace input

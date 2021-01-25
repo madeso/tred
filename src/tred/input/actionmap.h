@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-
+#include "tred/result.h"
 #include "tred/input/config.h"
 
 namespace input
@@ -19,13 +19,16 @@ struct InputAction;
 struct InputActionMap
 {
     InputActionMap();
+    InputActionMap(InputActionMap&& m);
+    void operator=(InputActionMap&& m);
     ~InputActionMap();
+
     void Add(const std::string& name, std::unique_ptr<InputAction>&& action);
 
     std::map<std::string, std::unique_ptr<InputAction>> actions;
 };
 
 
-void Load(InputActionMap* map, const input::config::ActionMap& root);
+Result<InputActionMap> LoadActionMap(const input::config::ActionMap& root);
 
 }  // namespace input

@@ -45,6 +45,7 @@ set(src
     tred/opengl.cc tred/opengl.h
     tred/opengl.debug.cc tred/opengl.debug.h
     tred/profiler.cc tred/profiler.h
+    tred/result.cc tred/result.h
     tred/shader.cc tred/shader.h
     tred/shader.util.cc tred/shader.util.h
     tred/sortablepair.cc tred/sortablepair.h

@@ -24,11 +24,38 @@ namespace input
 {
 
 
-InputSystem::InputSystem(const config::InputSystem& config)
+InputSystem::InputSystem()
     : m(std::make_unique<InputSystemPiml>())
 {
-    Load(&m->actions, config.actions);
-    Load(&m->configs, config.keys, m->actions);
+}
+
+
+InputSystem::InputSystem(InputSystem&& is)
+    : m(std::move(is.m))
+{
+}
+
+
+Result<InputSystem> Load(const config::InputSystem& config)
+{
+    InputSystem system;
+
+    auto actions = LoadActionMap(config.actions);
+    if(actions == false)
+    {
+        return actions.error();
+    }
+    system.m->actions = std::move(actions.value());
+
+    auto mapping_list = LoadMappingList(config.keys, system.m->actions);
+    if(mapping_list == false)
+    {
+        return mapping_list.error();
+    }
+    system.m->configs = std::move(mapping_list.value());
+
+
+    return system;
 }
 
 
@@ -37,7 +64,7 @@ InputSystem::~InputSystem()
     // need to clear all players first with 'this' valid
     // otherwise we crash in destructor for active units and the director has
     // been destroyed
-    m->players.Clear();
+    if(m) { m->players.Clear(); }
 }
 
 

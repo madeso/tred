@@ -24,6 +24,18 @@ MappingList::MappingList()
 {
 }
 
+
+MappingList::MappingList(MappingList&& m)
+    : configs(std::move(m.configs))
+{
+}
+
+
+void MappingList::operator=(MappingList&& m)
+{
+    configs = std::move(m.configs);
+}
+
 MappingList::~MappingList()
 {
 }
@@ -154,17 +166,19 @@ void Load(Mapping* config, const input::config::Mapping& root, const InputAction
 }
 
 
-void Load(MappingList* configs, const input::config::MappingList& root, const InputActionMap& map)
+Result<MappingList> LoadMappingList(const input::config::MappingList& root, const InputActionMap& map)
 {
-    assert(configs);
+    MappingList configs;
 
     for (const auto& d: root)
     {
         const std::string name = d.name;
         auto config = std::make_unique<Mapping>(map, d);
         Load(config.get(), d, map);
-        configs->Add(name, std::move(config));
+        configs.Add(name, std::move(config));
     }
+
+    return configs;
 }
 
 

@@ -87,59 +87,61 @@ TEST_CASE("input-test", "[input]")
     constexpr int JOYSTICK_MOVE = 0;
     constexpr int JOYSTICK_LOOK = 1;
 
-    auto sys = InputSystem
+    auto config = config::InputSystem
     {
+        // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
+        // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
+        // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
+        // todo(Gustav): support button images for help text and display in config files
+        // todo(Gustav): add multiple key bindings
+        // todo(Gustav): add support for runtime rebinding
+
+        // todo(Gustav): add bad config tests
+        // todo(Gustav): add invert axis bools
+        // todo(Gustav): add axis sensitivity
+        // todo(Gustav): add axis scales functions
+        // todo(Gustav): add haptic feedback
+        // todo(Gustav): add joystick smoothing for use in sdl implementation or global
+        // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
+        // todo(Gustav): add sdl gamepad
+        // todo(Gustav): add keyboard input
         {
-            // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
-            // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
-            // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
-            // todo(Gustav): support button images for help text and display in config files
-            // todo(Gustav): add multiple key bindings
-            // todo(Gustav): add support for runtime rebinding
+            {"shoot", "var_shoot", Range::WithinZeroToOne},
+            {"look", "var_look", Range::Infinite},
+            {"move", "var_move", Range::WithinNegativeOneToPositiveOne},
+        },
 
-            // todo(Gustav): add bad config tests
-            // todo(Gustav): add invert axis bools
-            // todo(Gustav): add axis sensitivity
-            // todo(Gustav): add axis scales functions
-            // todo(Gustav): add haptic feedback
-            // todo(Gustav): add joystick smoothing for use in sdl implementation or global
-            // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
-            // todo(Gustav): add sdl gamepad
-            // todo(Gustav): add keyboard input
+        // controller setup (bind)
+        {
             {
-                {"shoot", "var_shoot", Range::WithinZeroToOne},
-                {"look", "var_look", Range::Infinite},
-                {"move", "var_move", Range::WithinNegativeOneToPositiveOne},
-            },
-
-            // controller setup (bind)
-            {
+                "mouse+keyboard",
                 {
-                    "mouse+keyboard",
-                    {
-                        config::KeyboardDef{Key::RETURN},
-                        config::MouseDef{MouseButton::LEFT}
-                    },
-                    {
-                        config::KeyBindDef{"shoot", 0, Key::A},
-                        config::TwoKeyBindDef{"move", 0, Key::LEFT, Key::RIGHT},
-                        config::AxisBindDef{"look", 1, Axis::X}
-                    }
+                    config::KeyboardDef{Key::RETURN},
+                    config::MouseDef{MouseButton::LEFT}
                 },
                 {
-                    "joystick",
-                    {
-                        config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID}
-                    },
-                    {
-                        config::KeyBindDef{"shoot", 0, JOYSTICK_SHOOT},
-                        config::AxisBindDef{"move", 0, AxisType::GeneralAxis, 0, JOYSTICK_MOVE},
-                        config::AxisBindDef{"look", 0, AxisType::GeneralAxis, 0, JOYSTICK_LOOK}
-                    }
+                    config::KeyBindDef{"shoot", 0, Key::A},
+                    config::TwoKeyBindDef{"move", 0, Key::LEFT, Key::RIGHT},
+                    config::AxisBindDef{"look", 1, Axis::X}
+                }
+            },
+            {
+                "joystick",
+                {
+                    config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID}
+                },
+                {
+                    config::KeyBindDef{"shoot", 0, JOYSTICK_SHOOT},
+                    config::AxisBindDef{"move", 0, AxisType::GeneralAxis, 0, JOYSTICK_MOVE},
+                    config::AxisBindDef{"look", 0, AxisType::GeneralAxis, 0, JOYSTICK_LOOK}
                 }
             }
         }
     };
+
+    auto loaded = Load(config);
+    REQUIRE(loaded);
+    auto& sys = loaded.value();
 
     auto test_platform = TestPlatform{};
 
