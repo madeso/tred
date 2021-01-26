@@ -45,14 +45,14 @@ Result<InputSystem> Load(const config::InputSystem& config)
     {
         return actions.error();
     }
-    system.m->actions = std::move(actions.value());
+    system.m->actions = std::move(*actions.value);
 
     auto mapping_list = LoadMappingList(config.keys, system.m->actions);
     if(mapping_list == false)
     {
         return mapping_list.error();
     }
-    system.m->configs = std::move(mapping_list.value());
+    system.m->configs = std::move(*mapping_list.value);
 
 
     return system;

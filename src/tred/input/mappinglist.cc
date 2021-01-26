@@ -147,7 +147,7 @@ std::optional<std::string> Load(Mapping* config, const input::config::Mapping& r
             auto def = DEF;\
             if(def)\
             {\
-                config->Add(std::move(def.value()));\
+                config->Add(std::move(*def.value));\
             }\
             else\
             {\

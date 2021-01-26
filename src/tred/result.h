@@ -7,22 +7,18 @@
 template<typename T, typename E=std::string>
 struct Result
 {
-    std::optional<T> t;
+    std::optional<T> value;
     std::optional<E> e;
 
-    Result(T&& tt) : t(std::move(tt)) {}
+    Result(T&& tt) : value(std::move(tt)) {}
     Result(const E& ee) : e(ee) {}
 
-    operator bool() const { return t.has_value(); }
+    operator bool() const { return value.has_value(); }
 
-    T& value()
+    E error(const E& missing = E{}) const
     {
-        return *t;
-    }
-
-    const E& error() const
-    {
-        return *e;
+        if(e) { return *e; }
+        else { return missing; }
     }
 };
 

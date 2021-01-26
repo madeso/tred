@@ -141,7 +141,7 @@ TEST_CASE("input-test", "[input]")
 
     auto loaded = Load(config);
     REQUIRE(loaded);
-    auto& sys = loaded.value();
+    auto& sys = *loaded.value;
 
     auto test_platform = TestPlatform{};
 
