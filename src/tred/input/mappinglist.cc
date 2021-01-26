@@ -48,76 +48,73 @@ void MappingList::Add(const std::string& name, std::unique_ptr<Mapping>&& config
 }
 
 
-std::unique_ptr<BindDef> CreateBindDef(const InputActionMap& map, const input::config::KeyBindDef& def)
+using BindDefResult = Result<std::unique_ptr<BindDef>>;
+
+
+BindDefResult CreateKeyBindDef(const InputActionMap& map, const input::config::KeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
-        LOG_ERROR("Unknown action {}", def.action);
-        return nullptr;
+        return fmt::format("Unknown action {}", def.action);
     }
     input::InputAction* action = found->second.get();
     if(action->range != Range::WithinZeroToOne)
     {
-        LOG_ERROR("Invalid range bind");
-        return nullptr;
+        return fmt::format("Invalid range bind");
     }
 
-    return std::make_unique<KeyBindDef>(action->scriptvarname, def.unit, def.key);
+    return {std::make_unique<KeyBindDef>(action->scriptvarname, def.unit, def.key)};
 }
 
 
-std::unique_ptr<BindDef> CreateBindDef(const InputActionMap& map, const input::config::AxisBindDef& def)
+BindDefResult CreateAxisBindDef(const InputActionMap& map, const input::config::AxisBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
-        LOG_ERROR("Unknown action {}", def.action);
-        return nullptr;
+        return fmt::format("Unknown action {}", def.action);
     }
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
-        return std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis);
+        return {std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
-        return std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis);
+        return {std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else
     {
-        LOG_ERROR("Invalid range bind");
-        return nullptr;
+        return fmt::format("Invalid range bind");
     }
 }
 
 
-std::unique_ptr<BindDef> CreateBindDef(const InputActionMap& map, const input::config::TwoKeyBindDef& def)
+BindDefResult CreateTwoKeyBindDef(const InputActionMap& map, const input::config::TwoKeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
-        LOG_ERROR("Unknown action {}", def.action);
-        return nullptr;
+        return fmt::format("Unknown action {}", def.action);
     }
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
-        return std::make_unique<RelativeTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive);
+        return {std::make_unique<RelativeTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
-        return std::make_unique<AbsoluteTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive);
+        return {std::make_unique<AbsoluteTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else
     {
-        LOG_ERROR("Invalid range bind");
-        return nullptr;
+        return fmt::format("Invalid range bind");
     }
 }
 
 
-void Load(Mapping* config, const input::config::Mapping& root, const InputActionMap& map)
+std::optional<std::string> Load(Mapping* config, const input::config::Mapping& root, const InputActionMap& map)
 {
     assert(config);
 
@@ -146,23 +143,38 @@ void Load(Mapping* config, const input::config::Mapping& root, const InputAction
 
     for(const auto& d: root.binds)
     {
+        #define ADD_OR_RETURN_DEF(DEF) \
+            auto def = DEF;\
+            if(def)\
+            {\
+                config->Add(std::move(def.value()));\
+            }\
+            else\
+            {\
+                return def.error();\
+            }
+
         if(d.key)
         {
-            config->Add(CreateBindDef(map, *d.key));
+            ADD_OR_RETURN_DEF(CreateKeyBindDef(map, *d.key));
         }
         else if(d.axis)
         {
-            config->Add(CreateBindDef(map, *d.axis));
+            ADD_OR_RETURN_DEF(CreateAxisBindDef(map, *d.axis));
         }
         else if(d.twokey)
         {
-            config->Add(CreateBindDef(map, *d.twokey));
+            ADD_OR_RETURN_DEF(CreateTwoKeyBindDef(map, *d.twokey));
         }
         else
         {
             assert(false && "Unhandled bind type");
         }
+
+        #undef ADD_OR_RETURN_DEF
     }
+
+    return std::nullopt;
 }
 
 
@@ -174,7 +186,11 @@ Result<MappingList> LoadMappingList(const input::config::MappingList& root, cons
     {
         const std::string name = d.name;
         auto config = std::make_unique<Mapping>(map, d);
-        Load(config.get(), d, map);
+        auto error = Load(config.get(), d, map);
+        if(error)
+        {
+            return *error;
+        }
         configs.Add(name, std::move(config));
     }
 
