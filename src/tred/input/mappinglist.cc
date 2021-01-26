@@ -51,7 +51,24 @@ void MappingList::Add(const std::string& name, std::unique_ptr<Mapping>&& config
 using BindDefResult = Result<std::unique_ptr<BindDef>>;
 
 
-BindDefResult CreateKeyBindDef(const InputActionMap& map, const input::config::KeyBindDef& def)
+std::optional<std::string> ValidateUnit(Mapping* config, int unit)
+{
+    if(unit < 0)
+    {
+        return "Negative units are invalid";
+    }
+
+    const auto size = static_cast<int>(config->units.size());
+    if(unit >= size)
+    {
+        return fmt::format("Invalid unit {}", unit);
+    }
+
+    return std::nullopt;
+}
+
+
+BindDefResult CreateKeyBindDef(Mapping* config, const InputActionMap& map, const input::config::KeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
@@ -64,11 +81,16 @@ BindDefResult CreateKeyBindDef(const InputActionMap& map, const input::config::K
         return fmt::format("Invalid range bind");
     }
 
+    if(auto error = ValidateUnit(config, def.unit); error)
+    {
+        return *error;
+    }
+
     return {std::make_unique<KeyBindDef>(action->scriptvarname, def.unit, def.key)};
 }
 
 
-BindDefResult CreateAxisBindDef(const InputActionMap& map, const input::config::AxisBindDef& def)
+BindDefResult CreateAxisBindDef(Mapping* config, const InputActionMap& map, const input::config::AxisBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
@@ -78,10 +100,18 @@ BindDefResult CreateAxisBindDef(const InputActionMap& map, const input::config::
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
+        if(auto error = ValidateUnit(config, def.unit); error)
+        {
+            return *error;
+        }
         return {std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
+        if(auto error = ValidateUnit(config, def.unit); error)
+        {
+            return *error;
+        }
         return {std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else
@@ -91,7 +121,7 @@ BindDefResult CreateAxisBindDef(const InputActionMap& map, const input::config::
 }
 
 
-BindDefResult CreateTwoKeyBindDef(const InputActionMap& map, const input::config::TwoKeyBindDef& def)
+BindDefResult CreateTwoKeyBindDef(Mapping* config, const InputActionMap& map, const input::config::TwoKeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
@@ -101,10 +131,18 @@ BindDefResult CreateTwoKeyBindDef(const InputActionMap& map, const input::config
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
+        if(auto error = ValidateUnit(config, def.unit); error)
+        {
+            return *error;
+        }
         return {std::make_unique<RelativeTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
+        if(auto error = ValidateUnit(config, def.unit); error)
+        {
+            return *error;
+        }
         return {std::make_unique<AbsoluteTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else
@@ -156,15 +194,15 @@ std::optional<std::string> Load(Mapping* config, const input::config::Mapping& r
 
         if(d.key)
         {
-            ADD_OR_RETURN_DEF(CreateKeyBindDef(map, *d.key));
+            ADD_OR_RETURN_DEF(CreateKeyBindDef(config, map, *d.key));
         }
         else if(d.axis)
         {
-            ADD_OR_RETURN_DEF(CreateAxisBindDef(map, *d.axis));
+            ADD_OR_RETURN_DEF(CreateAxisBindDef(config, map, *d.axis));
         }
         else if(d.twokey)
         {
-            ADD_OR_RETURN_DEF(CreateTwoKeyBindDef(map, *d.twokey));
+            ADD_OR_RETURN_DEF(CreateTwoKeyBindDef(config, map, *d.twokey));
         }
         else
         {

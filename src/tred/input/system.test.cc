@@ -12,10 +12,29 @@
 #include "tred/input/table.h"
 
 #include "catchy/mapeq.h"
+#include "catchy/stringeq.h"
 
 using namespace input;
 using namespace Catch::Matchers;
 using namespace catchy;
+
+
+// todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
+// todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
+// todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
+// todo(Gustav): support button images for help text and display in config files
+// todo(Gustav): add multiple key bindings
+// todo(Gustav): add support for runtime rebinding
+
+// todo(Gustav): add bad config tests
+// todo(Gustav): add invert axis bools
+// todo(Gustav): add axis sensitivity
+// todo(Gustav): add axis scales functions
+// todo(Gustav): add haptic feedback
+// todo(Gustav): add joystick smoothing for use in sdl implementation or global
+// todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
+// todo(Gustav): add sdl gamepad
+// todo(Gustav): add keyboard input
 
 
 namespace
@@ -78,7 +97,115 @@ FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::s
 }
 
 
-TEST_CASE("input-test", "[input]")
+TEST_CASE("input-test-error", "[input]")
+{
+    SECTION("empty is ok")
+    {
+        auto config = config::InputSystem
+        {
+            {},
+            {
+                {
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(loaded);
+    }
+
+    SECTION("only actions is ok")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::WithinZeroToOne}
+            },
+            {
+                {
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(loaded);
+    }
+
+    // todo(Gustav): should we ignore empty units? leave them empty...
+    SECTION("empty unit is ok")
+    {
+        auto config = config::InputSystem
+        {
+            {
+            },
+            {
+                {
+                    "empty",
+                    {
+                    },
+                    {
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(loaded);
+    }
+
+    SECTION("reference missing action")
+    {
+        auto config = config::InputSystem
+        {
+            {
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::KeyboardDef{}
+                    },
+                    {
+                        config::KeyBindDef{"no_action", 0, Key::X}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Unknown action no_action"));
+        CHECK_FALSE(loaded);
+    }
+
+    SECTION("reference invalid unit")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::WithinZeroToOne}
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::KeyboardDef{}
+                    },
+                    {
+                        config::KeyBindDef{"hello", 1, Key::X}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Invalid unit 1"));
+        CHECK_FALSE(loaded);
+    }
+}
+
+
+
+TEST_CASE("input-test-simple", "[input]")
 {
     constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
     constexpr int JOYSTICK_START = 0;
@@ -89,22 +216,6 @@ TEST_CASE("input-test", "[input]")
 
     auto config = config::InputSystem
     {
-        // todo(Gustav): add groupings... (game: use this group now) car/walk/swim ...
-        // todo(Gustav): add categories/tags (better name) (input: use theese functions now): point selection, grid selection...
-        // todo(Gustav): support virtual keys/axis for touch controls like 'sinput'
-        // todo(Gustav): support button images for help text and display in config files
-        // todo(Gustav): add multiple key bindings
-        // todo(Gustav): add support for runtime rebinding
-
-        // todo(Gustav): add bad config tests
-        // todo(Gustav): add invert axis bools
-        // todo(Gustav): add axis sensitivity
-        // todo(Gustav): add axis scales functions
-        // todo(Gustav): add haptic feedback
-        // todo(Gustav): add joystick smoothing for use in sdl implementation or global
-        // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
-        // todo(Gustav): add sdl gamepad
-        // todo(Gustav): add keyboard input
         {
             {"shoot", "var_shoot", Range::WithinZeroToOne},
             {"look", "var_look", Range::Infinite},
