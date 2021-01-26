@@ -12,6 +12,7 @@
 #include "tred/input/unitsetup.h"
 #include "tred/input/platform.h"
 #include "tred/input/director.h"
+#include "tred/input/index.h"
 
 
 namespace input
@@ -34,6 +35,32 @@ std::optional<std::string> JoystickDef::ValidateKey(int key)
     }
 
     return std::nullopt;
+}
+
+
+std::optional<std::string> JoystickDef::ValidateAxis(AxisType type, int target, int axis)
+{
+    switch(type)
+    {
+        case AxisType::GeneralAxis:
+            if(target != 0) { return fmt::format("Invalid target: {}", target);}
+            if(axis < 0) { return fmt::format("Invalid axis: {}", axis);}
+            return std::nullopt;
+        case AxisType::Hat:
+        case AxisType::Ball:
+            if(target < 0) { return fmt::format("Invalid target: {}", target);}
+            switch(FromIndex<Axis>(axis))
+            {
+                case Axis::X:
+                case Axis::Y:
+                    break;
+                default:
+                    return fmt::format("Invalid axis: {}", axis);
+            }
+            return std::nullopt;
+        default:
+            return "Invalid axis type";
+    }
 }
 
 

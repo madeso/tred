@@ -36,6 +36,28 @@ std::optional<std::string> MouseDef::ValidateKey(int key)
 }
 
 
+std::optional<std::string> MouseDef::ValidateAxis(AxisType type, int target, int axis)
+{
+    if(target != 0) { return fmt::format("Invalid target: {}", target); }
+    switch (type)
+    {
+        case AxisType::GeneralAxis:
+        case AxisType::Wheel:
+            switch(FromIndex<Axis>(axis))
+            {
+                case Axis::X:
+                case Axis::Y:
+                    break;
+                default:
+                    return fmt::format("Invalid axis: {}", axis);
+            }
+            return std::nullopt;
+        default:
+            return "Invalid type for mouse";
+    }
+}
+
+
 bool MouseDef::IsConsideredJoystick()
 {
     return false;

@@ -36,6 +36,12 @@ std::optional<std::string> KeyboardDef::ValidateKey(int key)
 }
 
 
+std::optional<std::string> KeyboardDef::ValidateAxis(AxisType, int, int)
+{
+    return "Keyboard doesn't support axis binds";
+}
+
+
 bool KeyboardDef::IsConsideredJoystick()
 {
     return false;

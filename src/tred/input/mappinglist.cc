@@ -74,6 +74,12 @@ std::optional<std::string> ValidateKey(Mapping* config, int unit, int key)
 }
 
 
+std::optional<std::string> ValidateAxis(Mapping* config, int unit, AxisType type, int target, int axis)
+{
+    return config->units[static_cast<std::size_t>(unit)]->ValidateAxis(type, target, axis);
+}
+
+
 BindDefResult CreateKeyBindDef(Mapping* config, const InputActionMap& map, const input::config::KeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
@@ -84,7 +90,7 @@ BindDefResult CreateKeyBindDef(Mapping* config, const InputActionMap& map, const
     input::InputAction* action = found->second.get();
     if(action->range != Range::WithinZeroToOne)
     {
-        return fmt::format("Invalid range bind");
+        return fmt::format("Invalid binding key to anything but 0-1");
     }
 
     if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
@@ -104,23 +110,19 @@ BindDefResult CreateAxisBindDef(Mapping* config, const InputActionMap& map, cons
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
-        if(auto error = ValidateUnit(config, def.unit); error)
-        {
-            return *error;
-        }
+        if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
+        if(auto error = ValidateAxis(config, def.unit, def.type, def.target, def.axis); error) { return *error; }
         return {std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
-        if(auto error = ValidateUnit(config, def.unit); error)
-        {
-            return *error;
-        }
+        if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
+        if(auto error = ValidateAxis(config, def.unit, def.type, def.target, def.axis); error) { return *error; }
         return {std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
     }
     else
     {
-        return fmt::format("Invalid range bind");
+        return fmt::format("Axis needs to be bound to either infinite or -1 to +1");
     }
 }
 
@@ -149,7 +151,7 @@ BindDefResult CreateTwoKeyBindDef(Mapping* config, const InputActionMap& map, co
     }
     else
     {
-        return fmt::format("Invalid range bind");
+        return fmt::format("TwoKeys needs to be bound to either infinite or -1 to +1");
     }
 }
 

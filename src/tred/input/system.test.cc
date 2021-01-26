@@ -251,6 +251,56 @@ TEST_CASE("input-test-error", "[input]")
         REQUIRE(StringEq(loaded.error(), "Invalid mouse button: 123"));
         CHECK_FALSE(loaded);
     }
+
+    SECTION("detect invalid axis for keyboard")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::Infinite}
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::KeyboardDef{}
+                    },
+                    {
+                        config::AxisBindDef{"hello", 0, AxisType::Ball, 0, 0}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Keyboard doesn't support axis binds"));
+        CHECK_FALSE(loaded);
+    }
+
+    SECTION("detect invalid axis for mouse")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::Infinite}
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::AxisBindDef{"hello", 0, AxisType::Ball, 0, 0}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Invalid type for mouse"));
+        CHECK_FALSE(loaded);
+    }
 }
 
 

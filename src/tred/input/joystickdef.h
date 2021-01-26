@@ -27,6 +27,7 @@ struct JoystickDef : public UnitDef
     JoystickDef(int index, const config::JoystickDef& data);
 
     std::optional<std::string> ValidateKey(int key) override;
+    std::optional<std::string> ValidateAxis(AxisType type, int target, int axis) override;
 
     bool IsConsideredJoystick() override;
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
