@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include <string>
 
 #include "tred/input/unitdiscovery.h"
 
@@ -19,6 +21,8 @@ struct Platform;
 struct UnitDef
 {
     virtual ~UnitDef();
+
+    virtual std::optional<std::string> ValidateKey(int key) = 0;
 
     virtual bool IsConsideredJoystick() = 0;
     virtual bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) = 0;

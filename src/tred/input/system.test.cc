@@ -201,6 +201,56 @@ TEST_CASE("input-test-error", "[input]")
         REQUIRE(StringEq(loaded.error(), "Invalid unit 1"));
         CHECK_FALSE(loaded);
     }
+
+    SECTION("detect invalid key")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::WithinZeroToOne}
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::KeyboardDef{}
+                    },
+                    {
+                        config::KeyBindDef{"hello", 0, -2}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Invalid bind to unbound: -2"));
+        CHECK_FALSE(loaded);
+    }
+
+    SECTION("detect invalid mouse button")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"hello", "hello", Range::WithinZeroToOne}
+            },
+            {
+                {
+                    "keyboard",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::KeyBindDef{"hello", 0, 123}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        REQUIRE(StringEq(loaded.error(), "Invalid mouse button: 123"));
+        CHECK_FALSE(loaded);
+    }
 }
 
 

@@ -26,6 +26,17 @@ JoystickDef::JoystickDef(int id, const config::JoystickDef& data)
 }
 
 
+std::optional<std::string> JoystickDef::ValidateKey(int key)
+{
+    if(key < 0)
+    {
+        return "Negative keys are not valid";
+    }
+
+    return std::nullopt;
+}
+
+
 bool JoystickDef::IsConsideredJoystick()
 {
     return true;
@@ -45,7 +56,7 @@ bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* s
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -53,7 +64,7 @@ bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* s
 std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup)
 {
     assert(director);
-    
+
     return std::make_unique<JoystickActiveUnit>(setup.GetJoystick(index), director);
 }
 

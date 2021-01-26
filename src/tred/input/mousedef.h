@@ -25,6 +25,7 @@ struct MouseDef : public UnitDef
 {
     MouseDef(const config::MouseDef& data);
 
+    std::optional<std::string> ValidateKey(int key) override;
     bool IsConsideredJoystick() override;
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
     std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) override;

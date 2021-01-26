@@ -26,6 +26,8 @@ struct JoystickDef : public UnitDef
 {
     JoystickDef(int index, const config::JoystickDef& data);
 
+    std::optional<std::string> ValidateKey(int key) override;
+
     bool IsConsideredJoystick() override;
     bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) override;
     std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) override;

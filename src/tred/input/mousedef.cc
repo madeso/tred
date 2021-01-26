@@ -8,6 +8,7 @@
 #include "tred/input/actionmap.h"
 #include "tred/input/config.h"
 #include "tred/input/director.h"
+#include "tred/input/index.h"
 
 
 namespace input
@@ -16,6 +17,22 @@ namespace input
 MouseDef::MouseDef(const config::MouseDef& data)
     : detection_button(data.detection_button)
 {
+}
+
+
+std::optional<std::string> MouseDef::ValidateKey(int key)
+{
+    switch(FromIndex<MouseButton>(key))
+    {
+        case MouseButton::LEFT:
+        case MouseButton::MIDDLE:
+        case MouseButton::RIGHT:
+        case MouseButton::X1:
+        case MouseButton::X2:
+            return std::nullopt;
+        default:
+            return fmt::format("Invalid mouse button: {}", key);
+    }
 }
 
 

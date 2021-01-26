@@ -68,6 +68,12 @@ std::optional<std::string> ValidateUnit(Mapping* config, int unit)
 }
 
 
+std::optional<std::string> ValidateKey(Mapping* config, int unit, int key)
+{
+    return config->units[static_cast<std::size_t>(unit)]->ValidateKey(key);
+}
+
+
 BindDefResult CreateKeyBindDef(Mapping* config, const InputActionMap& map, const input::config::KeyBindDef& def)
 {
     const auto found = map.actions.find(def.action);
@@ -81,10 +87,8 @@ BindDefResult CreateKeyBindDef(Mapping* config, const InputActionMap& map, const
         return fmt::format("Invalid range bind");
     }
 
-    if(auto error = ValidateUnit(config, def.unit); error)
-    {
-        return *error;
-    }
+    if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
+    if(auto error = ValidateKey(config, def.unit, def.key); error) { return *error; }
 
     return {std::make_unique<KeyBindDef>(action->scriptvarname, def.unit, def.key)};
 }
@@ -131,18 +135,16 @@ BindDefResult CreateTwoKeyBindDef(Mapping* config, const InputActionMap& map, co
     input::InputAction* action = found->second.get();
     if(action->range == Range::Infinite)
     {
-        if(auto error = ValidateUnit(config, def.unit); error)
-        {
-            return *error;
-        }
+        if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
+        if(auto error = ValidateKey(config, def.unit, def.negative); error) { return *error; }
+        if(auto error = ValidateKey(config, def.unit, def.positive); error) { return *error; }
         return {std::make_unique<RelativeTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
-        if(auto error = ValidateUnit(config, def.unit); error)
-        {
-            return *error;
-        }
+        if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
+        if(auto error = ValidateKey(config, def.unit, def.negative); error) { return *error; }
+        if(auto error = ValidateKey(config, def.unit, def.positive); error) { return *error; }
         return {std::make_unique<AbsoluteTwoKeyBindDef>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else

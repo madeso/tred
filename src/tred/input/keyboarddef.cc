@@ -8,6 +8,7 @@
 #include "tred/input/config.h"
 #include "tred/input/keyboardactiveunit.h"
 #include "tred/input/director.h"
+#include "tred/input/index.h"
 
 
 namespace input
@@ -16,6 +17,22 @@ namespace input
 KeyboardDef::KeyboardDef(const config::KeyboardDef& data)
     : detection_key(data.detection_key)
 {
+}
+
+
+std::optional<std::string> KeyboardDef::ValidateKey(int key)
+{
+    if(key <= ToIndex(Key::UNBOUND))
+    {
+        return fmt::format("Invalid bind to unbound: {}", key);
+    }
+
+    if(key > ToIndex(Key::SLEEP))
+    {
+        return fmt::format("Invalid bind to invalid key: {}", key);
+    }
+
+    return std::nullopt;
 }
 
 
@@ -39,7 +56,7 @@ bool KeyboardDef::CanDetect(InputDirector* director, UnitDiscovery discovery, Un
 std::unique_ptr<ActiveUnit> KeyboardDef::Create(InputDirector* director, const UnitSetup&)
 {
     assert(director);
-    
+
     return std::make_unique<KeyboardActiveUnit>(director);
 }
 
