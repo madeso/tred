@@ -26,7 +26,6 @@ using namespace catchy;
 // todo(Gustav): add multiple key bindings
 // todo(Gustav): add support for runtime rebinding
 
-// todo(Gustav): add bad config tests
 // todo(Gustav): add invert axis bools
 // todo(Gustav): add axis sensitivity
 // todo(Gustav): add axis scales functions
