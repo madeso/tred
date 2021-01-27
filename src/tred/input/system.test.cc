@@ -28,6 +28,7 @@ using namespace catchy;
 
 // todo(Gustav): add axis scales functions
 // todo(Gustav): add haptic feedback
+// todo(Gustav): add 2button sensitvity for relative movement (time based?)
 // todo(Gustav): add joystick smoothing for use in sdl implementation or global
 // todo(Gustav): add 2 player tests (both joystick only and keyboard+joystick to test assignment blocking)
 // todo(Gustav): add sdl gamepad
