@@ -26,7 +26,6 @@ using namespace catchy;
 // todo(Gustav): add multiple key bindings
 // todo(Gustav): add support for runtime rebinding
 
-// todo(Gustav): add axis sensitivity
 // todo(Gustav): add axis scales functions
 // todo(Gustav): add haptic feedback
 // todo(Gustav): add joystick smoothing for use in sdl implementation or global
@@ -320,7 +319,7 @@ TEST_CASE("input-test-simple", "[input]")
                         config::MouseDef{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, true}
+                        config::AxisBindDef{"ax", 0, Axis::X, 1.0f, true}
                     }
                 }
             }
@@ -357,7 +356,7 @@ TEST_CASE("input-test-simple", "[input]")
                         config::MouseDef{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, false}
+                        config::AxisBindDef{"ax", 0, Axis::X, 1.0f, false}
                     }
                 }
             }
@@ -377,6 +376,78 @@ TEST_CASE("input-test-simple", "[input]")
         sys.OnMouseAxis(Axis::X, input, 400 + input);
         CHECK(MapEq(GetTable(&sys, player), {
             {"ax", input}
+        }));
+    }
+
+    SECTION("mouse relative respects sensitivity")
+    {
+        const auto sens = GENERATE(0.1f, 1.0f, 2.0f);
+        INFO("sens: " << sens);
+        auto config = config::InputSystem
+        {
+            {
+                {"ax", "ax", Range::Infinite}
+            },
+            {
+                {
+                    "mouse",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::AxisBindDef{"ax", 0, Axis::X, sens, false}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        INFO(loaded.error());
+        REQUIRE(loaded);
+
+        auto& sys = *loaded.value;
+        auto player = sys.AddPlayer();
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        sys.OnMouseAxis(Axis::X, 1.0f, 0.0f);
+        CHECK(MapEq(GetTable(&sys, player), {
+            {"ax", sens}
+        }));
+    }
+
+    SECTION("ignore sensitivity axis for 'mouse position'")
+    {
+        const auto sens = GENERATE(0.1f, 1.0f, 2.0f);
+        INFO("sens: " << sens);
+        auto config = config::InputSystem
+        {
+            {
+                {"ax", "ax", Range::WithinNegativeOneToPositiveOne}
+            },
+            {
+                {
+                    "mouse",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::AxisBindDef{"ax", 0, Axis::X, sens, false}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        INFO(loaded.error());
+        REQUIRE(loaded);
+
+        auto& sys = *loaded.value;
+        auto player = sys.AddPlayer();
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        sys.OnMouseAxis(Axis::X, 0.5f, 1.0f);
+        CHECK(MapEq(GetTable(&sys, player), {
+            {"ax", 1.0f}
         }));
     }
 }

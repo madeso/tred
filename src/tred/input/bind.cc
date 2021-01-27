@@ -52,8 +52,9 @@ struct AxisActiveBind : public ActiveBind
     AxisUnit* unit;
     bool keep_within;
     bool is_inverted;
+    float sensitivity;
 
-    AxisActiveBind(const std::string& v, AxisType ty, int ta, int ax, AxisUnit* u, bool kw, bool i)
+    AxisActiveBind(const std::string& v, AxisType ty, int ta, int ax, AxisUnit* u, bool kw, bool i, float s)
         : var(v)
         , type(ty)
         , target(ta)
@@ -61,6 +62,7 @@ struct AxisActiveBind : public ActiveBind
         , unit(u)
         , keep_within(kw)
         , is_inverted(i)
+        , sensitivity(s)
     {
         unit->RegisterAxis(type, target, axis);
     }
@@ -69,7 +71,7 @@ struct AxisActiveBind : public ActiveBind
     {
         const auto invert_scale = is_inverted ? -1.0f : 1.0f;
         const auto state = unit->GetState(type, target, axis, keep_within ? 1.0f : dt) * invert_scale;
-        t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state);
+        t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state * sensitivity);
     }
 };
 
@@ -119,13 +121,14 @@ std::unique_ptr<ActiveBind> KeyBindDef::Create(ConnectedUnits* units)
 }
 
 
-RelativeAxisBindDef::RelativeAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii)
+RelativeAxisBindDef::RelativeAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii, float s)
     : var(v)
     , unit(u)
     , type(ty)
     , target(ta)
     , axis(ax)
     , is_inverted(ii)
+    , sensitivity(s)
 {
 }
 
@@ -135,17 +138,18 @@ std::unique_ptr<ActiveBind> RelativeAxisBindDef::Create(ConnectedUnits* units)
     auto* active_unit = units->GetUnit(unit);
     assert(active_unit);
 
-    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetRelativeAxisUnit(), false, is_inverted);
+    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetRelativeAxisUnit(), false, is_inverted, sensitivity);
 }
 
 
-AbsoluteAxisBindDef::AbsoluteAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii)
+AbsoluteAxisBindDef::AbsoluteAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii, float s)
     : var(v)
     , unit(u)
     , type(ty)
     , target(ta)
     , axis(ax)
     , is_inverted(ii)
+    , sensitivity(s)
 {
 }
 
@@ -154,7 +158,7 @@ std::unique_ptr<ActiveBind> AbsoluteAxisBindDef::Create(ConnectedUnits* units)
 {
     auto* active_unit = units->GetUnit(unit);
     assert(active_unit);
-    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetAbsoluteAxisUnit(), true, is_inverted);
+    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetAbsoluteAxisUnit(), true, is_inverted, sensitivity);
 }
 
 

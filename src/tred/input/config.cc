@@ -109,22 +109,24 @@ KeyBindDef::KeyBindDef(const std::string& a, int u, int k)
 }
 
 
-AxisBindDef::AxisBindDef(const std::string& a, int u, input::Axis ax, bool ii)
+AxisBindDef::AxisBindDef(const std::string& a, int u, input::Axis ax, float s, bool ii)
     : action(a)
     , unit(u)
     , type(AxisType::GeneralAxis)
     , target(0)
     , axis(ToIndex(ax))
+    , sensitivity(s)
     , is_inverted(ii)
 {
 }
 
-AxisBindDef::AxisBindDef(const std::string& a, int u, AxisType ty, int ta, int ax, bool ii)
+AxisBindDef::AxisBindDef(const std::string& a, int u, AxisType ty, int ta, int ax, float s, bool ii)
     : action(a)
     , unit(u)
     , type(ty)
     , target(ta)
     , axis(ax)
+    , sensitivity(s)
     , is_inverted(ii)
 {
 }

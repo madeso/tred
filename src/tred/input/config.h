@@ -81,14 +81,15 @@ struct KeyBindDef
 
 struct AxisBindDef
 {
-    AxisBindDef(const std::string&, int, input::Axis, bool ii = false);
-    AxisBindDef(const std::string&, int, input::AxisType, int, int, bool ii = false);
+    AxisBindDef(const std::string&, int, input::Axis, float sens = 1.0f, bool ii = false);
+    AxisBindDef(const std::string&, int, input::AxisType, int, int, float sens=1.0f, bool ii = false);
 
     std::string action;
     int unit;
     AxisType type;
     int target; // (joystick axis, hat or ball index)
     int axis;
+    float sensitivity;
     bool is_inverted;
 };
 
