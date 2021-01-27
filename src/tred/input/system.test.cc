@@ -26,7 +26,6 @@ using namespace catchy;
 // todo(Gustav): add multiple key bindings
 // todo(Gustav): add support for runtime rebinding
 
-// todo(Gustav): add invert axis bools
 // todo(Gustav): add axis sensitivity
 // todo(Gustav): add axis scales functions
 // todo(Gustav): add haptic feedback
@@ -303,8 +302,87 @@ TEST_CASE("input-test-error", "[input]")
 }
 
 
-
 TEST_CASE("input-test-simple", "[input]")
+{
+    auto test_platform = TestPlatform{};
+
+    SECTION("test inverted axis")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"ax", "ax", Range::Infinite}
+            },
+            {
+                {
+                    "mouse",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::AxisBindDef{"ax", 0, Axis::X, true}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        INFO(loaded.error());
+        REQUIRE(loaded);
+
+        auto& sys = *loaded.value;
+        auto player = sys.AddPlayer();
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        const auto input = GENERATE(1.0f, -1.0f);
+        INFO("input: " << input);
+
+        sys.OnMouseAxis(Axis::X, input, 400 + input);
+        CHECK(MapEq(GetTable(&sys, player), {
+            {"ax", -input}
+        }));
+    }
+
+    SECTION("test non-inverted axis")
+    {
+        auto config = config::InputSystem
+        {
+            {
+                {"ax", "ax", Range::Infinite}
+            },
+            {
+                {
+                    "mouse",
+                    {
+                        config::MouseDef{}
+                    },
+                    {
+                        config::AxisBindDef{"ax", 0, Axis::X, false}
+                    }
+                }
+            }
+        };
+
+        auto loaded = Load(config);
+        INFO(loaded.error());
+        REQUIRE(loaded);
+
+        auto& sys = *loaded.value;
+        auto player = sys.AddPlayer();
+        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+
+        const auto input = GENERATE(1.0f, -1.0f);
+        INFO("input: " << input);
+
+        sys.OnMouseAxis(Axis::X, input, 400 + input);
+        CHECK(MapEq(GetTable(&sys, player), {
+            {"ax", input}
+        }));
+    }
+}
+
+
+TEST_CASE("input-test-big", "[input]")
 {
     constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
     constexpr int JOYSTICK_START = 0;

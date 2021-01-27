@@ -32,7 +32,7 @@ namespace impl
 
     struct JoystickAxisUnit : public AxisUnit
     {
-        explicit JoystickAxisUnit(bool is_relative);
+        JoystickAxisUnit(bool is_relative);
 
         bool is_relative;
 

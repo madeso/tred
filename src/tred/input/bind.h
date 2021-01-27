@@ -47,7 +47,7 @@ struct KeyBindDef : public BindDef
 
 struct RelativeAxisBindDef : public BindDef
 {
-    RelativeAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis);
+    RelativeAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted);
 
     std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
 
@@ -56,12 +56,13 @@ struct RelativeAxisBindDef : public BindDef
     AxisType type;
     int target;
     int axis;
+    bool is_inverted;
 };
 
 
 struct AbsoluteAxisBindDef : public BindDef
 {
-    AbsoluteAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis);
+    AbsoluteAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted);
 
     std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
 
@@ -70,6 +71,7 @@ struct AbsoluteAxisBindDef : public BindDef
     AxisType type;
     int target;
     int axis;
+    bool is_inverted;
 };
 
 

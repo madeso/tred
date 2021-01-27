@@ -112,13 +112,13 @@ BindDefResult CreateAxisBindDef(Mapping* config, const InputActionMap& map, cons
     {
         if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
         if(auto error = ValidateAxis(config, def.unit, def.type, def.target, def.axis); error) { return *error; }
-        return {std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
+        return {std::make_unique<RelativeAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted)};
     }
     else if(action->range == Range::WithinNegativeOneToPositiveOne)
     {
         if(auto error = ValidateUnit(config, def.unit); error) { return *error; }
         if(auto error = ValidateAxis(config, def.unit, def.type, def.target, def.axis); error) { return *error; }
-        return {std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis)};
+        return {std::make_unique<AbsoluteAxisBindDef>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted)};
     }
     else
     {
