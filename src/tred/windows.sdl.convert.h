@@ -6,12 +6,12 @@
 #include "tred/input/key.h"
 
 
-namespace input
+namespace sdl
 {
     glm::ivec2 GetHatValues(Uint8 hat);
-    
-    Key ToKey(SDL_Keysym key);
 
-    MouseButton ToMouseButton(Uint8 mb);
+    input::Key ToKey(SDL_Keysym key);
+
+    input::MouseButton ToMouseButton(Uint8 mb);
 }
 

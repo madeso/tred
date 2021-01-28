@@ -30,8 +30,6 @@ set(src
     tred/input/player.cc tred/input/player.h
     tred/input/range.cc tred/input/range.h
     tred/input/system.cc tred/input/system.h
-    tred/input/sdl-convert.cc tred/input/sdl-convert.h
-    tred/input/sdl-platform.cc tred/input/sdl-platform.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
     tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
@@ -53,6 +51,8 @@ set(src
     tred/uniform.cc tred/uniform.h
     tred/vertex_layout.cc tred/vertex_layout.h
     tred/windows.cc tred/windows.h
+    tred/windows.sdl.joystick.cc tred/windows.sdl.joystick.h
+    tred/windows.sdl.convert.cc tred/windows.sdl.convert.h
 )
 
 add_library(tred STATIC ${src})
