@@ -40,6 +40,7 @@
 #include "tred/input.h"
 #include "tred/input/system.h"
 #include "tred/input/config.h"
+#include "tred/input/table.h"
 
 
 // resource headers
@@ -416,60 +417,47 @@ main(int, char**)
     constexpr std::string_view look_updown = "look_updown";
     constexpr std::string_view look_leftright = "look_leftright";
 
-    auto sdl_input = input::InputSystem
+    auto sdl_input_loaded = input::Load(input::config::InputSystem
     {
         {
+            {quit, input::Range::WithinZeroToOne},
+            {leftright, input::Range::WithinNegativeOneToPositiveOne},
+            {inout, input::Range::WithinNegativeOneToPositiveOne},
+            {updown, input::Range::WithinNegativeOneToPositiveOne},
+            {look_updown, input::Range::Infinite},
+            {look_leftright, input::Range::Infinite},
+        },
+
+        // controller setup (bind)
+        {
             {
-                {quit, input::Range::WithinZeroToOne},
-                {leftright, input::Range::WithinNegativeOneToPositiveOne},
-                {inout, input::Range::WithinNegativeOneToPositiveOne},
-                {updown, input::Range::WithinNegativeOneToPositiveOne},
-                {look_updown, input::Range::Infinite},
-                {look_leftright, input::Range::Infinite},
-            },
-            {
+                "mouse+keyboard",
                 {
-                    "mouse+keyboard",
-                    // two button converters
-                    {
-                        "leftright",
-                        "inout",
-                        "updown"
-                    },
-                    // keyboards
-                    {
-                        {
-                            {
-                                {"quit", input::Key::ESCAPE},
-                                {"leftright-", input::Key::A},
-                                {"leftright+", input::Key::D},
-                                {"inout-", input::Key::S},
-                                {"inout+", input::Key::W},
-                                {"updown+", input::Key::CTRL_LEFT},
-                                {"updown-", input::Key::SPACE}
-                            }
-                        }
-                    },
-                    // mouses
-                    {
-                        {
-                            {
-                                {"look_updown", input::Axis::Y},
-                                {"look_leftright", input::Axis::X}
-                            },
-                            // no mouse wheeels
-                            {},
-                            // no mouse buttons
-                            {}
-                        }
-                    },
-                    // joysticks
-                    {
-                    }
+                    input::config::KeyboardDef{input::Key::RETURN},
+                    input::config::MouseDef{}
+                },
+                {
+                    // keyboard
+                    input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
+                    input::config::TwoKeyBindDef{"leftright", 0, input::Key::A, input::Key::D},
+                    input::config::TwoKeyBindDef{"inout", 0, input::Key::S, input::Key::W},
+                    input::config::TwoKeyBindDef{"updown", 0, input::Key::SPACE, input::Key::CTRL_LEFT},
+
+                    // mouse
+                    input::config::AxisBindDef{"look_leftright", 1, input::Axis::X},
+                    input::config::AxisBindDef{"look_updown", 1, input::Axis::Y}
                 }
             }
         }
-    };
+    });
+
+    if(sdl_input_loaded == false)
+    {
+        LOG_ERROR("Unable to load input setup: {}", sdl_input_loaded.error());
+        return -2;
+    }
+
+    auto sdl_input = std::move(*sdl_input_loaded.value);
 
     input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
@@ -609,7 +597,7 @@ main(int, char**)
             uni_point_lights[i].SetShader(&shader, point_lights[i]);
         }
         shader.SetVec3(uni_view_position, camera.position);
-        
+
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
             const auto angle = 20.0f * static_cast<float>(i);
@@ -639,28 +627,37 @@ main(int, char**)
         }
     };
 
-    const auto range_in = input.AddRange(Keybind{SDLK_s}, Keybind{SDLK_w});
-    const auto range_right = input.AddRange(Keybind{SDLK_a}, Keybind{SDLK_d});
-    const auto range_up = input.AddRange(Keybind{SDLK_LCTRL}, Keybind{SDLK_SPACE});
-
-    // auto player = sdl_input.AddPlayer();
+    auto player = sdl_input.AddPlayer();
+    auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
+    {
+        const auto found = table.data.find(std::string{name});
+        if(found == table.data.end()) { return d; }
+        return found->second;
+    };
 
     return MainLoop(input::UnitDiscovery::FindHighest, std::move(windows), &input, &sdl_input, [&](float dt) -> bool
     {
-        // input::Table table;
-        // sdl_system.UpdateTable(player, &table);
+        input::Table table;
+        sdl_input.UpdateTable(player, &table, dt);
 
         const auto v = camera.CreateVectors();
         const auto camera_movement
-            = v.front * input.Get(range_in)
-            + v.right * input.Get(range_right)
-            + v.up * input.Get(range_up)
+            = v.front * get(table, inout)
+            + v.right * get(table, leftright)
+            + v.up * get(table, updown)
             ;
-        
+
         constexpr bool input_shift = false; // todo(Gustav): expose toggleables
         const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
         camera.position += camera_speed * camera_movement;
 
+        const float sensitivity = 0.1f;
+        camera.yaw -= get(table, look_leftright) * sensitivity;
+        camera.pitch += get(table, look_updown) * sensitivity;
+        if(camera.pitch >  89.0f) camera.pitch =  89.0f;
+        if(camera.pitch < -89.0f) camera.pitch = -89.0f;
+
+        // constexpr std::string_view quit = "quit";
         return running;
     });
 
@@ -1019,7 +1016,7 @@ main(int, char**)
                 uni_point_lights[i].SetShader(&shader, point_lights[i]);
             }
             shader.SetVec3(uni_view_position, camera_position);
-            
+
             for(unsigned int i=0; i<cube_positions.size(); i+=1)
             {
                 const auto angle = 20.0f * static_cast<float>(i);
