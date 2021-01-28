@@ -175,7 +175,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Unknown action no_action"));
+        REQUIRE(StringEq(loaded.error(), "Unknown action no_action (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
@@ -200,7 +200,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid unit 1"));
+        REQUIRE(StringEq(loaded.error(), "Invalid unit 1 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
@@ -225,7 +225,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid bind to unbound: -2"));
+        REQUIRE(StringEq(loaded.error(), "Invalid bind to unbound: -2 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
@@ -250,7 +250,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid mouse button: 123"));
+        REQUIRE(StringEq(loaded.error(), "Invalid mouse button: 123 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
@@ -275,7 +275,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Keyboard doesn't support axis binds"));
+        REQUIRE(StringEq(loaded.error(), "Keyboard doesn't support axis binds (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
@@ -300,7 +300,7 @@ TEST_CASE("input-test-error", "[input]")
         };
 
         auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid type for mouse"));
+        REQUIRE(StringEq(loaded.error(), "Invalid type for mouse (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 }

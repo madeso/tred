@@ -43,19 +43,19 @@ std::optional<std::string> JoystickDef::ValidateAxis(AxisType type, int target, 
     switch(type)
     {
         case AxisType::GeneralAxis:
-            if(target != 0) { return fmt::format("Invalid target: {}", target);}
-            if(axis < 0) { return fmt::format("Invalid axis: {}", axis);}
+            if(target != 0) { return fmt::format("Invalid general target: {}", target);}
+            if(axis < 0) { return fmt::format("Invalid general axis: {}", axis);}
             return std::nullopt;
         case AxisType::Hat:
         case AxisType::Ball:
-            if(target < 0) { return fmt::format("Invalid target: {}", target);}
+            if(target < 0) { return fmt::format("Invalid hat/ball target: {}", target);}
             switch(FromIndex<Axis>(axis))
             {
                 case Axis::X:
                 case Axis::Y:
                     break;
                 default:
-                    return fmt::format("Invalid axis: {}", axis);
+                    return fmt::format("Invalid hat/ball axis: {}", axis);
             }
             return std::nullopt;
         default:
