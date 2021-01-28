@@ -471,6 +471,15 @@ std::unique_ptr<Windows> Setup()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+
+    // todo(Gustav): need to possible check input if this is required (or enable it later when required)
+    const auto relative_enabled = SDL_SetRelativeMouseMode(SDL_TRUE) >= 0;
+    if(relative_enabled == false)
+    {
+        LOG_ERROR("Unable to set relative mouse");
+        return nullptr;
+    }
+
     return std::make_unique<WindowsImpl>();
 }
 
