@@ -460,8 +460,15 @@ struct WindowsImpl : public Windows
             case SDL_WINDOWEVENT:
                 if(e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
-                    auto& window = windows[e.window.windowID];
-                    window->OnResized({e.window.data1, e.window.data2});
+                    auto found = windows.find(e.window.windowID);
+                    if(found != windows.end())
+                    {
+                        found->second->OnResized({e.window.data1, e.window.data2});
+                    }
+                    else
+                    {
+                        LOG_INFO("Recieved resize for non-existant window: {}", e.window.windowID);
+                    }
                 }
                 break;
             case SDL_QUIT:
@@ -507,11 +514,15 @@ std::unique_ptr<Windows> Setup()
 
 
     // todo(Gustav): need to possible check input if this is required (or enable it later when required)
-    const auto relative_enabled = SDL_SetRelativeMouseMode(SDL_TRUE) >= 0;
-    if(relative_enabled == false)
+    constexpr bool relative_mouse = false;
+    if(relative_mouse)
     {
-        LOG_ERROR("Unable to set relative mouse");
-        return nullptr;
+        const auto relative_enabled = SDL_SetRelativeMouseMode(SDL_TRUE) >= 0;
+        if(relative_enabled == false)
+        {
+            LOG_ERROR("Unable to set relative mouse");
+            return nullptr;
+        }
     }
 
     return std::make_unique<WindowsImpl>();
