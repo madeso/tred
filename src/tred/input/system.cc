@@ -91,6 +91,7 @@ void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* pla
                 if(detected)
                 {
                     p->connected_units = config_pair.second->Connect(&m->input_director, setup);
+                    platform->OnChangedConnection(config_pair.first);
                 }
             }
         }

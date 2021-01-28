@@ -20,6 +20,8 @@ struct Platform
     virtual void StartUsing(JoystickId joy) = 0;
 
     virtual bool MatchUnit(JoystickId joy, const std::string& unit) = 0;
+
+    virtual void OnChangedConnection(const std::string& config) = 0;
 };
 
 }

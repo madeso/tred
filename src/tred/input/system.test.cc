@@ -68,6 +68,10 @@ struct TestPlatform : public Platform
     {
         joysticks.erase(joy);
     }
+
+    void OnChangedConnection(const std::string&) override
+    {
+    }
 };
 
 using Data = decltype(Table::data);

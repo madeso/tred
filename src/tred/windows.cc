@@ -170,7 +170,7 @@ struct SdlPlatform : public input::Platform
     }
 
 
-    std::vector<input::JoystickId> ActiveAndFreeJoysticks()
+    std::vector<input::JoystickId> ActiveAndFreeJoysticks() override
     {
         auto r = std::vector<input::JoystickId>{};
 
@@ -223,14 +223,19 @@ struct SdlPlatform : public input::Platform
         sdljoystick_to_id.erase(instance_id);
     }
 
-    bool MatchUnit(input::JoystickId joy, const std::string& unit)
+    bool MatchUnit(input::JoystickId joy, const std::string& unit) override
     {
         return joysticks[joy].joystick->GetGuid() == unit;
     }
 
-    void StartUsing(input::JoystickId joy)
+    void StartUsing(input::JoystickId joy) override
     {
         joysticks[joy].in_use = true;
+    }
+
+    void OnChangedConnection(const std::string& new_connection) override
+    {
+        LOG_INFO("Player started using {}", new_connection);
     }
 };
 
