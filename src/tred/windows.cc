@@ -210,15 +210,26 @@ struct SdlPlatform : public input::Platform
 
     input::JoystickId AddJoystickFromDevice(int device_id)
     {
-        const auto id = joysticks.Add();
+        auto joystick = std::make_unique<sdl::Joystick>(device_id);
+        const auto instance_id = joystick->GetDeviceIndex();
 
-        joysticks[id].joystick = std::make_unique<sdl::Joystick>(device_id);
-        joysticks[id].instance_id = joysticks[id].joystick->GetDeviceIndex();
+        auto found = sdljoystick_to_id.find(instance_id);
+        if(found != sdljoystick_to_id.end())
+        {
+            LOG_WARNING("Tried to add joystick that was already added!");
+        }
+
+        const auto id = joysticks.Add();
+        joysticks[id].joystick = std::move(joystick);
+        joysticks[id].instance_id = instance_id;
         joysticks[id].in_use = false;
 
-        LOG_INFO("Added a joystick named {}", joysticks[id].joystick->GetName());
+        // overwrite existing (if any) sdl joystick instance_id with the new id
+        sdljoystick_to_id[instance_id] = id;
 
+        LOG_INFO("Added a joystick named {}", joysticks[id].joystick->GetName());
         return id;
+
     }
 
     void RemoveJoystickFromInstance(SDL_JoystickID instance_id)
