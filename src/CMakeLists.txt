@@ -37,7 +37,6 @@ set(src
     tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
     tred/input/unitsetup.cc tred/input/unitsetup.h
 
-    tred/input.cc tred/input.h
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
     tred/mesh.compiled.cc tred/mesh.compiled.h

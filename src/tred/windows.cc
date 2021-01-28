@@ -12,7 +12,6 @@
 
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
-#include "tred/input.h"
 
 #include "tred/input/system.h"
 #include "tred/input/sdl-platform.h"
@@ -223,7 +222,7 @@ struct WindowsImpl : public Windows
         return &platform;
     }
 
-    void PumpEvents(Input* input, input::InputSystem* input_system) override
+    void PumpEvents(input::InputSystem* input_system) override
     {
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
@@ -247,20 +246,6 @@ struct WindowsImpl : public Windows
             case SDL_QUIT:
                 running = false;
                 break;
-            case SDL_MOUSEMOTION:
-                input->OnMouseMotion({static_cast<float>(e.motion.xrel), static_cast<float>(e.motion.yrel)});
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP: {
-                const bool down = e.type == SDL_MOUSEBUTTONDOWN;
-                input->OnMouseButton(e.button.button, down);
-            }
-            break;
-            case SDL_KEYDOWN:
-            case SDL_KEYUP: {
-                const bool down = e.type == SDL_KEYDOWN;
-                input->OnKeyboard(e.key.keysym.sym, down);
-            }
             break;
             default:
                 // ignore other events
@@ -300,7 +285,7 @@ std::unique_ptr<Windows> Setup()
 }
 
 
-int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows, Input* input, input::InputSystem* input_system, UpdateFunction&& on_update)
+int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, UpdateFunction&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
 
@@ -310,7 +295,7 @@ int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows,
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        windows->PumpEvents(input, input_system);
+        windows->PumpEvents(input_system);
         input_system->UpdatePlayerConnections(discovery, windows->GetInputPlatform());
         if(false == on_update(dt))
         {

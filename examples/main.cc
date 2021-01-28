@@ -37,7 +37,6 @@
 #include "tred/mesh.compiled.h"
 #include "tred/image.h"
 #include "tred/windows.h"
-#include "tred/input.h"
 #include "tred/input/system.h"
 #include "tred/input/config.h"
 #include "tred/input/table.h"
@@ -408,8 +407,6 @@ main(int, char**)
 
     bool running = true;
 
-    Input input;
-
     constexpr std::string_view quit = "quit";
     constexpr std::string_view leftright = "leftright";
     constexpr std::string_view inout = "inout";
@@ -458,8 +455,6 @@ main(int, char**)
     }
 
     auto sdl_input = std::move(*sdl_input_loaded.value);
-
-    input.AddFunction(Keybind{SDLK_ESCAPE}, [&](){running = false;});
 
     Engine engine;
 
@@ -635,10 +630,15 @@ main(int, char**)
         return found->second;
     };
 
-    return MainLoop(input::UnitDiscovery::FindHighest, std::move(windows), &input, &sdl_input, [&](float dt) -> bool
+    return MainLoop(input::UnitDiscovery::FindHighest, std::move(windows), &sdl_input, [&](float dt) -> bool
     {
         input::Table table;
         sdl_input.UpdateTable(player, &table, dt);
+
+        if(get(table, quit, 1.0f) > 0.5f)
+        {
+            running = false;
+        }
 
         const auto v = camera.CreateVectors();
         const auto camera_movement
