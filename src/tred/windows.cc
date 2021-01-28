@@ -43,6 +43,30 @@ struct SdlPlatform : public input::Platform
         }
     }
 
+    bool mouse_motion_last_frame = false;
+    bool mouse_motion_this_frame = false;
+    float last_mouse_x = 0.0f;
+    float last_mouse_y = 0.0f;
+
+    void OnEventsCompleted(input::InputSystem* system)
+    {
+        if(mouse_motion_this_frame == false && mouse_motion_last_frame == true)
+        {
+            // we got motion last frame but not this frame
+            // ... then reset the motion to 0,0
+            OnMouseRelativeAxis(system, 0.0f, 0.0f);
+        }
+        mouse_motion_last_frame = mouse_motion_this_frame;
+        mouse_motion_this_frame = false;
+    }
+
+
+    void OnMouseRelativeAxis(input::InputSystem* system, float dx, float dy)
+    {
+        system->OnMouseAxis(input::Axis::X, dx, last_mouse_x);
+        system->OnMouseAxis(input::Axis::Y, dy, last_mouse_y);
+    }
+
     void OnEvent(input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
     {
         switch(event.type)
@@ -110,8 +134,10 @@ struct SdlPlatform : public input::Platform
                         // scale to to [-1 +1] range
                         return (r - 0.5f) * 2.0f;
                     };
-                    system->OnMouseAxis(input::Axis::X, static_cast<float>(event.motion.xrel), pos_to_abs(event.motion.x, size.x));
-                    system->OnMouseAxis(input::Axis::Y, static_cast<float>(event.motion.yrel), pos_to_abs(event.motion.y, size.y));
+                    last_mouse_x = pos_to_abs(event.motion.x, size.x);
+                    last_mouse_y = pos_to_abs(event.motion.y, size.y);
+                    OnMouseRelativeAxis(system, static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
+                    mouse_motion_this_frame = true;
                 }
                 break;
 
@@ -442,8 +468,11 @@ struct WindowsImpl : public Windows
                 break;
             }
         }
+
+        platform.OnEventsCompleted(input_system);
     }
 };
+
 
 std::unique_ptr<Windows> Setup()
 {
