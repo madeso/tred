@@ -31,6 +31,11 @@ struct Joystick
     explicit Joystick(SDL_Joystick* another_joystick);
     ~Joystick();
 
+    void ClearJoystick();
+
+    explicit Joystick(Joystick&& j);
+    void operator=(Joystick&& j);
+
     std::string GetName();
 
     SDL_JoystickID GetDeviceIndex();
@@ -46,6 +51,7 @@ struct Joystick
     int GetNumberOfHats();
 
     std::string GetGuid();
+
 
     SDL_Joystick* joystick;
     bool own_joystick;

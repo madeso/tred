@@ -29,17 +29,30 @@
 using WindowId = Uint32;
 
 
+namespace
+{
+    // doesn't really seem necessary as sdl will detect them anyway?
+    // todo(Gustav): remove this
+    constexpr bool log_joysticks_at_startup = false;
+
+    // auto enable relative_mouse
+    // default should be true? but it's useful to set it to false to help with debugging
+    constexpr bool relative_mouse = false;
+}
+
+
 struct SdlPlatform : public input::Platform
 {
     SdlPlatform()
     {
-        const auto number_of_joysticks = SDL_NumJoysticks();
-
-        LOG_INFO("Joysticks found: {}", number_of_joysticks);
-        for (int i = 0; i < number_of_joysticks; ++i)
+        if(log_joysticks_at_startup)
         {
-            sdl::LogInfoAboutJoystick(i);
-            AddJoystickFromDevice(i);
+            const auto number_of_joysticks = SDL_NumJoysticks();
+            LOG_INFO("Joysticks found: {}", number_of_joysticks);
+            for (int i = 0; i < number_of_joysticks; ++i)
+            {
+                sdl::LogInfoAboutJoystick(i);
+            }
         }
     }
 
@@ -120,7 +133,7 @@ struct SdlPlatform : public input::Platform
                 AddJoystickFromDevice(event.jdevice.which);
                 break;
             case SDL_JOYDEVICEREMOVED:
-                AddJoystickFromDevice(event.jdevice.which);
+                RemoveJoystickFromInstance(event.jdevice.which);
                 break;
 
             case SDL_MOUSEMOTION:
@@ -219,6 +232,7 @@ struct SdlPlatform : public input::Platform
         const auto id = found_id->second;
         // LOG_INFO("Removed joystick: {}", joysticks[id].joystick->GetName());
         LOG_INFO("Removed joystick (todo): add name here");
+        joysticks[id].joystick.reset();
         joysticks.Remove(id);
         sdljoystick_to_id.erase(instance_id);
     }
@@ -400,14 +414,17 @@ void Windows::AddWindow(const std::string& title, const glm::ivec2& size, Render
 struct WindowsImpl : public Windows
 {
     std::map<WindowId, std::unique_ptr<WindowImpl>> windows;
-    SdlPlatform platform;
+    std::unique_ptr<SdlPlatform> platform;
 
     explicit WindowsImpl()
+        : platform(std::make_unique<SdlPlatform>())
     {
     }
 
     ~WindowsImpl()
     {
+        windows.clear();
+        platform.reset();
         SDL_Quit();
     }
 
@@ -440,7 +457,7 @@ struct WindowsImpl : public Windows
 
     input::Platform* GetInputPlatform() override
     {
-        return &platform;
+        return platform.get();
     }
 
     void PumpEvents(input::InputSystem* input_system) override
@@ -453,7 +470,7 @@ struct WindowsImpl : public Windows
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
 
-            platform.OnEvent(input_system, e, [&](u32 id) {return windows[id]->size;});
+            platform->OnEvent(input_system, e, [&](u32 id) {return windows[id]->size;});
 
             switch(e.type)
             {
@@ -481,7 +498,7 @@ struct WindowsImpl : public Windows
             }
         }
 
-        platform.OnEventsCompleted(input_system);
+        platform->OnEventsCompleted(input_system);
     }
 };
 
@@ -514,7 +531,6 @@ std::unique_ptr<Windows> Setup()
 
 
     // todo(Gustav): need to possible check input if this is required (or enable it later when required)
-    constexpr bool relative_mouse = false;
     if(relative_mouse)
     {
         const auto relative_enabled = SDL_SetRelativeMouseMode(SDL_TRUE) >= 0;

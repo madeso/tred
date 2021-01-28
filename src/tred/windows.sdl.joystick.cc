@@ -29,7 +29,7 @@ Joystick::Joystick(int device_index)
 {
     if(SDL_JoystickGetAttached(joystick) == SDL_FALSE)
     {
-        joystick = nullptr;
+        ClearJoystick();
     }
 }
 
@@ -43,10 +43,40 @@ Joystick::Joystick(SDL_Joystick* another_joystick)
 
 Joystick::~Joystick()
 {
+    ClearJoystick();
+}
+
+
+
+void Joystick::ClearJoystick()
+{
     if(joystick && own_joystick)
     {
         SDL_JoystickClose(joystick);
     }
+
+    joystick = nullptr;
+    own_joystick = false;
+}
+
+
+Joystick::Joystick(Joystick&& j)
+    : joystick(j.joystick)
+    , own_joystick(j.own_joystick)
+{
+    j.joystick = nullptr;
+    j.own_joystick = false;
+}
+
+
+void Joystick::operator=(Joystick&& j)
+{
+    ClearJoystick();
+
+    joystick = j.joystick;
+    own_joystick = j.own_joystick;
+    j.joystick = nullptr;
+    j.own_joystick = false;
 }
 
 
