@@ -441,8 +441,8 @@ main(int, char**)
                     input::config::TwoKeyBindDef{"updown", 0, input::Key::SPACE, input::Key::CTRL_LEFT},
 
                     // mouse
-                    input::config::AxisBindDef{"look_leftright", 1, input::Axis::X},
-                    input::config::AxisBindDef{"look_updown", 1, input::Axis::Y}
+                    input::config::AxisBindDef{"look_leftright", 1, input::Axis::X, 0.1f},
+                    input::config::AxisBindDef{"look_updown", 1, input::Axis::Y, 0.1f}
                 }
             },
             {
@@ -459,12 +459,12 @@ main(int, char**)
                     input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
 
                     // mouse
-                    input::config::AxisBindDef{"leftright", 1, input::AxisType::GeneralAxis, 0, 0},
-                    input::config::AxisBindDef{"inout", 1, input::AxisType::GeneralAxis, 0, 1},
-                    input::config::AxisBindDef{"updown", 1, input::AxisType::GeneralAxis, 0, 2},
+                    input::config::AxisBindDef{"inout",     1, input::AxisType::GeneralAxis, 0, 2},
+                    input::config::AxisBindDef{"leftright", 1, input::AxisType::Hat, 0, 1, 0.5f},
+                    input::config::AxisBindDef{"updown",    1, input::AxisType::Hat, 0, 2, 0.5f},
 
-                    input::config::AxisBindDef{"look_leftright", 1, input::AxisType::Hat, 0, 1, 100.0f},
-                    input::config::AxisBindDef{"look_updown", 1, input::AxisType::Hat, 0, 2, 100.0f}
+                    input::config::AxisBindDef{"look_leftright", 1, input::AxisType::GeneralAxis, 0, 0, 50.0f, true},
+                    input::config::AxisBindDef{"look_updown",    1, input::AxisType::GeneralAxis, 0, 1, 50.0f, true}
                 }
             },
         }
@@ -673,8 +673,9 @@ main(int, char**)
         const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
         camera.position += camera_speed * camera_movement;
 
-        const float sensitivity = 0.1f;
-        camera.yaw -= get(table, look_leftright) * sensitivity;
+        LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
+        const float sensitivity = 1.0f;
+        camera.yaw += get(table, look_leftright) * sensitivity;
         camera.pitch += get(table, look_updown) * sensitivity;
         if(camera.pitch >  89.0f) camera.pitch =  89.0f;
         if(camera.pitch < -89.0f) camera.pitch = -89.0f;

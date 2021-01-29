@@ -37,7 +37,7 @@ namespace
 
     // auto enable relative_mouse
     // default should be true? but it's useful to set it to false to help with debugging
-    constexpr bool relative_mouse = false;
+    constexpr bool relative_mouse = true;
 }
 
 
@@ -139,6 +139,7 @@ struct SdlPlatform : public input::Platform
             case SDL_MOUSEMOTION:
                 {
                     const auto size = window_size(event.motion.windowID);
+
                     auto pos_to_abs = [](int p, int s) -> float
                     {
                         // normalize to [0 1] range
@@ -149,7 +150,7 @@ struct SdlPlatform : public input::Platform
                     };
                     last_mouse_x = pos_to_abs(event.motion.x, size.x);
                     last_mouse_y = pos_to_abs(event.motion.y, size.y);
-                    OnMouseRelativeAxis(system, static_cast<float>(event.motion.xrel), static_cast<float>(event.motion.yrel));
+                    OnMouseRelativeAxis(system, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel));
                     mouse_motion_this_frame = true;
                 }
                 break;
