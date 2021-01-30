@@ -4,6 +4,7 @@
 #include "tred/input/director.h"
 #include "tred/input/action.h"
 #include "tred/input/index.h"
+#include "tred/input/smooth.h"
 
 
 namespace input
@@ -54,7 +55,7 @@ float impl::JoystickAxisUnit::GetState(AxisType type, int target, int axis, floa
     {
     case AxisType::GeneralAxis:
         assert(target == 0);
-        return parent->axes.GetRaw(axis) * dt;
+        return SmoothAxis(parent->axes.GetRaw(axis)) * dt;
     case AxisType::Hat:
         return parent->hats.GetRaw({target, FromIndex<Axis>(axis)}) * dt;
     case AxisType::Ball:

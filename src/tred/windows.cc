@@ -37,7 +37,7 @@ namespace
 
     // auto enable relative_mouse
     // default should be true? but it's useful to set it to false to help with debugging
-    constexpr bool relative_mouse = true;
+    constexpr bool relative_mouse = false;
 }
 
 
@@ -80,7 +80,7 @@ struct SdlPlatform : public input::Platform
         system->OnMouseAxis(input::Axis::Y, dy, last_mouse_y);
     }
 
-    void OnEvent(input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
+    void OnEvent(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
     {
         switch(event.type)
         {
@@ -133,7 +133,7 @@ struct SdlPlatform : public input::Platform
                 AddJoystickFromDevice(event.jdevice.which);
                 break;
             case SDL_JOYDEVICEREMOVED:
-                RemoveJoystickFromInstance(event.jdevice.which);
+                RemoveJoystickFromInstance(lost_joysticks, event.jdevice.which);
                 break;
 
             case SDL_MOUSEMOTION:
@@ -233,7 +233,7 @@ struct SdlPlatform : public input::Platform
 
     }
 
-    void RemoveJoystickFromInstance(SDL_JoystickID instance_id)
+    void RemoveJoystickFromInstance(std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
     {
         const auto found_id = sdljoystick_to_id.find(instance_id);
         if(found_id == sdljoystick_to_id.end())
@@ -245,6 +245,8 @@ struct SdlPlatform : public input::Platform
         // LOG_INFO("Removed joystick: {}", joysticks[id].joystick->GetName());
         LOG_INFO("Removed joystick (todo): add name here");
         joysticks[id].joystick.reset();
+        joysticks[id].in_use = false;
+        lost_joysticks->push_back(id);
         joysticks.Remove(id);
         sdljoystick_to_id.erase(instance_id);
     }
@@ -474,6 +476,7 @@ struct WindowsImpl : public Windows
 
     void PumpEvents(input::InputSystem* input_system) override
     {
+        std::vector<input::JoystickId> lost_joysticks;
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
@@ -482,7 +485,7 @@ struct WindowsImpl : public Windows
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
 
-            platform->OnEvent(input_system, e, [&](u32 id) {return windows[id]->size;});
+            platform->OnEvent(&lost_joysticks, input_system, e, [&](u32 id) {return windows[id]->size;});
 
             switch(e.type)
             {
@@ -508,6 +511,11 @@ struct WindowsImpl : public Windows
                 // ignore other events
                 break;
             }
+        }
+
+        for(auto joystick: lost_joysticks)
+        {
+            input_system->OnJoystickLost(joystick);
         }
 
         platform->OnEventsCompleted(input_system);

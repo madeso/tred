@@ -673,7 +673,7 @@ main(int, char**)
         const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
         camera.position += camera_speed * camera_movement;
 
-        LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
+        // LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
         const float sensitivity = 1.0f;
         camera.yaw += get(table, look_leftright) * sensitivity;
         camera.pitch += get(table, look_updown) * sensitivity;

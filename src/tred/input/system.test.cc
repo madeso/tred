@@ -492,7 +492,8 @@ TEST_CASE("input-test-big", "[input]")
             {
                 "joystick",
                 {
-                    config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID}
+                    config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID},
+                    config::KeyboardDef{} // keyboard that does nothing
                 },
                 {
                     config::KeyBindDef{"shoot", 0, JOYSTICK_SHOOT},
