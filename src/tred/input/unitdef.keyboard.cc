@@ -1,4 +1,4 @@
-#include "tred/input/keyboarddef.h"
+#include "tred/input/unitdef.keyboard.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -6,7 +6,7 @@
 #include "fmt/format.h"
 
 #include "tred/input/config.h"
-#include "tred/input/keyboardactiveunit.h"
+#include "tred/input/activeunit.keyboard.h"
 #include "tred/input/director.h"
 #include "tred/input/index.h"
 

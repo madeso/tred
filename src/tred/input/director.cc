@@ -3,9 +3,9 @@
 #include <cassert>
 #include <algorithm>
 
-#include "tred/input/keyboardactiveunit.h"
-#include "tred/input/mouseactiveunit.h"
-#include "tred/input/joystickactiveunit.h"
+#include "tred/input/activeunit.keyboard.h"
+#include "tred/input/activeunit.mouse.h"
+#include "tred/input/activeunit.joystick.h"
 
 
 namespace input

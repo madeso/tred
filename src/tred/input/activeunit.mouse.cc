@@ -1,4 +1,4 @@
-#include "tred/input/mouseactiveunit.h"
+#include "tred/input/activeunit.mouse.h"
 
 #include <cassert>
 

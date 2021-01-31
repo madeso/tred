@@ -1,10 +1,10 @@
-#include "tred/input/mousedef.h"
+#include "tred/input/unitdef.mouse.h"
 
 #include <cassert>
 #include <string>
 #include "fmt/format.h"
 
-#include "tred/input/mouseactiveunit.h"
+#include "tred/input/activeunit.mouse.h"
 #include "tred/input/actionmap.h"
 #include "tred/input/config.h"
 #include "tred/input/director.h"

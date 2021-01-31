@@ -1,4 +1,4 @@
-#include "tred/input/joystickdef.h"
+#include "tred/input/unitdef.joystick.h"
 
 #include <cassert>
 #include <string>
@@ -8,7 +8,7 @@
 #include "tred/input/config.h"
 #include "tred/input/bind.h"
 #include "tred/input/actionmap.h"
-#include "tred/input/joystickactiveunit.h"
+#include "tred/input/activeunit.joystick.h"
 #include "tred/input/unitsetup.h"
 #include "tred/input/platform.h"
 #include "tred/input/director.h"

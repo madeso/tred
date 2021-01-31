@@ -1,4 +1,4 @@
-#include "tred/input/joystickactiveunit.h"
+#include "tred/input/activeunit.joystick.h"
 #include <cassert>
 
 #include "tred/input/director.h"

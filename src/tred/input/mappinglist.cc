@@ -8,9 +8,9 @@
 #include "tred/log.h"
 
 #include "tred/input/mapping.h"
-#include "tred/input/keyboarddef.h"
-#include "tred/input/joystickdef.h"
-#include "tred/input/mousedef.h"
+#include "tred/input/unitdef.keyboard.h"
+#include "tred/input/unitdef.joystick.h"
+#include "tred/input/unitdef.mouse.h"
 #include "tred/input/config.h"
 #include "tred/input/action.h"
 #include "tred/input/actionmap.h"

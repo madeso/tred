@@ -8,6 +8,9 @@ set(src
     tred/input/actionmap.cc tred/input/actionmap.h
     tred/input/activeunit.cc tred/input/activeunit.h
     tred/input/axistype.cc tred/input/axistype.h
+    tred/input/activeunit.keyboard.cc tred/input/activeunit.keyboard.h
+    tred/input/activeunit.joystick.cc tred/input/activeunit.joystick.h
+    tred/input/activeunit.mouse.cc tred/input/activeunit.mouse.h
     tred/input/axis.cc tred/input/axis.h
     tred/input/bind.cc tred/input/bind.h
     tred/input/bindunit.cc tred/input/bindunit.h
@@ -16,16 +19,10 @@ set(src
     tred/input/director.cc tred/input/director.h
     tred/input/hataxis.cc tred/input/hataxis.h
     tred/input/index.cc tred/input/index.h
-    tred/input/joystickactiveunit.cc tred/input/joystickactiveunit.h
-    tred/input/joystickdef.cc tred/input/joystickdef.h
-    tred/input/keyboardactiveunit.cc tred/input/keyboardactiveunit.h
-    tred/input/keyboarddef.cc tred/input/keyboarddef.h
     tred/input/key.cc tred/input/key.h
     tred/input/mapping.cc tred/input/mapping.h
     tred/input/mapping.detection.cc tred/input/mapping.detection.h
     tred/input/mappinglist.cc tred/input/mappinglist.h
-    tred/input/mouseactiveunit.cc tred/input/mouseactiveunit.h
-    tred/input/mousedef.cc tred/input/mousedef.h
     tred/input/platform.cc tred/input/platform.h
     tred/input/player.cc tred/input/player.h
     tred/input/range.cc tred/input/range.h
@@ -33,6 +30,9 @@ set(src
     tred/input/system.cc tred/input/system.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
+    tred/input/unitdef.joystick.cc tred/input/unitdef.joystick.h
+    tred/input/unitdef.keyboard.cc tred/input/unitdef.keyboard.h
+    tred/input/unitdef.mouse.cc tred/input/unitdef.mouse.h
     tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
     tred/input/unitsetup.cc tred/input/unitsetup.h
 
