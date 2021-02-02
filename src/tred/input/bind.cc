@@ -34,7 +34,7 @@ struct KeyActiveBind : public ActiveBind
         unit->RegisterKey(button);
     }
 
-    void SetValueInTable(Table* t, float)
+    void SetValueInTable(Table* t, float) override
     {
         const auto state = unit->GetState(button);
         t->Set(var, KeepWithin(0.0f, state, 1.0f));
@@ -67,7 +67,7 @@ struct AxisActiveBind : public ActiveBind
         unit->RegisterAxis(type, target, axis);
     }
 
-    void SetValueInTable(Table* t, float dt)
+    void SetValueInTable(Table* t, float dt) override
     {
         const auto invert_scale = is_inverted ? -1.0f : 1.0f;
         const auto state = unit->GetState(type, target, axis, keep_within ? 1.0f : dt) * invert_scale;
@@ -96,7 +96,7 @@ struct TwoKeyActiveBind : public ActiveBind
         unit->RegisterKey(negative);
     }
 
-    void SetValueInTable(Table* t, float dt)
+    void SetValueInTable(Table* t, float dt) override
     {
         const auto state = unit->GetState(positive) - unit->GetState(negative);
         t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state * dt);
