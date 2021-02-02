@@ -451,7 +451,7 @@ main(int, char**)
                 // identified as mega world usb controller
                 "joystick",
                 {
-                    input::config::KeyboardDef{input::Key::RETURN},
+                    input::config::KeyboardDef{},
                     input::config::JoystickDef{4, "03000000b50700001703000010010000"}
                 },
                 {
