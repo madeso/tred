@@ -4,6 +4,8 @@
 #include <string>
 #include <algorithm>
 
+#include "tred/cint.h"
+
 #include "tred/input/bind.h"
 #include "tred/input/activeunit.h"
 #include "tred/input/bind.h"
@@ -80,7 +82,7 @@ bool ConnectedUnits::IsDeleteSheduled()
 
 ActiveUnit* ConnectedUnits::GetUnit(int index)
 {
-    return units[static_cast<std::size_t>(index)].get();
+    return units[Cint_to_sizet(index)].get();
 }
 
 

@@ -6,6 +6,7 @@
 #include "fmt/format.h"
 
 #include "tred/log.h"
+#include "tred/cint.h"
 
 #include "tred/input/mapping.h"
 #include "tred/input/unitdef.keyboard.h"
@@ -83,7 +84,7 @@ std::optional<std::string> ValidateUnit(const std::string& action, Mapping* conf
         return WithAction(action, "Negative units are invalid");
     }
 
-    const auto size = static_cast<int>(config->units.size());
+    const auto size = Csizet_to_int(config->units.size());
     if(unit >= size)
     {
         return WithAction(action, fmt::format("Invalid unit {}", unit));
@@ -95,13 +96,13 @@ std::optional<std::string> ValidateUnit(const std::string& action, Mapping* conf
 
 std::optional<std::string> ValidateKey(const std::string& action, Mapping* config, int unit, int key)
 {
-    return WithAction(action, config->units[static_cast<std::size_t>(unit)]->ValidateKey(key));
+    return WithAction(action, config->units[Cint_to_sizet(unit)]->ValidateKey(key));
 }
 
 
 std::optional<std::string> ValidateAxis(const std::string& action, Mapping* config, int unit, AxisType type, int target, int axis)
 {
-    return WithAction(action, config->units[static_cast<std::size_t>(unit)]->ValidateAxis(type, target, axis));
+    return WithAction(action, config->units[Cint_to_sizet(unit)]->ValidateAxis(type, target, axis));
 }
 
 

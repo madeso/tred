@@ -1,6 +1,7 @@
 #include "tred/windows.sdl.joystick.h"
 
 #include "tred/log.h"
+#include "tred/cint.h"
 
 
 namespace sdl
@@ -158,7 +159,7 @@ std::string Joystick::GetGuid()
         constexpr std::size_t buffer_size = 256;
         auto buffer = std::array<char, buffer_size>{0,};
 
-        SDL_JoystickGetGUIDString(guid, &buffer[0], static_cast<int>(buffer_size));
+        SDL_JoystickGetGUIDString(guid, &buffer[0], Csizet_to_int(buffer_size));
 
         return &buffer[0];
     }
