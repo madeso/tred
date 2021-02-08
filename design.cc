@@ -170,6 +170,10 @@ struct Camera3
 };
 
 
+// Technique or a Renderer handles shader creation
+// creates a "super" shader from a light shader (based on the lighting technique)
+//   and a material shader
+
 struct Technique
 {
     virtual void Render(const vector<Actor>& culled); // pure virtual
@@ -344,7 +348,7 @@ int MainLoop(Windows* windows, F&&);
 int main()
 {
     auto windows = Setup();
-    
+
     auto world = CreateWorld();
     auto def = windows->engine->CreateActorDef(Mesh{});
     auto actor = world->CreateActor(def);
