@@ -16,6 +16,29 @@ enum class MouseButton
 };
 
 
+enum class GamecontrollerButton
+{
+    INVALID
+    , A
+    , B
+    , X
+    , Y
+    , BACK
+    , GUIDE
+    , START
+    , LEFTSTICK
+    , RIGHTSTICK
+    , LEFTSHOULDER
+    , RIGHTSHOULDER
+    , DPAD_UP
+    , DPAD_DOWN
+    , DPAD_LEFT
+    , DPAD_RIGHT
+    , TRIGGER_LEFT
+    , TRIGGER_RIGHT
+};
+
+
 enum class Key
 {
     INVALID

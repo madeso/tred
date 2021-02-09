@@ -8,8 +8,9 @@ set(src
     tred/input/actionmap.cc tred/input/actionmap.h
     tred/input/activeunit.cc tred/input/activeunit.h
     tred/input/axistype.cc tred/input/axistype.h
-    tred/input/activeunit.keyboard.cc tred/input/activeunit.keyboard.h
+    tred/input/activeunit.gamecontroller.cc tred/input/activeunit.gamecontroller.h
     tred/input/activeunit.joystick.cc tred/input/activeunit.joystick.h
+    tred/input/activeunit.keyboard.cc tred/input/activeunit.keyboard.h
     tred/input/activeunit.mouse.cc tred/input/activeunit.mouse.h
     tred/input/axis.cc tred/input/axis.h
     tred/input/bind.cc tred/input/bind.h
@@ -30,6 +31,7 @@ set(src
     tred/input/system.cc tred/input/system.h
     tred/input/table.cc tred/input/table.h
     tred/input/unitdef.cc tred/input/unitdef.h
+    tred/input/unitdef.gamecontroller.cc tred/input/unitdef.gamecontroller.h
     tred/input/unitdef.joystick.cc tred/input/unitdef.joystick.h
     tred/input/unitdef.keyboard.cc tred/input/unitdef.keyboard.h
     tred/input/unitdef.mouse.cc tred/input/unitdef.mouse.h

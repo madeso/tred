@@ -101,10 +101,31 @@ void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* pla
 }
 
 
+PlayerHandle InputSystem::AddPlayer()
+{
+    const auto r = m->players.Add();
+    m->players[r] = std::make_unique<Player>();
+    return r;
+}
+
+
+bool InputSystem::IsConnected(PlayerHandle player)
+{
+    auto& p = m->players[player];
+    return p && p->IsConnected();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
 void InputSystem::OnKeyboardKey(Key key, bool down)
 {
     m->input_director.OnKeyboardKey(key, down);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 void InputSystem::OnMouseAxis(Axis axis, float relative_state, float absolute_state)
@@ -123,6 +144,9 @@ void InputSystem::OnMouseButton(MouseButton button, bool down)
 {
     m->input_director.OnMouseButton(button, down);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 void InputSystem::OnJoystickBall(JoystickId joystick, Axis type, int ball, float value)
@@ -155,19 +179,27 @@ void InputSystem::OnJoystickLost(JoystickId joystick)
 }
 
 
-PlayerHandle InputSystem::AddPlayer()
+///////////////////////////////////////////////////////////////////////////////
+
+
+void InputSystem::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down)
 {
-    const auto r = m->players.Add();
-    m->players[r] = std::make_unique<Player>();
-    return r;
+    m->input_director.OnGamecontrollerButton(joystick, button, down);
 }
 
 
-bool InputSystem::IsConnected(PlayerHandle player)
+void InputSystem::OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value)
 {
-    auto& p = m->players[player];
-    return p && p->IsConnected();
+    m->input_director.OnGamecontrollerAxis(joystick, axis, value);
 }
+
+
+void InputSystem::OnGamecontrollerLost(JoystickId joystick)
+{
+    m->input_director.OnGamecontrollerLost(joystick);
+}
+
+
 
 
 }  // namespace input

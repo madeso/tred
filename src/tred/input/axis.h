@@ -12,4 +12,12 @@ enum class Axis
 };
 
 
+enum class GamecontrollerAxis
+{
+    INVALID
+    , LEFT
+    , RIGHT
+};
+
+
 }

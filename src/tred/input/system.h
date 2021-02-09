@@ -42,6 +42,9 @@ struct InputSystem
     void UpdateTable(PlayerHandle player, Table* table, float dt);
     void UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform);
 
+    PlayerHandle AddPlayer();
+    bool IsConnected(PlayerHandle player);
+
     void OnKeyboardKey(Key key, bool down);
     void OnMouseAxis(Axis axis, float relative_state, float absolute_state);
     void OnMouseWheel(Axis axis, float value);
@@ -53,8 +56,9 @@ struct InputSystem
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
     void OnJoystickLost(JoystickId joystick);
 
-    PlayerHandle AddPlayer();
-    bool IsConnected(PlayerHandle player);
+    void OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down);
+    void OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value);
+    void OnGamecontrollerLost(JoystickId joystick);
 
     std::unique_ptr<InputSystemPiml> m;
 };
