@@ -2,13 +2,19 @@
 
 #include <string>
 #include <string_view>
+#include <array>
 
 #include "SDL.h"
+
+#include "tred/array.h"
 
 
 namespace sdl
 {
 
+
+constexpr auto valid_buttons = ValuesInEnum<SDL_GameControllerButton, SDL_CONTROLLER_BUTTON_MAX>();
+constexpr auto valid_axes = ValuesInEnum<SDL_GameControllerAxis, SDL_CONTROLLER_AXIS_MAX>();
 
 enum class Power
 {
@@ -78,11 +84,21 @@ struct GameController
     GameController(int device_index);
     ~GameController();
 
+    bool IsValid() const;
     std::string GetMapping();
 
     Joystick GetJoystick();
 
     SDL_GameController* controller;
+};
+
+
+struct GamecontrollerState
+{
+    std::array<bool, SDL_CONTROLLER_BUTTON_MAX> buttons;
+    std::array<Sint16, SDL_CONTROLLER_AXIS_MAX> axes;
+
+    static GamecontrollerState GetState(GameController* controller);
 };
 
 

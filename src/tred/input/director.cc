@@ -188,12 +188,12 @@ void InputDirector::OnJoystickLost(JoystickId joystick)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputDirector::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down)
+void InputDirector::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state)
 {
     auto found = gamecontrollers.find(joystick);
     if(found == gamecontrollers.end())
     {
-        if(down == false && button == GamecontrollerButton::START)
+        if(state > 0.5f && button == GamecontrollerButton::START)
         {
             just_pressed_gamecontroller_starts.insert(joystick);
         }
@@ -201,7 +201,7 @@ void InputDirector::OnGamecontrollerButton(JoystickId joystick, GamecontrollerBu
         return;
     }
 
-    found->second->OnButton(button, down);
+    found->second->OnButton(button, state);
 }
 
 
@@ -245,7 +245,7 @@ bool InputDirector::WasJustPressed(JoystickId joy, int button)
 }
 
 
-bool InputDirector::WasGamecontrollerStartJustPressed(JoystickId joy)
+bool InputDirector::WasGameControllerStartJustPressed(JoystickId joy)
 {
     return just_pressed_gamecontroller_starts.find(joy) != just_pressed_gamecontroller_starts.end();
 }

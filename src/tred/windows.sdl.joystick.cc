@@ -223,6 +223,12 @@ GameController::~GameController()
 }
 
 
+bool GameController::IsValid() const
+{
+    return controller != nullptr;
+}
+
+
 std::string GameController::GetMapping()
 {
     if(controller == nullptr) { return ""; }
@@ -238,6 +244,23 @@ Joystick GameController::GetJoystick()
 {
     SDL_Joystick* joystick = controller ? SDL_GameControllerGetJoystick(controller) : nullptr;
     return Joystick{joystick};
+}
+
+GamecontrollerState GamecontrollerState::GetState(GameController* controller)
+{
+    GamecontrollerState r;
+
+    for(auto button: valid_buttons)
+    {
+        r.buttons[static_cast<std::size_t>(button)] = SDL_GameControllerGetButton(controller->controller, button) == 1;
+    }
+
+    for(auto axis: valid_axes)
+    {
+        r.axes[static_cast<std::size_t>(axis)] = SDL_GameControllerGetAxis(controller->controller, axis);
+    }
+
+    return r;
 }
 
 

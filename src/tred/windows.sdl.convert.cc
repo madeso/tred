@@ -289,4 +289,58 @@ input::MouseButton ToMouseButton(Uint8 mb)
 }
 
 
+input::GamecontrollerButton ToButton(SDL_GameControllerButton b)
+{
+    switch(b)
+    {
+        case SDL_CONTROLLER_BUTTON_A: return input::GamecontrollerButton::A;
+        case SDL_CONTROLLER_BUTTON_B: return input::GamecontrollerButton::B;
+        case SDL_CONTROLLER_BUTTON_X: return input::GamecontrollerButton::X;
+        case SDL_CONTROLLER_BUTTON_Y: return input::GamecontrollerButton::Y;
+        case SDL_CONTROLLER_BUTTON_BACK: return input::GamecontrollerButton::BACK;
+        case SDL_CONTROLLER_BUTTON_GUIDE: return input::GamecontrollerButton::GUIDE;
+        case SDL_CONTROLLER_BUTTON_START: return input::GamecontrollerButton::START;
+        case SDL_CONTROLLER_BUTTON_LEFTSTICK: return input::GamecontrollerButton::LEFTSTICK;
+        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return input::GamecontrollerButton::RIGHTSTICK;
+        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return input::GamecontrollerButton::LEFTSHOULDER;
+        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return input::GamecontrollerButton::RIGHTSHOULDER;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP: return input::GamecontrollerButton::DPAD_UP;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return input::GamecontrollerButton::DPAD_DOWN;
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return input::GamecontrollerButton::DPAD_LEFT;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return input::GamecontrollerButton::DPAD_RIGHT;
+        case SDL_CONTROLLER_BUTTON_MISC1: return input::GamecontrollerButton::MISC1;
+        case SDL_CONTROLLER_BUTTON_PADDLE1: return input::GamecontrollerButton::PADDLE1;
+        case SDL_CONTROLLER_BUTTON_PADDLE2: return input::GamecontrollerButton::PADDLE2;
+        case SDL_CONTROLLER_BUTTON_PADDLE3: return input::GamecontrollerButton::PADDLE3;
+        case SDL_CONTROLLER_BUTTON_PADDLE4: return input::GamecontrollerButton::PADDLE4;
+        case SDL_CONTROLLER_BUTTON_TOUCHPAD: return input::GamecontrollerButton::TOUCHPAD;
+        default:
+        return input::GamecontrollerButton::INVALID;
+    }
+}
+
+input::GamecontrollerButton ToButton(SDL_GameControllerAxis a)
+{
+    switch(a)
+    {
+        case SDL_CONTROLLER_AXIS_TRIGGERLEFT: return input::GamecontrollerButton::TRIGGER_LEFT;
+        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: return input::GamecontrollerButton::TRIGGER_RIGHT;
+        default:
+        return input::GamecontrollerButton::INVALID;
+    }
+}
+
+input::GamecontrollerAxis ToAxis(SDL_GameControllerAxis a)
+{
+    switch(a)
+    {
+        case SDL_CONTROLLER_AXIS_LEFTX: return input::GamecontrollerAxis::LEFTX;
+        case SDL_CONTROLLER_AXIS_LEFTY: return input::GamecontrollerAxis::LEFTY;
+        case SDL_CONTROLLER_AXIS_RIGHTX: return input::GamecontrollerAxis::RIGHTX;
+        case SDL_CONTROLLER_AXIS_RIGHTY: return input::GamecontrollerAxis::RIGHTY;
+        default: return input::GamecontrollerAxis::INVALID;
+    }
+}
+
+
 }

@@ -41,23 +41,18 @@ std::optional<std::string> GamecontrollerDef::ValidateKey(int key)
 
 std::optional<std::string> GamecontrollerDef::ValidateAxis(AxisType type, int target, int axis)
 {
-    if(type != AxisType::GeneralAxis) { return fmt::format("Invalid type: {}", type); }
+    if(type != AxisType::GeneralAxis) { return fmt::format("Only general axcis for game controllers: {}", type); }
+    if(target != 0) { return fmt::format("Target needs to be 0 for controller: {}", target); }
 
-    switch(FromIndex<GamecontrollerAxis>(target))
+    switch(FromIndex<GamecontrollerAxis>(axis))
     {
-        case GamecontrollerAxis::LEFT:
-        case GamecontrollerAxis::RIGHT:
-            switch(FromIndex<Axis>(axis))
-            {
-                case Axis::X:
-                case Axis::Y:
-                    break;
-                default:
-                    return fmt::format("Invalid axis: {}", axis);
-            }
+        case GamecontrollerAxis::LEFTX:
+        case GamecontrollerAxis::LEFTY:
+        case GamecontrollerAxis::RIGHTX:
+        case GamecontrollerAxis::RIGHTY:
             return std::nullopt;
         default:
-            return fmt::format("Invalid target: {}", target);
+            return fmt::format("Invalid axis: {}", axis);
     }
 }
 
@@ -73,10 +68,10 @@ bool GamecontrollerDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSe
     const auto potential_joysticks = platform->ActiveAndFreeJoysticks();
     for(auto joy: potential_joysticks)
     {
-        const auto selected = setup->HasJoystick(joy) == false && director->WasGamecontrollerStartJustPressed(joy);
+        const auto selected = setup->HasJoystick(joy) == false && director->WasGameControllerStartJustPressed(joy);
         if(selected)
         {
-            platform->StartUsing(joy);
+            platform->StartUsing(joy, JoystickType::GameController);
             setup->AddJoystick(index, joy);
             return true;
         }

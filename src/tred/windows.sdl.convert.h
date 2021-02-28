@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 
 #include "tred/input/key.h"
+#include "tred/input/axis.h"
 
 
 namespace sdl
@@ -13,5 +14,9 @@ namespace sdl
     input::Key ToKey(SDL_Keysym key);
 
     input::MouseButton ToMouseButton(Uint8 mb);
+
+    input::GamecontrollerButton ToButton(SDL_GameControllerButton b);
+    input::GamecontrollerButton ToButton(SDL_GameControllerAxis b);
+    input::GamecontrollerAxis ToAxis(SDL_GameControllerAxis b);
 }
 

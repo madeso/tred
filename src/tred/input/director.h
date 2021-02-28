@@ -46,14 +46,15 @@ struct InputDirector
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
     void OnJoystickLost(JoystickId joystick);
 
-    void OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down);
+    void OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state);
     void OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value);
     void OnGamecontrollerLost(JoystickId joystick);
 
     bool WasJustPressed(Key key);
     bool WasJustPressed(MouseButton button);
     bool WasJustPressed(JoystickId joy, int button);
-    bool WasGamecontrollerStartJustPressed(JoystickId joy);
+    bool WasGameControllerStartJustPressed(JoystickId joy);
+    bool h(JoystickId joy);
     void RemoveJustPressed();
 
     std::set<Key> just_pressed_keys;

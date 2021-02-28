@@ -87,7 +87,20 @@ UnitDef::UnitDef(const JoystickDef& j)
 }
 
 
+UnitDef::UnitDef(const GamecontrollerDef& g)
+    : gamecontroller(g)
+{
+}
+
+
 KeyBindDef::KeyBindDef(const std::string& a, int u, input::Key k)
+    : action(a)
+    , unit(u)
+    , key(ToIndex(k))
+{
+}
+
+KeyBindDef::KeyBindDef(const std::string& a, int u, input::GamecontrollerButton k)
     : action(a)
     , unit(u)
     , key(ToIndex(k))
@@ -120,6 +133,17 @@ AxisBindDef::AxisBindDef(const std::string& a, int u, input::Axis ax, float s, b
 {
 }
 
+AxisBindDef::AxisBindDef(const std::string& a, int u, input::GamecontrollerAxis ax, float s, bool ii)
+    : action(a)
+    , unit(u)
+    , type(AxisType::GeneralAxis)
+    , target(0)
+    , axis(ToIndex(ax))
+    , sensitivity(s)
+    , is_inverted(ii)
+{
+}
+
 AxisBindDef::AxisBindDef(const std::string& a, int u, AxisType ty, int ta, int ax, float s, bool ii)
     : action(a)
     , unit(u)
@@ -133,6 +157,14 @@ AxisBindDef::AxisBindDef(const std::string& a, int u, AxisType ty, int ta, int a
 
 
 TwoKeyBindDef::TwoKeyBindDef(const std::string& a, int u, input::Key n, input::Key p)
+    : action(a)
+    , unit(u)
+    , negative(ToIndex(n))
+    , positive(ToIndex(p))
+{
+}
+
+TwoKeyBindDef::TwoKeyBindDef(const std::string& a, int u, input::GamecontrollerButton n, input::GamecontrollerButton p)
     : action(a)
     , unit(u)
     , negative(ToIndex(n))

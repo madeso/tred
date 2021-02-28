@@ -182,9 +182,9 @@ void InputSystem::OnJoystickLost(JoystickId joystick)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputSystem::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down)
+void InputSystem::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state)
 {
-    m->input_director.OnGamecontrollerButton(joystick, button, down);
+    m->input_director.OnGamecontrollerButton(joystick, button, state);
 }
 
 

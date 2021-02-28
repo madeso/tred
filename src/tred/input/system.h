@@ -56,7 +56,7 @@ struct InputSystem
     void OnJoystickAxis(JoystickId joystick, int axis, float value);
     void OnJoystickLost(JoystickId joystick);
 
-    void OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, bool down);
+    void OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state);
     void OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value);
     void OnGamecontrollerLost(JoystickId joystick);
 

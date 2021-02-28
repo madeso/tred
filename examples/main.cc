@@ -467,6 +467,28 @@ main(int, char**)
                     input::config::AxisBindDef{"look_updown",    1, input::AxisType::GeneralAxis, 0, 1, 50.0f, true}
                 }
             },
+            {
+                // probably bad to use a flightstick as a fps controller, but this is the only 'non-gamepad' joystick I own
+                // speed link: black widow
+                // identified as mega world usb controller
+                "gamecontroller",
+                {
+                    input::config::KeyboardDef{},
+                    input::config::GamecontrollerDef{}
+                },
+                {
+                    // keyboard
+                    input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
+
+                    // mouse
+                    input::config::AxisBindDef{"inout",     1, input::GamecontrollerAxis::LEFTY},
+                    input::config::AxisBindDef{"leftright", 1, input::GamecontrollerAxis::LEFTX},
+                    input::config::TwoKeyBindDef{"updown", 1, input::GamecontrollerButton::LEFTSHOULDER, input::GamecontrollerButton::RIGHTSHOULDER},
+
+                    input::config::AxisBindDef{"look_leftright", 1, input::GamecontrollerAxis::RIGHTX},
+                    input::config::AxisBindDef{"look_updown",    1, input::GamecontrollerAxis::RIGHTY}
+                }
+            },
         }
     });
 

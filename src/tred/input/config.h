@@ -55,21 +55,29 @@ struct JoystickDef
 };
 
 
+struct GamecontrollerDef
+{
+};
+
+
 struct UnitDef
 {
     UnitDef(const KeyboardDef&);
     UnitDef(const MouseDef&);
     UnitDef(const JoystickDef&);
+    UnitDef(const GamecontrollerDef&);
 
     std::optional<KeyboardDef> keyboard;
     std::optional<MouseDef> mouse;
     std::optional<JoystickDef> joystick;
+    std::optional<GamecontrollerDef> gamecontroller;
 };
 
 
 struct KeyBindDef
 {
     KeyBindDef(const std::string&, int, input::Key);
+    KeyBindDef(const std::string&, int, input::GamecontrollerButton);
     KeyBindDef(const std::string&, int, input::MouseButton);
     KeyBindDef(const std::string&, int, int);
 
@@ -82,6 +90,7 @@ struct KeyBindDef
 struct AxisBindDef
 {
     AxisBindDef(const std::string&, int, input::Axis, float sens = 1.0f, bool ii = false);
+    AxisBindDef(const std::string&, int, input::GamecontrollerAxis, float sens = 1.0f, bool ii = false);
     AxisBindDef(const std::string&, int, input::AxisType, int, int, float sens=1.0f, bool ii = false);
 
     std::string action;
@@ -97,6 +106,7 @@ struct AxisBindDef
 struct TwoKeyBindDef
 {
     TwoKeyBindDef(const std::string&, int, input::Key, input::Key);
+    TwoKeyBindDef(const std::string&, int, input::GamecontrollerButton, input::GamecontrollerButton);
     TwoKeyBindDef(const std::string&, int, int, int);
 
     std::string action;

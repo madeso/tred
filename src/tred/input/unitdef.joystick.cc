@@ -78,7 +78,7 @@ bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* s
         const auto selected = setup->HasJoystick(joy) == false && director->WasJustPressed(joy, start_button) && platform->MatchUnit(joy, unit);
         if(selected)
         {
-            platform->StartUsing(joy);
+            platform->StartUsing(joy, JoystickType::Joystick);
             setup->AddJoystick(index, joy);
             return true;
         }

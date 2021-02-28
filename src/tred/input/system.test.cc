@@ -64,7 +64,7 @@ struct TestPlatform : public Platform
         return found->second == guid;
     }
 
-    void StartUsing(JoystickId joy) override
+    void StartUsing(JoystickId joy, JoystickType) override
     {
         joysticks.erase(joy);
     }

@@ -12,6 +12,7 @@
 #include "tred/input/unitdef.keyboard.h"
 #include "tred/input/unitdef.joystick.h"
 #include "tred/input/unitdef.mouse.h"
+#include "tred/input/unitdef.gamecontroller.h"
 #include "tred/input/config.h"
 #include "tred/input/action.h"
 #include "tred/input/actionmap.h"
@@ -201,6 +202,11 @@ std::optional<std::string> Load(Mapping* config, const input::config::Mapping& r
         else if(d.joystick)
         {
             config->Add(std::make_unique<JoystickDef>(joystick_id, *d.joystick));
+            joystick_id += 1;
+        }
+        else if(d.gamecontroller)
+        {
+            config->Add(std::make_unique<GamecontrollerDef>(joystick_id, *d.gamecontroller));
             joystick_id += 1;
         }
         else
