@@ -458,19 +458,15 @@ main(int, char**)
                     // keyboard
                     input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
 
-                    // mouse
+                    // joystick
                     input::config::AxisBindDef{"inout",     1, input::AxisType::GeneralAxis, 0, 2},
                     input::config::AxisBindDef{"leftright", 1, input::AxisType::Hat, 0, 1, 0.5f},
                     input::config::AxisBindDef{"updown",    1, input::AxisType::Hat, 0, 2, 0.5f},
-
                     input::config::AxisBindDef{"look_leftright", 1, input::AxisType::GeneralAxis, 0, 0, 50.0f, true},
                     input::config::AxisBindDef{"look_updown",    1, input::AxisType::GeneralAxis, 0, 1, 50.0f, true}
                 }
             },
             {
-                // probably bad to use a flightstick as a fps controller, but this is the only 'non-gamepad' joystick I own
-                // speed link: black widow
-                // identified as mega world usb controller
                 "gamecontroller",
                 {
                     input::config::KeyboardDef{},
@@ -480,11 +476,10 @@ main(int, char**)
                     // keyboard
                     input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
 
-                    // mouse
+                    // gamecontroller
                     input::config::AxisBindDef{"inout",     1, input::GamecontrollerAxis::LEFTY, 1.0f, true},
                     input::config::AxisBindDef{"leftright", 1, input::GamecontrollerAxis::LEFTX},
-                    input::config::TwoKeyBindDef{"updown", 1, input::GamecontrollerButton::LEFTSHOULDER, input::GamecontrollerButton::RIGHTSHOULDER},
-
+                    input::config::TwoKeyBindDef{"updown", 1, input::GamecontrollerButton::TRIGGER_LEFT, input::GamecontrollerButton::TRIGGER_RIGHT},
                     input::config::AxisBindDef{"look_leftright", 1, input::GamecontrollerAxis::RIGHTX, 50.0f},
                     input::config::AxisBindDef{"look_updown",    1, input::GamecontrollerAxis::RIGHTY, 50.0f, true}
                 }
