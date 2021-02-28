@@ -121,7 +121,10 @@ struct SdlPlatform : public input::Platform
             case JoystickDetectionState::Joystick:
                 return true;
             case JoystickDetectionState::NotDetected:
-                detected_controller = id;
+                if(joysticks[id].gamecontroller)
+                {
+                    detected_controller = id;
+                }
                 return true;
             default:
                 DIE("Unhandled case");
@@ -179,7 +182,11 @@ struct SdlPlatform : public input::Platform
                     const auto joystick_button = event.jbutton.button;
 
                     auto found = sdljoystick_to_id.find(event.jbutton.which);
-                    if(found == sdljoystick_to_id.end()) { return; }
+                    if(found == sdljoystick_to_id.end())
+                    {
+                        LOG_INFO("Button ignored due to invalid joystick");
+                        return;
+                    }
                     if(should_handle_joystick(found->second))
                     {
                         const auto joystick_id = found->second;
@@ -268,7 +275,10 @@ struct SdlPlatform : public input::Platform
             if(old_state.buttons[id] != new_state.buttons[id])
             {
                 const auto my_button = sdl::ToButton(button);
-                system->OnGamecontrollerButton(detected_controller, my_button, new_state.buttons[id] ? 1.0f : 0.0f);
+                if(my_button != input::GamecontrollerButton::INVALID)
+                {
+                    system->OnGamecontrollerButton(detected_controller, my_button, new_state.buttons[id] ? 1.0f : 0.0f);
+                }
             }
         }
 
@@ -277,11 +287,12 @@ struct SdlPlatform : public input::Platform
             const auto id = static_cast<size_t>(axis);
             if(old_state.axes[id] != new_state.axes[id])
             {
-                const auto my_button = sdl::ToButton(axis);
                 // "The state is a value ranging from -32768 to 32767." so make sure it falls in the -1 to +1 range
-                const float state_abs = std::max(1.0f, std::abs(static_cast<float>(new_state.axes[id])/32767.0f));
+                const float state_abs = std::min(1.0f, std::abs(static_cast<float>(new_state.axes[id])/32767.0f));
                 const float state_sign = (new_state.axes[id] < 0 ? -1.0f:1.0f);
                 const float state = state_abs * state_sign;
+
+                const auto my_button = sdl::ToButton(axis);
                 if(my_button != input::GamecontrollerButton::INVALID)
                 {
                     // special case for 'triggers'
@@ -295,6 +306,8 @@ struct SdlPlatform : public input::Platform
                 }
             }
         }
+
+        old_state = new_state;
     }
 
 
@@ -335,7 +348,7 @@ struct SdlPlatform : public input::Platform
         const auto id = joysticks.Add();
         {
             auto controller = std::make_unique<GamecontrollerData>();
-            controller->controller = std::make_unique<sdl::GameController>(joystick->GetDeviceIndex());
+            controller->controller = std::make_unique<sdl::GameController>(device_id);
             if(controller->controller->IsValid())
             {
                 joysticks[id].gamecontroller = std::move(controller);
@@ -348,7 +361,7 @@ struct SdlPlatform : public input::Platform
         // overwrite existing (if any) sdl joystick instance_id with the new id
         sdljoystick_to_id[instance_id] = id;
 
-        LOG_INFO("Added a joystick named {}", joysticks[id].joystick->GetName());
+        LOG_INFO("Added a joystick named {} gamecontroller: {}", joysticks[id].joystick->GetName(), joysticks[id].gamecontroller != nullptr);
         return id;
 
     }

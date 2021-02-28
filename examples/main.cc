@@ -481,12 +481,12 @@ main(int, char**)
                     input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
 
                     // mouse
-                    input::config::AxisBindDef{"inout",     1, input::GamecontrollerAxis::LEFTY},
+                    input::config::AxisBindDef{"inout",     1, input::GamecontrollerAxis::LEFTY, 1.0f, true},
                     input::config::AxisBindDef{"leftright", 1, input::GamecontrollerAxis::LEFTX},
                     input::config::TwoKeyBindDef{"updown", 1, input::GamecontrollerButton::LEFTSHOULDER, input::GamecontrollerButton::RIGHTSHOULDER},
 
-                    input::config::AxisBindDef{"look_leftright", 1, input::GamecontrollerAxis::RIGHTX},
-                    input::config::AxisBindDef{"look_updown",    1, input::GamecontrollerAxis::RIGHTY}
+                    input::config::AxisBindDef{"look_leftright", 1, input::GamecontrollerAxis::RIGHTX, 50.0f},
+                    input::config::AxisBindDef{"look_updown",    1, input::GamecontrollerAxis::RIGHTY, 50.0f, true}
                 }
             },
         }
@@ -685,10 +685,15 @@ main(int, char**)
         }
 
         const auto v = camera.CreateVectors();
+
+        const auto input_inout = get(table, inout);
+        const auto input_leftright = get(table, leftright);
+        const auto input_updown = get(table, updown);
+
         const auto camera_movement
-            = v.front * get(table, inout)
-            + v.right * get(table, leftright)
-            + v.up * get(table, updown)
+            = v.front * input_inout
+            + v.right * input_leftright
+            + v.up * input_updown
             ;
 
         constexpr bool input_shift = false; // todo(Gustav): expose toggleables

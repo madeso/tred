@@ -33,7 +33,7 @@ std::string_view ToString(Power power);
 
 struct Joystick
 {
-    explicit Joystick(int device_index);
+    explicit Joystick(int joystick_index);
     explicit Joystick(SDL_Joystick* another_joystick);
     ~Joystick();
 
@@ -81,7 +81,7 @@ struct Haptic
 
 struct GameController
 {
-    GameController(int device_index);
+    GameController(int joystick_index);
     ~GameController();
 
     bool IsValid() const;
@@ -108,7 +108,7 @@ void LogInfoAboutJoystick(Joystick* joy);
 void LogInfoAboutController(GameController* controller);
 
 
-void LogInfoAboutJoystick(int device_index);
+void LogInfoAboutJoystick(int joystick_index);
 
 
 }

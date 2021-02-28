@@ -116,7 +116,7 @@ void GamecontrollerActiveUnit::OnAxis(GamecontrollerAxis axis, float state)
 
 void GamecontrollerActiveUnit::OnButton(GamecontrollerButton button, float state)
 {
-    buttons.SetRaw(button, state);
+    buttons.SetRaw(button, SmoothRange(state));
 }
 
 

@@ -24,8 +24,8 @@ std::string_view ToString(Power power)
 }
 
 
-Joystick::Joystick(int device_index)
-    : joystick(SDL_JoystickOpen(device_index))
+Joystick::Joystick(int joystick_index)
+    : joystick(SDL_JoystickOpen(joystick_index))
     , own_joystick(true)
 {
     if(SDL_JoystickGetAttached(joystick) == SDL_FALSE)
@@ -204,12 +204,12 @@ std::string_view Haptic::GetStatus()
 }
 
 
-GameController::GameController(int device_index)
-    : controller(SDL_GameControllerOpen(device_index))
+GameController::GameController(int joystick_index)
+    : controller(SDL_GameControllerOpen(joystick_index))
 {
     if(controller == nullptr)
     {
-        LOG_ERROR("Could not open gamecontroller {}: {}", device_index, SDL_GetError());
+        LOG_ERROR("Could not open gamecontroller {}: {}", joystick_index, SDL_GetError());
     }
 }
 
@@ -291,20 +291,20 @@ void LogInfoAboutController(GameController* controller)
 }
 
 
-void LogInfoAboutJoystick(int device_index)
+void LogInfoAboutJoystick(int joystick_index)
 {
-    const bool is_game_controller = SDL_IsGameController(device_index);
+    const bool is_game_controller = SDL_IsGameController(joystick_index);
 
     if(is_game_controller)
     {
-        LOG_INFO("Joystick {} (gamecontroller)", device_index + 1);
-        auto controller = GameController{device_index};
+        LOG_INFO("Joystick {} (gamecontroller)", joystick_index);
+        auto controller = GameController{joystick_index};
         LogInfoAboutController(&controller);
     }
     else
     {
-        LOG_INFO("Joystick {}", device_index + 1);
-        auto joystick = Joystick{device_index};
+        LOG_INFO("Joystick {}", joystick_index);
+        auto joystick = Joystick{joystick_index};
         LogInfoAboutJoystick(&joystick);
     }
 }
