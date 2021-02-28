@@ -42,6 +42,8 @@ namespace
     // auto enable relative_mouse
     // default should be true? but it's useful to set it to false to help with debugging
     constexpr bool relative_mouse = false;
+
+    constexpr bool log_joystick_connection_events = true;
 }
 
 
@@ -187,9 +189,17 @@ struct SdlPlatform : public input::Platform
                 break;
 
             case SDL_JOYDEVICEADDED:
+                if(log_joystick_connection_events)
+                {
+                    LOG_INFO("SDL: joystick added");
+                }
                 AddJoystickFromDevice(event.jdevice.which);
                 break;
             case SDL_JOYDEVICEREMOVED:
+                if(log_joystick_connection_events)
+                {
+                    LOG_INFO("SDL: Joystick removed");
+                }
                 RemoveJoystickFromInstance(system, lost_joysticks, event.jdevice.which);
                 break;
 
@@ -309,6 +319,10 @@ struct SdlPlatform : public input::Platform
 
     input::JoystickId AddJoystickFromDevice(int device_id)
     {
+        if(log_joystick_connection_events)
+        {
+            LOG_INFO("Adding joystick from device {}", device_id);
+        }
         auto joystick = std::make_unique<sdl::Joystick>(device_id);
         const auto instance_id = joystick->GetDeviceIndex();
 
@@ -341,6 +355,10 @@ struct SdlPlatform : public input::Platform
 
     void RemoveJoystickFromInstance(input::InputSystem* system, std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
     {
+        if(log_joystick_connection_events)
+        {
+            LOG_INFO("Removing joystick from instance");
+        }
         const auto found_id = sdljoystick_to_id.find(instance_id);
         if(found_id == sdljoystick_to_id.end())
         {
@@ -369,6 +387,10 @@ struct SdlPlatform : public input::Platform
 
     void StartUsing(input::JoystickId joy, input::JoystickType type) override
     {
+        if(log_joystick_connection_events)
+        {
+            LOG_INFO("Started using {}", type == input::JoystickType::Joystick ? "joystick" : "gamecontroller");
+        }
         joysticks[joy].in_use = type == input::JoystickType::GameController ? JoystickDetectionState::Gamecontroller : JoystickDetectionState::Joystick;
     }
 
