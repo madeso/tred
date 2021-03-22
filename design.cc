@@ -47,8 +47,8 @@ struct sizei
     sizei(int w, int h);
 };
 
-// also known as sausage body and capsule2d
-struct Stadium
+// also known as sausage body and stadium
+struct Capsule2
 {
     vec2f start;
     vec2f end;
@@ -80,7 +80,7 @@ struct ActorDef
 };
 
 
-struct World;
+struct World3;
 struct PlacementInWorld;
 
 struct Actor
@@ -186,10 +186,9 @@ struct TechniqueNoTextures : public Technique {};
 struct TechniqueFullyLit : public Technique {};
 
 
-// todo(Gustav): rename to World3?
 // 'Game Engine Architecture' calls this structure a SceneGraph, but I think
-// that name implies some form of hierarchy and World does not have that
-struct World
+// that name implies some form of hierarchy and my World does not have that
+struct World3
 {
     // how to handle memory?
     // RemoveX function are needed
@@ -207,7 +206,7 @@ struct World
 // fullscreen effects are handled elsewhere, not sure yet how to approach this
 
 
-struct Camera2d
+struct Camera2
 {
     vec2f center;
     Angle rotation;
@@ -239,7 +238,7 @@ struct SubSection
 // spritebatch name from libGDX
 struct SpriteBatch
 {
-    SpriteBatch(const Camera2d& camera);
+    SpriteBatch(const Camera2& camera);
 
     void Add(const Sprite& sprite);
 
@@ -251,7 +250,7 @@ struct SpriteBatch
 //  - tile renderer (with sloped tiles)
 //  - liero/worms painted world
 //  - beziercurve based worlds like soldat/elastomania
-struct World2d
+struct World2
 {
     // layer support
 
@@ -261,7 +260,16 @@ struct World2d
     // fluid dynamics like water, lava and smoke
     void AddActor();
 
-    void Render(const Camera2d& camera);
+    void Render(const Camera2& camera);
+};
+
+
+enum class TextureRef {};
+
+struct Textures
+{
+    TextureRef Load(const string& path);
+    TextureRef Create();
 };
 
 
@@ -269,10 +277,16 @@ struct World2d
 // how to handle lights
 
 // defined by "world"
+//  exoses a 'calculate_light()' function
 struct LightShader {};
 
 // defined by "script"
+//  exposes a 'calculate_color()' function
 struct MaterialShader {};
+
+// defined by "mesh"
+//   exposes position, normal and whatever else for the material and light
+struct TransformShader {};
 
 struct CombinedShader
 {
@@ -283,7 +297,7 @@ struct CombinedShader
 struct Material
 {
     CombinedShader* combined_shader;
-    std::vector<Texture> textures;
+    vector<TextureRef> textures;
 };
 
 struct Light
@@ -293,7 +307,7 @@ struct Light
 
 struct Renderer
 {
-    virtual void RenderWorld(World* world) = 0;
+    virtual void RenderWorld(World3* world) = 0;
 };
 
 // specific light algorithm
@@ -314,7 +328,7 @@ enum class ActorDefHandle {};
 
 struct Engine
 {
-    ActorDefHandle CreateActorDef(const Mesh& mesh);
+    ActorDefHandle CreateActorDef(const CompiledMesh& mesh);
 };
 
 struct Windows
@@ -332,13 +346,13 @@ unique_ptr<Windows> Setup();
 
 enum class ActorHandle {};
 
-struct World
+struct World3
 {
     ActorHandle CreateActor(ActorDefHandle);
     void Render(const recti& size, const Technique& t);
     void PlaceActor(ActorHandle actor, const vec3f& pos);
 };
-unique_ptr<World> CreateWorld();
+unique_ptr<World3> CreateWorld();
 
 
 
@@ -350,7 +364,7 @@ int main()
     auto windows = Setup();
 
     auto world = CreateWorld();
-    auto def = windows->engine->CreateActorDef(Mesh{});
+    auto def = windows->engine->CreateActorDef(CompiledMesh{});
     auto actor = world->CreateActor(def);
 
     // todo(Gustav): how does full screen effects work
