@@ -1,6 +1,49 @@
 #include "tred/fyro.h"
+#include "tred/rect.h"
 
 #include "cards.png.h"
+
+struct SpriteBatch
+{
+    void add_vertex(const glm::vec2& position, const glm::vec4& color, const glm::vec2& uv)
+    {
+        add_vertex({position.x, position.y, 0.0f}, color, uv);
+    }
+
+    void add_vertex(const glm::vec3& position, const glm::vec4& color, const glm::vec2& uv)
+    {
+        data.push_back(position.x);
+        data.push_back(position.y);
+        data.push_back(position.z);
+
+        data.push_back(color.x);
+        data.push_back(color.y);
+        data.push_back(color.z);
+        data.push_back(color.w);
+
+        data.push_back(uv.x);
+        data.push_back(uv.y);
+    }
+
+    void quad(const rect& scr, const rect& tex, const glm::vec4& tint = glm::vec4(1.0f))
+    {
+        quads += 1;
+
+        add_vertex({scr.minx, scr.miny}, tint, {tex.minx, tex.miny});
+        add_vertex({scr.maxx, scr.miny}, tint, {tex.maxx, tex.miny});
+        add_vertex({scr.maxx, scr.maxy}, tint, {tex.maxx, tex.maxy});
+        add_vertex({scr.minx, scr.maxy}, tint, {tex.minx, tex.maxy});
+    }
+
+    void clear()
+    {
+        data.resize(0);
+        quads = 0;
+    }
+
+    std::vector<float> data;
+    int quads = 0;
+};
 
 struct ExampleGame : public Game
 {
@@ -18,27 +61,21 @@ struct ExampleGame : public Game
             )
         )
     {
-        float vertices[] =
-        {
-            //  X      Y     Z        R      G      B     A        U     V
-            -0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    0.0f, 0.0f,
-             0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    1.0f, 0.0f,
-             0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    1.0f, 1.0f,
-            -0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    0.0f, 1.0f
-        };
-
         quad_shader.Use();
 
         glGenVertexArrays(1, &va);
         glBindVertexArray(va);
 
+        constexpr auto vertex_size = 9 * sizeof(float);
+        constexpr auto max_vertices = 100;
+
         glGenBuffers(1, &vb);
         glBindBuffer(GL_ARRAY_BUFFER, vb);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertex_size * max_vertices, nullptr, GL_DYNAMIC_DRAW);
 
-        glEnableVertexAttribArray(0); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(0 * sizeof(float)));
-        glEnableVertexAttribArray(1); glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
-        glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(7 * sizeof(float)));
+        glEnableVertexAttribArray(0); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(0 * sizeof(float)));
+        glEnableVertexAttribArray(1); glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(3 * sizeof(float)));
+        glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(7 * sizeof(float)));
 
         u32 indices[] =
         {
@@ -70,7 +107,17 @@ struct ExampleGame : public Game
 
         BindTexture(texture_uniform, cards);
 
+        float vertices[] =
+        {
+            //  X      Y     Z        R      G      B     A        U     V
+            -0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    0.0f, 0.0f,
+             0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    1.0f, 0.0f,
+             0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    1.0f, 1.0f,
+            -0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    0.0f, 1.0f
+        };
+
         glBindVertexArray(va);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 };
