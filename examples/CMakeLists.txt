@@ -32,7 +32,7 @@ embed(demo_cards
 add_executable(demo WIN32 MACOSX_BUNDLE demo.cc ${demo_cards})
 target_link_libraries(
     demo
-    PUBLIC tred
+    PUBLIC tred sprites
     PRIVATE project_options project_warnings
 )
 target_include_directories(demo

@@ -41,7 +41,7 @@ struct rect
         float x, float y, float w, float h
     )
     {
-        return {x, y, x+w, x+h};
+        return {x, y, x+w, y+h};
     }
 };
 

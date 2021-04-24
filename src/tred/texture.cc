@@ -4,10 +4,13 @@
 
 #include "tred/opengl.h"
 #include "tred/cint.h"
+#include "tred/image.h"
 
 
-Texture::Texture(unsigned int i)
-    : id(i)
+Texture::Texture(const LoadedImage& i)
+    : id(i.id)
+    , width(i.width)
+    , height(i.height)
 {
 }
 

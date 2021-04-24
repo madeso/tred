@@ -18,3 +18,6 @@ add_subdirectory(tools)
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(examples)
+
+add_library(sprites INTERFACE)
+target_include_directories(sprites INTERFACE data)

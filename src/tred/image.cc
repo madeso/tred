@@ -15,7 +15,7 @@ unsigned int CreateTexture()
 }
 
 
-unsigned int
+LoadedImage
 LoadImage
 (
     const unsigned char* image_source,
@@ -74,11 +74,11 @@ LoadImage
         stbi_image_free(pixel_data);
     }
 
-    return texture;
+    return {texture, width, height};
 }
 
 
-unsigned int
+LoadedImage
 LoadImageEmbeded
 (
     const EmbeddedBinary& image_binary,

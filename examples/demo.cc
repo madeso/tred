@@ -2,6 +2,7 @@
 #include "tred/rect.h"
 
 #include "cards.png.h"
+#include "sprites/cards.h"
 
 struct SpriteBatch
 {
@@ -44,6 +45,15 @@ struct SpriteBatch
     std::vector<float> data;
     int quads = 0;
 };
+
+// todo(Gustav): figure out uv layout... what is up/down? what is left/right
+// what do we want? like euph? probably...
+rect get_sprite(const Texture& texture, const rect& r)
+{
+    const auto w = 1.0f/static_cast<float>(texture.width);
+    const auto h = 1.0f/static_cast<float>(texture.height);
+    return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
+}
 
 struct ExampleGame : public Game
 {
@@ -108,7 +118,7 @@ struct ExampleGame : public Game
         BindTexture(texture_uniform, cards);
 
         auto batch = SpriteBatch{};
-        batch.quad(rect{-0.5f, -0.5f, 0.5f, 0.5f}, rect{1.0f, 1.0f});
+        batch.quad(rect{-0.5f, -0.5f, 0.5f, 0.5f}, get_sprite(cards, ::cards::hearts[2]));
 
         glBindVertexArray(va);
         glBufferSubData

@@ -2,12 +2,15 @@
 
 #include "tred/uniform.h"
 
+struct LoadedImage;
 
 struct Texture
 {
     unsigned int id;
+    int width;
+    int height;
 
-    explicit Texture(unsigned int i);
+    explicit Texture(const LoadedImage& i);
 
     void
     Delete();

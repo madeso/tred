@@ -19,8 +19,13 @@ enum class Transperency
     Include, Exclude
 };
 
+struct LoadedImage
+{
+    unsigned int id;
+    int width; int height;
+};
 
-unsigned int
+LoadedImage
 LoadImageEmbeded
 (
     const EmbeddedBinary& image_binary,
