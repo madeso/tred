@@ -24,3 +24,14 @@ target_include_directories(example
 
 source_group("" FILES ${src})
 source_group("generated" FILES ${generated})
+
+add_executable(demo WIN32 MACOSX_BUNDLE demo.cc)
+target_link_libraries(
+    demo
+    PUBLIC tred
+    PRIVATE project_options project_warnings
+)
+target_include_directories(demo
+    PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+)

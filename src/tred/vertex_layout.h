@@ -9,8 +9,7 @@
 /** Vertex source type, position, normal etc. */
 enum class VertexType
 {
-    Position3, Normal3, Color4, Texture2
-
+    Position2, Position3, Normal3, Color4, Texture2
     // change to include other textcoords and custom types that are created from scripts
 };
 
