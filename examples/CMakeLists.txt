@@ -25,7 +25,11 @@ target_include_directories(example
 source_group("" FILES ${src})
 source_group("generated" FILES ${generated})
 
-add_executable(demo WIN32 MACOSX_BUNDLE demo.cc)
+embed(demo_cards
+    AS_BINARY
+        ../data/sprites/cards.png
+)
+add_executable(demo WIN32 MACOSX_BUNDLE demo.cc ${demo_cards})
 target_link_libraries(
     demo
     PUBLIC tred

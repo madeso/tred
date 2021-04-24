@@ -1,15 +1,30 @@
 #include "tred/fyro.h"
 
+#include "cards.png.h"
+
 struct ExampleGame : public Game
 {
+    Texture cards;
+
     ExampleGame()
+        : cards
+        (
+            LoadImageEmbeded
+            (
+                CARDS_PNG,
+                TextureEdge::Clamp,
+                TextureRenderStyle::Pixel,
+                Transperency::Include
+            )
+        )
     {
         float vertices[] =
         {
-            -0.5, -0.5, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,
-             0.5, -0.5, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,
-             0.5,  0.5, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,
-            -0.5,  0.5, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f
+            //  X      Y     Z        R      G      B     A        U     V
+            -0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    0.0f, 0.0f,
+             0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    1.0f, 0.0f,
+             0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    1.0f, 1.0f,
+            -0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    0.0f, 1.0f
         };
 
         quad_shader.Use();
@@ -21,8 +36,9 @@ struct ExampleGame : public Game
         glBindBuffer(GL_ARRAY_BUFFER, vb);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        glEnableVertexAttribArray(0); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
-        glEnableVertexAttribArray(1); glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+        glEnableVertexAttribArray(0); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(0 * sizeof(float)));
+        glEnableVertexAttribArray(1); glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+        glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(7 * sizeof(float)));
 
         u32 indices[] =
         {
@@ -51,6 +67,8 @@ struct ExampleGame : public Game
         quad_shader.Use();
         quad_shader.SetMat(view_projection_uniform, projection);
         quad_shader.SetMat(transform_uniform, glm::mat4(1.0f));
+
+        BindTexture(texture_uniform, cards);
 
         glBindVertexArray(va);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

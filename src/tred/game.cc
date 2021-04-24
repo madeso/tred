@@ -25,7 +25,8 @@ Game::Game()
     (
         {
             {VertexType::Position2, "position"},
-            {VertexType::Color4, "color"}
+            {VertexType::Color4, "color"},
+            {VertexType::Texture2, "uv"}
         }
     )
     , quad_layout
@@ -38,15 +39,18 @@ Game::Game()
             #version 450 core
             in vec3 position;
             in vec4 color;
+            in vec2 uv;
 
             uniform mat4 view_projection;
             uniform mat4 transform;
 
             out vec4 varying_color;
+            out vec2 varying_uv;
 
             void main()
             {
                 varying_color = color;
+                varying_uv = uv;
                 gl_Position = view_projection * transform * vec4(position, 1.0);
             }
         )glsl",
@@ -54,19 +58,24 @@ Game::Game()
             #version 450 core
 
             in vec4 varying_color;
+            in vec2 varying_uv;
+
+            uniform sampler2D uniform_texture;
 
             layout(location=0) out vec4 color;
 
             void main()
             {
-                color = varying_color;
+                color = texture(uniform_texture, varying_uv) * varying_color;
             }
         )glsl",
         quad_layout
     )
     , view_projection_uniform(quad_shader.GetUniform("view_projection"))
     , transform_uniform(quad_shader.GetUniform("transform"))
+    , texture_uniform(quad_shader.GetUniform("uniform_texture"))
 {
+    SetupTextures(&quad_shader, {&texture_uniform});
 }
 
 Game::~Game()
@@ -87,8 +96,10 @@ void Game::OnMouseWheel(int) {}
 void SetupOpenGl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
 {
     SetupOpenglDebug();
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glCullFace(GL_BACK); // remove back faces
 
     const auto* renderer = glGetString(GL_RENDERER); // get renderer string

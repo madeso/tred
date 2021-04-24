@@ -16,6 +16,7 @@ struct Game
     Shader quad_shader;
     Uniform view_projection_uniform;
     Uniform transform_uniform;
+    Uniform texture_uniform;
 
     Game();
     virtual ~Game();

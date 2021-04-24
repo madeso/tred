@@ -18,7 +18,7 @@ CheckShaderCompilationError(const char* name, unsigned int shader)
     if(!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, log);
-        LOG_ERROR("ERROR: {} shader compilation failed\n{}}\n", name, log);
+        LOG_ERROR("ERROR: {} shader compilation failed\n{}\n", name, log);
         return false;
     }
 
