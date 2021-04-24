@@ -107,17 +107,17 @@ struct ExampleGame : public Game
 
         BindTexture(texture_uniform, cards);
 
-        float vertices[] =
-        {
-            //  X      Y     Z        R      G      B     A        U     V
-            -0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    0.0f, 0.0f,
-             0.5f, -0.5f, 0.0f,   0.18f, 0.60f, 0.96f, 1.0f,    1.0f, 0.0f,
-             0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    1.0f, 1.0f,
-            -0.5f,  0.5f, 0.0f,   1.00f, 0.93f, 0.24f, 1.0f,    0.0f, 1.0f
-        };
+        auto batch = SpriteBatch{};
+        batch.quad(rect{-0.5f, -0.5f, 0.5f, 0.5f}, rect{1.0f, 1.0f});
 
         glBindVertexArray(va);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBufferSubData
+        (
+            GL_ARRAY_BUFFER,
+            0,
+            static_cast<GLsizeiptr>(sizeof(float) * batch.data.size()),
+            static_cast<const void*>(batch.data.data())
+        );
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 };
