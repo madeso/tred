@@ -62,7 +62,7 @@ Game::Game()
 
             uniform sampler2D uniform_texture;
 
-            layout(location=0) out vec4 color;
+            out vec4 color;
 
             void main()
             {

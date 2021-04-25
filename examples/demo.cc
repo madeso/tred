@@ -61,6 +61,17 @@ rect get_sprite(const Texture& texture, const rect& r)
     return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
 }
 
+void label(const char* label, const std::string& text)
+{
+    ImGui::LabelText(label, "%s", text.c_str());
+}
+
+void selectable(const std::string& text)
+{
+    bool selected = false;
+    ImGui::Selectable(text.c_str(), &selected);
+}
+
 struct ExampleGame : public Game
 {
     Texture cards;
@@ -101,10 +112,12 @@ struct ExampleGame : public Game
 
         for(auto quad_index=0; quad_index<max_quads; quad_index+=1)
         {
-            const auto base = indices.size();
+            const auto base = quad_index * 4;
             indices.emplace_back(base + 0); indices.emplace_back(base + 1); indices.emplace_back(base + 2);
             indices.emplace_back(base + 2); indices.emplace_back(base + 3); indices.emplace_back(base + 0);
         }
+
+        assert(max_indices == indices.size());
 
         glGenBuffers(1, &ib);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
@@ -114,6 +127,8 @@ struct ExampleGame : public Game
     GLuint va;
     GLuint vb;
     GLuint ib;
+
+    SpriteBatch batch = SpriteBatch{};
 
     void
     OnRender(const glm::ivec2& size) override
@@ -130,8 +145,9 @@ struct ExampleGame : public Game
 
         BindTexture(texture_uniform, cards);
 
-        auto batch = SpriteBatch{};
         batch.quad(rect{-0.5f, -0.5f, 0.5f, 0.5f}, get_sprite(cards, ::cards::hearts[2]));
+        const auto d = 0.5f;
+        batch.quad(rect{-0.5f+d, -0.5f + d, 0.5f + d, 0.5f + d}, get_sprite(cards, ::cards::back));
 
         glBindVertexArray(va);
         glBufferSubData
@@ -142,6 +158,7 @@ struct ExampleGame : public Game
             static_cast<const void*>(batch.data.data())
         );
         glDrawElements(GL_TRIANGLES, 6 * batch.quads, GL_UNSIGNED_INT, nullptr);
+        batch.submit();
     }
 };
 
