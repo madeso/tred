@@ -47,6 +47,15 @@ struct SpriteBatch
             return;
         }
 
+        glBufferSubData
+        (
+            GL_ARRAY_BUFFER,
+            0,
+            static_cast<GLsizeiptr>(sizeof(float) * data.size()),
+            static_cast<const void*>(data.data())
+        );
+        glDrawElements(GL_TRIANGLES, 6 * quads, GL_UNSIGNED_INT, nullptr);
+
         data.resize(0);
         quads = 0;
     }
@@ -150,14 +159,6 @@ struct ExampleGame : public Game
         batch.quad(rect{-0.5f+d, -0.5f + d, 0.5f + d, 0.5f + d}, get_sprite(cards, ::cards::back));
 
         glBindVertexArray(va);
-        glBufferSubData
-        (
-            GL_ARRAY_BUFFER,
-            0,
-            static_cast<GLsizeiptr>(sizeof(float) * batch.data.size()),
-            static_cast<const void*>(batch.data.data())
-        );
-        glDrawElements(GL_TRIANGLES, 6 * batch.quads, GL_UNSIGNED_INT, nullptr);
         batch.submit();
     }
 };
