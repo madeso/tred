@@ -6,6 +6,10 @@
 
 struct SpriteBatch
 {
+    std::vector<float> data;
+    int quads = 0;
+    int max_quads = 100;
+
     void add_vertex(const glm::vec2& position, const glm::vec4& color, const glm::vec2& uv)
     {
         add_vertex({position.x, position.y, 0.0f}, color, uv);
@@ -36,14 +40,16 @@ struct SpriteBatch
         add_vertex({scr.minx, scr.maxy}, tint, {tex.minx, tex.maxy});
     }
 
-    void clear()
+    void submit()
     {
+        if(quads == 0)
+        {
+            return;
+        }
+
         data.resize(0);
         quads = 0;
     }
-
-    std::vector<float> data;
-    int quads = 0;
 };
 
 // todo(Gustav): figure out uv layout... what is up/down? what is left/right
@@ -76,8 +82,11 @@ struct ExampleGame : public Game
         glGenVertexArrays(1, &va);
         glBindVertexArray(va);
 
+        constexpr auto max_quads = 100;
+
         constexpr auto vertex_size = 9 * sizeof(float);
-        constexpr auto max_vertices = 100;
+        constexpr auto max_vertices = 4 * max_quads;
+        constexpr auto max_indices = 6 * max_quads;
 
         glGenBuffers(1, &vb);
         glBindBuffer(GL_ARRAY_BUFFER, vb);
@@ -87,15 +96,19 @@ struct ExampleGame : public Game
         glEnableVertexAttribArray(1); glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(3 * sizeof(float)));
         glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(7 * sizeof(float)));
 
-        u32 indices[] =
+        std::vector<u32> indices;
+        indices.reserve(max_indices);
+
+        for(auto quad_index=0; quad_index<max_quads; quad_index+=1)
         {
-            0, 1, 2,
-            2, 3, 0
-        };
+            const auto base = indices.size();
+            indices.emplace_back(base + 0); indices.emplace_back(base + 1); indices.emplace_back(base + 2);
+            indices.emplace_back(base + 2); indices.emplace_back(base + 3); indices.emplace_back(base + 0);
+        }
 
         glGenBuffers(1, &ib);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
     }
 
     GLuint va;
@@ -128,7 +141,7 @@ struct ExampleGame : public Game
             static_cast<GLsizeiptr>(sizeof(float) * batch.data.size()),
             static_cast<const void*>(batch.data.data())
         );
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, 6 * batch.quads, GL_UNSIGNED_INT, nullptr);
     }
 };
 
