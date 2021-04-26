@@ -102,7 +102,7 @@ struct ExampleGame : public Game
         // auto r = with_layer_fit_with_bars(rc, 200.0f, 200.0f, glm::mat4(1.0f));
         auto r = with_layer_extended(rc, 200.0f, 200.0f, glm::mat4(1.0f));
 
-        r.batch->quad(&white, r.viewport_aabb_in_worldspace, {1.0f, 1.0f}, {0.8, 0.8, 0.8, 1.0f});
+        r.batch->quad(&white, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
         r.batch->quad(&cards, ::cards::hearts[2].zero().set_height(30).translate(100, 100), get_sprite(cards, ::cards::hearts[2]));
         r.batch->quad(&cards, ::cards::back.zero().set_height(30).translate(10, 50), get_sprite(cards, ::cards::back));

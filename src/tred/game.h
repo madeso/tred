@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <optional>
 
 #include "tred/shader.h"
 #include "tred/vertex_layout.h"
@@ -36,7 +37,7 @@ struct SpriteBatch
     SpriteBatch(Shader* shader, Render2* r);
 
     void quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
-    void quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(Texture* texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
 
     void submit();
 

@@ -97,15 +97,16 @@ void SpriteBatch::quad(Texture* texture, const vertex2& v0, const vertex2& v1, c
     add_vertex(this, v3);
 }
 
-void SpriteBatch::quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint)
+void SpriteBatch::quad(Texture* texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
 {
+    const auto tc = texturecoord.value_or(rect{1.0f, 1.0f});
     quad
     (
         texture,
-        {{scr.minx, scr.miny, 0.0f}, tint, {tex.minx, tex.miny}},
-        {{scr.maxx, scr.miny, 0.0f}, tint, {tex.maxx, tex.miny}},
-        {{scr.maxx, scr.maxy, 0.0f}, tint, {tex.maxx, tex.maxy}},
-        {{scr.minx, scr.maxy, 0.0f}, tint, {tex.minx, tex.maxy}}
+        {{scr.minx, scr.miny, 0.0f}, tint, {tc.minx, tc.miny}},
+        {{scr.maxx, scr.miny, 0.0f}, tint, {tc.maxx, tc.miny}},
+        {{scr.maxx, scr.maxy, 0.0f}, tint, {tc.maxx, tc.maxy}},
+        {{scr.minx, scr.maxy, 0.0f}, tint, {tc.minx, tc.maxy}}
     );
 }
 
