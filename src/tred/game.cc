@@ -18,9 +18,114 @@
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"
+#include "tred/texture.h"
+
+SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
+    : render(r)
+{
+    quad_shader->Use();
+
+    glGenVertexArrays(1, &va);
+    glBindVertexArray(va);
+
+    constexpr auto vertex_size = 9 * sizeof(float);
+    constexpr auto max_vertices = 4 * max_quads;
+    constexpr auto max_indices = 6 * max_quads;
+
+    glGenBuffers(1, &vb);
+    glBindBuffer(GL_ARRAY_BUFFER, vb);
+    glBufferData(GL_ARRAY_BUFFER, vertex_size * max_vertices, nullptr, GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(0); glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(0 * sizeof(float)));
+    glEnableVertexAttribArray(1); glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(3 * sizeof(float)));
+    glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertex_size, reinterpret_cast<void*>(7 * sizeof(float)));
+
+    std::vector<u32> indices;
+    indices.reserve(max_indices);
+
+    for(auto quad_index=0; quad_index<max_quads; quad_index+=1)
+    {
+        const auto base = quad_index * 4;
+        indices.emplace_back(base + 0); indices.emplace_back(base + 1); indices.emplace_back(base + 2);
+        indices.emplace_back(base + 2); indices.emplace_back(base + 3); indices.emplace_back(base + 0);
+    }
+
+    assert(max_indices == indices.size());
+
+    glGenBuffers(1, &ib);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
+}
+
+void SpriteBatch::add_vertex(const glm::vec2& position, const glm::vec4& color, const glm::vec2& uv)
+{
+    add_vertex({position.x, position.y, 0.0f}, color, uv);
+}
+
+void SpriteBatch::add_vertex(const glm::vec3& position, const glm::vec4& color, const glm::vec2& uv)
+{
+    data.push_back(position.x);
+    data.push_back(position.y);
+    data.push_back(position.z);
+
+    data.push_back(color.x);
+    data.push_back(color.y);
+    data.push_back(color.z);
+    data.push_back(color.w);
+
+    data.push_back(uv.x);
+    data.push_back(uv.y);
+}
+
+void SpriteBatch::quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint)
+{
+    if(quads == max_quads)
+    {
+        submit();
+    }
+
+    if(current_texture == nullptr)
+    {
+        current_texture = texture;
+    }
+    else if (current_texture != texture)
+    {
+        submit();
+        current_texture = texture;
+    }
+
+    quads += 1;
+    add_vertex({scr.minx, scr.miny}, tint, {tex.minx, tex.miny});
+    add_vertex({scr.maxx, scr.miny}, tint, {tex.maxx, tex.miny});
+    add_vertex({scr.maxx, scr.maxy}, tint, {tex.maxx, tex.maxy});
+    add_vertex({scr.minx, scr.maxy}, tint, {tex.minx, tex.maxy});
+}
+
+void SpriteBatch::submit()
+{
+    if(quads == 0)
+    {
+        return;
+    }
+
+    BindTexture(render->texture_uniform, *current_texture);
+    glBindVertexArray(va);
+    glBufferSubData
+    (
+        GL_ARRAY_BUFFER,
+        0,
+        static_cast<GLsizeiptr>(sizeof(float) * data.size()),
+        static_cast<const void*>(data.data())
+    );
+    glDrawElements(GL_TRIANGLES, 6 * quads, GL_UNSIGNED_INT, nullptr);
+
+    data.resize(0);
+    quads = 0;
+    current_texture = nullptr;
+}
 
 
-Game::Game()
+Render2::Render2()
     : quad_description
     (
         {
@@ -74,17 +179,18 @@ Game::Game()
     , view_projection_uniform(quad_shader.GetUniform("view_projection"))
     , transform_uniform(quad_shader.GetUniform("transform"))
     , texture_uniform(quad_shader.GetUniform("uniform_texture"))
+    , batch(&quad_shader, this)
 {
     SetupTextures(&quad_shader, {&texture_uniform});
 }
 
-Game::~Game()
+Render2::~Render2()
 {
     quad_shader.Delete();
 }
 
 
-void Game::OnRender(const glm::ivec2&) {}
+void Game::OnRender(const RenderCommand2&) {}
 void Game::OnImgui() {}
 bool Game::OnUpdate(float) { return true; }
 void Game::OnKey(char, bool) {}
@@ -135,6 +241,7 @@ struct Window
     SDL_GLContext glcontext;
 
     std::shared_ptr<Game> game;
+    std::unique_ptr<Render2> render_data;
 
     Window(const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
@@ -206,7 +313,12 @@ struct Window
     {
         if(window == nullptr) { return; }
 
-        game->OnRender(size);
+        glViewport(0, 0, size.x, size.y);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        game->OnRender({render_data.get(), size});
 
         if(imgui)
         {
@@ -314,6 +426,7 @@ int SetupAndRun(std::function<std::shared_ptr<Game>()> make_game, const std::str
     {
         return -1;
     }
+    window.render_data = std::make_unique<Render2>();
     window.game = make_game();
 
     auto last = SDL_GetPerformanceCounter();
