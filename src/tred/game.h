@@ -67,6 +67,17 @@ struct RenderCommand2
     glm::ivec2 size;
 };
 
+struct Layer2
+{
+    rect viewport_aabb_in_worldspace;
+    SpriteBatch* batch;
+
+    ~Layer2();
+};
+
+Layer2 with_layer_fit_with_bars(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+Layer2 with_layer_extended(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+
 struct Game
 {
     Game() = default;
