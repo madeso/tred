@@ -61,6 +61,7 @@ set(src
     tred/fyro.h
     tred/game.cc tred/game.h
     tred/rect.cc tred/rect.h
+    tred/viewportdef.cc tred/viewportdef.h
 )
 
 add_library(tred STATIC ${src})

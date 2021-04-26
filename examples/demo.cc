@@ -1,5 +1,6 @@
 #include "tred/fyro.h"
 #include "tred/rect.h"
+#include "tred/viewportdef.h"
 
 #include "cards.png.h"
 #include "sprites/cards.h"
@@ -81,6 +82,11 @@ void selectable(const std::string& text)
     ImGui::Selectable(text.c_str(), &selected);
 }
 
+void set_gl_viewport(const recti& r)
+{
+    glViewport(r.minx, r.miny + r.get_height(), r.get_width(), r.get_height());
+}
+
 struct ExampleGame : public Game
 {
     Texture cards;
@@ -142,11 +148,15 @@ struct ExampleGame : public Game
     void
     OnRender(const glm::ivec2& size) override
     {
-        glViewport(0, 0, size.x, size.y);
+        const auto vp = ViewportDef::Extend(200.0f, 200.0f, size.x, size.y);
+        const auto r = vp.screen_rect;
+
+        set_gl_viewport(r);
+
         glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        const auto projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+        const auto projection = glm::ortho(0.0f, vp.virtual_width, 0.0f, vp.virtual_height);
 
         quad_shader.Use();
         quad_shader.SetMat(view_projection_uniform, projection);
@@ -154,9 +164,8 @@ struct ExampleGame : public Game
 
         BindTexture(texture_uniform, cards);
 
-        batch.quad(rect{-0.5f, -0.5f, 0.5f, 0.5f}, get_sprite(cards, ::cards::hearts[2]));
-        const auto d = 0.5f;
-        batch.quad(rect{-0.5f+d, -0.5f + d, 0.5f + d, 0.5f + d}, get_sprite(cards, ::cards::back));
+        batch.quad(::cards::hearts[2].zero().set_height(30).translate(100, 100), get_sprite(cards, ::cards::hearts[2]));
+        batch.quad(::cards::back.zero().set_height(30).translate(10, 200), get_sprite(cards, ::cards::back));
 
         glBindVertexArray(va);
         batch.submit();
