@@ -28,6 +28,7 @@ source_group("generated" FILES ${generated})
 embed(demo_cards
     AS_BINARY
         ../data/sprites/cards.png
+        ../data/sprites/letter_g.png
 )
 add_executable(demo WIN32 MACOSX_BUNDLE demo.cc ${demo_cards})
 target_link_libraries(
