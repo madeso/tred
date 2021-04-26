@@ -61,7 +61,6 @@ Layer2 with_layer_extended(const RenderCommand2& rc, float requested_width, floa
 struct ExampleGame : public Game
 {
     Texture cards;
-    Texture white;
 
     ExampleGame()
         : cards
@@ -69,16 +68,6 @@ struct ExampleGame : public Game
             LoadImageEmbeded
             (
                 CARDS_PNG,
-                TextureEdge::Clamp,
-                TextureRenderStyle::Pixel,
-                Transperency::Include
-            )
-        )
-        , white
-        (
-            LoadImageSingleFromSinglePixel
-            (
-                0xffffffff,
                 TextureEdge::Clamp,
                 TextureRenderStyle::Pixel,
                 Transperency::Include
@@ -97,7 +86,7 @@ struct ExampleGame : public Game
         // what do we want? like euph? probably...
         // render the G sprite to test orientation
 
-        r.batch->quad(&white, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
+        r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
         constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(30);
 

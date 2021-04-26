@@ -11,6 +11,7 @@
 #include "tred/vertex_layout.h"
 #include "tred/rect.h"
 #include "tred/types.h"
+#include "tred/texture.h"
 
 struct Texture;
 struct Render2;
@@ -33,13 +34,13 @@ struct SpriteBatch
     u32 vb;
     u32 ib;
     Render2* render;
+    Texture white_texture;
 
     SpriteBatch(Shader* shader, Render2* r);
 
-    void quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
-
-    void quad(Texture* texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
-    void quad(Texture* texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<Texture*> texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
+    void quad(std::optional<Texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<Texture*> texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
 
     void submit();
 

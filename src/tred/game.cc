@@ -18,10 +18,20 @@
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"
-#include "tred/texture.h"
+#include "tred/image.h"
 
 SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
     : render(r)
+    , white_texture
+    (
+        LoadImageSingleFromSinglePixel
+        (
+            0xffffffff,
+            TextureEdge::Clamp,
+            TextureRenderStyle::Pixel,
+            Transperency::Include
+        )
+    )
 {
     quad_shader->Use();
 
@@ -80,8 +90,10 @@ rect get_sprite(const Texture& texture, const recti& ri)
     return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
 }
 
-void SpriteBatch::quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
+void SpriteBatch::quad(std::optional<Texture*> texture_argument, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
 {
+    Texture* texture = texture_argument.value_or(&white_texture);
+
     if(quads == max_quads)
     {
         submit();
@@ -105,7 +117,7 @@ void SpriteBatch::quad(Texture* texture, const vertex2& v0, const vertex2& v1, c
     add_vertex(this, v3);
 }
 
-void SpriteBatch::quad(Texture* texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
+void SpriteBatch::quad(std::optional<Texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
 {
     const auto tc = texturecoord.value_or(rect{1.0f, 1.0f});
     quad
@@ -118,8 +130,9 @@ void SpriteBatch::quad(Texture* texture, const rect& scr, const std::optional<re
     );
 }
 
-void SpriteBatch::quad(Texture* texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
+void SpriteBatch::quad(std::optional<Texture*> texture_argument, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
 {
+    Texture* texture = texture_argument.value_or(&white_texture);
     quad(texture, scr, get_sprite(*texture, texturecoord), tint);
 }
 
