@@ -5,15 +5,6 @@
 #include "cards.png.h"
 #include "sprites/cards.h"
 
-// todo(Gustav): figure out uv layout... what is up/down? what is left/right
-// what do we want? like euph? probably...
-rect get_sprite(const Texture& texture, const rect& r)
-{
-    const auto w = 1.0f/static_cast<float>(texture.width);
-    const auto h = 1.0f/static_cast<float>(texture.height);
-    return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
-}
-
 void label(const char* label, const std::string& text)
 {
     ImGui::LabelText(label, "%s", text.c_str());
@@ -102,10 +93,16 @@ struct ExampleGame : public Game
         // auto r = with_layer_fit_with_bars(rc, 200.0f, 200.0f, glm::mat4(1.0f));
         auto r = with_layer_extended(rc, 200.0f, 200.0f, glm::mat4(1.0f));
 
+        // todo(Gustav): figure out uv layout... what is up/down? what is left/right
+        // what do we want? like euph? probably...
+        // render the G sprite to test orientation
+
         r.batch->quad(&white, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
-        r.batch->quad(&cards, ::cards::hearts[2].zero().set_height(30).translate(100, 100), get_sprite(cards, ::cards::hearts[2]));
-        r.batch->quad(&cards, ::cards::back.zero().set_height(30).translate(10, 50), get_sprite(cards, ::cards::back));
+        constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(30);
+
+        r.batch->quad(&cards, card_sprite.translate(100, 100), ::cards::hearts[2]);
+        r.batch->quad(&cards, card_sprite.translate(10, 50), ::cards::back);
     }
 };
 

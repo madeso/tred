@@ -194,3 +194,15 @@ rect add_bottom(const trect<T>& rect, T a);
 
 using rect = trect<float>;
 using recti = trect<int>;
+
+constexpr rect
+Cint_to_float(const recti& r)
+{
+    return
+    {
+        static_cast<float>(r.minx),
+        static_cast<float>(r.miny),
+        static_cast<float>(r.maxx),
+        static_cast<float>(r.maxy)
+    };
+}

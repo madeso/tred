@@ -72,6 +72,14 @@ void add_vertex(SpriteBatch* batch, const vertex2& v)
     batch->data.push_back(v.texturecoord.y);
 }
 
+rect get_sprite(const Texture& texture, const recti& ri)
+{
+    const auto r = Cint_to_float(ri);
+    const auto w = 1.0f/static_cast<float>(texture.width);
+    const auto h = 1.0f/static_cast<float>(texture.height);
+    return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
+}
+
 void SpriteBatch::quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
 {
     if(quads == max_quads)
@@ -108,6 +116,11 @@ void SpriteBatch::quad(Texture* texture, const rect& scr, const std::optional<re
         {{scr.maxx, scr.maxy, 0.0f}, tint, {tc.maxx, tc.maxy}},
         {{scr.minx, scr.maxy, 0.0f}, tint, {tc.minx, tc.maxy}}
     );
+}
+
+void SpriteBatch::quad(Texture* texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
+{
+    quad(texture, scr, get_sprite(*texture, texturecoord), tint);
 }
 
 void SpriteBatch::submit()
