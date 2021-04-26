@@ -4,6 +4,7 @@
 #include "letter_g.png.h"
 #include "sprites/cards.h"
 
+
 struct ExampleGame : public Game
 {
     Texture cards;
@@ -16,7 +17,7 @@ struct ExampleGame : public Game
             (
                 CARDS_PNG,
                 TextureEdge::Clamp,
-                TextureRenderStyle::Pixel,
+                TextureRenderStyle::Smooth,
                 Transperency::Include
             )
         )
@@ -26,7 +27,7 @@ struct ExampleGame : public Game
             (
                 LETTER_G_PNG,
                 TextureEdge::Clamp,
-                TextureRenderStyle::Pixel,
+                TextureRenderStyle::Smooth,
                 Transperency::Include
             )
         )
