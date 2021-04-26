@@ -14,6 +14,13 @@
 struct Texture;
 struct Render2;
 
+struct vertex2
+{
+    glm::vec3 position;
+    glm::vec4 color;
+    glm::vec2 texturecoord;
+};
+
 struct SpriteBatch
 {
     static constexpr int max_quads = 100;
@@ -28,9 +35,7 @@ struct SpriteBatch
 
     SpriteBatch(Shader* shader, Render2* r);
 
-    void add_vertex(const glm::vec2& position, const glm::vec4& color, const glm::vec2& uv);
-    void add_vertex(const glm::vec3& position, const glm::vec4& color, const glm::vec2& uv);
-
+    void quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
     void quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint = glm::vec4(1.0f));
 
     void submit();

@@ -57,27 +57,22 @@ SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
 }
 
-void SpriteBatch::add_vertex(const glm::vec2& position, const glm::vec4& color, const glm::vec2& uv)
+void add_vertex(SpriteBatch* batch, const vertex2& v)
 {
-    add_vertex({position.x, position.y, 0.0f}, color, uv);
+    batch->data.push_back(v.position.x);
+    batch->data.push_back(v.position.y);
+    batch->data.push_back(v.position.z);
+
+    batch->data.push_back(v.color.x);
+    batch->data.push_back(v.color.y);
+    batch->data.push_back(v.color.z);
+    batch->data.push_back(v.color.w);
+
+    batch->data.push_back(v.texturecoord.x);
+    batch->data.push_back(v.texturecoord.y);
 }
 
-void SpriteBatch::add_vertex(const glm::vec3& position, const glm::vec4& color, const glm::vec2& uv)
-{
-    data.push_back(position.x);
-    data.push_back(position.y);
-    data.push_back(position.z);
-
-    data.push_back(color.x);
-    data.push_back(color.y);
-    data.push_back(color.z);
-    data.push_back(color.w);
-
-    data.push_back(uv.x);
-    data.push_back(uv.y);
-}
-
-void SpriteBatch::quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint)
+void SpriteBatch::quad(Texture* texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
 {
     if(quads == max_quads)
     {
@@ -95,10 +90,23 @@ void SpriteBatch::quad(Texture* texture, const rect& scr, const rect& tex, const
     }
 
     quads += 1;
-    add_vertex({scr.minx, scr.miny}, tint, {tex.minx, tex.miny});
-    add_vertex({scr.maxx, scr.miny}, tint, {tex.maxx, tex.miny});
-    add_vertex({scr.maxx, scr.maxy}, tint, {tex.maxx, tex.maxy});
-    add_vertex({scr.minx, scr.maxy}, tint, {tex.minx, tex.maxy});
+
+    add_vertex(this, v0);
+    add_vertex(this, v1);
+    add_vertex(this, v2);
+    add_vertex(this, v3);
+}
+
+void SpriteBatch::quad(Texture* texture, const rect& scr, const rect& tex, const glm::vec4& tint)
+{
+    quad
+    (
+        texture,
+        {{scr.minx, scr.miny, 0.0f}, tint, {tex.minx, tex.miny}},
+        {{scr.maxx, scr.miny, 0.0f}, tint, {tex.maxx, tex.miny}},
+        {{scr.maxx, scr.maxy, 0.0f}, tint, {tex.maxx, tex.maxy}},
+        {{scr.minx, scr.maxy, 0.0f}, tint, {tex.minx, tex.maxy}}
+    );
 }
 
 void SpriteBatch::submit()
