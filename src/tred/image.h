@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tred/embedded_types.h"
+#include "tred/types.h"
 
 enum class TextureEdge
 {
@@ -34,3 +35,20 @@ LoadImageEmbeded
     Transperency transperency
 );
 
+LoadedImage
+LoadImageFromPixels
+(
+    void* pixels, int width, int height,
+    TextureEdge texture_edge,
+    TextureRenderStyle texture_render_style,
+    Transperency transperency
+);
+
+LoadedImage
+LoadImageSingleFromSinglePixel
+(
+    u32 pixel,
+    TextureEdge texture_edge,
+    TextureRenderStyle texture_render_style,
+    Transperency transperency
+);

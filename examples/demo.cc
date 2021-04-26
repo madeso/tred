@@ -68,6 +68,7 @@ Layer2 with_layer_extended(const RenderCommand2& rc, float requested_width, floa
 struct ExampleGame : public Game
 {
     Texture cards;
+    Texture white;
 
     ExampleGame()
         : cards
@@ -75,6 +76,16 @@ struct ExampleGame : public Game
             LoadImageEmbeded
             (
                 CARDS_PNG,
+                TextureEdge::Clamp,
+                TextureRenderStyle::Pixel,
+                Transperency::Include
+            )
+        )
+        , white
+        (
+            LoadImageSingleFromSinglePixel
+            (
+                0xffffffff,
                 TextureEdge::Clamp,
                 TextureRenderStyle::Pixel,
                 Transperency::Include
@@ -89,9 +100,8 @@ struct ExampleGame : public Game
         // auto r = with_layer_fit_with_bars(rc, 200.0f, 200.0f, glm::mat4(1.0f));
         auto r = with_layer_extended(rc, 200.0f, 200.0f, glm::mat4(1.0f));
 
-        // todo(Gustav): change to a full window rect bc clear doesn't respect viewport
-        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // todo(Gustav): change to a full window instead of just guessing...
+        r.batch->quad(&white, {200.0f, 200.0f}, {1.0f, 1.0f}, {0.8, 0.8, 0.8, 1.0f});
 
         r.batch->quad(&cards, ::cards::hearts[2].zero().set_height(30).translate(100, 100), get_sprite(cards, ::cards::hearts[2]));
         r.batch->quad(&cards, ::cards::back.zero().set_height(30).translate(10, 50), get_sprite(cards, ::cards::back));
