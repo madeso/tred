@@ -15,6 +15,7 @@ endif ()
 #end copied from fmt lib
 
 project(catchy CXX)
+add_subdirectory(external)
 
 set(catchy_src
     catchy/approx.cc catchy/approx.h
@@ -33,6 +34,9 @@ target_compile_features(catchy PUBLIC cxx_std_17)
 target_include_directories(catchy
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    external
 )
-
+target_link_libraries(catchy
+    PUBLIC
+        catch
+        fmt
+)

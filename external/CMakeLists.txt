@@ -1,4 +1,3 @@
-add_subdirectory(fmt-7.1.1)
 add_subdirectory(catchy)
 
 ###################################################################################################
@@ -78,15 +77,6 @@ add_library(glm INTERFACE)
 target_include_directories(glm
     INTERFACE
         glm-0.9.9.8
-)
-
-
-###################################################################################################
-# catch
-add_library(catch INTERFACE)
-target_include_directories(catch
-    INTERFACE
-        catch
 )
 
 
