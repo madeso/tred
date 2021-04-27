@@ -4,17 +4,17 @@
 
 
 void
-PrintProfiles();
+print_profiles();
 
 
-struct FrameProfileScope
+struct frame_profile_scope
 {
-    using Clock = std::chrono::steady_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-    TimePoint start;
+    using clock = std::chrono::steady_clock;
+    using time_point = std::chrono::time_point<clock>;
+    time_point start;
 
-    FrameProfileScope();
-    ~FrameProfileScope();
+    frame_profile_scope();
+    ~frame_profile_scope();
 };
 
 

@@ -17,7 +17,7 @@ bool custom_binary_to_compressed_c(const char* filename, const char* symbol, boo
 
     if(use_base85_encoding == false)
     {
-        const char* compressed_type = use_compression ? "CompressedBinary" : "EmbeddedBinary";
+        const char* compressed_type = use_compression ? "compressed_binary" : "embedded_binary";
         const char* compressed_str = use_compression ? "compressed_" : "";
         fprintf(out, "constexpr %s %s = %s{%s_%sdata, %s_%ssize};\n",
             compressed_type, symbol,

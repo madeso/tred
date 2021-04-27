@@ -14,13 +14,13 @@ namespace input
 
 struct InputSystemPiml
 {
-    using PlayerHandleFunctions = HandleFunctions64<PlayerHandle>;
-    using PlayerHandleVector = HandleVector<std::unique_ptr<Player>, PlayerHandleFunctions>;
+    using PlayerHandleFunctions = handle_functions64<PlayerHandle>;
+    using PlayerHandleVector = handle_vector<std::unique_ptr<player>, PlayerHandleFunctions>;
 
-    InputActionMap actions;
+    input_action_map actions;
     PlayerHandleVector players;
-    MappingList configs;
-    InputDirector input_director;
+    mapping_list configs;
+    input::input_director input_director;
 };
 
 }

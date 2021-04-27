@@ -21,16 +21,16 @@ namespace input
 {
 
 
-GamecontrollerDef::GamecontrollerDef(int id, const config::GamecontrollerDef&)
+gamecontroller_definition::gamecontroller_definition(int id, const config::gamecontroller_definition&)
     : index(id)
 {
 }
 
 
-std::optional<std::string> GamecontrollerDef::ValidateKey(int key)
+std::optional<std::string> gamecontroller_definition::validate_key(int key)
 {
-    if(key <= ToIndex(GamecontrollerButton::INVALID)
-    || key > ToIndex(GamecontrollerButton::TRIGGER_RIGHT))
+    if(key <= to_index(gamecontroller_button::invalid)
+    || key > to_index(gamecontroller_button::trigger_right))
     {
         return fmt::format("Invalid bind to invalid gamecontroller button: {}", key);
     }
@@ -39,17 +39,17 @@ std::optional<std::string> GamecontrollerDef::ValidateKey(int key)
 }
 
 
-std::optional<std::string> GamecontrollerDef::ValidateAxis(AxisType type, int target, int axis)
+std::optional<std::string> gamecontroller_definition::validate_axis(axis_type type, int target, int axis)
 {
-    if(type != AxisType::GeneralAxis) { return fmt::format("Only general axcis for game controllers: {}", type); }
+    if(type != axis_type::general_axis) { return fmt::format("Only general axcis for game controllers: {}", type); }
     if(target != 0) { return fmt::format("Target needs to be 0 for controller: {}", target); }
 
-    switch(FromIndex<GamecontrollerAxis>(axis))
+    switch(from_index<gamecontroller_axis>(axis))
     {
-        case GamecontrollerAxis::LEFTX:
-        case GamecontrollerAxis::LEFTY:
-        case GamecontrollerAxis::RIGHTX:
-        case GamecontrollerAxis::RIGHTY:
+        case gamecontroller_axis::left_x:
+        case gamecontroller_axis::left_y:
+        case gamecontroller_axis::right_x:
+        case gamecontroller_axis::right_y:
             return std::nullopt;
         default:
             return fmt::format("Invalid axis: {}", axis);
@@ -57,22 +57,22 @@ std::optional<std::string> GamecontrollerDef::ValidateAxis(AxisType type, int ta
 }
 
 
-bool GamecontrollerDef::IsConsideredJoystick()
+bool gamecontroller_definition::is_considered_joystick()
 {
     return true;
 }
 
 
-bool GamecontrollerDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* setup, Platform* platform)
+bool gamecontroller_definition::can_detect(input_director* director, unit_discovery, unit_setup* setup, platform* platform)
 {
-    const auto potential_joysticks = platform->ActiveAndFreeJoysticks();
+    const auto potential_joysticks = platform->get_active_and_free_joysticks();
     for(auto joy: potential_joysticks)
     {
-        const auto selected = setup->HasJoystick(joy) == false && director->WasGameControllerStartJustPressed(joy);
+        const auto selected = setup->has_joystick(joy) == false && director->was_game_controller_start_just_pressed(joy);
         if(selected)
         {
-            platform->StartUsing(joy, JoystickType::GameController);
-            setup->AddJoystick(index, joy);
+            platform->start_using(joy, joystick_type::game_controller);
+            setup->add_joystick(index, joy);
             return true;
         }
     }
@@ -81,11 +81,11 @@ bool GamecontrollerDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSe
 }
 
 
-std::unique_ptr<ActiveUnit> GamecontrollerDef::Create(InputDirector* director, const UnitSetup& setup)
+std::unique_ptr<active_unit> gamecontroller_definition::create(input_director* director, const unit_setup& setup)
 {
     assert(director);
-    return std::make_unique<GamecontrollerActiveUnit>(setup.GetJoystick(index), director);
+    return std::make_unique<gamecontroller_active_unit>(setup.get_joystick(index), director);
 }
 
 
-}  // namespace input
+}

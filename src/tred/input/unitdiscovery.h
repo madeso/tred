@@ -5,10 +5,10 @@ namespace input
 {
 
 
-enum class UnitDiscovery
+enum class unit_discovery
 {
-    PressToActivate,
-    FindHighest
+    press_to_activate,
+    find_highest
 };
 
 

@@ -60,17 +60,17 @@ DISABLE_WARNING_POP
 
 
 
-struct Material
+struct material
 {
-    Texture diffuse;
-    Texture specular;
+    texture diffuse;
+    texture specular;
 
     glm::vec3 tint = glm::vec3{1.0f, 1.0f, 1.0f};
     float shininess = 32.0f;
 
     float specular_strength = 1.0f;
 
-    explicit Material(const Texture& d, const Texture& s)
+    explicit material(const texture& d, const texture& s)
         : diffuse(d)
         , specular(s)
     {
@@ -78,43 +78,43 @@ struct Material
 };
 
 
-struct MaterialUniforms
+struct material_uniforms
 {
-    Uniform diffuse;
-    Uniform specular;
+    uniform diffuse;
+    uniform specular;
 
-    Uniform tint;
-    Uniform shininess;
-    Uniform specular_strength;
+    uniform tint;
+    uniform shininess;
+    uniform specular_strength;
 
-    MaterialUniforms
+    material_uniforms
     (
-        Shader* shader,
+        shader* shader,
         const std::string& base_name
     )
-        : diffuse(shader->GetUniform(base_name + ".diffuse"))
-        , specular(shader->GetUniform(base_name + ".specular"))
-        , tint(shader->GetUniform(base_name + ".tint"))
-        , shininess(shader->GetUniform(base_name + ".shininess"))
-        , specular_strength(shader->GetUniform(base_name + ".specular_strength" ))
+        : diffuse(shader->get_uniform(base_name + ".diffuse"))
+        , specular(shader->get_uniform(base_name + ".specular"))
+        , tint(shader->get_uniform(base_name + ".tint"))
+        , shininess(shader->get_uniform(base_name + ".shininess"))
+        , specular_strength(shader->get_uniform(base_name + ".specular_strength" ))
     {
-        SetupTextures(shader, {&diffuse, &specular});
+        setup_textures(shader, {&diffuse, &specular});
     }
 
     void
-    SetShader(Shader* shader, const Material& material) const
+    set_shader(shader* shader, const material& material) const
     {
-        BindTexture(diffuse, material.diffuse);
-        BindTexture(specular, material.specular);
+        bind_texture(diffuse, material.diffuse);
+        bind_texture(specular, material.specular);
 
-        shader->SetVec3(tint, material.tint);
-        shader->SetFloat(specular_strength, material.specular_strength);
-        shader->SetFloat(shininess, material.shininess);
+        shader->set_vec3(tint, material.tint);
+        shader->set_float(specular_strength, material.specular_strength);
+        shader->set_float(shininess, material.shininess);
     }
 };
 
 
-struct DirectionalLight
+struct directional_light
 {
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -132,38 +132,38 @@ struct DirectionalLight
 };
 
 
-struct DirectionalLightUniforms
+struct directional_light_uniforms
 {
-    Uniform direction;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
+    uniform direction;
+    uniform ambient;
+    uniform diffuse;
+    uniform specular;
 
-    DirectionalLightUniforms
+    directional_light_uniforms
     (
-        const Shader& shader,
+        const shader& shader,
         const std::string& base_name
     )
     :
-        direction(shader.GetUniform(base_name + ".normalized_direction")),
-        ambient(shader.GetUniform(base_name + ".ambient")),
-        diffuse(shader.GetUniform(base_name + ".diffuse")),
-        specular(shader.GetUniform(base_name + ".specular"))
+        direction(shader.get_uniform(base_name + ".normalized_direction")),
+        ambient(shader.get_uniform(base_name + ".ambient")),
+        diffuse(shader.get_uniform(base_name + ".diffuse")),
+        specular(shader.get_uniform(base_name + ".specular"))
     {
     }
 
     void
-    SetShader(Shader* shader, const DirectionalLight& light) const
+    set_shader(shader* shader, const directional_light& light) const
     {
-        shader->SetVec3(direction, light.GetDirection());
-        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
-        shader->SetVec3(diffuse, light.diffuse);
-        shader->SetVec3(specular, light.specular);
+        shader->set_vec3(direction, light.GetDirection());
+        shader->set_vec3(ambient, light.ambient * light.ambient_strength);
+        shader->set_vec3(diffuse, light.diffuse);
+        shader->set_vec3(specular, light.specular);
     }
 };
 
 
-struct Attenuation
+struct attenuation
 {
     float constant = 1.0f;
     float linear = 0.09f;
@@ -171,37 +171,37 @@ struct Attenuation
 };
 
 
-struct AttenuationUniforms
+struct attenuation_uniforms
 {
-    Uniform constant;
-    Uniform linear;
-    Uniform quadratic;
+    uniform constant;
+    uniform linear;
+    uniform quadratic;
 
-    AttenuationUniforms
+    attenuation_uniforms
     (
-        const Shader& shader,
+        const shader& shader,
         const std::string& base_name
     )
     :
-        constant(shader.GetUniform(base_name + ".constant")),
-        linear(shader.GetUniform(base_name + ".linear")),
-        quadratic(shader.GetUniform(base_name + ".quadratic"))
+        constant(shader.get_uniform(base_name + ".constant")),
+        linear(shader.get_uniform(base_name + ".linear")),
+        quadratic(shader.get_uniform(base_name + ".quadratic"))
     {
     }
 
     void
-    SetShader(Shader* shader, const Attenuation& att) const
+    set_shader(shader* shader, const attenuation& att) const
     {
-        shader->SetFloat(constant, att.constant);
-        shader->SetFloat(linear, att.linear);
-        shader->SetFloat(quadratic, att.quadratic);
+        shader->set_float(constant, att.constant);
+        shader->set_float(linear, att.linear);
+        shader->set_float(quadratic, att.quadratic);
     }
 };
 
 
-struct PointLight
+struct point_light
 {
-    Attenuation attenuation;
+    attenuation attenuation;
 
     glm::vec3 position;
 
@@ -210,47 +210,47 @@ struct PointLight
     glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
 
-    PointLight(const glm::vec3& p) : position(p) {}
+    point_light(const glm::vec3& p) : position(p) {}
 };
 
 
-struct PointLightUniforms
+struct point_light_uniforms
 {
-    AttenuationUniforms attenuation;
-    Uniform position;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
+    attenuation_uniforms attenuation;
+    uniform position;
+    uniform ambient;
+    uniform diffuse;
+    uniform specular;
 
-    PointLightUniforms
+    point_light_uniforms
     (
-        const Shader& shader,
+        const shader& shader,
         const std::string& base_name
     )
     :
         attenuation(shader, base_name + ".attenuation"),
-        position(shader.GetUniform(base_name + ".position")),
-        ambient(shader.GetUniform(base_name + ".ambient")),
-        diffuse(shader.GetUniform(base_name + ".diffuse")),
-        specular(shader.GetUniform(base_name + ".specular"))
+        position(shader.get_uniform(base_name + ".position")),
+        ambient(shader.get_uniform(base_name + ".ambient")),
+        diffuse(shader.get_uniform(base_name + ".diffuse")),
+        specular(shader.get_uniform(base_name + ".specular"))
     {
     }
 
     void
-    SetShader(Shader* shader, const PointLight& light) const
+    set_shader(shader* shader, const point_light& light) const
     {
-        attenuation.SetShader(shader, light.attenuation);
-        shader->SetVec3(position, light.position);
-        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
-        shader->SetVec3(diffuse, light.diffuse);
-        shader->SetVec3(specular, light.specular);
+        attenuation.set_shader(shader, light.attenuation);
+        shader->set_vec3(position, light.position);
+        shader->set_vec3(ambient, light.ambient * light.ambient_strength);
+        shader->set_vec3(diffuse, light.diffuse);
+        shader->set_vec3(specular, light.specular);
     }
 };
 
 
-struct SpotLight
+struct spot_light
 {
-    Attenuation attenuation;
+    attenuation attenuation;
 
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
     glm::vec3 direction = glm::vec3{0.0f, 0.0f, 0.0f};
@@ -264,45 +264,45 @@ struct SpotLight
 };
 
 
-struct SpotLightUniforms
+struct spot_light_uniforms
 {
-    AttenuationUniforms attenuation;
-    Uniform position;
-    Uniform direction;
-    Uniform cos_cutoff;
-    Uniform cos_outer_cutoff;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
+    attenuation_uniforms attenuation;
+    uniform position;
+    uniform direction;
+    uniform cos_cutoff;
+    uniform cos_outer_cutoff;
+    uniform ambient;
+    uniform diffuse;
+    uniform specular;
 
-    SpotLightUniforms
+    spot_light_uniforms
     (
-        const Shader& shader,
+        const shader& shader,
         const std::string& base_name
     )
     :
         attenuation(shader, base_name + ".attenuation"),
-        position(shader.GetUniform(base_name + ".position")),
-        direction(shader.GetUniform(base_name + ".direction")),
-        cos_cutoff(shader.GetUniform(base_name + ".cos_cutoff")),
-        cos_outer_cutoff(shader.GetUniform(base_name + ".cos_outer_cutoff")),
-        ambient(shader.GetUniform(base_name + ".ambient")),
-        diffuse(shader.GetUniform(base_name + ".diffuse")),
-        specular(shader.GetUniform(base_name + ".specular"))
+        position(shader.get_uniform(base_name + ".position")),
+        direction(shader.get_uniform(base_name + ".direction")),
+        cos_cutoff(shader.get_uniform(base_name + ".cos_cutoff")),
+        cos_outer_cutoff(shader.get_uniform(base_name + ".cos_outer_cutoff")),
+        ambient(shader.get_uniform(base_name + ".ambient")),
+        diffuse(shader.get_uniform(base_name + ".diffuse")),
+        specular(shader.get_uniform(base_name + ".specular"))
     {
     }
 
     void
-    SetShader(Shader* shader, const SpotLight& light) const
+    set_shader(shader* shader, const spot_light& light) const
     {
-        attenuation.SetShader(shader, light.attenuation);
-        shader->SetVec3(position, light.position);
-        shader->SetVec3(direction, light.direction);
-        shader->SetFloat(cos_cutoff, cos(glm::radians(light.cutoff)));
-        shader->SetFloat(cos_outer_cutoff, cos(glm::radians(light.outer_cutoff)));
-        shader->SetVec3(ambient, light.ambient * light.ambient_strength);
-        shader->SetVec3(diffuse, light.diffuse);
-        shader->SetVec3(specular, light.specular);
+        attenuation.set_shader(shader, light.attenuation);
+        shader->set_vec3(position, light.position);
+        shader->set_vec3(direction, light.direction);
+        shader->set_float(cos_cutoff, cos(glm::radians(light.cutoff)));
+        shader->set_float(cos_outer_cutoff, cos(glm::radians(light.outer_cutoff)));
+        shader->set_vec3(ambient, light.ambient * light.ambient_strength);
+        shader->set_vec3(diffuse, light.diffuse);
+        shader->set_vec3(specular, light.specular);
     }
 };
 
@@ -313,14 +313,14 @@ constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
-struct CameraVectors
+struct camera_vectors
 {
     glm::vec3 front;
     glm::vec3 right;
     glm::vec3 up;
     glm::vec3 position;
 
-    CameraVectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
+    camera_vectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
         : front(f)
         , right(r)
         , up(u)
@@ -330,7 +330,7 @@ struct CameraVectors
 };
 
 
-struct Camera
+struct camera
 {
     float fov = 45.0f;
 
@@ -342,7 +342,7 @@ struct Camera
     float yaw = -90.0f;
     float pitch = 0.0f;
 
-    CameraVectors CreateVectors() const
+    camera_vectors create_vectors() const
     {
         const auto direction = glm::vec3
         {
@@ -359,12 +359,12 @@ struct Camera
 };
 
 
-struct CompiledCamera
+struct compiled_camera
 {
     glm::mat4 view;
     glm::vec3 position;
 
-    CompiledCamera(const glm::mat4& v, const glm::vec3& p)
+    compiled_camera(const glm::mat4& v, const glm::vec3& p)
         : view(v)
         , position(p)
     {
@@ -372,18 +372,18 @@ struct CompiledCamera
 };
 
 
-CompiledCamera Compile(const CameraVectors& camera)
+compiled_camera compile(const camera_vectors& camera)
 {
     const auto view = glm::lookAt(camera.position, camera.position + camera.front, UP);
     return {view, camera.position};
 }
 
 
-struct Engine
+struct engine
 {
-    std::function<void (const glm::mat4& projection, const CompiledCamera& camera)> painter_callback;
+    std::function<void (const glm::mat4& projection, const compiled_camera& camera)> painter_callback;
 
-    void Render(const glm::ivec2& size, const Camera& camera)
+    void render(const glm::ivec2& size, const camera& camera) const
     {
         glViewport(0, 0, size.x, size.y);
 
@@ -394,7 +394,7 @@ struct Engine
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        painter_callback(projection, Compile(camera.CreateVectors()));
+        painter_callback(projection, compile(camera.create_vectors()));
     }
 };
 
@@ -405,7 +405,7 @@ main(int, char**)
     // const auto pi = 3.14f;
     ///////////////////////////////////////////////////////////////////////////
     // setup
-    auto windows = Setup();
+    auto windows = setup();
 
     if(windows == nullptr)
     {
@@ -422,15 +422,15 @@ main(int, char**)
     constexpr std::string_view look_updown = "look_updown";
     constexpr std::string_view look_leftright = "look_leftright";
 
-    auto sdl_input_loaded = input::Load(input::config::InputSystem
+    auto sdl_input_loaded = input::load(input::config::input_system
     {
         {
-            {quit, input::Range::WithinZeroToOne},
-            {leftright, input::Range::WithinNegativeOneToPositiveOne},
-            {inout, input::Range::WithinNegativeOneToPositiveOne},
-            {updown, input::Range::WithinNegativeOneToPositiveOne},
-            {look_updown, input::Range::Infinite},
-            {look_leftright, input::Range::Infinite},
+            {quit, input::range::within_zero_to_one},
+            {leftright, input::range::within_negative_one_to_positive_one},
+            {inout, input::range::within_negative_one_to_positive_one},
+            {updown, input::range::within_negative_one_to_positive_one},
+            {look_updown, input::range::infinite},
+            {look_leftright, input::range::infinite},
         },
 
         // controller setup (bind)
@@ -438,19 +438,19 @@ main(int, char**)
             {
                 "mouse+keyboard",
                 {
-                    input::config::KeyboardDef{input::Key::RETURN},
-                    input::config::MouseDef{}
+                    input::config::keyboard_definition{input::keyboard_key::return_key},
+                    input::config::mouse_definition{}
                 },
                 {
                     // keyboard
-                    input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
-                    input::config::TwoKeyBindDef{"leftright", 0, input::Key::A, input::Key::D},
-                    input::config::TwoKeyBindDef{"inout", 0, input::Key::S, input::Key::W},
-                    input::config::TwoKeyBindDef{"updown", 0, input::Key::SPACE, input::Key::CTRL_LEFT},
+                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
+                    input::config::two_key_bind_definition{"leftright", 0, input::keyboard_key::a, input::keyboard_key::d},
+                    input::config::two_key_bind_definition{"inout", 0, input::keyboard_key::s, input::keyboard_key::w},
+                    input::config::two_key_bind_definition{"updown", 0, input::keyboard_key::space, input::keyboard_key::ctrl_left},
 
                     // mouse
-                    input::config::AxisBindDef{"look_leftright", 1, input::Axis::X, 0.1f},
-                    input::config::AxisBindDef{"look_updown", 1, input::Axis::Y, 0.1f}
+                    input::config::axis_bind_definition{"look_leftright", 1, input::xy_axis::x, 0.1f},
+                    input::config::axis_bind_definition{"look_updown", 1, input::xy_axis::y, 0.1f}
                 }
             },
             {
@@ -459,37 +459,37 @@ main(int, char**)
                 // identified as mega world usb controller
                 "joystick",
                 {
-                    input::config::KeyboardDef{},
-                    input::config::JoystickDef{4, "03000000b50700001703000010010000"}
+                    input::config::keyboard_definition{},
+                    input::config::joystick_definition{4, "03000000b50700001703000010010000"}
                 },
                 {
                     // keyboard
-                    input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
+                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
 
                     // joystick
-                    input::config::AxisBindDef{"inout",     1, input::AxisType::GeneralAxis, 0, 2},
-                    input::config::AxisBindDef{"leftright", 1, input::AxisType::Hat, 0, 1, 0.5f},
-                    input::config::AxisBindDef{"updown",    1, input::AxisType::Hat, 0, 2, 0.5f},
-                    input::config::AxisBindDef{"look_leftright", 1, input::AxisType::GeneralAxis, 0, 0, 50.0f, true},
-                    input::config::AxisBindDef{"look_updown",    1, input::AxisType::GeneralAxis, 0, 1, 50.0f, true}
+                    input::config::axis_bind_definition{"inout",     1, input::axis_type::general_axis, 0, 2},
+                    input::config::axis_bind_definition{"leftright", 1, input::axis_type::hat, 0, 1, 0.5f},
+                    input::config::axis_bind_definition{"updown",    1, input::axis_type::hat, 0, 2, 0.5f},
+                    input::config::axis_bind_definition{"look_leftright", 1, input::axis_type::general_axis, 0, 0, 50.0f, true},
+                    input::config::axis_bind_definition{"look_updown",    1, input::axis_type::general_axis, 0, 1, 50.0f, true}
                 }
             },
             {
                 "gamecontroller",
                 {
-                    input::config::KeyboardDef{},
-                    input::config::GamecontrollerDef{}
+                    input::config::keyboard_definition{},
+                    input::config::gamecontroller_definition{}
                 },
                 {
                     // keyboard
-                    input::config::KeyBindDef{"quit", 0, input::Key::ESCAPE},
+                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
 
                     // gamecontroller
-                    input::config::AxisBindDef{"inout",     1, input::GamecontrollerAxis::LEFTY, 1.0f, true},
-                    input::config::AxisBindDef{"leftright", 1, input::GamecontrollerAxis::LEFTX},
-                    input::config::TwoKeyBindDef{"updown", 1, input::GamecontrollerButton::TRIGGER_LEFT, input::GamecontrollerButton::TRIGGER_RIGHT},
-                    input::config::AxisBindDef{"look_leftright", 1, input::GamecontrollerAxis::RIGHTX, 50.0f},
-                    input::config::AxisBindDef{"look_updown",    1, input::GamecontrollerAxis::RIGHTY, 50.0f, true}
+                    input::config::axis_bind_definition{"inout",     1, input::gamecontroller_axis::left_y, 1.0f, true},
+                    input::config::axis_bind_definition{"leftright", 1, input::gamecontroller_axis::left_x},
+                    input::config::two_key_bind_definition{"updown", 1, input::gamecontroller_button::trigger_left, input::gamecontroller_button::trigger_right},
+                    input::config::axis_bind_definition{"look_leftright", 1, input::gamecontroller_axis::right_x, 50.0f},
+                    input::config::axis_bind_definition{"look_updown",    1, input::gamecontroller_axis::right_y, 50.0f, true}
                 }
             },
         }
@@ -497,72 +497,72 @@ main(int, char**)
 
     if(sdl_input_loaded == false)
     {
-        LOG_ERROR("Unable to load input setup: {}", sdl_input_loaded.error());
+        LOG_ERROR("Unable to load input setup: {}", sdl_input_loaded.get_error());
         return -2;
     }
 
     auto sdl_input = std::move(*sdl_input_loaded.value);
 
-    Engine engine;
+    engine engine;
 
-    auto camera = Camera{};
+    auto camera = ::camera{};
 
-    windows->AddWindow
+    windows->add_window
     (
         "TreD", {1280, 720},
         [&](const glm::ivec2& size)
         {
-            engine.Render(size, camera);
+            engine.render(size, camera);
         }
     );
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto layout = VertexLayoutDescription
+    const auto layout = vertex_layout_description
     {
-        {VertexType::Position3, "aPos"},
-        {VertexType::Normal3, "aNormal"},
-        {VertexType::Color4, "aColor"},
-        {VertexType::Texture2, "aTexCoord"}
+        {vertex_type::position3, "aPos"},
+        {vertex_type::normal3, "aNormal"},
+        {vertex_type::color4, "aColor"},
+        {vertex_type::texture2, "aTexCoord"}
     };
-    auto layout_compiler = Compile({layout});
-    const auto compiled_layout = layout_compiler.Compile(layout);
+    auto layout_compiler = compile({layout});
+    const auto compiled_layout = layout_compiler.compile(layout);
 
-    const auto light_layout = VertexLayoutDescription
+    const auto light_layout = vertex_layout_description
     {
-        {VertexType::Position3, "aPos"}
+        {vertex_type::position3, "aPos"}
     };
-    auto light_compiler = Compile({light_layout});
-    const auto compiled_light_layout = light_compiler.Compile(light_layout);
+    auto light_compiler = compile({light_layout});
+    const auto compiled_light_layout = light_compiler.compile(light_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
-    const auto uni_color = shader.GetUniform("uColor");
-    const auto uni_transform = shader.GetUniform("uTransform");
-    const auto uni_model_transform = shader.GetUniform("uModelTransform");
-    const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
-    const auto uni_view_position = shader.GetUniform("uViewPosition");
-    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
-    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
+    auto shader = ::shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    const auto uni_color = shader.get_uniform("uColor");
+    const auto uni_transform = shader.get_uniform("uTransform");
+    const auto uni_model_transform = shader.get_uniform("uModelTransform");
+    const auto uni_normal_matrix = shader.get_uniform("uNormalMatrix");
+    const auto uni_view_position = shader.get_uniform("uViewPosition");
+    const auto uni_material = material_uniforms{&shader, "uMaterial"};
+    const auto uni_directional_light = directional_light_uniforms{shader, "uDirectionalLight"};
+    const auto uni_point_lights = std::array<point_light_uniforms, NUMBER_OF_POINT_LIGHTS>
     {
-        PointLightUniforms{shader, "uPointLights[0]"},
-        PointLightUniforms{shader, "uPointLights[1]"},
-        PointLightUniforms{shader, "uPointLights[2]"},
-        PointLightUniforms{shader, "uPointLights[3]"}
+        point_light_uniforms{shader, "uPointLights[0]"},
+        point_light_uniforms{shader, "uPointLights[1]"},
+        point_light_uniforms{shader, "uPointLights[2]"},
+        point_light_uniforms{shader, "uPointLights[3]"}
     };
-    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
+    const auto uni_spot_light = spot_light_uniforms{shader, "uSpotLight"};
 
-    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
-    const auto uni_light_transform = light_shader.GetUniform("uTransform");
-    const auto uni_light_color = light_shader.GetUniform("uColor");
+    auto light_shader = ::shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    const auto uni_light_transform = light_shader.get_uniform("uTransform");
+    const auto uni_light_color = light_shader.get_uniform("uColor");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = Compile(CreateBoxMesh(1.0f), compiled_layout);
-    const auto light_mesh = Compile(CreateBoxMesh(0.2f), compiled_light_layout);
-    const auto plane_mesh = Compile(CreatePlaneMesh(20.0f, 20.0f), compiled_layout);
+    const auto mesh = Compile(create_box_mesh(1.0f), compiled_layout);
+    const auto light_mesh = Compile(create_box_mesh(0.2f), compiled_light_layout);
+    const auto plane_mesh = Compile(create_plane_mesh(20.0f, 20.0f), compiled_layout);
 
     auto cube_positions = std::vector<glm::vec3>
     {
@@ -579,40 +579,40 @@ main(int, char**)
     };
     auto cube_color = glm::vec4{1.0f};
 
-    auto material = Material
+    auto material = ::material
     {
-        Texture
+        texture
         {
-            LoadImageEmbeded
+            load_image_from_embedded
             (
                 CONTAINER_DIFFUSE_PNG,
-                TextureEdge::Repeat,
-                TextureRenderStyle::Smooth,
-                Transperency::Exclude
+                texture_edge::repeat,
+                texture_render_style::smooth,
+                transparency::exclude
             )
         },
-        Texture
+        texture
         {
-            LoadImageEmbeded
+            load_image_from_embedded
             (
                 CONTAINER_SPECULAR_PNG,
-                TextureEdge::Repeat,
-                TextureRenderStyle::Smooth,
-                Transperency::Exclude
+                texture_edge::repeat,
+                texture_render_style::smooth,
+                transparency::exclude
             )
         }
     };
-    auto directional_light = DirectionalLight{};
-    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
+    auto directional_light = ::directional_light{};
+    auto point_lights = std::array<point_light, NUMBER_OF_POINT_LIGHTS>
     {
         glm::vec3{ 0.7f,  0.2f,  2.0f},
         glm::vec3{ 2.3f, -3.3f, -4.0f},
         glm::vec3{-4.0f,  2.0f, -12.0f},
         glm::vec3{ 0.0f,  0.0f, -3.0f}
     };
-    auto spot_light = SpotLight{};
+    auto spot_light = ::spot_light{};
 
-    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& camera)
+    engine.painter_callback = [&](const glm::mat4& projection, const compiled_camera& camera)
     {
         const auto view = camera.view;
 
@@ -620,25 +620,25 @@ main(int, char**)
 
         for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
         {
-            light_shader.Use();
-            light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
+            light_shader.use();
+            light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
             {
                 const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
-                light_shader.SetMat(uni_light_transform, pv * model);
+                light_shader.set_mat(uni_light_transform, pv * model);
             }
             light_mesh.Draw();
         }
 
-        shader.Use();
-        shader.SetVec4(uni_color, cube_color);
-        uni_material.SetShader(&shader, material);
-        uni_directional_light.SetShader(&shader, directional_light);
-        uni_spot_light.SetShader(&shader, spot_light);
+        shader.use();
+        shader.set_vec4(uni_color, cube_color);
+        uni_material.set_shader(&shader, material);
+        uni_directional_light.set_shader(&shader, directional_light);
+        uni_spot_light.set_shader(&shader, spot_light);
         for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
         {
-            uni_point_lights[i].SetShader(&shader, point_lights[i]);
+            uni_point_lights[i].set_shader(&shader, point_lights[i]);
         }
-        shader.SetVec3(uni_view_position, camera.position);
+        shader.set_vec3(uni_view_position, camera.position);
 
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {
@@ -653,41 +653,41 @@ main(int, char**)
                     ? glm::vec3{1.0f, 0.3f, 0.5f}
                     : glm::vec3{0.5f, 1.0f, 0.0f}
                 );
-                shader.SetMat(uni_transform, pv * model);
-                shader.SetMat(uni_model_transform, model);
-                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                shader.set_mat(uni_transform, pv * model);
+                shader.set_mat(uni_model_transform, model);
+                shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
             }
             mesh.Draw();
         }
 
         {
             const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-            shader.SetMat(uni_transform, pv * model);
-            shader.SetMat(uni_model_transform, model);
-            shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+            shader.set_mat(uni_transform, pv * model);
+            shader.set_mat(uni_model_transform, model);
+            shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
             plane_mesh.Draw();
         }
     };
 
-    auto player = sdl_input.AddPlayer();
-    auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
+    auto player = sdl_input.add_player();
+    auto get = [](const input::table& table, std::string_view name, float d=0.0f) -> float
     {
         const auto found = table.data.find(std::string{name});
         if(found == table.data.end()) { return d; }
         return found->second;
     };
 
-    return MainLoop(input::UnitDiscovery::FindHighest, std::move(windows), &sdl_input, [&](float dt) -> bool
+    return main_loop(input::unit_discovery::find_highest, std::move(windows), &sdl_input, [&](float dt) -> bool
     {
-        input::Table table;
-        sdl_input.UpdateTable(player, &table, dt);
+        input::table table;
+        sdl_input.update_table(player, &table, dt);
 
         if(get(table, quit, 1.0f) > 0.5f)
         {
             running = false;
         }
 
-        const auto v = camera.CreateVectors();
+        const auto v = camera.create_vectors();
 
         const auto input_inout = get(table, inout);
         const auto input_leftright = get(table, leftright);

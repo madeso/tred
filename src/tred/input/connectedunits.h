@@ -7,28 +7,28 @@
 namespace input
 {
 
-struct Table;
-struct ActiveUnit;
-struct ActiveBind;
+struct table;
+struct active_unit;
+struct active_bind;
 
 
-struct ConnectedUnits
+struct connected_units
 {
-    ConnectedUnits();
-    ~ConnectedUnits();
+    connected_units();
+    ~connected_units();
 
-    void UpdateTable(Table* table, float dt);
-    void Add(std::unique_ptr<ActiveUnit>&& unit);
-    void Add(std::unique_ptr<ActiveBind>&& bind);
-    bool IsEmpty() const;
+    void update_table(table* table, float dt);
+    void add(std::unique_ptr<active_unit>&& unit);
+    void add(std::unique_ptr<active_bind>&& bind);
+    [[nodiscard]] bool is_empty() const;
 
-    bool IsAnyConnectionConsideredJoystick();
-    bool IsDeleteSheduled();
+    bool is_any_connection_considered_joystick();
+    bool is_delete_scheduled();
 
-    ActiveUnit* GetUnit(int index);
+    active_unit* get_unit(int index);
 
-    std::vector<std::unique_ptr<ActiveUnit>> units;
-    std::vector<std::unique_ptr<ActiveBind>> binds;
+    std::vector<std::unique_ptr<active_unit>> units;
+    std::vector<std::unique_ptr<active_bind>> binds;
 };
 
-}  // namespace input
+}

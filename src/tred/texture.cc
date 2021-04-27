@@ -7,7 +7,7 @@
 #include "tred/image.h"
 
 
-Texture::Texture(const LoadedImage& i)
+texture::texture(const loaded_image& i)
     : id(i.id)
     , width(i.width)
     , height(i.height)
@@ -16,16 +16,16 @@ Texture::Texture(const LoadedImage& i)
 
 
 void
-Texture::Delete()
+texture::cleanup()
 {
     // todo(Gustav): implement this
 }
 
 
 void
-BindTexture(const Uniform& uniform, const Texture& texture)
+bind_texture(const uniform& uniform, const texture& texture)
 {
-    if(uniform.IsValid() == false) { return; }
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.texture >= 0);
 
     glActiveTexture(Cint_to_glenum(GL_TEXTURE0 + uniform.texture));

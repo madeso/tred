@@ -1,14 +1,14 @@
 #include "tred/mesh.h"
 
 
-Mesh
-CreatePlaneMesh();
+mesh
+create_plane_mesh();
 
 
-Mesh
-CreatePlaneMesh(float size, float uv);
+mesh
+create_plane_mesh(float size, float uv);
 
 
-Mesh
-CreateBoxMesh(float size);
+mesh
+create_box_mesh(float size);
 

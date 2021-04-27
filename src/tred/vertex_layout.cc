@@ -3,14 +3,14 @@
 #include <cassert>
 
 
-VertexElementDescription::VertexElementDescription(VertexType t, const std::string& n)
+vertex_element_description::vertex_element_description(vertex_type t, const std::string& n)
     : type(t)
     , name(n)
 {
 }
 
 
-CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, int i)
+compiled_vertex_element::compiled_vertex_element(const vertex_element_description& d, int i)
     : type(d.type)
     , name(d.name)
     , index(i)
@@ -18,7 +18,7 @@ CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, 
 }
 
 
-CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
+compiled_vertex_layout::compiled_vertex_layout(const compiled_vertex_layout_list& e, const vertex_types& t)
     : elements(e)
     , types(t)
 {
@@ -26,7 +26,7 @@ CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, co
 
 
 void
-VertexTypeList::Add(const VertexLayoutDescription& elements)
+vertex_type_list::add(const vertex_layout_description& elements)
 {
     for(const auto& e: elements)
     {
@@ -35,16 +35,16 @@ VertexTypeList::Add(const VertexLayoutDescription& elements)
 }
 
 
-CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v)
+compiled_vertex_type_list::compiled_vertex_type_list(const std::map<vertex_type, int>& i, const ::vertex_types& v)
     : indices(i)
-    , vertex_types(v)
+    , types(v)
 {
 }
 
-CompiledVertexLayout
-CompiledVertexTypeList::Compile(const VertexLayoutDescription& elements) const
+compiled_vertex_layout
+compiled_vertex_type_list::compile(const vertex_layout_description& elements) const
 {
-    CompiledVertexLayout::CompiledVertexLayoutList list;
+    compiled_vertex_layout::compiled_vertex_layout_list list;
 
     for(const auto& e: elements)
     {
@@ -54,21 +54,21 @@ CompiledVertexTypeList::Compile(const VertexLayoutDescription& elements) const
         list.push_back({e, found->second});
     }
 
-    return {list, vertex_types};
+    return {list, types};
 }
 
 
 int
-ShaderAttributeSize(const VertexType&)
+ShaderAttributeSize(const vertex_type&)
 {
     return 1;
 }
 
 
-CompiledVertexTypeList
-Compile(const VertexTypeList& list)
+compiled_vertex_type_list
+compile(const vertex_type_list& list)
 {
-    std::map<VertexType, int> indices;
+    std::map<vertex_type, int> indices;
 
     int next_index = 0;
     for(const auto type: list.indices)
@@ -81,16 +81,16 @@ Compile(const VertexTypeList& list)
 }
 
 
-CompiledVertexTypeList
-Compile(const std::vector<VertexLayoutDescription>& descriptions)
+compiled_vertex_type_list
+compile(const std::vector<vertex_layout_description>& descriptions)
 {
-    VertexTypeList list;
+    vertex_type_list list;
 
     for(const auto& d: descriptions)
     {
-        list.Add(d);
+        list.add(d);
     }
 
-    return Compile(list);
+    return compile(list);
 }
 

@@ -30,15 +30,15 @@ struct color_flips
     static constexpr float startx = 0.0f;
     static constexpr float starty = 0.0f;
 
-    float timer[width * height];
-    std::size_t index[width*height];
+    float timer[width * height] = { 0.0f, };
+    std::size_t index[width * height] = { 0, };
 
     color_flips()
     {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<> time_random(0.0, max_time);
-        std::uniform_int_distribution<> index_random(0, Csizet_to_int(endesga64.size())-1);
+        const std::uniform_real_distribution<> time_random(0.0, max_time);
+        const std::uniform_int_distribution<> index_random(0, Csizet_to_int(endesga64.size())-1);
 
         for(size_t i=0; i<width*height; i+=1) { timer[i] = static_cast<float>(time_random(gen)); }
         for(size_t i=0; i<width*height; i+=1) { index[i] = static_cast<std::size_t>(index_random(gen)); }
@@ -57,7 +57,7 @@ struct color_flips
         }
     }
 
-    void render(SpriteBatch* batch)
+    void render(sprite_batch* batch)
     {
         const auto color = [](int c, int s) -> float
         {
@@ -80,45 +80,45 @@ struct color_flips
     }
 };
 
-struct ExampleGame : public Game
+struct example_game : public game
 {
-    Texture cards;
-    Texture letter_g;
+    texture cards;
+    texture letter_g;
     color_flips flips;
 
-    ExampleGame()
+    example_game()
         : cards
         (
-            LoadImageEmbeded
+            load_image_from_embedded
             (
                 CARDS_PNG,
-                TextureEdge::Clamp,
-                TextureRenderStyle::Smooth,
-                Transperency::Include
+                texture_edge::clamp,
+                texture_render_style::smooth,
+                transparency::include
             )
         )
         , letter_g
         (
-            LoadImageEmbeded
+            load_image_from_embedded
             (
                 LETTER_G_PNG,
-                TextureEdge::Clamp,
-                TextureRenderStyle::Smooth,
-                Transperency::Include
+                texture_edge::clamp,
+                texture_render_style::smooth,
+                transparency::include
             )
         )
     {
     }
 
     bool
-    OnUpdate(float dt) override
+    on_update(float dt) override
     {
         flips.update(dt);
         return true;
     }
 
     void
-    OnRender(const RenderCommand2& rc) override
+    on_render(const render_command2& rc) override
     {
         // auto r = with_layer_fit_with_bars(rc, 200.0f, 200.0f, glm::mat4(1.0f));
         auto r = with_layer_extended(rc, 200.0f, 200.0f, glm::mat4(1.0f));
@@ -139,11 +139,11 @@ struct ExampleGame : public Game
 int
 main(int, char**)
 {
-    return Run
+    return run_game
     (
         "Example", glm::ivec2{800, 600}, false, []()
         {
-            return std::make_shared<ExampleGame>();
+            return std::make_shared<example_game>();
         }
     );
 }

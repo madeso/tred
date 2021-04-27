@@ -8,7 +8,7 @@
 
 
 const char*
-OpenglErrorToString(GLenum error_code)
+opengl_error_to_string(GLenum error_code)
 {
     switch(error_code)
     {
@@ -31,7 +31,7 @@ OpenglErrorToString(GLenum error_code)
 namespace
 {
     const char*
-    SourceToString(GLenum source)
+    source_to_string(GLenum source)
     {
         switch(source)
         {
@@ -46,7 +46,7 @@ namespace
     }
 
     const char*
-    TypeToString(GLenum type)
+    type_to_string(GLenum type)
     {
         switch(type)
         {
@@ -61,7 +61,7 @@ namespace
     }
 
     const char*
-    SeverityToString(GLenum severity)
+    severity_to_string(GLenum severity)
     {
         switch(severity)
         {
@@ -76,7 +76,7 @@ namespace
 
 
 void APIENTRY
-OnOpenglError
+on_opengl_error
 (
         GLenum source,
         GLenum type,
@@ -107,9 +107,9 @@ OnOpenglError
         "Debug message ({}): {}\n"
         "Source {} type: {} Severity: {}",
         id, message,
-        SourceToString(source),
-        TypeToString(type),
-        SeverityToString(severity)
+        source_to_string(source),
+        type_to_string(type),
+        severity_to_string(severity)
     );
     // ASSERT(false);
 }
@@ -117,7 +117,7 @@ OnOpenglError
 
 
 void
-SetupOpenglDebug()
+setup_opengl_debug()
 {
     const bool has_debug = GLAD_GL_ARB_debug_output == 1;
     if(has_debug)
@@ -125,7 +125,7 @@ SetupOpenglDebug()
         LOG_INFO("Enabling OpenGL debug output");
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-        glDebugMessageCallbackARB(OnOpenglError, nullptr);
+        glDebugMessageCallbackARB(on_opengl_error, nullptr);
         glDebugMessageControlARB
         (
             GL_DONT_CARE,

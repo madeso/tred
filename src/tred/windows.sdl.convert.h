@@ -9,14 +9,14 @@
 
 namespace sdl
 {
-    glm::ivec2 GetHatValues(Uint8 hat);
+    glm::ivec2 get_hat_values(Uint8 hat);
 
-    input::Key ToKey(SDL_Keysym key);
+    input::keyboard_key to_keyboard_key(SDL_Keysym key);
 
-    input::MouseButton ToMouseButton(Uint8 mb);
+    input::mouse_button to_mouse_button(Uint8 mb);
 
-    input::GamecontrollerButton ToButton(SDL_GameControllerButton b);
-    input::GamecontrollerButton ToButton(SDL_GameControllerAxis b);
-    input::GamecontrollerAxis ToAxis(SDL_GameControllerAxis b);
+    input::gamecontroller_button to_controller_button(SDL_GameControllerButton b);
+    input::gamecontroller_button to_controller_button(SDL_GameControllerAxis b);
+    input::gamecontroller_axis to_controller_axis(SDL_GameControllerAxis b);
 }
 

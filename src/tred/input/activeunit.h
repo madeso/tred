@@ -7,23 +7,23 @@
 namespace input
 {
 
-struct KeyUnit;
-struct AxisUnit;
+struct key_unit;
+struct axis_unit;
 
 
 /** Represents a active unit.
 A perfect example is a connected joystick.
  */
-struct ActiveUnit
+struct active_unit
 {
-    virtual ~ActiveUnit();
+    virtual ~active_unit();
 
-    virtual KeyUnit* GetKeyUnit() = 0;
-    virtual AxisUnit* GetRelativeAxisUnit() = 0;
-    virtual AxisUnit* GetAbsoluteAxisUnit() = 0;
+    virtual key_unit* get_key_unit() = 0;
+    virtual axis_unit* get_relative_axis_unit() = 0;
+    virtual axis_unit* get_absolute_axis_unit() = 0;
 
-    virtual bool IsConsideredJoystick() = 0;
-    virtual bool IsDeleteSheduled() = 0;
+    virtual bool is_considered_joystick() = 0;
+    virtual bool is_delete_scheduled() = 0;
 };
 
 }  // namespace input

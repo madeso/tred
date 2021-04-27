@@ -7,14 +7,15 @@
 
 #include "tred/cint.h"
 
+#include "fmt/format.h"
 
 namespace
 {
-    struct ProfileRecord
+    struct profile_record
     {
         std::vector<float> times;
 
-        void Add(float total_time)
+        void add(float total_time)
         {
             constexpr std::size_t MAX_SIZE = 100;
 
@@ -23,31 +24,31 @@ namespace
         }
     };
 
-    ProfileRecord& GetRecords()
+    profile_record& get_records()
     {
-        static auto records = ProfileRecord{};
+        static auto records = profile_record{};
         return records;
     }
 
-    void AddRecord(float time_taken)
+    void add_record(float time_taken)
     {
-        auto& r = GetRecords();
-        r.Add(time_taken);
+        auto& r = get_records();
+        r.add(time_taken);
     }
 }
 
 
-FrameProfileScope::FrameProfileScope()
-    : start(Clock::now())
+frame_profile_scope::frame_profile_scope()
+    : start(clock::now())
 {
 }
 
 
-FrameProfileScope::~FrameProfileScope()
+frame_profile_scope::~frame_profile_scope()
 {
-    const auto end = Clock::now();
+    const auto end = clock::now();
     std::chrono::duration<float> time_taken = end-start;
-    AddRecord(time_taken.count());
+    add_record(time_taken.count());
 }
 
 
@@ -56,21 +57,25 @@ namespace
     constexpr float in_ms = 1000.0f;
 }
 
+void imgui_text(const std::string& str)
+{
+    ImGui::Text("%s", str.c_str());
+}
 
 void
 PrintTimes(float time)
 {
-    ImGui::Text("Frametime %.1f", static_cast<double>(time * in_ms));
-    ImGui::Text("FPS %.1f", static_cast<double>(1/(time)));
+    imgui_text(fmt::format("Frametime {}", time * in_ms));
+    imgui_text(fmt::format("FPS %.1f", 1.0f/time));
 }
 
 
 void
-PrintProfiles()
+print_profiles()
 {
     if(ImGui::Begin("Profiler") == false) { ImGui::End(); return; }
 
-    auto& record = GetRecords();
+    auto& record = get_records();
 
     if(record.times.empty() == false)
     {

@@ -5,17 +5,17 @@
 
 
 template<typename T, typename E=std::string>
-struct Result
+struct result
 {
     std::optional<T> value;
     std::optional<E> e;
 
-    Result(T&& tt) : value(std::move(tt)) {}
-    Result(const E& ee) : e(ee) {}
+    result(T&& tt) : value(std::move(tt)) {}
+    result(const E& ee) : e(ee) {}
 
     operator bool() const { return value.has_value(); }
 
-    E error(const E& missing = E{}) const
+    E get_error(const E& missing = E{}) const
     {
         if(e) { return *e; }
         else { return missing; }

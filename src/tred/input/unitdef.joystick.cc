@@ -19,7 +19,7 @@ namespace input
 {
 
 
-JoystickDef::JoystickDef(int id, const config::JoystickDef& data)
+joystick_definition::joystick_definition(int id, const config::joystick_definition& data)
     : index(id)
     , start_button(data.start_button)
     , unit(data.unit)
@@ -27,7 +27,7 @@ JoystickDef::JoystickDef(int id, const config::JoystickDef& data)
 }
 
 
-std::optional<std::string> JoystickDef::ValidateKey(int key)
+std::optional<std::string> joystick_definition::validate_key(int key)
 {
     if(key < 0)
     {
@@ -38,21 +38,21 @@ std::optional<std::string> JoystickDef::ValidateKey(int key)
 }
 
 
-std::optional<std::string> JoystickDef::ValidateAxis(AxisType type, int target, int axis)
+std::optional<std::string> joystick_definition::validate_axis(axis_type type, int target, int axis)
 {
     switch(type)
     {
-        case AxisType::GeneralAxis:
+        case axis_type::general_axis:
             if(target != 0) { return fmt::format("Invalid general target: {}", target);}
             if(axis < 0) { return fmt::format("Invalid general axis: {}", axis);}
             return std::nullopt;
-        case AxisType::Hat:
-        case AxisType::Ball:
+        case axis_type::hat:
+        case axis_type::ball:
             if(target < 0) { return fmt::format("Invalid hat/ball target: {}", target);}
-            switch(FromIndex<Axis>(axis))
+            switch(from_index<xy_axis>(axis))
             {
-                case Axis::X:
-                case Axis::Y:
+                case xy_axis::x:
+                case xy_axis::y:
                     break;
                 default:
                     return fmt::format("Invalid hat/ball axis: {}", axis);
@@ -64,22 +64,22 @@ std::optional<std::string> JoystickDef::ValidateAxis(AxisType type, int target, 
 }
 
 
-bool JoystickDef::IsConsideredJoystick()
+bool joystick_definition::is_considered_joystick()
 {
     return true;
 }
 
 
-bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* setup, Platform* platform)
+bool joystick_definition::can_detect(input_director* director, unit_discovery, unit_setup* setup, platform* platform)
 {
-    const auto potential_joysticks = platform->ActiveAndFreeJoysticks();
+    const auto potential_joysticks = platform->get_active_and_free_joysticks();
     for(auto joy: potential_joysticks)
     {
-        const auto selected = setup->HasJoystick(joy) == false && director->WasJustPressed(joy, start_button) && platform->MatchUnit(joy, unit);
+        const auto selected = setup->has_joystick(joy) == false && director->was_just_pressed(joy, start_button) && platform->match_unit(joy, unit);
         if(selected)
         {
-            platform->StartUsing(joy, JoystickType::Joystick);
-            setup->AddJoystick(index, joy);
+            platform->start_using(joy, joystick_type::joystick);
+            setup->add_joystick(index, joy);
             return true;
         }
     }
@@ -88,12 +88,12 @@ bool JoystickDef::CanDetect(InputDirector* director, UnitDiscovery, UnitSetup* s
 }
 
 
-std::unique_ptr<ActiveUnit> JoystickDef::Create(InputDirector* director, const UnitSetup& setup)
+std::unique_ptr<active_unit> joystick_definition::create(input_director* director, const unit_setup& setup)
 {
     assert(director);
 
-    return std::make_unique<JoystickActiveUnit>(setup.GetJoystick(index), director);
+    return std::make_unique<joystick_active_unit>(setup.get_joystick(index), director);
 }
 
 
-}  // namespace input
+}

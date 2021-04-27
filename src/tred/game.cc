@@ -28,51 +28,51 @@ void set_gl_viewport(const recti& r)
     glViewport(r.minx, r.miny + r.get_height(), r.get_width(), r.get_height());
 }
 
-Layer2::~Layer2()
+layer2::~layer2()
 {
     batch->submit();
 }
 
-Layer2 create_layer(const RenderCommand2& rc, const ViewportDef& vp, const glm::mat4 camera)
+layer2 create_layer(const render_command2& rc, const viewport_definition& vp, const glm::mat4 camera)
 {
     set_gl_viewport(vp.screen_rect);
 
     const auto projection = glm::ortho(0.0f, vp.virtual_width, 0.0f, vp.virtual_height);
 
-    rc.render->quad_shader.Use();
-    rc.render->quad_shader.SetMat(rc.render->view_projection_uniform, projection);
-    rc.render->quad_shader.SetMat(rc.render->transform_uniform, camera);
+    rc.render->quad_shader.use();
+    rc.render->quad_shader.set_mat(rc.render->view_projection_uniform, projection);
+    rc.render->quad_shader.set_mat(rc.render->transform_uniform, camera);
 
     // todo(Gustav): transform viewport according to the camera
-    return Layer2{{vp.virtual_width, vp.virtual_height}, &rc.render->batch};
+    return layer2{{vp.virtual_width, vp.virtual_height}, &rc.render->batch};
 }
 
-Layer2 with_layer_fit_with_bars(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
 {
-    const auto vp = ViewportDef::FitWithBlackBars(requested_width, requested_height, rc.size.x, rc.size.y);
+    const auto vp = viewport_definition::fit_with_black_bars(requested_width, requested_height, rc.size.x, rc.size.y);
     return create_layer(rc, vp, camera);
 }
 
-Layer2 with_layer_extended(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
 {
-    const auto vp = ViewportDef::Extend(requested_width, requested_height, rc.size.x, rc.size.y);
+    const auto vp = viewport_definition::extend(requested_width, requested_height, rc.size.x, rc.size.y);
     return create_layer(rc, vp, camera);
 }
 
-SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
+sprite_batch::sprite_batch(shader* quad_shader, render2* r)
     : render(r)
     , white_texture
     (
-        LoadImageSingleFromSinglePixel
+        load_image_from_color
         (
             0xffffffff,
-            TextureEdge::Clamp,
-            TextureRenderStyle::Pixel,
-            Transperency::Include
+            texture_edge::clamp,
+            texture_render_style::pixel,
+            transparency::include
         )
     )
 {
-    quad_shader->Use();
+    quad_shader->use();
 
     glGenVertexArrays(1, &va);
     glBindVertexArray(va);
@@ -106,7 +106,7 @@ SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
 }
 
-void add_vertex(SpriteBatch* batch, const vertex2& v)
+void add_vertex(sprite_batch* batch, const vertex2& v)
 {
     batch->data.push_back(v.position.x);
     batch->data.push_back(v.position.y);
@@ -121,7 +121,7 @@ void add_vertex(SpriteBatch* batch, const vertex2& v)
     batch->data.push_back(v.texturecoord.y);
 }
 
-rect get_sprite(const Texture& texture, const recti& ri)
+rect get_sprite(const texture& texture, const recti& ri)
 {
     const auto r = Cint_to_float(ri);
     const auto w = 1.0f/static_cast<float>(texture.width);
@@ -129,9 +129,9 @@ rect get_sprite(const Texture& texture, const recti& ri)
     return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
 }
 
-void SpriteBatch::quad(std::optional<Texture*> texture_argument, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
+void sprite_batch::quad(std::optional<texture*> texture_argument, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
 {
-    Texture* texture = texture_argument.value_or(&white_texture);
+    texture* texture = texture_argument.value_or(&white_texture);
 
     if(quads == max_quads)
     {
@@ -156,7 +156,7 @@ void SpriteBatch::quad(std::optional<Texture*> texture_argument, const vertex2& 
     add_vertex(this, v3);
 }
 
-void SpriteBatch::quad(std::optional<Texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
+void sprite_batch::quad(std::optional<texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
 {
     const auto tc = texturecoord.value_or(rect{1.0f, 1.0f});
     quad
@@ -169,20 +169,20 @@ void SpriteBatch::quad(std::optional<Texture*> texture, const rect& scr, const s
     );
 }
 
-void SpriteBatch::quad(std::optional<Texture*> texture_argument, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
+void sprite_batch::quad(std::optional<texture*> texture_argument, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
 {
-    Texture* texture = texture_argument.value_or(&white_texture);
+    texture* texture = texture_argument.value_or(&white_texture);
     quad(texture, scr, get_sprite(*texture, texturecoord), tint);
 }
 
-void SpriteBatch::submit()
+void sprite_batch::submit()
 {
     if(quads == 0)
     {
         return;
     }
 
-    BindTexture(render->texture_uniform, *current_texture);
+    bind_texture(render->texture_uniform, *current_texture);
     glBindVertexArray(va);
     glBufferSubData
     (
@@ -199,18 +199,18 @@ void SpriteBatch::submit()
 }
 
 
-Render2::Render2()
+render2::render2()
     : quad_description
     (
         {
-            {VertexType::Position2, "position"},
-            {VertexType::Color4, "color"},
-            {VertexType::Texture2, "uv"}
+            {vertex_type::position2, "position"},
+            {vertex_type::color4, "color"},
+            {vertex_type::texture2, "uv"}
         }
     )
     , quad_layout
     (
-        Compile({quad_description}).Compile(quad_description)
+        compile({quad_description}).compile(quad_description)
     )
     , quad_shader
     (
@@ -250,81 +250,83 @@ Render2::Render2()
         )glsl",
         quad_layout
     )
-    , view_projection_uniform(quad_shader.GetUniform("view_projection"))
-    , transform_uniform(quad_shader.GetUniform("transform"))
-    , texture_uniform(quad_shader.GetUniform("uniform_texture"))
+    , view_projection_uniform(quad_shader.get_uniform("view_projection"))
+    , transform_uniform(quad_shader.get_uniform("transform"))
+    , texture_uniform(quad_shader.get_uniform("uniform_texture"))
     , batch(&quad_shader, this)
 {
-    SetupTextures(&quad_shader, {&texture_uniform});
+    setup_textures(&quad_shader, {&texture_uniform});
 }
 
-Render2::~Render2()
+render2::~render2()
 {
-    quad_shader.Delete();
+    quad_shader.cleanup();
 }
 
 
-void Game::OnRender(const RenderCommand2&) {}
-void Game::OnImgui() {}
-bool Game::OnUpdate(float) { return true; }
-void Game::OnKey(char, bool) {}
-void Game::OnMouseMotion(const glm::ivec2&) {}
-void Game::OnMouseButton(int, bool) {}
-void Game::OnMouseWheel(int) {}
+void game::on_render(const render_command2&) {}
+void game::on_imgui() {}
+bool game::on_update(float) { return true; }
+void game::on_key(char, bool) {}
+void game::on_mouse_motion(const glm::ivec2&) {}
+void game::on_mouse_button(int, bool) {}
+void game::on_mouse_wheel(int) {}
 
-
-void SetupOpenGl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+namespace
 {
-    SetupOpenglDebug();
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glCullFace(GL_BACK); // remove back faces
+    void setup_open_gl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+    {
+        setup_opengl_debug();
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glCullFace(GL_BACK); // remove back faces
 
-    const auto* renderer = glGetString(GL_RENDERER); // get renderer string
-    const auto* version = glGetString(GL_VERSION); // version as a string
-    LOG_INFO("Renderer: {}", renderer);
-    LOG_INFO("Version: {}", version);
+        const auto* renderer = glGetString(GL_RENDERER); // get renderer string
+        const auto* version = glGetString(GL_VERSION); // version as a string
+        LOG_INFO("Renderer: {}", renderer);
+        LOG_INFO("Version: {}", version);
 
-    if(!imgui) { return; }
+        if(!imgui) { return; }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    auto& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        auto& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    ImGui::StyleColorsLight();
+        ImGui::StyleColorsLight();
 
-    ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
+        ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
 
-    const char* glsl_version = "#version 130";
-    ImGui_ImplOpenGL3_Init(glsl_version);
+        const char* glsl_version = "#version 130";
+        ImGui_ImplOpenGL3_Init(glsl_version);
+    }
 }
 
 
-struct Window
+struct window
 {
     std::string title;
     glm::ivec2 size;
     bool imgui;
     bool running = true;
 
-    SDL_Window* window;
-    SDL_GLContext glcontext;
+    SDL_Window* sdl_window;
+    SDL_GLContext sdl_glcontext;
 
-    std::shared_ptr<Game> game;
-    std::unique_ptr<Render2> render_data;
+    std::shared_ptr<game> game;
+    std::unique_ptr<render2> render_data;
 
-    Window(const std::string& t, const glm::ivec2& s, bool i)
+    window(const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
         , size(s)
         , imgui(i)
-        , window(nullptr)
-        , glcontext(nullptr)
+        , sdl_window(nullptr)
+        , sdl_glcontext(nullptr)
     {
-        window = SDL_CreateWindow
+        sdl_window = SDL_CreateWindow
         (
             t.c_str(),
             SDL_WINDOWPOS_UNDEFINED,
@@ -334,20 +336,20 @@ struct Window
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
         );
 
-        if(window == nullptr)
+        if(sdl_window == nullptr)
         {
             LOG_ERROR("Could not create window: {}", SDL_GetError());
             return;
         }
 
-        glcontext = SDL_GL_CreateContext(window);
+        sdl_glcontext = SDL_GL_CreateContext(sdl_window);
 
-        if(glcontext == nullptr)
+        if(sdl_glcontext == nullptr)
         {
             LOG_ERROR("Could not create window: {}", SDL_GetError());
 
-            SDL_DestroyWindow(window);
-            window = nullptr;
+            SDL_DestroyWindow(sdl_window);
+            sdl_window = nullptr;
 
             return;
         }
@@ -356,21 +358,21 @@ struct Window
         {
             LOG_ERROR("Failed to initialize OpenGL context");
 
-            SDL_GL_DeleteContext(glcontext);
-            glcontext = nullptr;
+            SDL_GL_DeleteContext(sdl_glcontext);
+            sdl_glcontext = nullptr;
 
-            SDL_DestroyWindow(window);
-            window = nullptr;
+            SDL_DestroyWindow(sdl_window);
+            sdl_window = nullptr;
 
             return;
         }
 
-        SetupOpenGl(window, glcontext, imgui);
+        setup_open_gl(sdl_window, sdl_glcontext, imgui);
     }
 
-    ~Window()
+    ~window()
     {
-        if(window)
+        if(sdl_window)
         {
             if(imgui)
             {
@@ -378,57 +380,57 @@ struct Window
                 ImGui_ImplSDL2_Shutdown();
             }
 
-            SDL_GL_DeleteContext(glcontext);
-            SDL_DestroyWindow(window);
+            SDL_GL_DeleteContext(sdl_glcontext);
+            SDL_DestroyWindow(sdl_window);
         }
     }
 
-    void Render()
+    void render() const
     {
-        if(window == nullptr) { return; }
+        if(sdl_window == nullptr) { return; }
 
         glViewport(0, 0, size.x, size.y);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        game->OnRender({render_data.get(), size});
+        game->on_render({render_data.get(), size});
 
         if(imgui)
         {
             ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
+            ImGui_ImplSDL2_NewFrame(sdl_window);
             ImGui::NewFrame();
 
-            game->OnImgui();
+            game->on_imgui();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
 
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(sdl_window);
     }
 
-    void OnResized(const glm::ivec2& new_size)
+    void on_resized(const glm::ivec2& new_size)
     {
         size = new_size;
     }
 
-    bool HasImgui() const
+    bool has_imgui() const
     {
         return imgui;
     }
 };
 
 
-void PumpEvents(Window* window)
+void pump_events(window* window)
 {
     SDL_Event e;
     while(SDL_PollEvent(&e) != 0)
     {
         bool handle_keyboard = true;
         bool handle_mouse = true;
-        if(window->HasImgui())
+        if(window->has_imgui())
         {
             ImGui_ImplSDL2_ProcessEvent(&e);
 
@@ -445,7 +447,7 @@ void PumpEvents(Window* window)
                 const auto key = e.key.keysym.sym;
                 if(key >= SDLK_BACKSPACE && key <= SDLK_DELETE)
                 {
-                    window->game->OnKey(static_cast<char>(key), e.type == SDL_KEYDOWN);
+                    window->game->on_key(static_cast<char>(key), e.type == SDL_KEYDOWN);
                 }
             }
             break;
@@ -453,7 +455,7 @@ void PumpEvents(Window* window)
         case SDL_MOUSEMOTION:
             if(handle_mouse)
             {
-                window->game->OnMouseMotion(glm::ivec2{e.motion.x, e.motion.y});
+                window->game->on_mouse_motion(glm::ivec2{e.motion.x, e.motion.y});
             }
             break;
 
@@ -461,7 +463,7 @@ void PumpEvents(Window* window)
         case SDL_MOUSEBUTTONUP:
             if(handle_mouse)
             {
-                window->game->OnMouseButton(e.button.button, e.type == SDL_MOUSEBUTTONDOWN);
+                window->game->on_mouse_button(e.button.button, e.type == SDL_MOUSEBUTTONDOWN);
             }
             break;
 
@@ -471,14 +473,14 @@ void PumpEvents(Window* window)
                 if(e.wheel.y != 0)
                 {
                     const auto direction = e.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1;
-                    window->game->OnMouseWheel(e.wheel.y * direction);
+                    window->game->on_mouse_wheel(e.wheel.y * direction);
                 }
             }
             break;
         case SDL_WINDOWEVENT:
             if(e.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                window->OnResized({e.window.data1, e.window.data2});
+                window->on_resized({e.window.data1, e.window.data2});
             }
             break;
         case SDL_QUIT:
@@ -493,14 +495,14 @@ void PumpEvents(Window* window)
 }
 
 
-int SetupAndRun(std::function<std::shared_ptr<Game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
+int setup_and_run(std::function<std::shared_ptr<game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
 {
-    auto window = Window{title, size, call_imgui};
-    if(window.window == nullptr)
+    auto window = ::window{title, size, call_imgui};
+    if(window.sdl_window == nullptr)
     {
         return -1;
     }
-    window.render_data = std::make_unique<Render2>();
+    window.render_data = std::make_unique<render2>();
     window.game = make_game();
 
     auto last = SDL_GetPerformanceCounter();
@@ -511,19 +513,19 @@ int SetupAndRun(std::function<std::shared_ptr<Game>()> make_game, const std::str
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        PumpEvents(&window);
-        if(false == window.game->OnUpdate(dt))
+        pump_events(&window);
+        if(false == window.game->on_update(dt))
         {
             return 0;
         }
-        window.Render();
+        window.render();
     }
 
     return 0;
 }
 
 
-int Run(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<Game>()> make_game)
+int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<game>()> make_game)
 {
     constexpr Uint32 flags =
           SDL_INIT_VIDEO
@@ -547,7 +549,7 @@ int Run(const std::string& title, const glm::ivec2& size, bool call_imgui, std::
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    const auto ret = SetupAndRun(make_game, title, size, call_imgui);
+    const auto ret = setup_and_run(make_game, title, size, call_imgui);
 
     SDL_Quit();
     return ret;

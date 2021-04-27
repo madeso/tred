@@ -26,7 +26,7 @@ CreateVertexArray()
 };
 
 
-CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
+CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const vertex_types& st)
         : vbo(a_vbo)
         , vao(a_vao)
         , ebo(a_ebo)
@@ -39,7 +39,7 @@ CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 void
 CompiledMesh::Draw() const
 {
-    assert(IsBoundForShader(debug_shader_types));
+    assert(is_bound_for_shader(debug_shader_types));
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
@@ -62,7 +62,7 @@ CompiledMesh::Delete() const
 
 struct BufferData
 {
-    using PerVertex = std::function<void (std::vector<float>*, const Vertex&)>;
+    using PerVertex = std::function<void (std::vector<float>*, const vertex&)>;
 
     int count;
     PerVertex per_vertex;
@@ -77,7 +77,7 @@ struct BufferData
 
 
 CompiledMesh
-Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
+Compile(const mesh& mesh, const compiled_vertex_layout& layout)
 {
     using VertexVector = std::vector<float>;
 
@@ -88,24 +88,24 @@ Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
     {
         switch(element.type)
         {
-        case VertexType::Position3:
-            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
+        case vertex_type::position3:
+            data.emplace_back(3, [](VertexVector* vertices, const vertex& vertex)
             {
                 vertices->push_back(vertex.position.x);
                 vertices->push_back(vertex.position.y);
                 vertices->push_back(vertex.position.z);
             });
             break;
-        case VertexType::Normal3:
-            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
+        case vertex_type::normal3:
+            data.emplace_back(3, [](VertexVector* vertices, const vertex& vertex)
             {
                 vertices->push_back(vertex.normal.x);
                 vertices->push_back(vertex.normal.y);
                 vertices->push_back(vertex.normal.z);
             });
             break;
-        case VertexType::Color4:
-            data.emplace_back(4, [](VertexVector* vertices, const Vertex& vertex)
+        case vertex_type::color4:
+            data.emplace_back(4, [](VertexVector* vertices, const vertex& vertex)
             {
                 vertices->push_back(vertex.color.x);
                 vertices->push_back(vertex.color.y);
@@ -113,8 +113,8 @@ Compile(const Mesh& mesh, const CompiledVertexLayout& layout)
                 vertices->push_back(vertex.color.w);
             });
             break;
-        case VertexType::Texture2:
-            data.emplace_back(2, [](VertexVector* vertices, const Vertex& vertex)
+        case vertex_type::texture2:
+            data.emplace_back(2, [](VertexVector* vertices, const vertex& vertex)
             {
                 vertices->push_back(vertex.texture.x);
                 vertices->push_back(vertex.texture.y);

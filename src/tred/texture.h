@@ -2,21 +2,21 @@
 
 #include "tred/uniform.h"
 
-struct LoadedImage;
+struct loaded_image;
 
-struct Texture
+struct texture
 {
     unsigned int id;
     int width;
     int height;
 
-    explicit Texture(const LoadedImage& i);
+    explicit texture(const loaded_image& i);
 
     void
-    Delete();
+    cleanup();
 };
 
 
 void
-BindTexture(const Uniform& uniform, const Texture& texture);
+bind_texture(const uniform& uniform, const texture& texture);
 

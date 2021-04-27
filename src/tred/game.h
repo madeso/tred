@@ -13,8 +13,8 @@
 #include "tred/types.h"
 #include "tred/texture.h"
 
-struct Texture;
-struct Render2;
+struct texture;
+struct render2;
 
 struct vertex2
 {
@@ -23,74 +23,74 @@ struct vertex2
     glm::vec2 texturecoord;
 };
 
-struct SpriteBatch
+struct sprite_batch
 {
     static constexpr int max_quads = 100;
 
     std::vector<float> data;
     int quads = 0;
-    Texture* current_texture = nullptr;
+    texture* current_texture = nullptr;
     u32 va;
     u32 vb;
     u32 ib;
-    Render2* render;
-    Texture white_texture;
+    render2* render;
+    texture white_texture;
 
-    SpriteBatch(Shader* shader, Render2* r);
+    sprite_batch(shader* shader, render2* r);
 
-    void quad(std::optional<Texture*> texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
-    void quad(std::optional<Texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
-    void quad(std::optional<Texture*> texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<texture*> texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
+    void quad(std::optional<texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<texture*> texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
 
     void submit();
 
 };
 
-struct Render2
+struct render2
 {
-    Render2();
-    ~Render2();
+    render2();
+    ~render2();
 
-    VertexLayoutDescription quad_description;
-    CompiledVertexLayout quad_layout;
-    Shader quad_shader;
-    Uniform view_projection_uniform;
-    Uniform transform_uniform;
-    Uniform texture_uniform;
+    vertex_layout_description quad_description;
+    compiled_vertex_layout quad_layout;
+    shader quad_shader;
+    uniform view_projection_uniform;
+    uniform transform_uniform;
+    uniform texture_uniform;
 
-    SpriteBatch batch;
+    sprite_batch batch;
 };
 
-struct RenderCommand2
+struct render_command2
 {
-    Render2* render;
+    render2* render;
     glm::ivec2 size;
 };
 
-struct Layer2
+struct layer2
 {
     rect viewport_aabb_in_worldspace;
-    SpriteBatch* batch;
+    sprite_batch* batch;
 
-    ~Layer2();
+    ~layer2();
 };
 
-Layer2 with_layer_fit_with_bars(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera);
-Layer2 with_layer_extended(const RenderCommand2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
 
-struct Game
+struct game
 {
-    Game() = default;
-    virtual ~Game() = default;
+    game() = default;
+    virtual ~game() = default;
 
-    virtual void OnRender(const RenderCommand2& rc);
-    virtual void OnImgui();
-    virtual bool OnUpdate(float);
+    virtual void on_render(const render_command2& rc);
+    virtual void on_imgui();
+    virtual bool on_update(float);
 
-    virtual void OnKey(char key, bool down);
-    virtual void OnMouseMotion(const glm::ivec2& position);
-    virtual void OnMouseButton(int button, bool down);
-    virtual void OnMouseWheel(int scroll);
+    virtual void on_key(char key, bool down);
+    virtual void on_mouse_motion(const glm::ivec2& position);
+    virtual void on_mouse_button(int button, bool down);
+    virtual void on_mouse_wheel(int scroll);
 };
 
-int Run(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<Game>()> make_game);
+int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<game>()> make_game);

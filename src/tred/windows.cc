@@ -31,7 +31,7 @@
 #define DIE(x) assert(false && x);
 
 
-using WindowId = Uint32;
+using window_id = Uint32;
 
 
 namespace
@@ -48,31 +48,31 @@ namespace
 }
 
 
-struct GamecontrollerData
+struct gamecontroller_data
 {
-    std::unique_ptr<sdl::GameController> controller;
-    sdl::GamecontrollerState last_state;
+    std::unique_ptr<sdl::game_controller> controller;
+    sdl::gamecontroller_state last_state;
 };
 
 
-enum class JoystickDetectionState
+enum class joystick_detection_state
 {
-    Joystick, Gamecontroller, NotDetected
+    joystick, gamecontroller, not_detected
 };
 
 
-struct JoystickData
+struct joystick_data
 {
-    std::unique_ptr<sdl::Joystick> joystick;
-    std::unique_ptr<GamecontrollerData> gamecontroller;
-    SDL_JoystickID instance_id;
-    JoystickDetectionState in_use = JoystickDetectionState::NotDetected;
+    std::unique_ptr<sdl::joystick> joystick;
+    std::unique_ptr<gamecontroller_data> gamecontroller;
+    SDL_JoystickID instance_id = 0;
+    joystick_detection_state in_use = joystick_detection_state::not_detected;
 };
 
 
-struct SdlPlatform : public input::Platform
+struct sdl_platform : public input::platform
 {
-    SdlPlatform()
+    sdl_platform()
     {
         if(log_joysticks_at_startup)
         {
@@ -80,7 +80,7 @@ struct SdlPlatform : public input::Platform
             LOG_INFO("Joysticks found: {}", number_of_joysticks);
             for (int i = 0; i < number_of_joysticks; ++i)
             {
-                sdl::LogInfoAboutJoystick(i);
+                sdl::log_info_about_joystick(i);
             }
         }
     }
@@ -90,7 +90,7 @@ struct SdlPlatform : public input::Platform
     float last_mouse_x = 0.0f;
     float last_mouse_y = 0.0f;
 
-    void OnEventsCompleted(input::InputSystem* system)
+    void OnEventsCompleted(input::input_system* system)
     {
         if(mouse_motion_this_frame == false && mouse_motion_last_frame == true)
         {
@@ -103,25 +103,25 @@ struct SdlPlatform : public input::Platform
     }
 
 
-    void OnMouseRelativeAxis(input::InputSystem* system, float dx, float dy)
+    void OnMouseRelativeAxis(input::input_system* system, float dx, float dy)
     {
-        system->OnMouseAxis(input::Axis::X, dx, last_mouse_x);
-        system->OnMouseAxis(input::Axis::Y, dy, last_mouse_y);
+        system->on_mouse_axis(input::xy_axis::x, dx, last_mouse_x);
+        system->on_mouse_axis(input::xy_axis::y, dy, last_mouse_y);
     }
 
-    void OnEvent(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
+    void OnEvent(std::vector<input::joystick_id>* lost_joysticks, input::input_system* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
     {
-        std::optional<input::JoystickId> detected_controller;
-        auto should_handle_joystick = [this, &detected_controller](input::JoystickId id) -> bool
+        std::optional<input::joystick_id> detected_controller;
+        auto should_handle_joystick = [this, &detected_controller](input::joystick_id id) -> bool
         {
             switch(joysticks[id].in_use)
             {
-            case JoystickDetectionState::Gamecontroller:
+            case joystick_detection_state::gamecontroller:
                 detected_controller = id;
                 return false;
-            case JoystickDetectionState::Joystick:
+            case joystick_detection_state::joystick:
                 return true;
-            case JoystickDetectionState::NotDetected:
+            case joystick_detection_state::not_detected:
                 if(joysticks[id].gamecontroller)
                 {
                     detected_controller = id;
@@ -137,7 +137,7 @@ struct SdlPlatform : public input::Platform
         {
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                system->OnKeyboardKey(sdl::ToKey(event.key.keysym), event.type == SDL_KEYDOWN);
+                system->on_keyboard_key(sdl::to_keyboard_key(event.key.keysym), event.type == SDL_KEYDOWN);
                 break;
 
             case SDL_JOYAXISMOTION:
@@ -146,7 +146,7 @@ struct SdlPlatform : public input::Platform
                     if(found == sdljoystick_to_id.end()) { return; }
                     if(should_handle_joystick(found->second))
                     {
-                        system->OnJoystickAxis(found->second, event.jaxis.axis, event.jaxis.value/-32768.0f);
+                        system->on_joystick_axis(found->second, event.jaxis.axis, event.jaxis.value/-32768.0f);
                     }
                 }
                 break;
@@ -157,8 +157,8 @@ struct SdlPlatform : public input::Platform
                     if(found == sdljoystick_to_id.end()) { return; }
                     if(should_handle_joystick(found->second))
                     {
-                        system->OnJoystickBall(found->second, input::Axis::X, event.jball.ball, event.jball.xrel);
-                        system->OnJoystickBall(found->second, input::Axis::Y, event.jball.ball, event.jball.yrel);
+                        system->on_joystick_ball(found->second, input::xy_axis::x, event.jball.ball, event.jball.xrel);
+                        system->on_joystick_ball(found->second, input::xy_axis::y, event.jball.ball, event.jball.yrel);
                     }
                 }
                 break;
@@ -169,9 +169,9 @@ struct SdlPlatform : public input::Platform
                     if(found == sdljoystick_to_id.end()) { return; }
                     if(should_handle_joystick(found->second))
                     {
-                        const auto hat = sdl::GetHatValues(event.jhat.value);
-                        system->OnJoystickHat(found->second, input::Axis::X, event.jhat.hat, static_cast<float>(hat.x));
-                        system->OnJoystickHat(found->second, input::Axis::Y, event.jhat.hat, static_cast<float>(hat.y));
+                        const auto hat = sdl::get_hat_values(event.jhat.value);
+                        system->on_joystick_hat(found->second, input::xy_axis::x, event.jhat.hat, static_cast<float>(hat.x));
+                        system->on_joystick_hat(found->second, input::xy_axis::y, event.jhat.hat, static_cast<float>(hat.y));
                     }
                 }
                 break;
@@ -191,7 +191,7 @@ struct SdlPlatform : public input::Platform
                     if(should_handle_joystick(found->second))
                     {
                         const auto joystick_id = found->second;
-                        system->OnJoystickButton(joystick_id, joystick_button, down);
+                        system->on_joystick_button(joystick_id, joystick_button, down);
                     }
                 }
                 break;
@@ -235,7 +235,7 @@ struct SdlPlatform : public input::Platform
                 // old-style cast error: ignore for now
                 // if(event.button.which != SDL_TOUCH_MOUSEID)
                 {
-                    system->OnMouseButton(sdl::ToMouseButton(event.button.button), event.type == SDL_MOUSEBUTTONDOWN);
+                    system->on_mouse_button(sdl::to_mouse_button(event.button.button), event.type == SDL_MOUSEBUTTONDOWN);
                 }
                 break;
 
@@ -244,11 +244,11 @@ struct SdlPlatform : public input::Platform
                     const auto direction = event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
                     if(event.wheel.x != 0)
                     {
-                        system->OnMouseWheel(input::Axis::X, static_cast<float>(event.wheel.x) * direction);
+                        system->on_mouse_wheel(input::xy_axis::x, static_cast<float>(event.wheel.x) * direction);
                     }
                     if(event.wheel.y != 0)
                     {
-                        system->OnMouseWheel(input::Axis::Y, static_cast<float>(event.wheel.y) * direction);
+                        system->on_mouse_wheel(input::xy_axis::y, static_cast<float>(event.wheel.y) * direction);
                     }
                 }
                 break;
@@ -264,10 +264,10 @@ struct SdlPlatform : public input::Platform
         }
     }
 
-    void SendEventsForGameController(input::InputSystem* system, input::JoystickId detected_controller)
+    void SendEventsForGameController(input::input_system* system, input::joystick_id detected_controller)
     {
-        GamecontrollerData* controller = joysticks[detected_controller].gamecontroller.get();
-        const auto new_state = sdl::GamecontrollerState::GetState(controller->controller.get());
+        gamecontroller_data* controller = joysticks[detected_controller].gamecontroller.get();
+        const auto new_state = sdl::gamecontroller_state::get_state(controller->controller.get());
         auto& old_state = controller->last_state;
 
         for(auto button: sdl::valid_buttons)
@@ -275,10 +275,10 @@ struct SdlPlatform : public input::Platform
             const auto id = static_cast<size_t>(button);
             if(old_state.buttons[id] != new_state.buttons[id])
             {
-                const auto my_button = sdl::ToButton(button);
-                if(my_button != input::GamecontrollerButton::INVALID)
+                const auto my_button = sdl::to_controller_button(button);
+                if(my_button != input::gamecontroller_button::invalid)
                 {
-                    system->OnGamecontrollerButton(detected_controller, my_button, new_state.buttons[id] ? 1.0f : 0.0f);
+                    system->on_gamecontroller_button(detected_controller, my_button, new_state.buttons[id] ? 1.0f : 0.0f);
                 }
             }
         }
@@ -293,17 +293,17 @@ struct SdlPlatform : public input::Platform
                 const float state_sign = (new_state.axes[id] < 0 ? -1.0f:1.0f);
                 const float state = state_abs * state_sign;
 
-                const auto my_button = sdl::ToButton(axis);
-                if(my_button != input::GamecontrollerButton::INVALID)
+                const auto my_button = sdl::to_controller_button(axis);
+                if(my_button != input::gamecontroller_button::invalid)
                 {
                     // special case for 'triggers'
                     // a trigger is axis in sdl but considered buttons in input system
-                    system->OnGamecontrollerButton(detected_controller, my_button, state);
+                    system->on_gamecontroller_button(detected_controller, my_button, state);
                 }
                 else
                 {
-                    const auto my_axis = sdl::ToAxis(axis);
-                    system->OnGamecontrollerAxis(detected_controller, my_axis, state);
+                    const auto my_axis = sdl::to_controller_axis(axis);
+                    system->on_gamecontroller_axis(detected_controller, my_axis, state);
                 }
             }
         }
@@ -312,13 +312,13 @@ struct SdlPlatform : public input::Platform
     }
 
 
-    std::vector<input::JoystickId> ActiveAndFreeJoysticks() override
+    std::vector<input::joystick_id> get_active_and_free_joysticks() override
     {
-        auto r = std::vector<input::JoystickId>{};
+        auto r = std::vector<input::joystick_id>{};
 
-        for(auto joy: joysticks.AsPairs())
+        for(auto joy: joysticks.as_pairs())
         {
-            if(joy.second.in_use == JoystickDetectionState::NotDetected)
+            if(joy.second.in_use == joystick_detection_state::not_detected)
             {
                 r.emplace_back(joy.first);
             }
@@ -327,18 +327,18 @@ struct SdlPlatform : public input::Platform
         return r;
     }
 
-    using JoystickFunctions = HandleFunctions64<input::JoystickId>;
-    HandleVector<JoystickData, JoystickFunctions> joysticks;
-    std::map<SDL_JoystickID, input::JoystickId> sdljoystick_to_id;
+    using JoystickFunctions = handle_functions64<input::joystick_id>;
+    handle_vector<joystick_data, JoystickFunctions> joysticks;
+    std::map<SDL_JoystickID, input::joystick_id> sdljoystick_to_id;
 
-    input::JoystickId AddJoystickFromDevice(int device_id)
+    input::joystick_id AddJoystickFromDevice(int device_id)
     {
         if(log_joystick_connection_events)
         {
             LOG_INFO("Adding joystick from device {}", device_id);
         }
-        auto joystick = std::make_unique<sdl::Joystick>(device_id);
-        const auto instance_id = joystick->GetDeviceIndex();
+        auto joystick = std::make_unique<sdl::joystick>(device_id);
+        const auto instance_id = joystick->get_device_index();
 
         auto found = sdljoystick_to_id.find(instance_id);
         if(found != sdljoystick_to_id.end())
@@ -346,28 +346,28 @@ struct SdlPlatform : public input::Platform
             LOG_WARNING("Tried to add joystick that was already added!");
         }
 
-        const auto id = joysticks.Add();
+        const auto id = joysticks.create_new_handle();
         {
-            auto controller = std::make_unique<GamecontrollerData>();
-            controller->controller = std::make_unique<sdl::GameController>(device_id);
-            if(controller->controller->IsValid())
+            auto controller = std::make_unique<gamecontroller_data>();
+            controller->controller = std::make_unique<sdl::game_controller>(device_id);
+            if(controller->controller->is_valid())
             {
                 joysticks[id].gamecontroller = std::move(controller);
             }
         }
         joysticks[id].joystick = std::move(joystick);
         joysticks[id].instance_id = instance_id;
-        joysticks[id].in_use = JoystickDetectionState::NotDetected;
+        joysticks[id].in_use = joystick_detection_state::not_detected;
 
         // overwrite existing (if any) sdl joystick instance_id with the new id
         sdljoystick_to_id[instance_id] = id;
 
-        LOG_INFO("Added a joystick named {} gamecontroller: {}", joysticks[id].joystick->GetName(), joysticks[id].gamecontroller != nullptr);
+        LOG_INFO("Added a joystick named {} gamecontroller: {}", joysticks[id].joystick->get_name(), joysticks[id].gamecontroller != nullptr);
         return id;
 
     }
 
-    void RemoveJoystickFromInstance(input::InputSystem* system, std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
+    void RemoveJoystickFromInstance(input::input_system* system, std::vector<input::joystick_id>* lost_joysticks, SDL_JoystickID instance_id)
     {
         if(log_joystick_connection_events)
         {
@@ -381,88 +381,90 @@ struct SdlPlatform : public input::Platform
         }
         const auto id = found_id->second;
         LOG_INFO("Removed joystick (todo): add name here");
-        system->OnJoystickLost(id);
+        system->on_joystick_lost(id);
         if(joysticks[id].gamecontroller)
         {
-            system->OnGamecontrollerLost(id);
+            system->on_gamecontroller_lost(id);
         }
         joysticks[id].joystick.reset();
         joysticks[id].gamecontroller.reset();
-        joysticks[id].in_use = JoystickDetectionState::NotDetected;
+        joysticks[id].in_use = joystick_detection_state::not_detected;
         lost_joysticks->push_back(id);
-        joysticks.Remove(id);
+        joysticks.mark_for_reuse(id);
         sdljoystick_to_id.erase(instance_id);
     }
 
-    bool MatchUnit(input::JoystickId joy, const std::string& unit) override
+    bool match_unit(input::joystick_id joy, const std::string& unit) override
     {
-        return joysticks[joy].joystick->GetGuid() == unit;
+        return joysticks[joy].joystick->get_guid() == unit;
     }
 
-    void StartUsing(input::JoystickId joy, input::JoystickType type) override
+    void start_using(input::joystick_id joy, input::joystick_type type) override
     {
         if(log_joystick_connection_events)
         {
-            LOG_INFO("Started using {}", type == input::JoystickType::Joystick ? "joystick" : "gamecontroller");
+            LOG_INFO("Started using {}", type == input::joystick_type::joystick ? "joystick" : "gamecontroller");
         }
-        joysticks[joy].in_use = type == input::JoystickType::GameController ? JoystickDetectionState::Gamecontroller : JoystickDetectionState::Joystick;
+        joysticks[joy].in_use = type == input::joystick_type::game_controller ? joystick_detection_state::gamecontroller : joystick_detection_state::joystick;
     }
 
-    void OnChangedConnection(const std::string& new_connection) override
+    void on_changed_connection(const std::string& new_connection) override
     {
         LOG_INFO("Player started using {}", new_connection);
     }
 };
 
-
-void SetupOpenGl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+namespace
 {
-    SetupOpenglDebug();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK); // remove back faces
+    void setup_open_gl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+    {
+        setup_opengl_debug();
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK); // remove back faces
 
-    const auto* renderer = glGetString(GL_RENDERER); // get renderer string
-    const auto* version = glGetString(GL_VERSION); // version as a string
-    LOG_INFO("Renderer: {}", renderer);
-    LOG_INFO("Version: {}", version);
+        const auto* renderer = glGetString(GL_RENDERER); // get renderer string
+        const auto* version = glGetString(GL_VERSION); // version as a string
+        LOG_INFO("Renderer: {}", renderer);
+        LOG_INFO("Version: {}", version);
 
-    if(!imgui) { return; }
+        if(!imgui) { return; }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    auto& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        auto& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    ImGui::StyleColorsLight();
+        ImGui::StyleColorsLight();
 
-    ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
+        ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
 
-    const char* glsl_version = "#version 130";
-    ImGui_ImplOpenGL3_Init(glsl_version);
+        const char* glsl_version = "#version 130";
+        ImGui_ImplOpenGL3_Init(glsl_version);
+    }
 }
 
 
-struct WindowImpl : public detail::Window
+struct window_implementation : public detail::window
 {
     std::string title;
     glm::ivec2 size;
-    RenderFunction on_render;
-    std::optional<ImguiFunction> imgui;
+    render_function on_render;
+    std::optional<imgui_function> imgui;
 
-    SDL_Window* window;
-    SDL_GLContext glcontext;
+    SDL_Window* sdl_window;
+    SDL_GLContext sdl_glcontext;
 
-    WindowImpl(const std::string& t, const glm::ivec2& s, RenderFunction&& r, std::optional<ImguiFunction>&& i)
+    window_implementation(const std::string& t, const glm::ivec2& s, render_function&& r, std::optional<imgui_function>&& i)
         : title(t)
         , size(s)
         , on_render(r)
         , imgui(i)
-        , window(nullptr)
-        , glcontext(nullptr)
+        , sdl_window(nullptr)
+        , sdl_glcontext(nullptr)
     {
-        window = SDL_CreateWindow
+        sdl_window = SDL_CreateWindow
         (
             t.c_str(),
             SDL_WINDOWPOS_UNDEFINED,
@@ -472,20 +474,20 @@ struct WindowImpl : public detail::Window
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
         );
 
-        if(window == nullptr)
+        if(sdl_window == nullptr)
         {
             LOG_ERROR("Could not create window: {}", SDL_GetError());
             return;
         }
 
-        glcontext = SDL_GL_CreateContext(window);
+        sdl_glcontext = SDL_GL_CreateContext(sdl_window);
 
-        if(glcontext == nullptr)
+        if(sdl_glcontext == nullptr)
         {
             LOG_ERROR("Could not create window: {}", SDL_GetError());
 
-            SDL_DestroyWindow(window);
-            window = nullptr;
+            SDL_DestroyWindow(sdl_window);
+            sdl_window = nullptr;
 
             return;
         }
@@ -494,21 +496,21 @@ struct WindowImpl : public detail::Window
         {
             LOG_ERROR("Failed to initialize OpenGL context");
 
-            SDL_GL_DeleteContext(glcontext);
-            glcontext = nullptr;
+            SDL_GL_DeleteContext(sdl_glcontext);
+            sdl_glcontext = nullptr;
 
-            SDL_DestroyWindow(window);
-            window = nullptr;
+            SDL_DestroyWindow(sdl_window);
+            sdl_window = nullptr;
 
             return;
         }
 
-        SetupOpenGl(window, glcontext, imgui.has_value());
+        setup_open_gl(sdl_window, sdl_glcontext, imgui.has_value());
     }
 
-    ~WindowImpl()
+    ~window_implementation() override
     {
-        if(window)
+        if(sdl_window)
         {
             if(imgui)
             {
@@ -516,21 +518,21 @@ struct WindowImpl : public detail::Window
                 ImGui_ImplSDL2_Shutdown();
             }
 
-            SDL_GL_DeleteContext(glcontext);
-            SDL_DestroyWindow(window);
+            SDL_GL_DeleteContext(sdl_glcontext);
+            SDL_DestroyWindow(sdl_window);
         }
     }
 
-    void Render() override
+    void render() override
     {
-        if(window == nullptr) { return; }
+        if(sdl_window == nullptr) { return; }
 
         on_render(size);
 
         if(imgui)
         {
             ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
+            ImGui_ImplSDL2_NewFrame(sdl_window);
             ImGui::NewFrame();
 
             (*imgui)();
@@ -539,75 +541,75 @@ struct WindowImpl : public detail::Window
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
 
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(sdl_window);
     }
 
-    void OnResized(const glm::ivec2& new_size)
+    void on_resized(const glm::ivec2& new_size)
     {
         size = new_size;
     }
 
-    WindowId GetId() const
+    [[nodiscard]] window_id get_id() const
     {
-        if(window == nullptr) { return 0; }
-        return SDL_GetWindowID(window);
+        if(sdl_window == nullptr) { return 0; }
+        return SDL_GetWindowID(sdl_window);
     }
 
-    bool HasImgui() const
+    [[nodiscard]] bool has_imgui() const
     {
         return imgui.has_value();
     }
 };
 
 
-void Windows::AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render)
+void windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render)
 {
-    AddWindowImpl(title, size, std::move(on_render), std::nullopt);
+    add_window_implementation(title, size, std::move(on_render), std::nullopt);
 }
 
 
-void Windows::AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, ImguiFunction&& on_imgui)
+void windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui)
 {
-    AddWindowImpl(title, size, std::move(on_render), std::move(on_imgui));
+    add_window_implementation(title, size, std::move(on_render), std::move(on_imgui));
 }
 
 
-struct WindowsImpl : public Windows
+struct windows_implementation : public windows
 {
-    std::map<WindowId, std::unique_ptr<WindowImpl>> windows;
-    std::unique_ptr<SdlPlatform> platform;
+    std::map<window_id, std::unique_ptr<window_implementation>> windows;
+    std::unique_ptr<sdl_platform> platform;
 
-    explicit WindowsImpl()
-        : platform(std::make_unique<SdlPlatform>())
+    explicit windows_implementation()
+        : platform(std::make_unique<sdl_platform>())
     {
     }
 
-    ~WindowsImpl()
+    ~windows_implementation()
     {
         windows.clear();
         platform.reset();
         SDL_Quit();
     }
 
-    void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<ImguiFunction>&& imgui) override
+    void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) override
     {
-        auto window = std::make_unique<WindowImpl>(title, size, std::move(on_render), std::move(imgui));
-        windows[window->GetId()] = std::move(window);
+        auto window = std::make_unique<window_implementation>(title, size, std::move(on_render), std::move(imgui));
+        windows[window->get_id()] = std::move(window);
     }
 
-    void Render() override
+    void render() override
     {
         for(auto& window: windows)
         {
-            window.second->Render();
+            window.second->render();
         }
     }
 
-    bool HasImgui()
+    bool has_imgui()
     {
         for(auto& window: windows)
         {
-            if(window.second->HasImgui())
+            if(window.second->has_imgui())
             {
                 return true;
             }
@@ -616,18 +618,18 @@ struct WindowsImpl : public Windows
         return false;
     }
 
-    input::Platform* GetInputPlatform() override
+    input::platform* get_input_platform() override
     {
         return platform.get();
     }
 
-    void PumpEvents(input::InputSystem* input_system) override
+    void pump_events(input::input_system* input_system) override
     {
-        std::vector<input::JoystickId> lost_joysticks;
+        std::vector<input::joystick_id> lost_joysticks;
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
-            if(HasImgui())
+            if(has_imgui())
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
@@ -642,7 +644,7 @@ struct WindowsImpl : public Windows
                     auto found = windows.find(e.window.windowID);
                     if(found != windows.end())
                     {
-                        found->second->OnResized({e.window.data1, e.window.data2});
+                        found->second->on_resized({e.window.data1, e.window.data2});
                     }
                     else
                     {
@@ -653,7 +655,6 @@ struct WindowsImpl : public Windows
             case SDL_QUIT:
                 running = false;
                 break;
-            break;
             default:
                 // ignore other events
                 break;
@@ -662,7 +663,7 @@ struct WindowsImpl : public Windows
 
         for(auto joystick: lost_joysticks)
         {
-            input_system->OnJoystickLost(joystick);
+            input_system->on_joystick_lost(joystick);
         }
 
         platform->OnEventsCompleted(input_system);
@@ -670,7 +671,7 @@ struct WindowsImpl : public Windows
 };
 
 
-std::unique_ptr<Windows> Setup()
+std::unique_ptr<windows> setup()
 {
     constexpr Uint32 flags =
           SDL_INIT_VIDEO
@@ -708,11 +709,11 @@ std::unique_ptr<Windows> Setup()
         }
     }
 
-    return std::make_unique<WindowsImpl>();
+    return std::make_unique<windows_implementation>();
 }
 
 
-int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, UpdateFunction&& on_update)
+int main_loop(input::unit_discovery discovery, std::unique_ptr<windows>&& windows, input::input_system* input_system, update_function&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
 
@@ -722,13 +723,13 @@ int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows,
         const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
         last = now;
 
-        windows->PumpEvents(input_system);
-        input_system->UpdatePlayerConnections(discovery, windows->GetInputPlatform());
+        windows->pump_events(input_system);
+        input_system->update_player_connections(discovery, windows->get_input_platform());
         if(false == on_update(dt))
         {
             return 0;
         }
-        windows->Render();
+        windows->render();
     }
 
     return 0;

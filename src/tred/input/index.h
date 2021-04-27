@@ -10,7 +10,7 @@ namespace input
 
 
 template<typename T>
-int ToIndex(T k)
+int to_index(T k)
 {
     static_assert(sizeof(T) <= sizeof(int) && std::is_unsigned_v<T> == false);
     return static_cast<int>(k);
@@ -18,7 +18,7 @@ int ToIndex(T k)
 
 
 template<typename T>
-T FromIndex(int index)
+T from_index(int index)
 {
     static_assert(sizeof(T) <= sizeof(int) && std::is_unsigned_v<T> == false);
     return static_cast<T>(index);

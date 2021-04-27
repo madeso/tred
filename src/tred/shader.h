@@ -8,55 +8,55 @@
 #include "tred/uniform.h"
 
 
-struct Shader
+struct shader
 {
-    Shader
+    shader
     (
         std::string_view vertex_source,
         std::string_view fragment_source,
-        const CompiledVertexLayout& layout
+        const compiled_vertex_layout& layout
     );
 
     void
-    Use() const;
+    use() const;
 
     void
-    Delete();
+    cleanup();
 
-    Uniform
-    GetUniform(const std::string& name) const;
+    uniform
+    get_uniform(const std::string& name) const;
 
-    // shader neeeds to be bound
+    // shader needs to be bound
     void
-    SetFloat(const Uniform& uniform, float value) const;
-
-    void
-    SetVec3(const Uniform& uniform, float x, float y, float z);
+    set_float(const uniform& uniform, float value) const;
 
     void
-    SetVec3(const Uniform& uniform, const glm::vec3& v);
+    set_vec3(const uniform& uniform, float x, float y, float z);
 
     void
-    SetVec4(const Uniform& uniform, float x, float y, float z, float w);
+    set_vec3(const uniform& uniform, const glm::vec3& v);
 
     void
-    SetVec4(const Uniform& uniform, const glm::vec4& v);
+    set_vec4(const uniform& uniform, float x, float y, float z, float w);
 
     void
-    SetTexture(const Uniform& uniform);
+    set_vec4(const uniform& uniform, const glm::vec4& v);
 
     void
-    SetMat(const Uniform& uniform, const glm::mat4& mat);
+    set_texture(const uniform& uniform);
 
     void
-    SetMat(const Uniform& uniform, const glm::mat3& mat);
+    set_mat(const uniform& uniform, const glm::mat4& mat);
+
+    void
+    set_mat(const uniform& uniform, const glm::mat3& mat);
 
 
     unsigned int shader_program;
-    VertexTypes vertex_types;
+    vertex_types vertex_types;
 };
 
 
 void
-SetupTextures(Shader* shader, std::vector<Uniform*> uniform_list);
+setup_textures(shader* shader, std::vector<uniform*> uniform_list);
 

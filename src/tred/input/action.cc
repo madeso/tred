@@ -6,7 +6,7 @@ namespace input
 {
 
 
-InputAction::InputAction(const std::string& n, const std::string& s, Range r)
+input_action::input_action(const std::string& n, const std::string& s, input::range r)
     : name(n)
     , scriptvarname(s)
     , range(r)

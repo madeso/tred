@@ -17,35 +17,35 @@ namespace input
 {
 
 
-Mapping::Mapping(const InputActionMap&, const config::Mapping&)
+mapping::mapping(const input_action_map&, const config::mapping&)
 {
 }
 
 
-Mapping::~Mapping()
+mapping::~mapping()
 {
 }
 
 
-void Mapping::Add(std::unique_ptr<UnitDef>&& unit)
+void mapping::add(std::unique_ptr<unit_definition>&& unit)
 {
     assert(unit);
     units.push_back(std::move(unit));
 }
 
 
-void Mapping::Add(std::unique_ptr<BindDef>&& bind)
+void mapping::add(std::unique_ptr<bind_definition>&& bind)
 {
     assert(bind);
     binds.push_back(std::move(bind));
 }
 
 
-bool Mapping::IsAnyConsideredJoystick()
+bool mapping::is_any_considered_joystick()
 {
     for (auto& def: units)
     {
-        if( def->IsConsideredJoystick() )
+        if( def->is_considered_joystick() )
         {
             return true;
         }
@@ -55,34 +55,34 @@ bool Mapping::IsAnyConsideredJoystick()
 }
 
 
-bool Mapping::CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform)
+bool mapping::can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform)
 {
-    return MappingDetection
+    return mapping_detection
     (
         units,
-        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->IsConsideredJoystick(); },
-        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->CanDetect(director, discovery, setup, platform); }
+        [&](const std::unique_ptr<unit_definition>& def) -> bool { return def->is_considered_joystick(); },
+        [&](const std::unique_ptr<unit_definition>& def) -> bool { return def->can_detect(director, discovery, setup, platform); }
     );
 }
 
 
-std::unique_ptr<ConnectedUnits> Mapping::Connect(InputDirector* director, const UnitSetup& setup)
+std::unique_ptr<connected_units> mapping::connect(input_director* director, const unit_setup& setup)
 {
     assert(director);
-    auto connected = std::make_unique<ConnectedUnits>();
+    auto connected = std::make_unique<connected_units>();
 
     for (auto& def: units)
     {
-        auto unit = def->Create(director, setup);
+        auto unit = def->create(director, setup);
         assert(unit);
-        connected->Add(std::move(unit));
+        connected->add(std::move(unit));
     }
 
     for(auto& bind: binds)
     {
-        auto created_bind = bind->Create(connected.get());
+        auto created_bind = bind->create(connected.get());
         assert(created_bind);
-        connected->Add(std::move(created_bind));
+        connected->add(std::move(created_bind));
     }
 
     return connected;

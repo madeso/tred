@@ -13,103 +13,105 @@ namespace sdl
 {
 
 
-constexpr auto valid_buttons = ValuesInEnum<SDL_GameControllerButton, SDL_CONTROLLER_BUTTON_MAX>();
-constexpr auto valid_axes = ValuesInEnum<SDL_GameControllerAxis, SDL_CONTROLLER_AXIS_MAX>();
+constexpr auto valid_buttons = values_in_enum<SDL_GameControllerButton, SDL_CONTROLLER_BUTTON_MAX>();
+constexpr auto valid_axes = values_in_enum<SDL_GameControllerAxis, SDL_CONTROLLER_AXIS_MAX>();
 
-enum class Power
+enum class power_level
 {
-      UNKNOWN
-    , EMPTY
-    , LOW
-    , MEDIUM
-    , FULL
-    , WIRED
-    , MAX
+      unknown
+    , empty
+    , low
+    , medium
+    , full
+    , wired
+    , max
 };
 
 
-std::string_view ToString(Power power);
+std::string_view ToString(power_level power);
 
 
-struct Joystick
+struct joystick
 {
-    explicit Joystick(int joystick_index);
-    explicit Joystick(SDL_Joystick* another_joystick);
-    ~Joystick();
+    explicit joystick(int joystick_index);
+    explicit joystick(SDL_Joystick* another_joystick);
+    ~joystick();
 
     void ClearJoystick();
 
-    explicit Joystick(Joystick&& j);
-    void operator=(Joystick&& j);
+    explicit joystick(joystick&& j);
+    void operator=(joystick&& j);
 
-    std::string GetName();
+    std::string get_name();
 
-    SDL_JoystickID GetDeviceIndex();
+    SDL_JoystickID get_device_index();
 
-    Power GetPowerLevel();
+    power_level get_power_level();
 
-    int GetNumberOfAxes();
+    // expand with type? SDL_JoystickGetType
 
-    int GetNumberOfBalls();
+    int get_number_of_axes();
 
-    int GetNumberOfButtons();
+    int get_number_of_balls();
 
-    int GetNumberOfHats();
+    int get_number_of_buttons();
 
-    std::string GetGuid();
+    int get_number_of_hats();
+
+    std::string get_guid();
 
 
-    SDL_Joystick* joystick;
+    SDL_Joystick* sdl_joystick;
     bool own_joystick;
 };
 
 
-struct Haptic
+struct haptic
 {
-    Haptic(Joystick* joystick);
-    ~Haptic();
+    haptic(joystick* joystick);
+    ~haptic();
 
-    bool HasHaptic();
+    bool has_haptic();
 
-    bool HasSine();
+    bool has_sine();
 
-    std::string_view GetStatus();
+    std::string_view get_status();
 
-     SDL_Haptic* haptic;
+     SDL_Haptic* sdl_haptic;
 };
 
 
-struct GameController
+struct game_controller
 {
-    GameController(int joystick_index);
-    ~GameController();
+    game_controller(int joystick_index);
+    ~game_controller();
 
-    bool IsValid() const;
-    std::string GetMapping();
+    [[nodiscard]] bool is_valid() const;
+    std::string get_mapping();
 
-    Joystick GetJoystick();
+    joystick get_joystick();
 
     SDL_GameController* controller;
 };
 
 
-struct GamecontrollerState
+struct gamecontroller_state
 {
     std::array<bool, SDL_CONTROLLER_BUTTON_MAX> buttons;
     std::array<Sint16, SDL_CONTROLLER_AXIS_MAX> axes;
 
-    GamecontrollerState();
-    static GamecontrollerState GetState(GameController* controller);
+    gamecontroller_state();
+    static gamecontroller_state get_state(game_controller* controller);
 };
 
 
-void LogInfoAboutJoystick(Joystick* joy);
+void log_info_about_joystick(joystick* joy);
 
 
-void LogInfoAboutController(GameController* controller);
+void log_info_about_controller(game_controller* controller);
 
 
-void LogInfoAboutJoystick(int joystick_index);
+void log_info_about_joystick(int joystick_index);
 
 
 }

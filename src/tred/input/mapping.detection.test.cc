@@ -24,7 +24,7 @@ struct Def
 
 bool MappingDetectionTest(const std::vector<Def>& definitions)
 {
-    return MappingDetection
+    return mapping_detection
     (
         definitions,
         [](const Def& d) -> bool { return d.type == Type::Joystick; },

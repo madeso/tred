@@ -5,7 +5,7 @@ namespace input
 {
 
 
-UnitDef::~UnitDef() = default;
+unit_definition::~unit_definition() = default;
 
 
 }  // namespace input

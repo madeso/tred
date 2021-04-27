@@ -4,7 +4,7 @@
 
 
 void
-LogInfoImpl(fmt::string_view format, fmt::format_args args)
+log_info_implementation(fmt::string_view format, fmt::format_args args)
 {
     const auto text = fmt::vformat(format, args);
     SDL_Log("%s", text.c_str());
@@ -12,7 +12,7 @@ LogInfoImpl(fmt::string_view format, fmt::format_args args)
 
 
 void
-LogErrorImpl(fmt::string_view format, fmt::format_args args)
+log_error_implementation(fmt::string_view format, fmt::format_args args)
 {
     const auto text = fmt::vformat(format, args);
     SDL_Log("%s", text.c_str());
@@ -20,7 +20,7 @@ LogErrorImpl(fmt::string_view format, fmt::format_args args)
 
 
 void
-LogWarningImpl(fmt::string_view format, fmt::format_args args)
+log_warning_implementation(fmt::string_view format, fmt::format_args args)
 {
     const auto text = fmt::vformat(format, args);
     SDL_Log("%s", text.c_str());

@@ -15,30 +15,30 @@ namespace input
 {
 
 
-ConnectedUnits::ConnectedUnits()
+connected_units::connected_units()
 {
 }
 
-ConnectedUnits::~ConnectedUnits()
+connected_units::~connected_units()
 {
 }
 
 
-void ConnectedUnits::Add(std::unique_ptr<ActiveUnit>&& unit)
+void connected_units::add(std::unique_ptr<active_unit>&& unit)
 {
     assert(unit);
     units.push_back(std::move(unit));
 }
 
 
-void ConnectedUnits::Add(std::unique_ptr<ActiveBind>&& bind)
+void connected_units::add(std::unique_ptr<active_bind>&& bind)
 {
     assert(bind);
     binds.push_back(std::move(bind));
 }
 
 
-void ConnectedUnits::UpdateTable(Table* table, float dt)
+void connected_units::update_table(table* table, float dt)
 {
     assert(table);
 
@@ -46,22 +46,22 @@ void ConnectedUnits::UpdateTable(Table* table, float dt)
 
     for(auto& bind: binds)
     {
-        bind->SetValueInTable(table, dt);
+        bind->set_value_in_table(table, dt);
     }
 }
 
 
-bool ConnectedUnits::IsEmpty() const
+bool connected_units::is_empty() const
 {
     return units.empty();
 }
 
 
-bool ConnectedUnits::IsAnyConnectionConsideredJoystick()
+bool connected_units::is_any_connection_considered_joystick()
 {
     for(auto& u: units)
     {
-        if( u->IsConsideredJoystick() )
+        if( u->is_considered_joystick() )
         {
             return true;
         }
@@ -71,16 +71,16 @@ bool ConnectedUnits::IsAnyConnectionConsideredJoystick()
 }
 
 
-bool ConnectedUnits::IsDeleteSheduled()
+bool connected_units::is_delete_scheduled()
 {
-    return std::any_of(units.begin(), units.end(), [](std::unique_ptr<ActiveUnit>& u) -> bool
+    return std::any_of(units.begin(), units.end(), [](std::unique_ptr<active_unit>& u) -> bool
     {
-        return u->IsDeleteSheduled();
+        return u->is_delete_scheduled();
     });
 }
 
 
-ActiveUnit* ConnectedUnits::GetUnit(int index)
+active_unit* connected_units::get_unit(int index)
 {
     return units[Cint_to_sizet(index)].get();
 }

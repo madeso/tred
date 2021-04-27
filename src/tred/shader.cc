@@ -59,7 +59,7 @@ UploadShaderSource(unsigned int shader, std::string_view source)
 
 
 void
-BindShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLayout& layout)
+BindShaderAttributeLocation(unsigned int shader_program, const compiled_vertex_layout& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -69,7 +69,7 @@ BindShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLay
 
 
 void
-VerifyShaderAttributeLocation(unsigned int shader_program, const CompiledVertexLayout& layout)
+VerifyShaderAttributeLocation(unsigned int shader_program, const compiled_vertex_layout& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -93,11 +93,11 @@ VerifyShaderAttributeLocation(unsigned int shader_program, const CompiledVertexL
 }
 
 
-Shader::Shader
+shader::shader
 (
     std::string_view vertex_source,
     std::string_view fragment_source,
-    const CompiledVertexLayout& layout
+    const compiled_vertex_layout& layout
 )
     : shader_program(glCreateProgram())
     , vertex_types(layout.types)
@@ -121,7 +121,7 @@ Shader::Shader
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    ClearShaderProgram();
+    clear_shader_program();
 
     if(vertex_ok && fragment_ok && link_ok)
     {
@@ -130,32 +130,32 @@ Shader::Shader
     }
     else
     {
-        Delete();
+        cleanup();
     }
 }
 
 
 void
-Shader::Use() const
+shader::use() const
 {
-    SetShaderProgram(shader_program, vertex_types);
+    set_shader_program(shader_program, vertex_types);
 }
 
 
 void
-Shader::Delete()
+shader::cleanup()
 {
-    ClearShaderProgram();
+    clear_shader_program();
     glDeleteProgram(shader_program);
     shader_program = 0;
 }
 
 
-Uniform
-Shader::GetUniform(const std::string& name) const
+uniform
+shader::get_uniform(const std::string& name) const
 {
-    const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
-    if(uni.IsValid() == false)
+    const auto uni = uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
+    if(uni.is_valid() == false)
     {
         LOG_ERROR("Uniform {} not found", name.c_str());
     }
@@ -165,10 +165,10 @@ Shader::GetUniform(const std::string& name) const
 
 // shader neeeds to be bound
 void
-Shader::SetFloat(const Uniform& uniform, float value) const
+shader::set_float(const uniform& uniform, float value) const
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture == -1 && "uniform is a texture not a float");
@@ -176,10 +176,10 @@ Shader::SetFloat(const Uniform& uniform, float value) const
 }
 
 void
-Shader::SetVec3(const Uniform& uniform, float x, float y, float z)
+shader::set_vec3(const uniform& uniform, float x, float y, float z)
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture == -1 && "uniform is a texture not a vec3");
@@ -188,17 +188,17 @@ Shader::SetVec3(const Uniform& uniform, float x, float y, float z)
 
 
 void
-Shader::SetVec3(const Uniform& uniform, const glm::vec3& v)
+shader::set_vec3(const uniform& uniform, const glm::vec3& v)
 {
-    SetVec3(uniform, v.x, v.y, v.z);
+    set_vec3(uniform, v.x, v.y, v.z);
 }
 
 
 void
-Shader::SetVec4(const Uniform& uniform, float x, float y, float z, float w)
+shader::set_vec4(const uniform& uniform, float x, float y, float z, float w)
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture == -1 && "uniform is a texture not a vec4");
@@ -206,17 +206,17 @@ Shader::SetVec4(const Uniform& uniform, float x, float y, float z, float w)
 }
 
 void
-Shader::SetVec4(const Uniform& uniform, const glm::vec4& v)
+shader::set_vec4(const uniform& uniform, const glm::vec4& v)
 {
-    SetVec4(uniform, v.x, v.y, v.z, v.w);
+    set_vec4(uniform, v.x, v.y, v.z, v.w);
 }
 
 
 void
-Shader::SetTexture(const Uniform& uniform)
+shader::set_texture(const uniform& uniform)
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture >= 0 && "uniform needs to be a texture");
@@ -225,10 +225,10 @@ Shader::SetTexture(const Uniform& uniform)
 
 
 void
-Shader::SetMat(const Uniform& uniform, const glm::mat4& mat)
+shader::set_mat(const uniform& uniform, const glm::mat4& mat)
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture == -1 && "uniform is a texture not a matrix4");
@@ -237,10 +237,10 @@ Shader::SetMat(const Uniform& uniform, const glm::mat4& mat)
 
 
 void
-Shader::SetMat(const Uniform& uniform, const glm::mat3& mat)
+shader::set_mat(const uniform& uniform, const glm::mat3& mat)
 {
-    assert(IsShaderBound(shader_program));
-    if(uniform.IsValid() == false) { return; }
+    assert(is_shader_bound(shader_program));
+    if(uniform.is_valid() == false) { return; }
     assert(uniform.debug_shader_program == shader_program);
 
     assert(uniform.texture == -1 && "uniform is a texture not a matrix3");
@@ -249,19 +249,19 @@ Shader::SetMat(const Uniform& uniform, const glm::mat3& mat)
 
 
 void
-SetupTextures(Shader* shader, std::vector<Uniform*> uniform_list)
+setup_textures(shader* shader, std::vector<uniform*> uniform_list)
 {
     // OpenGL should support atleast 16 textures
     assert(uniform_list.size() <= 16);
 
-    shader->Use();
+    shader->use();
 
     int index = 0;
     for(const auto& uniform: uniform_list)
     {
         uniform->texture = index;
         index += 1;
-        shader->SetTexture(*uniform);
+        shader->set_texture(*uniform);
     }
 }
 

@@ -7,7 +7,7 @@ namespace sdl
 {
 
 
-glm::ivec2 GetHatValues(Uint8 hat)
+glm::ivec2 get_hat_values(Uint8 hat)
 {
     switch (hat)
     {
@@ -27,287 +27,287 @@ glm::ivec2 GetHatValues(Uint8 hat)
 }
 
 
-input::Key ToKey(SDL_Keysym key)
+input::keyboard_key to_keyboard_key(SDL_Keysym key)
 {
     switch (key.sym)
     {
-        case SDLK_RETURN: return input::Key::RETURN;
-        case SDLK_ESCAPE: return input::Key::ESCAPE;
-        case SDLK_BACKSPACE: return input::Key::BACKSPACE;
-        case SDLK_TAB: return input::Key::TAB;
-        case SDLK_SPACE: return input::Key::SPACE;
-        case SDLK_EXCLAIM: return input::Key::EXCLAIM;
-        case SDLK_QUOTEDBL: return input::Key::QUOTEDBL;
-        case SDLK_HASH: return input::Key::HASH;
-        case SDLK_PERCENT: return input::Key::PERCENT;
-        case SDLK_DOLLAR: return input::Key::DOLLAR;
-        case SDLK_AMPERSAND: return input::Key::AMPERSAND;
-        case SDLK_QUOTE: return input::Key::QUOTE;
-        case SDLK_LEFTPAREN: return input::Key::LEFT_PAREN;
-        case SDLK_RIGHTPAREN: return input::Key::RIGHT_PAREN;
-        case SDLK_ASTERISK: return input::Key::ASTERIX;
-        case SDLK_PLUS: return input::Key::PLUS;
-        case SDLK_COMMA: return input::Key::COMMA;
-        case SDLK_MINUS: return input::Key::MINUS;
-        case SDLK_PERIOD: return input::Key::PERIOD;
-        case SDLK_SLASH: return input::Key::SLASH;
-        case SDLK_0: return input::Key::NUM_0;
-        case SDLK_1: return input::Key::NUM_1;
-        case SDLK_2: return input::Key::NUM_2;
-        case SDLK_3: return input::Key::NUM_3;
-        case SDLK_4: return input::Key::NUM_4;
-        case SDLK_5: return input::Key::NUM_5;
-        case SDLK_6: return input::Key::NUM_6;
-        case SDLK_7: return input::Key::NUM_7;
-        case SDLK_8: return input::Key::NUM_8;
-        case SDLK_9: return input::Key::NUM_9;
-        case SDLK_COLON: return input::Key::COLON;
-        case SDLK_SEMICOLON: return input::Key::SEMICOLON;
-        case SDLK_LESS: return input::Key::LESS;
-        case SDLK_EQUALS: return input::Key::EQUALS;
-        case SDLK_GREATER: return input::Key::GREATER;
-        case SDLK_QUESTION: return input::Key::QUESTION;
-        case SDLK_AT: return input::Key::AT;
-        case SDLK_LEFTBRACKET: return input::Key::LEFT_BRACKET;
-        case SDLK_BACKSLASH: return input::Key::BACKSLASH;
-        case SDLK_RIGHTBRACKET: return input::Key::RIGHT_BRACKET;
-        case SDLK_CARET: return input::Key::CARET;
-        case SDLK_UNDERSCORE: return input::Key::UNDERSCORE;
-        case SDLK_BACKQUOTE: return input::Key::BACKQUOTE;
-        case SDLK_a: return input::Key::A;
-        case SDLK_b: return input::Key::B;
-        case SDLK_c: return input::Key::C;
-        case SDLK_d: return input::Key::D;
-        case SDLK_e: return input::Key::E;
-        case SDLK_f: return input::Key::F;
-        case SDLK_g: return input::Key::G;
-        case SDLK_h: return input::Key::H;
-        case SDLK_i: return input::Key::I;
-        case SDLK_j: return input::Key::J;
-        case SDLK_k: return input::Key::K;
-        case SDLK_l: return input::Key::L;
-        case SDLK_m: return input::Key::M;
-        case SDLK_n: return input::Key::N;
-        case SDLK_o: return input::Key::O;
-        case SDLK_p: return input::Key::P;
-        case SDLK_q: return input::Key::Q;
-        case SDLK_r: return input::Key::R;
-        case SDLK_s: return input::Key::S;
-        case SDLK_t: return input::Key::T;
-        case SDLK_u: return input::Key::U;
-        case SDLK_v: return input::Key::V;
-        case SDLK_w: return input::Key::W;
-        case SDLK_x: return input::Key::X;
-        case SDLK_y: return input::Key::Y;
-        case SDLK_z: return input::Key::Z;
-        case SDLK_CAPSLOCK: return input::Key::CAPSLOCK;
-        case SDLK_F1: return input::Key::F1;
-        case SDLK_F2: return input::Key::F2;
-        case SDLK_F3: return input::Key::F3;
-        case SDLK_F4: return input::Key::F4;
-        case SDLK_F5: return input::Key::F5;
-        case SDLK_F6: return input::Key::F6;
-        case SDLK_F7: return input::Key::F7;
-        case SDLK_F8: return input::Key::F8;
-        case SDLK_F9: return input::Key::F9;
-        case SDLK_F10: return input::Key::F10;
-        case SDLK_F11: return input::Key::F11;
-        case SDLK_F12: return input::Key::F12;
-        case SDLK_PRINTSCREEN: return input::Key::PRINTSCREEN;
-        case SDLK_SCROLLLOCK: return input::Key::SCROLLLOCK;
-        case SDLK_PAUSE: return input::Key::PAUSE;
-        case SDLK_INSERT: return input::Key::INSERT;
-        case SDLK_HOME: return input::Key::HOME;
-        case SDLK_PAGEUP: return input::Key::PAGEUP;
-        case SDLK_DELETE: return input::Key::DELETE;
-        case SDLK_END: return input::Key::END;
-        case SDLK_PAGEDOWN: return input::Key::PAGEDOWN;
-        case SDLK_RIGHT: return input::Key::RIGHT;
-        case SDLK_LEFT: return input::Key::LEFT;
-        case SDLK_DOWN: return input::Key::DOWN;
-        case SDLK_UP: return input::Key::UP;
-        case SDLK_NUMLOCKCLEAR: return input::Key::NUMLOCK_CLEAR;
-        case SDLK_KP_DIVIDE: return input::Key::KEYPAD_DIVIDE;
-        case SDLK_KP_MULTIPLY: return input::Key::KEYPAD_MULTIPLY;
-        case SDLK_KP_MINUS: return input::Key::KEYPAD_MINUS;
-        case SDLK_KP_PLUS: return input::Key::KEYPAD_PLUS;
-        case SDLK_KP_ENTER: return input::Key::KEYPAD_ENTER;
-        case SDLK_KP_1: return input::Key::KEYPAD_1;
-        case SDLK_KP_2: return input::Key::KEYPAD_2;
-        case SDLK_KP_3: return input::Key::KEYPAD_3;
-        case SDLK_KP_4: return input::Key::KEYPAD_4;
-        case SDLK_KP_5: return input::Key::KEYPAD_5;
-        case SDLK_KP_6: return input::Key::KEYPAD_6;
-        case SDLK_KP_7: return input::Key::KEYPAD_7;
-        case SDLK_KP_8: return input::Key::KEYPAD_8;
-        case SDLK_KP_9: return input::Key::KEYPAD_9;
-        case SDLK_KP_0: return input::Key::KEYPAD_0;
-        case SDLK_KP_PERIOD: return input::Key::KEYPAD_PERIOD;
-        case SDLK_APPLICATION: return input::Key::APPLICATION;
-        case SDLK_POWER: return input::Key::POWER;
-        case SDLK_KP_EQUALS: return input::Key::KEYPAD_EQUALS;
-        case SDLK_F13: return input::Key::F13;
-        case SDLK_F14: return input::Key::F14;
-        case SDLK_F15: return input::Key::F15;
-        case SDLK_F16: return input::Key::F16;
-        case SDLK_F17: return input::Key::F17;
-        case SDLK_F18: return input::Key::F18;
-        case SDLK_F19: return input::Key::F19;
-        case SDLK_F20: return input::Key::F20;
-        case SDLK_F21: return input::Key::F21;
-        case SDLK_F22: return input::Key::F22;
-        case SDLK_F23: return input::Key::F23;
-        case SDLK_F24: return input::Key::F24;
-        case SDLK_EXECUTE: return input::Key::EXECUTE;
-        case SDLK_HELP: return input::Key::HELP;
-        case SDLK_MENU: return input::Key::MENU;
-        case SDLK_SELECT: return input::Key::SELECT;
-        case SDLK_STOP: return input::Key::STOP;
-        case SDLK_AGAIN: return input::Key::AGAIN;
-        case SDLK_UNDO: return input::Key::UNDO;
-        case SDLK_CUT: return input::Key::CUT;
-        case SDLK_COPY: return input::Key::COPY;
-        case SDLK_PASTE: return input::Key::PASTE;
-        case SDLK_FIND: return input::Key::FIND;
-        case SDLK_MUTE: return input::Key::MUTE;
-        case SDLK_VOLUMEUP: return input::Key::VOLUME_UP;
-        case SDLK_VOLUMEDOWN: return input::Key::VOLUME_DOWN;
-        case SDLK_KP_COMMA: return input::Key::KEYPAD_COMMA;
-        case SDLK_KP_EQUALSAS400: return input::Key::KEYPAD_EQUALS_AS_400;
-        case SDLK_ALTERASE: return input::Key::ALT_ERASE;
-        case SDLK_SYSREQ: return input::Key::SYSREQ;
-        case SDLK_CANCEL: return input::Key::CANCEL;
-        case SDLK_CLEAR: return input::Key::CLEAR;
-        case SDLK_PRIOR: return input::Key::PRIOR;
-        case SDLK_RETURN2: return input::Key::SECOND_RETURN;
-        case SDLK_SEPARATOR: return input::Key::SEPARATOR;
-        case SDLK_OUT: return input::Key::OUT;
-        case SDLK_OPER: return input::Key::OPER;
-        case SDLK_CLEARAGAIN: return input::Key::CLEAR_AGAIN;
-        case SDLK_CRSEL: return input::Key::CRSEL;
-        case SDLK_EXSEL: return input::Key::EXSEL;
-        case SDLK_KP_00: return input::Key::KEYPAD_00;
-        case SDLK_KP_000: return input::Key::KEYPAD_000;
-        case SDLK_THOUSANDSSEPARATOR: return input::Key::THOUSANDSEPARATOR;
-        case SDLK_DECIMALSEPARATOR: return input::Key::DECIMALSEPARATOR;
-        case SDLK_CURRENCYUNIT: return input::Key::CURRENCY_UNIT;
-        case SDLK_CURRENCYSUBUNIT: return input::Key::CURRENCY_SUBUNIT;
-        case SDLK_KP_LEFTPAREN: return input::Key::KEYPAD_LEFTPAREN;
-        case SDLK_KP_RIGHTPAREN: return input::Key::KEYPAD_RIGHTPAREN;
-        case SDLK_KP_LEFTBRACE: return input::Key::KEYPAD_LEFTBRACE;
-        case SDLK_KP_RIGHTBRACE: return input::Key::KEYPAD_RIGHTBRACE;
-        case SDLK_KP_TAB: return input::Key::KEYPAD_TAB;
-        case SDLK_KP_BACKSPACE: return input::Key::KEYPAD_BACKSPACE;
-        case SDLK_KP_A: return input::Key::KEYPAD_A;
-        case SDLK_KP_B: return input::Key::KEYPAD_B;
-        case SDLK_KP_C: return input::Key::KEYPAD_C;
-        case SDLK_KP_D: return input::Key::KEYPAD_D;
-        case SDLK_KP_E: return input::Key::KEYPAD_E;
-        case SDLK_KP_F: return input::Key::KEYPAD_F;
-        case SDLK_KP_XOR: return input::Key::KEYPAD_XOR;
-        case SDLK_KP_POWER: return input::Key::KEYPAD_POWER;
-        case SDLK_KP_PERCENT: return input::Key::KEYPAD_PERCENT;
-        case SDLK_KP_LESS: return input::Key::KEYPAD_LESS;
-        case SDLK_KP_GREATER: return input::Key::KEYPAD_GREATER;
-        case SDLK_KP_AMPERSAND: return input::Key::KEYPAD_AMPERSAND;
-        case SDLK_KP_DBLAMPERSAND: return input::Key::KEYPAD_DOUBLE_AMPERSAND;
-        case SDLK_KP_VERTICALBAR: return input::Key::KEYPAD_VERTICAL_BAR;
-        case SDLK_KP_DBLVERTICALBAR: return input::Key::KEYPAD_DOUBLE_VERTICLE_BAR;
-        case SDLK_KP_COLON: return input::Key::KEYPAD_COLON;
-        case SDLK_KP_HASH: return input::Key::KEYPAD_HASH;
-        case SDLK_KP_SPACE: return input::Key::KEYPAD_SPACE;
-        case SDLK_KP_AT: return input::Key::KEYPAD_AT;
-        case SDLK_KP_EXCLAM: return input::Key::KEYPAD_EXCLAM;
-        case SDLK_KP_MEMSTORE: return input::Key::KEYPAD_MEM_STORE;
-        case SDLK_KP_MEMRECALL: return input::Key::KEYPAD_MEM_RECALL;
-        case SDLK_KP_MEMCLEAR: return input::Key::KEYPAD_MEM_CLEAR;
-        case SDLK_KP_MEMADD: return input::Key::KEYPAD_MEM_ADD;
-        case SDLK_KP_MEMSUBTRACT: return input::Key::KEYPAD_MEM_SUBTRACT;
-        case SDLK_KP_MEMMULTIPLY: return input::Key::KEYPAD_MEM_MULTIPLY;
-        case SDLK_KP_MEMDIVIDE: return input::Key::KEYPAD_MEM_DIVIDE;
-        case SDLK_KP_PLUSMINUS: return input::Key::KEYPAD_PLUS_MINUS;
-        case SDLK_KP_CLEAR: return input::Key::KEYPAD_CLEAR;
-        case SDLK_KP_CLEARENTRY: return input::Key::KEYPAD_CLEAR_ENTRY;
-        case SDLK_KP_BINARY: return input::Key::KEYPAD_BINARY;
-        case SDLK_KP_OCTAL: return input::Key::KEYPAD_OCTAL;
-        case SDLK_KP_DECIMAL: return input::Key::KEYPAD_DECIMAL;
-        case SDLK_KP_HEXADECIMAL: return input::Key::KEYPAD_HEXADECIMAL;
-        case SDLK_LCTRL: return input::Key::CTRL_LEFT;
-        case SDLK_LSHIFT: return input::Key::SHIFT_LEFT;
-        case SDLK_LALT: return input::Key::ALT_LEFT;
-        case SDLK_LGUI: return input::Key::GUI_LEFT;
-        case SDLK_RCTRL: return input::Key::CTRL_RIGHT;
-        case SDLK_RSHIFT: return input::Key::SHIFT_RIGHT;
-        case SDLK_RALT: return input::Key::ALT_RIGHT;
-        case SDLK_RGUI: return input::Key::GUI_RIGHT;
-        case SDLK_MODE: return input::Key::MODE;
-        case SDLK_AUDIONEXT: return input::Key::AUDIO_NEXT;
-        case SDLK_AUDIOPREV: return input::Key::AUDIO_PREV;
-        case SDLK_AUDIOSTOP: return input::Key::AUDIO_STOP;
-        case SDLK_AUDIOPLAY: return input::Key::AUDIO_PLAY;
-        case SDLK_AUDIOMUTE: return input::Key::AUDIO_MUTE;
-        case SDLK_MEDIASELECT: return input::Key::MEDIASELECT;
-        case SDLK_WWW: return input::Key::WWW;
-        case SDLK_MAIL: return input::Key::MAIL;
-        case SDLK_CALCULATOR: return input::Key::CALCULATOR;
-        case SDLK_COMPUTER: return input::Key::COMPUTER;
-        case SDLK_AC_SEARCH: return input::Key::AC_SEARCH;
-        case SDLK_AC_HOME: return input::Key::AC_HOME;
-        case SDLK_AC_BACK: return input::Key::AC_BACK;
-        case SDLK_AC_FORWARD: return input::Key::AC_FORWARD;
-        case SDLK_AC_STOP: return input::Key::AC_STOP;
-        case SDLK_AC_REFRESH: return input::Key::AC_REFRESH;
-        case SDLK_AC_BOOKMARKS: return input::Key::AC_BOOKMARKS;
-        case SDLK_BRIGHTNESSDOWN: return input::Key::BRIGHTNESS_DOWN;
-        case SDLK_BRIGHTNESSUP: return input::Key::BRIGHTNESS_UP;
-        case SDLK_DISPLAYSWITCH: return input::Key::DISPLAYSWITCH;
-        case SDLK_KBDILLUMTOGGLE: return input::Key::KEYBOARD_ILLUM_TOGGLE;
-        case SDLK_KBDILLUMDOWN: return input::Key::KEYBOARD_ILLUM_DOWN;
-        case SDLK_KBDILLUMUP: return input::Key::KEYBOARD_ILLUM_UP;
-        case SDLK_EJECT: return input::Key::EJECT;
-        case SDLK_SLEEP: return input::Key::SLEEP;
+        case SDLK_RETURN: return input::keyboard_key::return_key;
+        case SDLK_ESCAPE: return input::keyboard_key::escape;
+        case SDLK_BACKSPACE: return input::keyboard_key::backspace;
+        case SDLK_TAB: return input::keyboard_key::tab;
+        case SDLK_SPACE: return input::keyboard_key::space;
+        case SDLK_EXCLAIM: return input::keyboard_key::exclaim;
+        case SDLK_QUOTEDBL: return input::keyboard_key::quotedbl;
+        case SDLK_HASH: return input::keyboard_key::hash;
+        case SDLK_PERCENT: return input::keyboard_key::percent;
+        case SDLK_DOLLAR: return input::keyboard_key::dollar;
+        case SDLK_AMPERSAND: return input::keyboard_key::ampersand;
+        case SDLK_QUOTE: return input::keyboard_key::quote;
+        case SDLK_LEFTPAREN: return input::keyboard_key::left_paren;
+        case SDLK_RIGHTPAREN: return input::keyboard_key::right_paren;
+        case SDLK_ASTERISK: return input::keyboard_key::asterix;
+        case SDLK_PLUS: return input::keyboard_key::plus;
+        case SDLK_COMMA: return input::keyboard_key::comma;
+        case SDLK_MINUS: return input::keyboard_key::minus;
+        case SDLK_PERIOD: return input::keyboard_key::period;
+        case SDLK_SLASH: return input::keyboard_key::slash;
+        case SDLK_0: return input::keyboard_key::num_0;
+        case SDLK_1: return input::keyboard_key::num_1;
+        case SDLK_2: return input::keyboard_key::num_2;
+        case SDLK_3: return input::keyboard_key::num_3;
+        case SDLK_4: return input::keyboard_key::num_4;
+        case SDLK_5: return input::keyboard_key::num_5;
+        case SDLK_6: return input::keyboard_key::num_6;
+        case SDLK_7: return input::keyboard_key::num_7;
+        case SDLK_8: return input::keyboard_key::num_8;
+        case SDLK_9: return input::keyboard_key::num_9;
+        case SDLK_COLON: return input::keyboard_key::colon;
+        case SDLK_SEMICOLON: return input::keyboard_key::semicolon;
+        case SDLK_LESS: return input::keyboard_key::less;
+        case SDLK_EQUALS: return input::keyboard_key::equals;
+        case SDLK_GREATER: return input::keyboard_key::greater;
+        case SDLK_QUESTION: return input::keyboard_key::question;
+        case SDLK_AT: return input::keyboard_key::at;
+        case SDLK_LEFTBRACKET: return input::keyboard_key::left_bracket;
+        case SDLK_BACKSLASH: return input::keyboard_key::backslash;
+        case SDLK_RIGHTBRACKET: return input::keyboard_key::right_bracket;
+        case SDLK_CARET: return input::keyboard_key::caret;
+        case SDLK_UNDERSCORE: return input::keyboard_key::underscore;
+        case SDLK_BACKQUOTE: return input::keyboard_key::backquote;
+        case SDLK_a: return input::keyboard_key::a;
+        case SDLK_b: return input::keyboard_key::b;
+        case SDLK_c: return input::keyboard_key::c;
+        case SDLK_d: return input::keyboard_key::d;
+        case SDLK_e: return input::keyboard_key::e;
+        case SDLK_f: return input::keyboard_key::f;
+        case SDLK_g: return input::keyboard_key::g;
+        case SDLK_h: return input::keyboard_key::h;
+        case SDLK_i: return input::keyboard_key::i;
+        case SDLK_j: return input::keyboard_key::j;
+        case SDLK_k: return input::keyboard_key::k;
+        case SDLK_l: return input::keyboard_key::l;
+        case SDLK_m: return input::keyboard_key::m;
+        case SDLK_n: return input::keyboard_key::n;
+        case SDLK_o: return input::keyboard_key::o;
+        case SDLK_p: return input::keyboard_key::p;
+        case SDLK_q: return input::keyboard_key::q;
+        case SDLK_r: return input::keyboard_key::r;
+        case SDLK_s: return input::keyboard_key::s;
+        case SDLK_t: return input::keyboard_key::t;
+        case SDLK_u: return input::keyboard_key::u;
+        case SDLK_v: return input::keyboard_key::v;
+        case SDLK_w: return input::keyboard_key::w;
+        case SDLK_x: return input::keyboard_key::x;
+        case SDLK_y: return input::keyboard_key::y;
+        case SDLK_z: return input::keyboard_key::z;
+        case SDLK_CAPSLOCK: return input::keyboard_key::capslock;
+        case SDLK_F1: return input::keyboard_key::f1;
+        case SDLK_F2: return input::keyboard_key::f2;
+        case SDLK_F3: return input::keyboard_key::f3;
+        case SDLK_F4: return input::keyboard_key::f4;
+        case SDLK_F5: return input::keyboard_key::f5;
+        case SDLK_F6: return input::keyboard_key::f6;
+        case SDLK_F7: return input::keyboard_key::f7;
+        case SDLK_F8: return input::keyboard_key::f8;
+        case SDLK_F9: return input::keyboard_key::f9;
+        case SDLK_F10: return input::keyboard_key::f10;
+        case SDLK_F11: return input::keyboard_key::f11;
+        case SDLK_F12: return input::keyboard_key::f12;
+        case SDLK_PRINTSCREEN: return input::keyboard_key::printscreen;
+        case SDLK_SCROLLLOCK: return input::keyboard_key::scrolllock;
+        case SDLK_PAUSE: return input::keyboard_key::pause;
+        case SDLK_INSERT: return input::keyboard_key::insert;
+        case SDLK_HOME: return input::keyboard_key::home;
+        case SDLK_PAGEUP: return input::keyboard_key::pageup;
+        case SDLK_DELETE: return input::keyboard_key::delete_key;
+        case SDLK_END: return input::keyboard_key::end;
+        case SDLK_PAGEDOWN: return input::keyboard_key::pagedown;
+        case SDLK_RIGHT: return input::keyboard_key::right;
+        case SDLK_LEFT: return input::keyboard_key::left;
+        case SDLK_DOWN: return input::keyboard_key::down;
+        case SDLK_UP: return input::keyboard_key::up;
+        case SDLK_NUMLOCKCLEAR: return input::keyboard_key::numlock_clear;
+        case SDLK_KP_DIVIDE: return input::keyboard_key::keypad_divide;
+        case SDLK_KP_MULTIPLY: return input::keyboard_key::keypad_multiply;
+        case SDLK_KP_MINUS: return input::keyboard_key::keypad_minus;
+        case SDLK_KP_PLUS: return input::keyboard_key::keypad_plus;
+        case SDLK_KP_ENTER: return input::keyboard_key::keypad_enter;
+        case SDLK_KP_1: return input::keyboard_key::keypad_1;
+        case SDLK_KP_2: return input::keyboard_key::keypad_2;
+        case SDLK_KP_3: return input::keyboard_key::keypad_3;
+        case SDLK_KP_4: return input::keyboard_key::keypad_4;
+        case SDLK_KP_5: return input::keyboard_key::keypad_5;
+        case SDLK_KP_6: return input::keyboard_key::keypad_6;
+        case SDLK_KP_7: return input::keyboard_key::keypad_7;
+        case SDLK_KP_8: return input::keyboard_key::keypad_8;
+        case SDLK_KP_9: return input::keyboard_key::keypad_9;
+        case SDLK_KP_0: return input::keyboard_key::keypad_0;
+        case SDLK_KP_PERIOD: return input::keyboard_key::keypad_period;
+        case SDLK_APPLICATION: return input::keyboard_key::application;
+        case SDLK_POWER: return input::keyboard_key::power;
+        case SDLK_KP_EQUALS: return input::keyboard_key::keypad_equals;
+        case SDLK_F13: return input::keyboard_key::f13;
+        case SDLK_F14: return input::keyboard_key::f14;
+        case SDLK_F15: return input::keyboard_key::f15;
+        case SDLK_F16: return input::keyboard_key::f16;
+        case SDLK_F17: return input::keyboard_key::f17;
+        case SDLK_F18: return input::keyboard_key::f18;
+        case SDLK_F19: return input::keyboard_key::f19;
+        case SDLK_F20: return input::keyboard_key::f20;
+        case SDLK_F21: return input::keyboard_key::f21;
+        case SDLK_F22: return input::keyboard_key::f22;
+        case SDLK_F23: return input::keyboard_key::f23;
+        case SDLK_F24: return input::keyboard_key::f24;
+        case SDLK_EXECUTE: return input::keyboard_key::execute;
+        case SDLK_HELP: return input::keyboard_key::help;
+        case SDLK_MENU: return input::keyboard_key::menu;
+        case SDLK_SELECT: return input::keyboard_key::select;
+        case SDLK_STOP: return input::keyboard_key::stop;
+        case SDLK_AGAIN: return input::keyboard_key::again;
+        case SDLK_UNDO: return input::keyboard_key::undo;
+        case SDLK_CUT: return input::keyboard_key::cut;
+        case SDLK_COPY: return input::keyboard_key::copy;
+        case SDLK_PASTE: return input::keyboard_key::paste;
+        case SDLK_FIND: return input::keyboard_key::find;
+        case SDLK_MUTE: return input::keyboard_key::mute;
+        case SDLK_VOLUMEUP: return input::keyboard_key::volume_up;
+        case SDLK_VOLUMEDOWN: return input::keyboard_key::volume_down;
+        case SDLK_KP_COMMA: return input::keyboard_key::keypad_comma;
+        case SDLK_KP_EQUALSAS400: return input::keyboard_key::keypad_equals_as_400;
+        case SDLK_ALTERASE: return input::keyboard_key::alt_erase;
+        case SDLK_SYSREQ: return input::keyboard_key::sysreq;
+        case SDLK_CANCEL: return input::keyboard_key::cancel;
+        case SDLK_CLEAR: return input::keyboard_key::clear;
+        case SDLK_PRIOR: return input::keyboard_key::prior;
+        case SDLK_RETURN2: return input::keyboard_key::second_return;
+        case SDLK_SEPARATOR: return input::keyboard_key::separator;
+        case SDLK_OUT: return input::keyboard_key::out;
+        case SDLK_OPER: return input::keyboard_key::oper;
+        case SDLK_CLEARAGAIN: return input::keyboard_key::clear_again;
+        case SDLK_CRSEL: return input::keyboard_key::crsel;
+        case SDLK_EXSEL: return input::keyboard_key::exsel;
+        case SDLK_KP_00: return input::keyboard_key::keypad_00;
+        case SDLK_KP_000: return input::keyboard_key::keypad_000;
+        case SDLK_THOUSANDSSEPARATOR: return input::keyboard_key::thousand_separator;
+        case SDLK_DECIMALSEPARATOR: return input::keyboard_key::decimal_separator;
+        case SDLK_CURRENCYUNIT: return input::keyboard_key::currency_unit;
+        case SDLK_CURRENCYSUBUNIT: return input::keyboard_key::currency_subunit;
+        case SDLK_KP_LEFTPAREN: return input::keyboard_key::keypad_leftparen;
+        case SDLK_KP_RIGHTPAREN: return input::keyboard_key::keypad_rightparen;
+        case SDLK_KP_LEFTBRACE: return input::keyboard_key::keypad_leftbrace;
+        case SDLK_KP_RIGHTBRACE: return input::keyboard_key::keypad_rightbrace;
+        case SDLK_KP_TAB: return input::keyboard_key::keypad_tab;
+        case SDLK_KP_BACKSPACE: return input::keyboard_key::keypad_backspace;
+        case SDLK_KP_A: return input::keyboard_key::keypad_a;
+        case SDLK_KP_B: return input::keyboard_key::keypad_b;
+        case SDLK_KP_C: return input::keyboard_key::keypad_c;
+        case SDLK_KP_D: return input::keyboard_key::keypad_d;
+        case SDLK_KP_E: return input::keyboard_key::keypad_e;
+        case SDLK_KP_F: return input::keyboard_key::keypad_f;
+        case SDLK_KP_XOR: return input::keyboard_key::keypad_xor;
+        case SDLK_KP_POWER: return input::keyboard_key::keypad_power;
+        case SDLK_KP_PERCENT: return input::keyboard_key::keypad_percent;
+        case SDLK_KP_LESS: return input::keyboard_key::keypad_less;
+        case SDLK_KP_GREATER: return input::keyboard_key::keypad_greater;
+        case SDLK_KP_AMPERSAND: return input::keyboard_key::keypad_ampersand;
+        case SDLK_KP_DBLAMPERSAND: return input::keyboard_key::keypad_double_ampersand;
+        case SDLK_KP_VERTICALBAR: return input::keyboard_key::keypad_vertical_bar;
+        case SDLK_KP_DBLVERTICALBAR: return input::keyboard_key::keypad_double_verticle_bar;
+        case SDLK_KP_COLON: return input::keyboard_key::keypad_colon;
+        case SDLK_KP_HASH: return input::keyboard_key::keypad_hash;
+        case SDLK_KP_SPACE: return input::keyboard_key::keypad_space;
+        case SDLK_KP_AT: return input::keyboard_key::keypad_at;
+        case SDLK_KP_EXCLAM: return input::keyboard_key::keypad_exclam;
+        case SDLK_KP_MEMSTORE: return input::keyboard_key::keypad_mem_store;
+        case SDLK_KP_MEMRECALL: return input::keyboard_key::keypad_mem_recall;
+        case SDLK_KP_MEMCLEAR: return input::keyboard_key::keypad_mem_clear;
+        case SDLK_KP_MEMADD: return input::keyboard_key::keypad_mem_add;
+        case SDLK_KP_MEMSUBTRACT: return input::keyboard_key::keypad_mem_subtract;
+        case SDLK_KP_MEMMULTIPLY: return input::keyboard_key::keypad_mem_multiply;
+        case SDLK_KP_MEMDIVIDE: return input::keyboard_key::keypad_mem_divide;
+        case SDLK_KP_PLUSMINUS: return input::keyboard_key::keypad_plus_minus;
+        case SDLK_KP_CLEAR: return input::keyboard_key::keypad_clear;
+        case SDLK_KP_CLEARENTRY: return input::keyboard_key::keypad_clear_entry;
+        case SDLK_KP_BINARY: return input::keyboard_key::keypad_binary;
+        case SDLK_KP_OCTAL: return input::keyboard_key::keypad_octal;
+        case SDLK_KP_DECIMAL: return input::keyboard_key::keypad_decimal;
+        case SDLK_KP_HEXADECIMAL: return input::keyboard_key::keypad_hexadecimal;
+        case SDLK_LCTRL: return input::keyboard_key::ctrl_left;
+        case SDLK_LSHIFT: return input::keyboard_key::shift_left;
+        case SDLK_LALT: return input::keyboard_key::alt_left;
+        case SDLK_LGUI: return input::keyboard_key::gui_left;
+        case SDLK_RCTRL: return input::keyboard_key::ctrl_right;
+        case SDLK_RSHIFT: return input::keyboard_key::shift_right;
+        case SDLK_RALT: return input::keyboard_key::alt_right;
+        case SDLK_RGUI: return input::keyboard_key::gui_right;
+        case SDLK_MODE: return input::keyboard_key::mode;
+        case SDLK_AUDIONEXT: return input::keyboard_key::audio_next;
+        case SDLK_AUDIOPREV: return input::keyboard_key::audio_prev;
+        case SDLK_AUDIOSTOP: return input::keyboard_key::audio_stop;
+        case SDLK_AUDIOPLAY: return input::keyboard_key::audio_play;
+        case SDLK_AUDIOMUTE: return input::keyboard_key::audio_mute;
+        case SDLK_MEDIASELECT: return input::keyboard_key::mediaselect;
+        case SDLK_WWW: return input::keyboard_key::www;
+        case SDLK_MAIL: return input::keyboard_key::mail;
+        case SDLK_CALCULATOR: return input::keyboard_key::calculator;
+        case SDLK_COMPUTER: return input::keyboard_key::computer;
+        case SDLK_AC_SEARCH: return input::keyboard_key::ac_search;
+        case SDLK_AC_HOME: return input::keyboard_key::ac_home;
+        case SDLK_AC_BACK: return input::keyboard_key::ac_back;
+        case SDLK_AC_FORWARD: return input::keyboard_key::ac_forward;
+        case SDLK_AC_STOP: return input::keyboard_key::ac_stop;
+        case SDLK_AC_REFRESH: return input::keyboard_key::ac_refresh;
+        case SDLK_AC_BOOKMARKS: return input::keyboard_key::ac_bookmarks;
+        case SDLK_BRIGHTNESSDOWN: return input::keyboard_key::brightness_down;
+        case SDLK_BRIGHTNESSUP: return input::keyboard_key::brightness_up;
+        case SDLK_DISPLAYSWITCH: return input::keyboard_key::displayswitch;
+        case SDLK_KBDILLUMTOGGLE: return input::keyboard_key::keyboard_illum_toggle;
+        case SDLK_KBDILLUMDOWN: return input::keyboard_key::keyboard_illum_down;
+        case SDLK_KBDILLUMUP: return input::keyboard_key::keyboard_illum_up;
+        case SDLK_EJECT: return input::keyboard_key::eject;
+        case SDLK_SLEEP: return input::keyboard_key::sleep;
         default:
             assert(false && key.sym && "Invalid keyboard button");
-            return input::Key::INVALID;
+            return input::keyboard_key::invalid;
     }
 }
 
 
-input::MouseButton ToMouseButton(Uint8 mb)
+input::mouse_button to_mouse_button(Uint8 mb)
 {
     switch (mb)
     {
-        case SDL_BUTTON_LEFT: return input::MouseButton::LEFT;
-        case SDL_BUTTON_MIDDLE: return input::MouseButton::MIDDLE;
-        case SDL_BUTTON_RIGHT: return input::MouseButton::RIGHT;
-        case SDL_BUTTON_X1: return input::MouseButton::X1;
-        case SDL_BUTTON_X2: return input::MouseButton::X2;
+        case SDL_BUTTON_LEFT: return input::mouse_button::left;
+        case SDL_BUTTON_MIDDLE: return input::mouse_button::middle;
+        case SDL_BUTTON_RIGHT: return input::mouse_button::right;
+        case SDL_BUTTON_X1: return input::mouse_button::x1;
+        case SDL_BUTTON_X2: return input::mouse_button::x2;
         default:
             assert(false && mb && "Invalid mouse button");
-            return input::MouseButton::INVALID;
+            return input::mouse_button::invalid;
     }
 }
 
 
-input::GamecontrollerButton ToButton(SDL_GameControllerButton b)
+input::gamecontroller_button to_controller_button(SDL_GameControllerButton b)
 {
     switch(b)
     {
-        case SDL_CONTROLLER_BUTTON_A: return input::GamecontrollerButton::A;
-        case SDL_CONTROLLER_BUTTON_B: return input::GamecontrollerButton::B;
-        case SDL_CONTROLLER_BUTTON_X: return input::GamecontrollerButton::X;
-        case SDL_CONTROLLER_BUTTON_Y: return input::GamecontrollerButton::Y;
-        case SDL_CONTROLLER_BUTTON_BACK: return input::GamecontrollerButton::BACK;
-        case SDL_CONTROLLER_BUTTON_GUIDE: return input::GamecontrollerButton::GUIDE;
-        case SDL_CONTROLLER_BUTTON_START: return input::GamecontrollerButton::START;
-        case SDL_CONTROLLER_BUTTON_LEFTSTICK: return input::GamecontrollerButton::LEFTSTICK;
-        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return input::GamecontrollerButton::RIGHTSTICK;
-        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return input::GamecontrollerButton::LEFTSHOULDER;
-        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return input::GamecontrollerButton::RIGHTSHOULDER;
-        case SDL_CONTROLLER_BUTTON_DPAD_UP: return input::GamecontrollerButton::DPAD_UP;
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return input::GamecontrollerButton::DPAD_DOWN;
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return input::GamecontrollerButton::DPAD_LEFT;
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return input::GamecontrollerButton::DPAD_RIGHT;
+        case SDL_CONTROLLER_BUTTON_A: return input::gamecontroller_button::a;
+        case SDL_CONTROLLER_BUTTON_B: return input::gamecontroller_button::b;
+        case SDL_CONTROLLER_BUTTON_X: return input::gamecontroller_button::x;
+        case SDL_CONTROLLER_BUTTON_Y: return input::gamecontroller_button::y;
+        case SDL_CONTROLLER_BUTTON_BACK: return input::gamecontroller_button::back;
+        case SDL_CONTROLLER_BUTTON_GUIDE: return input::gamecontroller_button::guide;
+        case SDL_CONTROLLER_BUTTON_START: return input::gamecontroller_button::start;
+        case SDL_CONTROLLER_BUTTON_LEFTSTICK: return input::gamecontroller_button::stick_left;
+        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return input::gamecontroller_button::stick_right;
+        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return input::gamecontroller_button::shoulder_left;
+        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return input::gamecontroller_button::shoulder_right;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP: return input::gamecontroller_button::dpad_up;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return input::gamecontroller_button::dpad_down;
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return input::gamecontroller_button::dpad_left;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return input::gamecontroller_button::dpad_right;
 // todo(Gustav): when were theese introduced? not in 2.0.8 at least but I can't seem to find when atm
 #if SDL_VERSION_ATLEAST(2, 0, 9)
         case SDL_CONTROLLER_BUTTON_MISC1: return input::GamecontrollerButton::MISC1;
@@ -318,30 +318,30 @@ input::GamecontrollerButton ToButton(SDL_GameControllerButton b)
         case SDL_CONTROLLER_BUTTON_TOUCHPAD: return input::GamecontrollerButton::TOUCHPAD;
 #endif
         default:
-        return input::GamecontrollerButton::INVALID;
+        return input::gamecontroller_button::invalid;
     }
 }
 
-input::GamecontrollerButton ToButton(SDL_GameControllerAxis a)
+input::gamecontroller_button to_controller_button(SDL_GameControllerAxis a)
 {
     switch(a)
     {
-        case SDL_CONTROLLER_AXIS_TRIGGERLEFT: return input::GamecontrollerButton::TRIGGER_LEFT;
-        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: return input::GamecontrollerButton::TRIGGER_RIGHT;
+        case SDL_CONTROLLER_AXIS_TRIGGERLEFT: return input::gamecontroller_button::trigger_left;
+        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: return input::gamecontroller_button::trigger_right;
         default:
-        return input::GamecontrollerButton::INVALID;
+        return input::gamecontroller_button::invalid;
     }
 }
 
-input::GamecontrollerAxis ToAxis(SDL_GameControllerAxis a)
+input::gamecontroller_axis to_controller_axis(SDL_GameControllerAxis a)
 {
     switch(a)
     {
-        case SDL_CONTROLLER_AXIS_LEFTX: return input::GamecontrollerAxis::LEFTX;
-        case SDL_CONTROLLER_AXIS_LEFTY: return input::GamecontrollerAxis::LEFTY;
-        case SDL_CONTROLLER_AXIS_RIGHTX: return input::GamecontrollerAxis::RIGHTX;
-        case SDL_CONTROLLER_AXIS_RIGHTY: return input::GamecontrollerAxis::RIGHTY;
-        default: return input::GamecontrollerAxis::INVALID;
+        case SDL_CONTROLLER_AXIS_LEFTX: return input::gamecontroller_axis::left_x;
+        case SDL_CONTROLLER_AXIS_LEFTY: return input::gamecontroller_axis::left_y;
+        case SDL_CONTROLLER_AXIS_RIGHTX: return input::gamecontroller_axis::right_x;
+        case SDL_CONTROLLER_AXIS_RIGHTY: return input::gamecontroller_axis::right_y;
+        default: return input::gamecontroller_axis::invalid;
     }
 }
 

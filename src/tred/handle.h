@@ -9,281 +9,293 @@
 
 
 template<typename T>
-constexpr T OnlyF(int size)
+constexpr T only_f_hex(int size)
 {
-    return size == 0? 0x0 : (OnlyF<T>(size-1) << 4) | 0xF;
+    return size == 0? 0x0 : (only_f_hex<T>(size-1) << 4) | 0xF;
 }
 
 
 template<typename T, typename Id, typename Version, int IdSize=sizeof(Id), int VersionSize=sizeof(Version)>
-struct HandleFunctions
+struct handle_functions
 {
-    using THandle = T;
-    using TId = Id;
-    using TVersion = Version;
+    using handle = T;
+    using id = Id;
+    using version = Version;
     
-    using Base = typename std::underlying_type<T>::type;
+    using base = typename std::underlying_type<T>::type;
 
     static_assert
     (
-        std::is_unsigned_v<Base> &&
+        std::is_unsigned_v<base> &&
         std::is_unsigned_v<Id> &&
         std::is_unsigned_v<Version>,
         "types needs to be unsigned"
     );
     static_assert(IdSize > 0 && VersionSize > 0, "invalid size");
-    static_assert(sizeof(Base) == IdSize + VersionSize, "sizes doesn't match base size");
+    static_assert(sizeof(base) == IdSize + VersionSize, "sizes doesn't match base size");
 
-    static constexpr Base IdMask = OnlyF<Base>(IdSize);
-    static constexpr int IdShift = VersionSize*4;
-    static constexpr Base VersionMask = OnlyF<Base>(VersionSize);
+    static constexpr base id_mask = only_f_hex<base>(IdSize);
+    static constexpr int id_shift = VersionSize*4;
+    static constexpr base version_mask = only_f_hex<base>(VersionSize);
 
-    static constexpr Id GetId(T t)
+    static constexpr Id get_id(T t)
     {
-        const Base b = to_base(t);
-        return static_cast<Id>((b & (IdMask << IdShift)) >> IdShift);
+        const base b = to_base(t);
+        return static_cast<Id>((b & (id_mask << id_shift)) >> id_shift);
     }
 
-    static constexpr Version GetVersion(T t)
+    static constexpr Version get_version(T t)
     {
-        const Base b = to_base(t);
-        return static_cast<Version>(b & VersionMask);
+        const base b = to_base(t);
+        return static_cast<Version>(b & version_mask);
     }
 
-    static constexpr T Compress(Id id, Version version)
+    static constexpr T compress(Id id, Version version)
     {
-        return static_cast<T>(((id & IdMask) << IdShift) | (version & VersionMask));
+        return static_cast<T>(((id & id_mask) << id_shift) | (version & version_mask));
     }
 };
 
 template<typename E>
-using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
+using handle_functions64 = handle_functions<E, u32, u16, 5, 3>;
 
+template<typename TData, typename TVersion, TVersion TEmptyVersion>
+struct handle_vector_pair
+{
+    TData data;
+    TVersion version;
+    bool in_use;
+
+    handle_vector_pair()
+        : version(TEmptyVersion)
+        , in_use(false)
+    {
+    }
+
+    explicit handle_vector_pair(TVersion v)
+        : version(v)
+        , in_use(true)
+    {
+    }
+};
+
+template <typename TSelf, typename TData>
+struct handle_vector_iterator
+{
+    TSelf* vector;
+    size_t index;
+
+    using self = handle_vector_iterator<TSelf, TData>;
+
+    handle_vector_iterator(TSelf* v, size_t i)
+        : vector(v)
+        , index(i)
+    {
+        advance_until_current_is_used();
+    }
+
+    handle_vector_iterator operator++()
+    {
+        self r = *this;
+        index += 1;
+        advance_until_current_is_used();
+        return r;
+    }
+
+    handle_vector_iterator& operator++(int)
+    {
+        index += 1;
+        advance_until_current_is_used();
+        return *this;
+    }
+
+    void advance_until_current_is_used()
+    {
+        while (index < vector->data.size() && vector->data[index].in_use == false)
+        {
+            index += 1;
+        }
+    }
+
+    TData& operator*()
+    {
+        return vector->data[index].data;
+    }
+
+    bool operator==(const self& rhs) const
+    {
+        return vector == rhs.vector && index == rhs.index;
+    }
+
+    bool operator!=(const self& rhs) const
+    {
+        return vector != rhs.vector || index != rhs.index;
+    }
+};
+
+template<typename TSelf, typename THandle, typename TData, typename TFunctions, typename TId>
+struct handle_vector_pair_iterator
+{
+    TSelf* vector;
+    size_t index;
+
+    using self = handle_vector_pair_iterator<TSelf, THandle, TData, TFunctions, TId>;
+
+    handle_vector_pair_iterator(TSelf* v, size_t i)
+        : vector(v)
+        , index(i)
+    {
+        advance_until_current_is_used();
+    }
+
+    self operator++()
+    {
+        self r = *this;
+        index += 1;
+        advance_until_current_is_used();
+        return r;
+    }
+
+    self& operator++(int)
+    {
+        index += 1;
+        advance_until_current_is_used();
+        return *this;
+    }
+
+    void advance_until_current_is_used()
+    {
+        while (index < vector->data.size() && vector->data[index].in_use == false)
+        {
+            index += 1;
+        }
+    }
+
+    std::pair<THandle, TData&> operator*()
+    {
+        auto& r = vector->data[index];
+        return { TFunctions::compress(static_cast<TId>(index), r.version), r.data };
+    }
+
+    bool operator==(const self& rhs) const
+    {
+        return vector == rhs.vector && index == rhs.index;
+    }
+
+    bool operator!=(const self& rhs) const
+    {
+        return vector != rhs.vector || index != rhs.index;
+    }
+};
+
+template<typename TSelf, typename TPairIterator>
+struct handle_vector_pair_iterator_container
+{
+    TSelf* self;
+
+    explicit handle_vector_pair_iterator_container(TSelf* s) : self(s) {}
+
+    TPairIterator begin()
+    {
+        return { self, 0 };
+    }
+
+    TPairIterator end()
+    {
+        return { self, self->data.size() };
+    }
+};
 
 template<typename T, typename F>
-struct HandleVector
+struct handle_vector
 {
-    using TSelf = HandleVector<T, F>;
-    using TData = T;
-    using TFunctions = F;
-    using THandle = typename TFunctions::THandle;
-    using TId = typename TFunctions::TId;
-    using TVersion = typename TFunctions::TVersion;
+    using self = handle_vector<T, F>;
+    using value_type = T;
+    using functions = F;
+    using handle = typename functions::handle;
+    using id = typename functions::id;
+    using version = typename functions::version;
 
-    constexpr static TVersion EMPTY_VERSION = 0;
-    constexpr static TVersion FIRST_VERSION = 1;
+    constexpr static version EMPTY_VERSION = 0;
+    constexpr static version FIRST_VERSION = 1;
 
-    struct Pair
-    {
-        TData data;
-        TVersion version;
-        bool in_use;
-
-        Pair()
-            : version(EMPTY_VERSION)
-            , in_use(false)
-        {
-        }
-
-        explicit Pair(TVersion v)
-            : version(v)
-            , in_use(true)
-        {
-        }
-    };
+    using pair = handle_vector_pair<value_type, version, EMPTY_VERSION>;
+    using iterator = handle_vector_iterator<self, value_type>;
+    using pair_iterator = handle_vector_pair_iterator<self, handle, value_type, functions, id>;
+    using pair_iterator_container = handle_vector_pair_iterator_container<self, pair_iterator>;
     
-    using TVec = std::vector<Pair>;
+    using vector = std::vector<pair>;
 
-    TVec vector;
-    std::vector<THandle> free_handles;
+    vector data;
+    std::vector<handle> free_handles;
 
-    THandle Add()
+    handle create_new_handle()
     {
         if(free_handles.empty() == false)
         {
             const auto handle = *free_handles.rbegin();
             free_handles.pop_back();
-            GetPair(handle).in_use = true;
+            get_pair(handle).in_use = true;
             return handle;
         }
         else
         {
-            const TVersion version = FIRST_VERSION;
-            const auto index = vector.size();
-            vector.emplace_back(version);
-            assert(vector[index].version == version && "pair constructor failed");
-            assert(vector[index].in_use == true && "pair constructor failed");
-            return TFunctions::Compress(static_cast<TId>(index), version);
+            const version version = FIRST_VERSION;
+            const auto index = data.size();
+            data.emplace_back(version);
+            assert(data[index].version == version && "pair constructor failed");
+            assert(data[index].in_use == true && "pair constructor failed");
+            return functions::compress(static_cast<id>(index), version);
         }
     }
 
-    void Remove(THandle handle)
+    void mark_for_reuse(handle handle)
     {
-        auto& p = GetPair(handle);
+        auto& p = get_pair(handle);
         p.in_use = false;
 
-        const auto id = TFunctions::GetId(handle);
+        const auto id = functions::get_id(handle);
 
         p.version += 1;
-        if(p.version != TFunctions::VersionMask)
+        if(p.version != functions::version_mask)
         {
             // if the version is not max reuse it
-            free_handles.emplace_back(TFunctions::Compress(id, p.version));
+            free_handles.emplace_back(functions::compress(id, p.version));
         }
     }
 
-    void Clear()
+    void clear()
     {
-        vector.clear();
+        data.clear();
     }
 
-    Pair& GetPair(THandle handle)
+    pair& get_pair(handle handle)
     {
-        const auto id = static_cast<size_t>(TFunctions::GetId(handle));
-        const auto version = TFunctions::GetVersion(handle);
-        assert(vector[id].version == version && "invalid handle (use after free)");
-        return vector[id];
+        const auto id = static_cast<size_t>(functions::get_id(handle));
+        const auto version = functions::get_version(handle);
+        assert(data[id].version == version && "invalid handle (use after free)");
+        return data[id];
     }
 
-    TData& operator[](THandle handle)
+    value_type& operator[](handle handle)
     {
-        assert(GetPair(handle).in_use == true);
-        return GetPair(handle).data;
+        assert(get_pair(handle).in_use == true);
+        return get_pair(handle).data;
     }
 
-    struct Iterator
-    {
-        TSelf* vector;
-        size_t index;
-
-        Iterator(TSelf* v, size_t i)
-            : vector(v)
-            , index(i)
-        {
-            AdvanceUntilCurrentIsUsed();
-        }
-
-        Iterator operator++()
-        {
-            Iterator r = *this;
-            index += 1;
-            AdvanceUntilCurrentIsUsed();
-            return r;
-        }
-
-        Iterator& operator++(int)
-        {
-            index += 1;
-            AdvanceUntilCurrentIsUsed();
-            return *this;
-        }
-
-        void AdvanceUntilCurrentIsUsed()
-        {
-            while(index < vector->vector.size() && vector->vector[index].in_use == false)
-            {
-                index += 1;
-            }
-        }
-
-        TData& operator*()
-        {
-            return vector->vector[index].data;
-        }
-
-        bool operator==(const Iterator& rhs) const
-        {
-            return vector == rhs.vector && index == rhs.index;
-        }
-
-        bool operator!=(const Iterator& rhs) const
-        {
-            return vector != rhs.vector || index != rhs.index;
-        }
-    };
-
-    struct PairIterator
-    {
-        TSelf* vector;
-        size_t index;
-
-        PairIterator(TSelf* v, size_t i)
-            : vector(v)
-            , index(i)
-        {
-            AdvanceUntilCurrentIsUsed();
-        }
-
-        PairIterator operator++()
-        {
-            PairIterator r = *this;
-            index += 1;
-            AdvanceUntilCurrentIsUsed();
-            return r;
-        }
-
-        PairIterator& operator++(int)
-        {
-            index += 1;
-            AdvanceUntilCurrentIsUsed();
-            return *this;
-        }
-
-        void AdvanceUntilCurrentIsUsed()
-        {
-            while(index < vector->vector.size() && vector->vector[index].in_use == false)
-            {
-                index += 1;
-            }
-        }
-
-        std::pair<THandle, TData&> operator*()
-        {
-            auto& r = vector->vector[index];
-            return {TFunctions::Compress(static_cast<TId>(index), r.version), r.data};
-        }
-
-        bool operator==(const PairIterator& rhs) const
-        {
-            return vector == rhs.vector && index == rhs.index;
-        }
-
-        bool operator!=(const PairIterator& rhs) const
-        {
-            return vector != rhs.vector || index != rhs.index;
-        }
-    };
-
-    Iterator begin()
+    iterator begin()
     {
         return {this, 0};
     }
 
-    Iterator end()
+    iterator end()
     {
-        return {this, vector.size()};
+        return {this, data.size()};
     }
 
-    struct PairIteratorContainer
+    pair_iterator_container as_pairs()
     {
-        TSelf* self;
-
-        explicit PairIteratorContainer(TSelf* s) : self(s) {}
-
-        PairIterator begin()
-        {
-            return {self, 0};
-        }
-
-        PairIterator end()
-        {
-            return {self, self->vector.size()};
-        }
-    };
-
-    PairIteratorContainer AsPairs()
-    {
-        return PairIteratorContainer{this};
+        return pair_iterator_container{this};
     }
 };
 

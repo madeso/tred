@@ -8,9 +8,9 @@ namespace input
 {
 
 
-struct Table
+struct table
 {
-    void Set(const std::string& name, float value);
+    void set(const std::string& name, float value);
 
     std::map<std::string, float> data;
 };

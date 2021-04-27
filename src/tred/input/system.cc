@@ -24,33 +24,33 @@ namespace input
 {
 
 
-InputSystem::InputSystem()
+input_system::input_system()
     : m(std::make_unique<InputSystemPiml>())
 {
 }
 
 
-InputSystem::InputSystem(InputSystem&& is)
+input_system::input_system(input_system&& is)
     : m(std::move(is.m))
 {
 }
 
 
-Result<InputSystem> Load(const config::InputSystem& config)
+result<input_system> load(const config::input_system& config)
 {
-    InputSystem system;
+    input_system system;
 
-    auto actions = LoadActionMap(config.actions);
+    auto actions = load_action_map(config.actions);
     if(actions == false)
     {
-        return actions.error();
+        return actions.get_error();
     }
     system.m->actions = std::move(*actions.value);
 
-    auto mapping_list = LoadMappingList(config.keys, system.m->actions);
+    auto mapping_list = load_mapping_list(config.keys, system.m->actions);
     if(mapping_list == false)
     {
-        return mapping_list.error();
+        return mapping_list.get_error();
     }
     system.m->configs = std::move(*mapping_list.value);
 
@@ -59,144 +59,144 @@ Result<InputSystem> Load(const config::InputSystem& config)
 }
 
 
-InputSystem::~InputSystem()
+input_system::~input_system()
 {
     // need to clear all players first with 'this' valid
     // otherwise we crash in destructor for active units and the director has
     // been destroyed
-    if(m) { m->players.Clear(); }
+    if(m) { m->players.clear(); }
 }
 
 
-void InputSystem::UpdateTable(PlayerHandle player, Table* table, float dt)
+void input_system::update_table(PlayerHandle player, table* table, float dt) const
 {
-    m->players[player]->UpdateTable(table, dt);
+    m->players[player]->update_table(table, dt);
 }
 
 
-void InputSystem::UpdatePlayerConnections(UnitDiscovery discovery, Platform* platform)
+void input_system::update_player_connections(unit_discovery discovery, platform* platform) const
 {
     for(auto& p: m->players)
     {
-        p->UpdateConnectionStatus();
+        p->update_connection_status();
 
-        const bool force_check = discovery == UnitDiscovery::FindHighest && p->IsAnyConnectionConsideredJoystick() == false;
-        if(p->IsConnected() == false || force_check)
+        const bool force_check = discovery == unit_discovery::find_highest && p->is_any_connection_considered_joystick() == false;
+        if(p->is_connected() == false || force_check)
         {
-            auto setup = UnitSetup{};
+            auto setup = unit_setup{};
             for(auto& config_pair: m->configs.configs)
             {
-                const auto ignore_this = p->IsConnected() == true && config_pair.second->IsAnyConsideredJoystick() == false;
-                const auto detected = ignore_this == false && config_pair.second->CanDetect(&m->input_director, discovery, &setup, platform);
+                const auto ignore_this = p->is_connected() == true && config_pair.second->is_any_considered_joystick() == false;
+                const auto detected = ignore_this == false && config_pair.second->can_detect(&m->input_director, discovery, &setup, platform);
                 if(detected)
                 {
-                    p->connected_units = config_pair.second->Connect(&m->input_director, setup);
-                    platform->OnChangedConnection(config_pair.first);
+                    p->connected_units = config_pair.second->connect(&m->input_director, setup);
+                    platform->on_changed_connection(config_pair.first);
                 }
             }
         }
     }
 
-    m->input_director.RemoveJustPressed();
+    m->input_director.remove_just_pressed();
 }
 
 
-PlayerHandle InputSystem::AddPlayer()
+PlayerHandle input_system::add_player() const
 {
-    const auto r = m->players.Add();
-    m->players[r] = std::make_unique<Player>();
+    const auto r = m->players.create_new_handle();
+    m->players[r] = std::make_unique<player>();
     return r;
 }
 
 
-bool InputSystem::IsConnected(PlayerHandle player)
+bool input_system::is_connected(PlayerHandle player) const
 {
     auto& p = m->players[player];
-    return p && p->IsConnected();
+    return p && p->is_connected();
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputSystem::OnKeyboardKey(Key key, bool down)
+void input_system::on_keyboard_key(keyboard_key key, bool down)
 {
-    m->input_director.OnKeyboardKey(key, down);
+    m->input_director.on_keyboard_key(key, down);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputSystem::OnMouseAxis(Axis axis, float relative_state, float absolute_state)
+void input_system::on_mouse_axis(xy_axis axis, float relative_state, float absolute_state)
 {
-    m->input_director.OnMouseAxis(axis, relative_state, absolute_state);
+    m->input_director.on_mouse_axis(axis, relative_state, absolute_state);
 }
 
 
-void InputSystem::OnMouseWheel(Axis axis, float value)
+void input_system::on_mouse_wheel(xy_axis axis, float value)
 {
-    m->input_director.OnMouseWheel(axis, value);
+    m->input_director.on_mouse_wheel(axis, value);
 }
 
 
-void InputSystem::OnMouseButton(MouseButton button, bool down)
+void input_system::on_mouse_button(mouse_button button, bool down)
 {
-    m->input_director.OnMouseButton(button, down);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-
-void InputSystem::OnJoystickBall(JoystickId joystick, Axis type, int ball, float value)
-{
-    m->input_director.OnJoystickBall(joystick, type, ball, value);
-}
-
-
-void InputSystem::OnJoystickHat(JoystickId joystick, Axis type, int hat, float value)
-{
-    m->input_director.OnJoystickHat(joystick, type, hat, value);
-}
-
-
-void InputSystem::OnJoystickButton(JoystickId joystick, int button, bool down)
-{
-    m->input_director.OnJoystickButton(joystick, button, down);
-}
-
-
-void InputSystem::OnJoystickAxis(JoystickId joystick, int axis, float value)
-{
-    m->input_director.OnJoystickAxis(joystick, axis, value);
-}
-
-
-void InputSystem::OnJoystickLost(JoystickId joystick)
-{
-    m->input_director.OnJoystickLost(joystick);
+    m->input_director.on_mouse_button(button, down);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputSystem::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state)
+void input_system::on_joystick_ball(joystick_id joystick, xy_axis type, int ball, float value)
 {
-    m->input_director.OnGamecontrollerButton(joystick, button, state);
+    m->input_director.on_joystick_ball(joystick, type, ball, value);
 }
 
 
-void InputSystem::OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value)
+void input_system::on_joystick_hat(joystick_id joystick, xy_axis type, int hat, float value)
 {
-    m->input_director.OnGamecontrollerAxis(joystick, axis, value);
+    m->input_director.on_joystick_hat(joystick, type, hat, value);
 }
 
 
-void InputSystem::OnGamecontrollerLost(JoystickId joystick)
+void input_system::on_joystick_button(joystick_id joystick, int button, bool down)
 {
-    m->input_director.OnGamecontrollerLost(joystick);
+    m->input_director.on_joystick_button(joystick, button, down);
+}
+
+
+void input_system::on_joystick_axis(joystick_id joystick, int axis, float value)
+{
+    m->input_director.on_joystick_axis(joystick, axis, value);
+}
+
+
+void input_system::on_joystick_lost(joystick_id joystick)
+{
+    m->input_director.on_joystick_lost(joystick);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+void input_system::on_gamecontroller_button(joystick_id joystick, gamecontroller_button button, float state)
+{
+    m->input_director.on_gamecontroller_button(joystick, button, state);
+}
+
+
+void input_system::on_gamecontroller_axis(joystick_id joystick, gamecontroller_axis axis, float value)
+{
+    m->input_director.on_gamecontroller_axis(joystick, axis, value);
+}
+
+
+void input_system::on_gamecontroller_lost(joystick_id joystick)
+{
+    m->input_director.on_gamecontroller_lost(joystick);
 }
 
 

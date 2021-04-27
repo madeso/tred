@@ -5,10 +5,10 @@ namespace input
 {
 
 
-enum class AxisType
+enum class axis_type
 {
-    GeneralAxis,
-    Wheel, Hat, Ball
+    general_axis,
+    wheel, hat, ball
 };
 
 

@@ -13,23 +13,23 @@ namespace input
 {
 
 
-struct Mapping;
-struct InputActionMap;
+struct mapping;
+struct input_action_map;
 
 
-struct MappingList
+struct mapping_list
 {
-    MappingList();
-    MappingList(MappingList&& m);
-    void operator=(MappingList&& m);
-    ~MappingList();
+    mapping_list();
+    mapping_list(mapping_list&& m);
+    void operator=(mapping_list&& m);
+    ~mapping_list();
 
-    void Add(const std::string& name, std::unique_ptr<Mapping>&& config);
+    void add(const std::string& name, std::unique_ptr<mapping>&& config);
 
-    std::map<std::string, std::unique_ptr<Mapping>> configs;
+    std::map<std::string, std::unique_ptr<mapping>> configs;
 };
 
 
-Result<MappingList> LoadMappingList(const input::config::MappingList& root, const InputActionMap& map);
+result<mapping_list> load_mapping_list(const input::config::mapping_list& root, const input_action_map& map);
 
-}  // namespace input
+}

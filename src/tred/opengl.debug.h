@@ -2,4 +2,4 @@
 
 
 void
-SetupOpenglDebug();
+setup_opengl_debug();

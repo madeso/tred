@@ -11,28 +11,28 @@ namespace input
 {
 
 
-void impl::MouseKeyUnit::RegisterKey(int key)
+void impl::mouse_key_unit::register_key(int key)
 {
-    parent->buttons.Add(FromIndex<MouseButton>(key));
+    parent->buttons.add(from_index<mouse_button>(key));
 }
 
 
-float impl::MouseKeyUnit::GetState(int key)
+float impl::mouse_key_unit::get_state(int key)
 {
-    return parent->buttons.GetRaw(FromIndex<MouseButton>(key));
+    return parent->buttons.get_raw(from_index<mouse_button>(key));
 }
 
 
-void impl::RelativeMouseAxisUnit::RegisterAxis(AxisType type, int target, int axis)
+void impl::relative_mouse_axis_unit::register_axis(axis_type type, int target, int axis)
 {
     assert(target == 0);
-    if(type == AxisType::GeneralAxis)
+    if(type == axis_type::general_axis)
     {
-        parent->relative_axes.Add(FromIndex<Axis>(axis));
+        parent->relative_axes.add(from_index<xy_axis>(axis));
     }
-    else if(type == AxisType::Wheel)
+    else if(type == axis_type::wheel)
     {
-        parent->wheels.Add(FromIndex<Axis>(axis));
+        parent->wheels.add(from_index<xy_axis>(axis));
     }
     else
     {
@@ -41,16 +41,16 @@ void impl::RelativeMouseAxisUnit::RegisterAxis(AxisType type, int target, int ax
 }
 
 
-float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis, float)
+float impl::relative_mouse_axis_unit::get_state(axis_type type, int target, int axis, float)
 {
     assert(target == 0);
-    if(type == AxisType::GeneralAxis)
+    if(type == axis_type::general_axis)
     {
-        return parent->relative_axes.GetRaw(FromIndex<Axis>(axis));
+        return parent->relative_axes.get_raw(from_index<xy_axis>(axis));
     }
-    else if(type == AxisType::Wheel)
+    else if(type == axis_type::wheel)
     {
-        return parent->wheels.GetRaw(FromIndex<Axis>(axis));
+        return parent->wheels.get_raw(from_index<xy_axis>(axis));
     }
     else
     {
@@ -60,14 +60,14 @@ float impl::RelativeMouseAxisUnit::GetState(AxisType type, int target, int axis,
 }
 
 
-void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType type, int target, int axis)
+void impl::absolute_mouse_axis_unit::register_axis(axis_type type, int target, int axis)
 {
     assert(target == 0);
-    if(type == AxisType::GeneralAxis)
+    if(type == axis_type::general_axis)
     {
-        parent->absolute_axes.Add(FromIndex<Axis>(axis));
+        parent->absolute_axes.add(from_index<xy_axis>(axis));
     }
-    else if(type == AxisType::Wheel)
+    else if(type == axis_type::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
         assert(false && "not implemented yet");
@@ -80,14 +80,14 @@ void impl::AbsoluteMouseAxisUnit::RegisterAxis(AxisType type, int target, int ax
 
 
 // float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float dt)
-float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float)
+float impl::absolute_mouse_axis_unit::get_state(axis_type type, int target, int axis, float)
 {
     assert(target == 0);
-    if(type == AxisType::GeneralAxis)
+    if(type == axis_type::general_axis)
     {
-        return parent->absolute_axes.GetRaw(FromIndex<Axis>(axis));
+        return parent->absolute_axes.get_raw(from_index<xy_axis>(axis));
     }
-    else if(type == AxisType::Wheel)
+    else if(type == axis_type::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
         assert(false && "not implemented yet");
@@ -101,12 +101,12 @@ float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis,
 }
 
 
-MouseActiveUnit::MouseActiveUnit(InputDirector* d)
+mouse_active_unit::mouse_active_unit(input_director* d)
     : director(d)
 {
     assert(director);
 
-    director->Add(this);
+    director->add(this);
 
     key_unit.parent = this;
     relative_axis_unit.parent = this;
@@ -114,57 +114,57 @@ MouseActiveUnit::MouseActiveUnit(InputDirector* d)
 }
 
 
-MouseActiveUnit::~MouseActiveUnit()
+mouse_active_unit::~mouse_active_unit()
 {
-    director->Remove(this);
+    director->remove(this);
 }
 
 
-KeyUnit* MouseActiveUnit::GetKeyUnit()
+key_unit* mouse_active_unit::get_key_unit()
 {
     return &key_unit;
 }
 
-AxisUnit* MouseActiveUnit::GetRelativeAxisUnit()
+axis_unit* mouse_active_unit::get_relative_axis_unit()
 {
     return &relative_axis_unit;
 }
 
-AxisUnit* MouseActiveUnit::GetAbsoluteAxisUnit()
+axis_unit* mouse_active_unit::get_absolute_axis_unit()
 {
     return &absolute_axis_unit;
 }
 
 
 
-bool MouseActiveUnit::IsConsideredJoystick()
+bool mouse_active_unit::is_considered_joystick()
 {
     return false;
 }
 
 
-bool MouseActiveUnit::IsDeleteSheduled()
+bool mouse_active_unit::is_delete_scheduled()
 {
     return false;
 }
 
 
-void MouseActiveUnit::OnAxis(const Axis& axis, float relative_state, float absolute_state)
+void mouse_active_unit::on_axis(const xy_axis& axis, float relative_state, float absolute_state)
 {
-    relative_axes.SetRaw(axis, relative_state);
-    absolute_axes.SetRaw(axis, absolute_state);
+    relative_axes.set_raw(axis, relative_state);
+    absolute_axes.set_raw(axis, absolute_state);
 }
 
 
-void MouseActiveUnit::OnWheel(const Axis& axis, float state)
+void mouse_active_unit::on_wheel(const xy_axis& axis, float state)
 {
-    wheels.SetRaw(axis, state);
+    wheels.set_raw(axis, state);
 }
 
 
-void MouseActiveUnit::OnButton(MouseButton button, float state)
+void mouse_active_unit::on_button(mouse_button button, float state)
 {
-    buttons.SetRaw(button, state);
+    buttons.set_raw(button, state);
 }
 
 

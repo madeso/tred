@@ -15,29 +15,29 @@ namespace input
 {
 
 
-struct Table;
-struct ConnectedUnits;
+struct table;
+struct connected_units;
 
 
-struct ActiveBind
+struct active_bind
 {
-    virtual ~ActiveBind() = default;
-    virtual void SetValueInTable(Table* table, float dt) = 0;
+    virtual ~active_bind() = default;
+    virtual void set_value_in_table(table* table, float dt) = 0;
 };
 
 
-struct BindDef
+struct bind_definition
 {
-    virtual ~BindDef() = default;
-    virtual std::unique_ptr<ActiveBind> Create(ConnectedUnits*) = 0;
+    virtual ~bind_definition() = default;
+    virtual std::unique_ptr<active_bind> create(connected_units*) = 0;
 };
 
 
-struct KeyBindDef : public BindDef
+struct key_bind_definition : public bind_definition
 {
-    KeyBindDef(const std::string& var, int unit, int key);
+    key_bind_definition(const std::string& var, int unit, int key);
 
-    std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
+    std::unique_ptr<active_bind> create(connected_units* units) override;
 
     std::string var;
     int unit;
@@ -45,15 +45,15 @@ struct KeyBindDef : public BindDef
 };
 
 
-struct RelativeAxisBindDef : public BindDef
+struct relative_axis_bind_definition : public bind_definition
 {
-    RelativeAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted, float sensitivity);
+    relative_axis_bind_definition(const std::string& var, int unit, axis_type type, int target, int axis, bool is_inverted, float sensitivity);
 
-    std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
+    std::unique_ptr<active_bind> create(connected_units* units) override;
 
     std::string var;
     int unit;
-    AxisType type;
+    axis_type type;
     int target;
     int axis;
     bool is_inverted;
@@ -61,15 +61,15 @@ struct RelativeAxisBindDef : public BindDef
 };
 
 
-struct AbsoluteAxisBindDef : public BindDef
+struct absolute_axis_bind_definition : public bind_definition
 {
-    AbsoluteAxisBindDef(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted, float sensitivity);
+    absolute_axis_bind_definition(const std::string& var, int unit, axis_type type, int target, int axis, bool is_inverted, float sensitivity);
 
-    std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
+    std::unique_ptr<active_bind> create(connected_units* units) override;
 
     std::string var;
     int unit;
-    AxisType type;
+    axis_type type;
     int target;
     int axis;
     bool is_inverted;
@@ -77,11 +77,11 @@ struct AbsoluteAxisBindDef : public BindDef
 };
 
 
-struct RelativeTwoKeyBindDef : public BindDef
+struct relative_two_key_bind_definition : public bind_definition
 {
-    RelativeTwoKeyBindDef(const std::string& var, int unit, int negative, int positive);
+    relative_two_key_bind_definition(const std::string& var, int unit, int negative, int positive);
 
-    std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
+    std::unique_ptr<active_bind> create(connected_units* units) override;
 
     std::string var;
     int unit;
@@ -90,11 +90,11 @@ struct RelativeTwoKeyBindDef : public BindDef
 };
 
 
-struct AbsoluteTwoKeyBindDef : public BindDef
+struct absolute_two_key_bind_definition : public bind_definition
 {
-    AbsoluteTwoKeyBindDef(const std::string& var, int unit, int negative, int positive);
+    absolute_two_key_bind_definition(const std::string& var, int unit, int negative, int positive);
 
-    std::unique_ptr<ActiveBind> Create(ConnectedUnits* units) override;
+    std::unique_ptr<active_bind> create(connected_units* units) override;
 
     std::string var;
     int unit;
@@ -104,16 +104,16 @@ struct AbsoluteTwoKeyBindDef : public BindDef
 
 
 template<typename T>
-struct BindMap
+struct bind_map
 {
-    void Add(const T& t, float state=0.0f)
+    void add(const T& t, float state=0.0f)
     {
         using M = decltype(binds);
         using P = typename M::value_type;
         binds.insert(P{t, state});
     }
 
-    void SetRaw(const T& t, float state)
+    void set_raw(const T& t, float state)
     {
         auto found = binds.find(t);
         if (found != binds.end())
@@ -122,7 +122,7 @@ struct BindMap
         }
     }
 
-    float GetRaw(const T& t) const
+    float get_raw(const T& t) const
     {
         auto found = binds.find(t);
         return found->second;

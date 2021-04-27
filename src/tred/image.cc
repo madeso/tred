@@ -7,37 +7,38 @@
 #include "tred/cint.h"
 
 
-unsigned int CreateTexture()
+unsigned int create_texture()
 {
     unsigned int texture;
     glGenTextures(1, &texture);
     return texture;
 }
 
-LoadedImage
-LoadImageFromPixels
+
+loaded_image
+load_image_from_pixel_buffer
 (
     void* pixel_data, int width, int height,
-    TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style,
-    Transperency transperency
+    texture_edge te,
+    texture_render_style trs,
+    transparency t
 )
 {
-    const auto texture = CreateTexture();
+    const auto texture = create_texture();
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    const auto wrap = texture_edge == TextureEdge::Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+    const auto wrap = te == texture_edge::clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
-    const auto render_pixels = texture_render_style == TextureRenderStyle::Pixel;
+    const auto render_pixels = trs == texture_render_style::pixel;
 
     const auto min_filter = render_pixels ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
     const auto mag_filter = render_pixels ? GL_NEAREST : GL_LINEAR;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
-    const auto include_transperency = transperency == Transperency::Include;
+    const auto include_transparency = t == transparency::include;
 
     if(pixel_data == nullptr)
     {
@@ -49,10 +50,10 @@ LoadImageFromPixels
         (
             GL_TEXTURE_2D,
             0,
-            include_transperency ? GL_RGBA : GL_RGB,
+            include_transparency ? GL_RGBA : GL_RGB,
             width, height,
             0,
-            include_transperency ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
+            include_transparency ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
             pixel_data
         );
         if(render_pixels == false)
@@ -64,29 +65,30 @@ LoadImageFromPixels
     return {texture, width, height};
 }
 
-LoadedImage
+
+loaded_image
 LoadImage
 (
     const unsigned char* image_source,
     int size,
-    TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style,
-    Transperency transperency
+    texture_edge te,
+    texture_render_style trs,
+    transparency t
 )
 {
     int width = 0;
     int height = 0;
     int junk_channels;
     stbi_set_flip_vertically_on_load(true);
-    const auto include_transperency = transperency == Transperency::Include;
+    const auto include_transparency = t == transparency::include;
     auto* pixel_data = stbi_load_from_memory
     (
         image_source, size,
         &width, &height,
-        &junk_channels, include_transperency ? 4 : 3
+        &junk_channels, include_transparency ? 4 : 3
     );
 
-    auto loaded = LoadImageFromPixels(pixel_data, width, height, texture_edge, texture_render_style, transperency);
+    const auto loaded = load_image_from_pixel_buffer(pixel_data, width, height, te, trs, t);
 
     if(pixel_data != nullptr)
     {
@@ -96,36 +98,38 @@ LoadImage
     return loaded;
 }
 
-LoadedImage
-LoadImageEmbeded
+
+loaded_image
+load_image_from_embedded
 (
-    const EmbeddedBinary& image_binary,
-    TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style,
-    Transperency transperency
+    const embedded_binary& image_binary,
+    texture_edge te,
+    texture_render_style trs,
+    transparency t
 )
 {
     return LoadImage
     (
         reinterpret_cast<const unsigned char*>(image_binary.data),
         Cunsigned_int_to_int(image_binary.size),
-        texture_edge,
-        texture_render_style,
-        transperency
+        te,
+        trs,
+        t
     );
 }
 
-LoadedImage
-LoadImageSingleFromSinglePixel
+
+loaded_image
+load_image_from_color
 (
     u32 pixel,
-    TextureEdge texture_edge,
-    TextureRenderStyle texture_render_style,
-    Transperency transperency
+    texture_edge te,
+    texture_render_style trs,
+    transparency t
 )
 {
-    return LoadImageFromPixels
+    return load_image_from_pixel_buffer
     (
-        &pixel, 1, 1, texture_edge, texture_render_style, transperency
+        &pixel, 1, 1, te, trs, t
     );
 }

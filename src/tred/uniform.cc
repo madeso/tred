@@ -1,7 +1,7 @@
 #include "tred/uniform.h"
 
 
-Uniform::Uniform()
+uniform::uniform()
     : name("<unknown>")
     , location(-1)
     , debug_shader_program(0)
@@ -9,7 +9,7 @@ Uniform::Uniform()
 }
 
 
-Uniform::Uniform(const std::string& n, int l, unsigned int sp)
+uniform::uniform(const std::string& n, int l, unsigned int sp)
     : name(n)
     , location(l)
     , debug_shader_program(sp)
@@ -17,14 +17,14 @@ Uniform::Uniform(const std::string& n, int l, unsigned int sp)
 }
 
 
-Uniform::operator bool() const
+uniform::operator bool() const
 {
-    return IsValid();
+    return is_valid();
 }
 
 
 bool
-Uniform::IsValid() const
+uniform::is_valid() const
 {
     return location >= 0;
 }

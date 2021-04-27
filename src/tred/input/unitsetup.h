@@ -8,14 +8,14 @@
 namespace input
 {
 
-struct UnitSetup
+struct unit_setup
 {
-    bool HasJoystick(JoystickId joy) const;
-    JoystickId GetJoystick(int index) const;
+    [[nodiscard]] bool has_joystick(joystick_id joy) const;
+    [[nodiscard]] joystick_id get_joystick(int index) const;
 
-    void AddJoystick(int index, JoystickId joy);
+    void add_joystick(int index, joystick_id joy);
 
-    std::map<JoystickId, int> joysticks;
+    std::map<joystick_id, int> joysticks;
 };
 
 }

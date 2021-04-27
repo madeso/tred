@@ -10,7 +10,7 @@ namespace input
 
 
 template<typename T, typename TIsJoystick, typename TCanDetect>
-bool MappingDetection(const std::vector<T>& definitions, TIsJoystick&& is_joystick, TCanDetect&& can_detect)
+bool mapping_detection(const std::vector<T>& definitions, TIsJoystick&& is_joystick, TCanDetect&& can_detect)
 {
     /*
     Both joysticks and non-joysticks are in the same vector

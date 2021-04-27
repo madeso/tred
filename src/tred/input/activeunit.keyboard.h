@@ -14,40 +14,40 @@ namespace input
 {
 
 struct AxisKey;
-struct InputDirector;
+struct input_director;
 
-struct KeyboardActiveUnit;
+struct keyboard_active_unit;
 
 namespace impl
 {
-    struct KeyboardKeyUnit : public KeyUnit
+    struct keyboard_key_unit : public key_unit
     {
-        KeyboardActiveUnit* parent;
+        keyboard_active_unit* parent = nullptr;
 
-        void RegisterKey(int key);
-        float GetState(int key);
+        void register_key(int key) override;
+        float get_state(int key) override;
     };
 }
 
 
-struct KeyboardActiveUnit : public ActiveUnit
+struct keyboard_active_unit : public active_unit
 {
-    KeyboardActiveUnit(InputDirector* director);
-    ~KeyboardActiveUnit();
+    keyboard_active_unit(input_director* director);
+    ~keyboard_active_unit() override;
 
-    KeyUnit* GetKeyUnit() override;
-    AxisUnit* GetRelativeAxisUnit() override;
-    AxisUnit* GetAbsoluteAxisUnit() override;
+    key_unit* get_key_unit() override;
+    axis_unit* get_relative_axis_unit() override;
+    axis_unit* get_absolute_axis_unit() override;
 
-    bool IsConsideredJoystick() override;
-    bool IsDeleteSheduled() override;
+    bool is_considered_joystick() override;
+    bool is_delete_scheduled() override;
 
-    void OnKey(const Key& key, bool state);
+    void on_key(const keyboard_key& key, bool state);
 
-    InputDirector* director;
-    BindMap<Key> keys;
-    impl::KeyboardKeyUnit key_unit;
+    input_director* director;
+    bind_map<keyboard_key> keys;
+    impl::keyboard_key_unit key_unit;
 };
 
 
-}  // namespace input
+}

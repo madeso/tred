@@ -2,7 +2,7 @@
 
 #include "tred/rect.h"
 
-struct ViewportDef
+struct viewport_definition
 {
     recti screen_rect;
 
@@ -14,8 +14,8 @@ struct ViewportDef
      */
     [[nodiscard]]
     static
-    ViewportDef
-    FitWithBlackBars
+    viewport_definition
+    fit_with_black_bars
     (
         float width,
         float height,
@@ -28,15 +28,15 @@ struct ViewportDef
      */
     [[nodiscard]]
     static
-    ViewportDef
-    Extend(float width, float height, int window_width, int window_height);
+    viewport_definition
+    extend(float width, float height, int window_width, int window_height);
 
     /** The viewport matches the screen pixel by pixel.
      */
     [[nodiscard]]
     static
-    ViewportDef
-    ScreenPixel(int window_width, int window_height);
+    viewport_definition
+    screen_pixel(int window_width, int window_height);
 
-    ViewportDef(const recti& screen, float w, float h);
+    viewport_definition(const recti& screen, float w, float h);
 };

@@ -5,8 +5,8 @@
 #define ASSERTX(X,...) assert(X)
 
 
-ViewportDef
-ViewportDef::FitWithBlackBars
+viewport_definition
+viewport_definition::fit_with_black_bars
 (
     float width,
     float height,
@@ -25,7 +25,7 @@ ViewportDef::FitWithBlackBars
     const float new_width = width * s;
     const float new_height = height * s;
 
-    return ViewportDef
+    return viewport_definition
     {
         recti(static_cast<int>(new_width), static_cast<int>(new_height)).set_bottom_left
         (
@@ -47,8 +47,8 @@ DetermineExtendScale(float scale, float height, int window_height)
 }
 
 
-ViewportDef
-ViewportDef::Extend
+viewport_definition
+viewport_definition::extend
 (
     float width,
     float height,
@@ -67,23 +67,23 @@ ViewportDef::Extend
     if(w < h)
     {
         const auto s = DetermineExtendScale(w, height, window_height);
-        return ViewportDef {r, width, height * s};
+        return viewport_definition {r, width, height * s};
     }
     else
     {
         const auto s = DetermineExtendScale(h, width, window_width);
-        return ViewportDef {r, width * s, height};
+        return viewport_definition {r, width * s, height};
     }
 }
 
 
-ViewportDef
-ViewportDef::ScreenPixel(int window_width, int window_height)
+viewport_definition
+viewport_definition::screen_pixel(int window_width, int window_height)
 {
     ASSERTX(window_width >= 0, window_width);
     ASSERTX(window_height >= 0, window_height);
 
-    return ViewportDef
+    return viewport_definition
     {
         recti(window_width, window_height)
                 .set_bottom_left(0, 0),
@@ -93,7 +93,7 @@ ViewportDef::ScreenPixel(int window_width, int window_height)
 }
 
 
-ViewportDef::ViewportDef(const recti& screen, float w, float h)
+viewport_definition::viewport_definition(const recti& screen, float w, float h)
     : screen_rect(screen)
     , virtual_width(w)
     , virtual_height(h)

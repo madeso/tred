@@ -10,42 +10,42 @@
 #include "tred/input/unitdiscovery.h"
 
 
-using RenderFunction = std::function<void (const glm::ivec2& size)>;
-using ImguiFunction = std::function<void ()>;
-using UpdateFunction = std::function<bool (float)>;
+using render_function = std::function<void (const glm::ivec2& size)>;
+using imgui_function = std::function<void ()>;
+using update_function = std::function<bool (float)>;
 
 namespace detail
 {
-struct Window
+struct window
 {
-    virtual ~Window() = default;
-    virtual void Render() = 0;
+    virtual ~window() = default;
+    virtual void render() = 0;
 };
 }
 
 namespace input
 {
-struct InputSystem;
-struct Platform;
+struct input_system;
+struct platform;
 }
 
-struct Windows
+struct windows
 {
     bool running = true;
 
-    virtual ~Windows() = default;
+    virtual ~windows() = default;
 
-    void AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render);
-    void AddWindow(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, ImguiFunction&& on_imgui);
+    void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render);
+    void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui);
 
-    virtual input::Platform* GetInputPlatform() = 0;
+    virtual input::platform* get_input_platform() = 0;
 
-    virtual void AddWindowImpl(const std::string& title, const glm::ivec2& size, RenderFunction&& on_render, std::optional<ImguiFunction>&& imgui) = 0;
-    virtual void Render() = 0;
-    virtual void PumpEvents(input::InputSystem* input_system) = 0;
+    virtual void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) = 0;
+    virtual void render() = 0;
+    virtual void pump_events(input::input_system* input_system) = 0;
 };
 
 
-std::unique_ptr<Windows> Setup();
+std::unique_ptr<windows> setup();
 
-int MainLoop(input::UnitDiscovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* sdl_input, UpdateFunction&& on_update);
+int main_loop(input::unit_discovery discovery, std::unique_ptr<windows>&& windows, input::input_system* sdl_input, update_function&& on_update);

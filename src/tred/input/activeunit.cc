@@ -8,7 +8,7 @@
 namespace input
 {
 
-ActiveUnit::~ActiveUnit()
+active_unit::~active_unit()
 {
 }
 

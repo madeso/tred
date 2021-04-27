@@ -12,23 +12,23 @@ namespace input
 {
 
 
-struct InputDirector;
-struct ActiveUnit;
+struct input_director;
+struct active_unit;
 struct Converter;
-struct UnitSetup;
-struct Platform;
+struct unit_setup;
+struct platform;
 
 
-struct UnitDef
+struct unit_definition
 {
-    virtual ~UnitDef();
+    virtual ~unit_definition();
 
-    virtual std::optional<std::string> ValidateKey(int key) = 0;
-    virtual std::optional<std::string> ValidateAxis(AxisType type, int target, int axis) = 0;
+    virtual std::optional<std::string> validate_key(int key) = 0;
+    virtual std::optional<std::string> validate_axis(axis_type type, int target, int axis) = 0;
 
-    virtual bool IsConsideredJoystick() = 0;
-    virtual bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform) = 0;
-    virtual std::unique_ptr<ActiveUnit> Create(InputDirector* director, const UnitSetup& setup) = 0;
+    virtual bool is_considered_joystick() = 0;
+    virtual bool can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform) = 0;
+    virtual std::unique_ptr<active_unit> create(input_director* director, const unit_setup& setup) = 0;
 };
 
 }  // namespace input

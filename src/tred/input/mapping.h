@@ -9,7 +9,7 @@
 
 namespace input::config
 {
-    struct Mapping;
+    struct mapping;
 }
 
 
@@ -17,32 +17,32 @@ namespace input
 {
 
 
-struct UnitDef;
-struct InputDirector;
-struct InputActionMap;
-struct ConnectedUnits;
-struct UnitSetup;
-struct Platform;
+struct unit_definition;
+struct input_director;
+struct input_action_map;
+struct connected_units;
+struct unit_setup;
+struct platform;
 
 
 /** Contains a list of configurations.
     A good example is Mouse+Keyboard. The list could also be one gamepad.
     */
-struct Mapping
+struct mapping
 {
-    Mapping(const InputActionMap& map, const config::Mapping& root);
-    ~Mapping();
+    mapping(const input_action_map& map, const config::mapping& root);
+    ~mapping();
 
-    void Add(std::unique_ptr<UnitDef>&& unit);
-    void Add(std::unique_ptr<BindDef>&& bind);
+    void add(std::unique_ptr<unit_definition>&& unit);
+    void add(std::unique_ptr<bind_definition>&& bind);
 
-    bool IsAnyConsideredJoystick();
-    bool CanDetect(InputDirector* director, UnitDiscovery discovery, UnitSetup* setup, Platform* platform);
-    std::unique_ptr<ConnectedUnits> Connect(InputDirector* director, const UnitSetup& setup);
+    bool is_any_considered_joystick();
+    bool can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform);
+    std::unique_ptr<connected_units> connect(input_director* director, const unit_setup& setup);
 
-    std::vector<std::unique_ptr<UnitDef>> units;
-    std::vector<std::unique_ptr<BindDef>> binds;
+    std::vector<std::unique_ptr<unit_definition>> units;
+    std::vector<std::unique_ptr<bind_definition>> binds;
 };
 
 
-}  // namespace input
+}

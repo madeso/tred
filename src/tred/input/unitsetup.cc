@@ -7,13 +7,13 @@ namespace input
 {
 
 
-bool UnitSetup::HasJoystick(JoystickId joy) const
+bool unit_setup::has_joystick(joystick_id joy) const
 {
     return joysticks.find(joy) != joysticks.end();
 }
 
 
-JoystickId UnitSetup::GetJoystick(int index) const
+joystick_id unit_setup::get_joystick(int index) const
 {
     for(const auto& p: joysticks)
     {
@@ -24,11 +24,11 @@ JoystickId UnitSetup::GetJoystick(int index) const
     }
 
     assert(false && "invalid index");
-    return static_cast<JoystickId>(0);
+    return static_cast<joystick_id>(0);
 }
 
 
-void UnitSetup::AddJoystick(int index, JoystickId joy)
+void unit_setup::add_joystick(int index, joystick_id joy)
 {
     joysticks.insert({joy, index});
 }

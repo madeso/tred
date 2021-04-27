@@ -13,14 +13,14 @@ namespace input
 {
 
 
-void InputDirector::Add(KeyboardActiveUnit* kb)
+void input_director::add(keyboard_active_unit* kb)
 {
     assert(kb);
     keyboards.push_back(kb);
 }
 
 
-void InputDirector::Remove(KeyboardActiveUnit* kb)
+void input_director::remove(keyboard_active_unit* kb)
 {
     assert(kb);
     auto res = std::find(keyboards.begin(), keyboards.end(), kb);
@@ -31,14 +31,14 @@ void InputDirector::Remove(KeyboardActiveUnit* kb)
 }
 
 
-void InputDirector::Add(MouseActiveUnit* au)
+void input_director::add(mouse_active_unit* au)
 {
     assert(au);
     mouses.push_back(au);
 }
 
 
-void InputDirector::Remove(MouseActiveUnit* au)
+void input_director::remove(mouse_active_unit* au)
 {
     assert(au);
     auto res = std::find(mouses.begin(), mouses.end(), au);
@@ -49,28 +49,28 @@ void InputDirector::Remove(MouseActiveUnit* au)
 }
 
 
-void InputDirector::Add(JoystickActiveUnit* au)
+void input_director::add(joystick_active_unit* au)
 {
     assert(au);
     joysticks.insert({au->joystick, au});
 }
 
 
-void InputDirector::Remove(JoystickActiveUnit* au)
+void input_director::remove(joystick_active_unit* au)
 {
     assert(au);
     joysticks.erase(au->joystick);
 }
 
 
-void InputDirector::Add(GamecontrollerActiveUnit* au)
+void input_director::add(gamecontroller_active_unit* au)
 {
     assert(au);
     gamecontrollers.insert({au->joystick, au});
 }
 
 
-void InputDirector::Remove(GamecontrollerActiveUnit* au)
+void input_director::remove(gamecontroller_active_unit* au)
 {
     assert(au);
     gamecontrollers.erase(au->joystick);
@@ -80,16 +80,16 @@ void InputDirector::Remove(GamecontrollerActiveUnit* au)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputDirector::OnKeyboardKey(Key key, bool down)
+void input_director::on_keyboard_key(keyboard_key key, bool down)
 {
-    if(!down && WasJustPressed(key) == false)
+    if(!down && was_just_pressed(key) == false)
     {
         just_pressed_keys.insert(key);
     }
 
     for (auto kb: keyboards)
     {
-        kb->OnKey(key, down);
+        kb->on_key(key, down);
     }
 }
 
@@ -97,33 +97,33 @@ void InputDirector::OnKeyboardKey(Key key, bool down)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputDirector::OnMouseAxis(Axis axis, float relative_state, float absolute_state)
+void input_director::on_mouse_axis(xy_axis axis, float relative_state, float absolute_state)
 {
     for (auto m: mouses)
     {
-        m->OnAxis(axis, relative_state, absolute_state);
+        m->on_axis(axis, relative_state, absolute_state);
     }
 }
 
-void InputDirector::OnMouseWheel(Axis axis, float value)
+void input_director::on_mouse_wheel(xy_axis axis, float value)
 {
     for (auto m: mouses)
     {
-        m->OnWheel(axis, value);
+        m->on_wheel(axis, value);
     }
 }
 
 
-void InputDirector::OnMouseButton(MouseButton key, bool down)
+void input_director::on_mouse_button(mouse_button key, bool down)
 {
-    if(!down && WasJustPressed(key) == false)
+    if(!down && was_just_pressed(key) == false)
     {
         just_pressed_mouse_buttons.insert(key);
     }
 
     for (auto m: mouses)
     {
-        m->OnButton(key, down ? 1.0f : 0.0f);
+        m->on_button(key, down ? 1.0f : 0.0f);
     }
 }
 
@@ -131,25 +131,25 @@ void InputDirector::OnMouseButton(MouseButton key, bool down)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputDirector::OnJoystickBall(JoystickId joystick, Axis axis, int ball, float value)
+void input_director::on_joystick_ball(joystick_id joystick, xy_axis axis, int ball, float value)
 {
     auto found = joysticks.find(joystick);
     if(found == joysticks.end()) { return; }
 
-    found->second->OnBall({ball, axis}, value);
+    found->second->on_ball({ball, axis}, value);
 }
 
 
-void InputDirector::OnJoystickHat(JoystickId joystick, Axis axis, int hat, float value)
+void input_director::on_joystick_hat(joystick_id joystick, xy_axis axis, int hat, float value)
 {
     auto found = joysticks.find(joystick);
     if(found == joysticks.end()) { return; }
 
-    found->second->OnHat({hat, axis}, value);
+    found->second->on_hat({hat, axis}, value);
 }
 
 
-void InputDirector::OnJoystickButton(JoystickId joystick, int button, bool down)
+void input_director::on_joystick_button(joystick_id joystick, int button, bool down)
 {
     auto found = joysticks.find(joystick);
     if(found == joysticks.end())
@@ -162,25 +162,25 @@ void InputDirector::OnJoystickButton(JoystickId joystick, int button, bool down)
         return;
     }
 
-    found->second->OnButton(button, down);
+    found->second->on_button(button, down);
 }
 
 
-void InputDirector::OnJoystickAxis(JoystickId joystick, int axis, float value)
+void input_director::on_joystick_axis(joystick_id joystick, int axis, float value)
 {
     auto found = joysticks.find(joystick);
     if(found == joysticks.end()) { return; }
 
-    found->second->OnAxis(axis, value);
+    found->second->on_axis(axis, value);
 }
 
 
-void InputDirector::OnJoystickLost(JoystickId joystick)
+void input_director::on_joystick_lost(joystick_id joystick)
 {
     auto found = joysticks.find(joystick);
     if(found == joysticks.end()) { return; }
 
-    found->second->sheduled_delete = true;
+    found->second->scheduled_delete = true;
     joysticks.erase(joystick);
 }
 
@@ -188,12 +188,12 @@ void InputDirector::OnJoystickLost(JoystickId joystick)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void InputDirector::OnGamecontrollerButton(JoystickId joystick, GamecontrollerButton button, float state)
+void input_director::on_gamecontroller_button(joystick_id joystick, gamecontroller_button button, float state)
 {
     auto found = gamecontrollers.find(joystick);
     if(found == gamecontrollers.end())
     {
-        if(state > 0.5f && button == GamecontrollerButton::START)
+        if(state > 0.5f && button == gamecontroller_button::start)
         {
             just_pressed_gamecontroller_starts.insert(joystick);
         }
@@ -201,25 +201,25 @@ void InputDirector::OnGamecontrollerButton(JoystickId joystick, GamecontrollerBu
         return;
     }
 
-    found->second->OnButton(button, state);
+    found->second->on_button(button, state);
 }
 
 
-void InputDirector::OnGamecontrollerAxis(JoystickId joystick, GamecontrollerAxis axis, float value)
+void input_director::on_gamecontroller_axis(joystick_id joystick, gamecontroller_axis axis, float value)
 {
     auto found = gamecontrollers.find(joystick);
     if(found == gamecontrollers.end()) { return; }
 
-    found->second->OnAxis(axis, value);
+    found->second->on_axis(axis, value);
 }
 
 
-void InputDirector::OnGamecontrollerLost(JoystickId joystick)
+void input_director::on_gamecontroller_lost(joystick_id joystick)
 {
     auto found = gamecontrollers.find(joystick);
     if(found == gamecontrollers.end()) { return; }
 
-    found->second->sheduled_delete = true;
+    found->second->scheduled_delete = true;
     gamecontrollers.erase(joystick);
 }
 
@@ -227,31 +227,31 @@ void InputDirector::OnGamecontrollerLost(JoystickId joystick)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-bool InputDirector::WasJustPressed(Key key)
+bool input_director::was_just_pressed(keyboard_key key)
 {
     return just_pressed_keys.find(key) != just_pressed_keys.end();
 }
 
 
-bool InputDirector::WasJustPressed(MouseButton button)
+bool input_director::was_just_pressed(mouse_button button)
 {
     return just_pressed_mouse_buttons.find(button) != just_pressed_mouse_buttons.end();
 }
 
 
-bool InputDirector::WasJustPressed(JoystickId joy, int button)
+bool input_director::was_just_pressed(joystick_id joy, int button)
 {
     return just_pressed_buttons.find({joy, button}) != just_pressed_buttons.end();
 }
 
 
-bool InputDirector::WasGameControllerStartJustPressed(JoystickId joy)
+bool input_director::was_game_controller_start_just_pressed(joystick_id joy)
 {
     return just_pressed_gamecontroller_starts.find(joy) != just_pressed_gamecontroller_starts.end();
 }
 
 
-void InputDirector::RemoveJustPressed()
+void input_director::remove_just_pressed()
 {
     just_pressed_keys.clear();
     just_pressed_mouse_buttons.clear();

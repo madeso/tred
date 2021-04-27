@@ -5,7 +5,7 @@
 
 /** Represents a found shader uniform and created via Shader::GetUniform()
  */
-struct Uniform
+struct uniform
 {
     std::string name;
     int location;
@@ -13,13 +13,13 @@ struct Uniform
     int texture = -1; // >=0 if this is uniform maps to a texture
 
     /// Creates a invalid uniform
-    Uniform();
+    uniform();
 
-    Uniform(const std::string& n, int l, unsigned int sp);
+    uniform(const std::string& n, int l, unsigned int sp);
 
     operator bool() const;
 
     bool
-    IsValid() const;
+    is_valid() const;
 };
 

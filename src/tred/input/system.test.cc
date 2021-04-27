@@ -39,14 +39,14 @@ namespace
 {
 
 
-struct TestPlatform : public Platform
+struct TestPlatform : public platform
 {
-    std::map<JoystickId, std::string> joysticks;
+    std::map<joystick_id, std::string> joysticks;
 
     // todo(Gustav): rename to GetAvailableJoysticks
-    std::vector<JoystickId> ActiveAndFreeJoysticks() override
+    std::vector<joystick_id> get_active_and_free_joysticks() override
     {
-        auto r = std::vector<JoystickId>{};
+        auto r = std::vector<joystick_id>{};
         for(const auto& i: joysticks)
         {
             r.emplace_back(i.first);
@@ -54,7 +54,7 @@ struct TestPlatform : public Platform
         return r;
     }
 
-    bool MatchUnit(JoystickId id, const std::string& guid) override
+    bool match_unit(joystick_id id, const std::string& guid) override
     {
         auto found = joysticks.find(id);
         if(found == joysticks.end())
@@ -64,22 +64,22 @@ struct TestPlatform : public Platform
         return found->second == guid;
     }
 
-    void StartUsing(JoystickId joy, JoystickType) override
+    void start_using(joystick_id joy, joystick_type) override
     {
         joysticks.erase(joy);
     }
 
-    void OnChangedConnection(const std::string&) override
+    void on_changed_connection(const std::string&) override
     {
     }
 };
 
-using Data = decltype(Table::data);
+using Data = decltype(table::data);
 
-Data GetTable(InputSystem* system, PlayerHandle player, float dt = 1.0f)
+Data GetTable(input_system* system, PlayerHandle player, float dt = 1.0f)
 {
-    Table table;
-    system->UpdateTable(player, &table, dt);
+    table table;
+    system->update_table(player, &table, dt);
     return table.data;
 }
 
@@ -103,7 +103,7 @@ TEST_CASE("input-test-error", "[input]")
 {
     SECTION("empty is ok")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {},
             {
@@ -112,16 +112,16 @@ TEST_CASE("input-test-error", "[input]")
             }
         };
 
-        auto loaded = Load(config);
+        auto loaded = load(config);
         REQUIRE(loaded);
     }
 
     SECTION("only actions is ok")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::WithinZeroToOne}
+                {"hello", "hello", range::within_zero_to_one}
             },
             {
                 {
@@ -129,14 +129,14 @@ TEST_CASE("input-test-error", "[input]")
             }
         };
 
-        auto loaded = Load(config);
+        auto loaded = load(config);
         REQUIRE(loaded);
     }
 
     // todo(Gustav): should we ignore empty units? leave them empty...
     SECTION("empty unit is ok")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
             },
@@ -151,13 +151,13 @@ TEST_CASE("input-test-error", "[input]")
             }
         };
 
-        auto loaded = Load(config);
+        auto loaded = load(config);
         REQUIRE(loaded);
     }
 
     SECTION("reference missing action")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
             },
@@ -165,142 +165,142 @@ TEST_CASE("input-test-error", "[input]")
                 {
                     "keyboard",
                     {
-                        config::KeyboardDef{}
+                        config::keyboard_definition{}
                     },
                     {
-                        config::KeyBindDef{"no_action", 0, Key::X}
+                        config::key_bind_definition{"no_action", 0, keyboard_key::x}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Unknown action no_action (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Unknown action no_action (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
     SECTION("reference invalid unit")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::WithinZeroToOne}
+                {"hello", "hello", range::within_zero_to_one}
             },
             {
                 {
                     "keyboard",
                     {
-                        config::KeyboardDef{}
+                        config::keyboard_definition{}
                     },
                     {
-                        config::KeyBindDef{"hello", 1, Key::X}
+                        config::key_bind_definition{"hello", 1, keyboard_key::x}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid unit 1 (action: hello) (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Invalid unit 1 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
     SECTION("detect invalid key")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::WithinZeroToOne}
+                {"hello", "hello", range::within_zero_to_one}
             },
             {
                 {
                     "keyboard",
                     {
-                        config::KeyboardDef{}
+                        config::keyboard_definition{}
                     },
                     {
-                        config::KeyBindDef{"hello", 0, -2}
+                        config::key_bind_definition{"hello", 0, -2}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid bind to unbound: -2 (action: hello) (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Invalid bind to unbound: -2 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
     SECTION("detect invalid mouse button")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::WithinZeroToOne}
+                {"hello", "hello", range::within_zero_to_one}
             },
             {
                 {
                     "keyboard",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::KeyBindDef{"hello", 0, 123}
+                        config::key_bind_definition{"hello", 0, 123}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid mouse button: 123 (action: hello) (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Invalid mouse button: 123 (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
     SECTION("detect invalid axis for keyboard")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::Infinite}
+                {"hello", "hello", range::infinite}
             },
             {
                 {
                     "keyboard",
                     {
-                        config::KeyboardDef{}
+                        config::keyboard_definition{}
                     },
                     {
-                        config::AxisBindDef{"hello", 0, AxisType::Ball, 0, 0}
+                        config::axis_bind_definition{"hello", 0, axis_type::ball, 0, 0}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Keyboard doesn't support axis binds (action: hello) (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Keyboard doesn't support axis binds (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 
     SECTION("detect invalid axis for mouse")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"hello", "hello", Range::Infinite}
+                {"hello", "hello", range::infinite}
             },
             {
                 {
                     "keyboard",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::AxisBindDef{"hello", 0, AxisType::Ball, 0, 0}
+                        config::axis_bind_definition{"hello", 0, axis_type::ball, 0, 0}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        REQUIRE(StringEq(loaded.error(), "Invalid type for mouse (action: hello) (mapping: keyboard)"));
+        auto loaded = load(config);
+        REQUIRE(StringEq(loaded.get_error(), "Invalid type for mouse (action: hello) (mapping: keyboard)"));
         CHECK_FALSE(loaded);
     }
 }
@@ -312,36 +312,36 @@ TEST_CASE("input-test-simple", "[input]")
 
     SECTION("test inverted axis")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"ax", "ax", Range::Infinite}
+                {"ax", "ax", range::infinite}
             },
             {
                 {
                     "mouse",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, 1.0f, true}
+                        config::axis_bind_definition{"ax", 0, xy_axis::x, 1.0f, true}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        INFO(loaded.error());
+        auto loaded = load(config);
+        INFO(loaded.get_error());
         REQUIRE(loaded);
 
         auto& sys = *loaded.value;
-        auto player = sys.AddPlayer();
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        auto player = sys.add_player();
+        sys.update_player_connections(unit_discovery::find_highest, &test_platform);
 
         const auto input = GENERATE(1.0f, -1.0f);
         INFO("input: " << input);
 
-        sys.OnMouseAxis(Axis::X, input, 400 + input);
+        sys.on_mouse_axis(xy_axis::x, input, 400 + input);
         CHECK(MapEq(GetTable(&sys, player), {
             {"ax", -input}
         }));
@@ -349,36 +349,36 @@ TEST_CASE("input-test-simple", "[input]")
 
     SECTION("test non-inverted axis")
     {
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"ax", "ax", Range::Infinite}
+                {"ax", "ax", range::infinite}
             },
             {
                 {
                     "mouse",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, 1.0f, false}
+                        config::axis_bind_definition{"ax", 0, xy_axis::x, 1.0f, false}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        INFO(loaded.error());
+        auto loaded = load(config);
+        INFO(loaded.get_error());
         REQUIRE(loaded);
 
         auto& sys = *loaded.value;
-        auto player = sys.AddPlayer();
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        auto player = sys.add_player();
+        sys.update_player_connections(unit_discovery::find_highest, &test_platform);
 
         const auto input = GENERATE(1.0f, -1.0f);
         INFO("input: " << input);
 
-        sys.OnMouseAxis(Axis::X, input, 400 + input);
+        sys.on_mouse_axis(xy_axis::x, input, 400 + input);
         CHECK(MapEq(GetTable(&sys, player), {
             {"ax", input}
         }));
@@ -388,33 +388,33 @@ TEST_CASE("input-test-simple", "[input]")
     {
         const auto sens = GENERATE(0.1f, 1.0f, 2.0f);
         INFO("sens: " << sens);
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"ax", "ax", Range::Infinite}
+                {"ax", "ax", range::infinite}
             },
             {
                 {
                     "mouse",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, sens, false}
+                        config::axis_bind_definition{"ax", 0, xy_axis::x, sens, false}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        INFO(loaded.error());
+        auto loaded = load(config);
+        INFO(loaded.get_error());
         REQUIRE(loaded);
 
         auto& sys = *loaded.value;
-        auto player = sys.AddPlayer();
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        auto player = sys.add_player();
+        sys.update_player_connections(unit_discovery::find_highest, &test_platform);
 
-        sys.OnMouseAxis(Axis::X, 1.0f, 0.0f);
+        sys.on_mouse_axis(xy_axis::x, 1.0f, 0.0f);
         CHECK(MapEq(GetTable(&sys, player), {
             {"ax", sens}
         }));
@@ -424,33 +424,33 @@ TEST_CASE("input-test-simple", "[input]")
     {
         const auto sens = GENERATE(0.1f, 1.0f, 2.0f);
         INFO("sens: " << sens);
-        auto config = config::InputSystem
+        auto config = config::input_system
         {
             {
-                {"ax", "ax", Range::WithinNegativeOneToPositiveOne}
+                {"ax", "ax", range::within_negative_one_to_positive_one}
             },
             {
                 {
                     "mouse",
                     {
-                        config::MouseDef{}
+                        config::mouse_definition{}
                     },
                     {
-                        config::AxisBindDef{"ax", 0, Axis::X, sens, false}
+                        config::axis_bind_definition{"ax", 0, xy_axis::x, sens, false}
                     }
                 }
             }
         };
 
-        auto loaded = Load(config);
-        INFO(loaded.error());
+        auto loaded = load(config);
+        INFO(loaded.get_error());
         REQUIRE(loaded);
 
         auto& sys = *loaded.value;
-        auto player = sys.AddPlayer();
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        auto player = sys.add_player();
+        sys.update_player_connections(unit_discovery::find_highest, &test_platform);
 
-        sys.OnMouseAxis(Axis::X, 0.5f, 1.0f);
+        sys.on_mouse_axis(xy_axis::x, 0.5f, 1.0f);
         CHECK(MapEq(GetTable(&sys, player), {
             {"ax", 1.0f}
         }));
@@ -460,19 +460,19 @@ TEST_CASE("input-test-simple", "[input]")
 
 TEST_CASE("input-test-big", "[input]")
 {
-    constexpr auto JOYSTICK_HANDLE = static_cast<JoystickId>(42);
+    constexpr auto JOYSTICK_HANDLE = static_cast<joystick_id>(42);
     constexpr int JOYSTICK_START = 0;
     constexpr int JOYSTICK_SHOOT = 1;
     const std::string JOYSTICK_GUID = "joystick-guid";
     constexpr int JOYSTICK_MOVE = 0;
     constexpr int JOYSTICK_LOOK = 1;
 
-    auto config = config::InputSystem
+    auto config = config::input_system
     {
         {
-            {"shoot", "var_shoot", Range::WithinZeroToOne},
-            {"look", "var_look", Range::Infinite},
-            {"move", "var_move", Range::WithinNegativeOneToPositiveOne},
+            {"shoot", "var_shoot", range::within_zero_to_one},
+            {"look", "var_look", range::infinite},
+            {"move", "var_move", range::within_negative_one_to_positive_one},
         },
 
         // controller setup (bind)
@@ -480,37 +480,37 @@ TEST_CASE("input-test-big", "[input]")
             {
                 "mouse+keyboard",
                 {
-                    config::KeyboardDef{Key::RETURN},
-                    config::MouseDef{MouseButton::LEFT}
+                    config::keyboard_definition{keyboard_key::return_key},
+                    config::mouse_definition{mouse_button::left}
                 },
                 {
-                    config::KeyBindDef{"shoot", 0, Key::A},
-                    config::TwoKeyBindDef{"move", 0, Key::LEFT, Key::RIGHT},
-                    config::AxisBindDef{"look", 1, Axis::X}
+                    config::key_bind_definition{"shoot", 0, keyboard_key::a},
+                    config::two_key_bind_definition{"move", 0, keyboard_key::left, keyboard_key::right},
+                    config::axis_bind_definition{"look", 1, xy_axis::x}
                 }
             },
             {
                 "joystick",
                 {
-                    config::JoystickDef{JOYSTICK_START, JOYSTICK_GUID},
-                    config::KeyboardDef{} // keyboard that does nothing
+                    config::joystick_definition{JOYSTICK_START, JOYSTICK_GUID},
+                    config::keyboard_definition{} // keyboard that does nothing
                 },
                 {
-                    config::KeyBindDef{"shoot", 0, JOYSTICK_SHOOT},
-                    config::AxisBindDef{"move", 0, AxisType::GeneralAxis, 0, JOYSTICK_MOVE},
-                    config::AxisBindDef{"look", 0, AxisType::GeneralAxis, 0, JOYSTICK_LOOK}
+                    config::key_bind_definition{"shoot", 0, JOYSTICK_SHOOT},
+                    config::axis_bind_definition{"move", 0, axis_type::general_axis, 0, JOYSTICK_MOVE},
+                    config::axis_bind_definition{"look", 0, axis_type::general_axis, 0, JOYSTICK_LOOK}
                 }
             }
         }
     };
 
-    auto loaded = Load(config);
+    auto loaded = load(config);
     REQUIRE(loaded);
     auto& sys = *loaded.value;
 
     auto test_platform = TestPlatform{};
 
-    auto player = sys.AddPlayer();
+    auto player = sys.add_player();
 
     SECTION("no assigned control is valid")
     {
@@ -520,21 +520,21 @@ TEST_CASE("input-test-big", "[input]")
 
     SECTION("test auto assignments")
     {
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
-        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform); };
+        auto update = [&]() { sys.update_player_connections(unit_discovery::find_highest, &test_platform); };
         update();
 
-        REQUIRE(sys.IsConnected(player));
+        REQUIRE(sys.is_connected(player));
 
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnKeyboardKey(Key::A, false);
+        sys.on_keyboard_key(keyboard_key::a, false);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -544,20 +544,20 @@ TEST_CASE("input-test-big", "[input]")
         test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
         REQUIRE(test_platform.joysticks.size() == 1);
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, false);
         update();
 
         // joystick was grabbed
         REQUIRE(test_platform.joysticks.size() == 0);
 
         // player is still connected
-        REQUIRE(sys.IsConnected(player));
+        REQUIRE(sys.is_connected(player));
 
 
         // keyboard input is ignored...
 
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -566,14 +566,14 @@ TEST_CASE("input-test-big", "[input]")
 
         // but joystick works...
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -585,9 +585,9 @@ TEST_CASE("input-test-big", "[input]")
         INFO("joystickbutton_was_down_when_lost: " << joystickbutton_was_down_when_lost);
         if(joystickbutton_was_down_when_lost)
         {
-            sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+            sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         }
-        sys.OnJoystickLost(JOYSTICK_HANDLE);
+        sys.on_joystick_lost(JOYSTICK_HANDLE);
         update();
 
         // no input
@@ -598,26 +598,26 @@ TEST_CASE("input-test-big", "[input]")
         }));
 
         // joystick should be ignored
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
 
         // player is still connected
-        REQUIRE(sys.IsConnected(player));
+        REQUIRE(sys.is_connected(player));
 
         // and keyboard works
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnKeyboardKey(Key::A, false);
+        sys.on_keyboard_key(keyboard_key::a, false);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -631,36 +631,36 @@ TEST_CASE("input-test-big", "[input]")
         INFO("Use keyboard " << use_keyboard);
         auto press = [&](bool down)
         {
-            if(use_keyboard) { sys.OnKeyboardKey(Key::RETURN, down); }
-            else { sys.OnMouseButton(MouseButton::LEFT, down); }
+            if(use_keyboard) { sys.on_keyboard_key(keyboard_key::return_key, down); }
+            else { sys.on_mouse_button(mouse_button::left, down); }
         };
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
-        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform); };
+        auto update = [&]() { sys.update_player_connections(unit_discovery::press_to_activate, &test_platform); };
         update();
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
         press(true);
         update();
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
         press(false);
         update();
 
-        REQUIRE(sys.IsConnected(player));
+        REQUIRE(sys.is_connected(player));
 
         // keyboard input works
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnKeyboardKey(Key::A, false);
+        sys.on_keyboard_key(keyboard_key::a, false);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -672,15 +672,15 @@ TEST_CASE("input-test-big", "[input]")
         REQUIRE(test_platform.joysticks.size() == 1);
 
         // press start
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, false);
 
         // but it is not picked up
         update();
         REQUIRE(test_platform.joysticks.size() == 1);
 
         // and joystick is ignored
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -688,7 +688,7 @@ TEST_CASE("input-test-big", "[input]")
         }));
 
         // but input is keyboard+mouse again
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
@@ -706,37 +706,37 @@ TEST_CASE("input-test-big", "[input]")
         INFO("Use keyboard " << use_keyboard);
         auto press = [&](bool down)
         {
-            if(use_keyboard) { sys.OnKeyboardKey(Key::RETURN, down); }
-            else { sys.OnMouseButton(MouseButton::LEFT, down); }
+            if(use_keyboard) { sys.on_keyboard_key(keyboard_key::return_key, down); }
+            else { sys.on_mouse_button(mouse_button::left, down); }
         };
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
-        auto update = [&]() { sys.UpdatePlayerConnections(UnitDiscovery::PressToActivate, &test_platform); };
+        auto update = [&]() { sys.update_player_connections(unit_discovery::press_to_activate, &test_platform); };
         update();
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, true);
         update();
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, false);
         update();
 
-        REQUIRE(sys.IsConnected(player));
+        REQUIRE(sys.is_connected(player));
         REQUIRE(test_platform.joysticks.size() == 0);
 
         // keyboard input works
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -751,7 +751,7 @@ TEST_CASE("input-test-big", "[input]")
         update();
 
         // and keyboard is ignored
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -763,33 +763,33 @@ TEST_CASE("input-test-big", "[input]")
         INFO("joystickbutton_was_down_when_lost: " << joystickbutton_was_down_when_lost);
         if(joystickbutton_was_down_when_lost)
         {
-            sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+            sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         }
-        sys.OnJoystickLost(JOYSTICK_HANDLE);
+        sys.on_joystick_lost(JOYSTICK_HANDLE);
         update();
 
-        REQUIRE_FALSE(sys.IsConnected(player));
+        REQUIRE_FALSE(sys.is_connected(player));
 
         // no input
         REQUIRE(MapEq(GetTable(&sys, player), {
         }));
 
         // joystick should be ignored
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, true);
         REQUIRE(MapEq(GetTable(&sys, player), {
         }));
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_SHOOT, false);
     }
 
     // now... for the rest of the tests select the player input ("mouse and keyboard")
-    sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+    sys.update_player_connections(unit_discovery::find_highest, &test_platform);
 
     auto use_joystick_now = [&]()
     {
         test_platform.joysticks[JOYSTICK_HANDLE] = JOYSTICK_GUID;
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, true);
-        sys.OnJoystickButton(JOYSTICK_HANDLE, JOYSTICK_START, false);
-        sys.UpdatePlayerConnections(UnitDiscovery::FindHighest, &test_platform);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, true);
+        sys.on_joystick_button(JOYSTICK_HANDLE, JOYSTICK_START, false);
+        sys.update_player_connections(unit_discovery::find_highest, &test_platform);
     };
 
     SECTION("no input")
@@ -805,14 +805,14 @@ TEST_CASE("input-test-big", "[input]")
     {
         const auto ignore_dt = GENERATE(0.5f, 1.0f);
 
-        sys.OnKeyboardKey(Key::A, true);
+        sys.on_keyboard_key(keyboard_key::a, true);
         REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
             {"var_shoot", 1.0f},
             {"var_look", 0.0f},
             {"var_move", 0.0f}
         }));
 
-        sys.OnKeyboardKey(Key::A, false);
+        sys.on_keyboard_key(keyboard_key::a, false);
         REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
             {"var_shoot", 0.0f},
             {"var_look", 0.0f},
@@ -828,7 +828,7 @@ TEST_CASE("input-test-big", "[input]")
         {
             use_joystick_now();
 
-            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 1.0f);
+            sys.on_joystick_axis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 1.0f);
             REQUIRE(MapEq(GetTable(&sys, player, 1.0f), {
                 {"var_shoot", 0.0f},
                 {"var_look", 1.0f},
@@ -840,7 +840,7 @@ TEST_CASE("input-test-big", "[input]")
                 {"var_move", 0.0f}
             }));
 
-            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 0.0f);
+            sys.on_joystick_axis(JOYSTICK_HANDLE, JOYSTICK_LOOK, 0.0f);
             REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -850,14 +850,14 @@ TEST_CASE("input-test-big", "[input]")
 
         SECTION("mouse")
         {
-            sys.OnMouseAxis(Axis::X, 2.0f, 0.0f);
+            sys.on_mouse_axis(xy_axis::x, 2.0f, 0.0f);
             REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 2.0f},
                 {"var_move", 0.0f}
             }));
 
-            sys.OnMouseAxis(Axis::X, 0.0f, 0.0f);
+            sys.on_mouse_axis(xy_axis::x, 0.0f, 0.0f);
             REQUIRE(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -881,14 +881,14 @@ TEST_CASE("input-test-big", "[input]")
                 {"var_move", 0.0f}
             }));
 
-            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, -1.0f);
+            sys.on_joystick_axis(JOYSTICK_HANDLE, JOYSTICK_MOVE, -1.0f);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
                 {"var_move", -1.0f}
             }));
 
-            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 0.0f);
+            sys.on_joystick_axis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 0.0f);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -896,7 +896,7 @@ TEST_CASE("input-test-big", "[input]")
             }));
 
             // only right down
-            sys.OnJoystickAxis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 1.0f);
+            sys.on_joystick_axis(JOYSTICK_HANDLE, JOYSTICK_MOVE, 1.0f);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -914,7 +914,7 @@ TEST_CASE("input-test-big", "[input]")
             }));
 
             // left down
-            sys.OnKeyboardKey(Key::LEFT, true);
+            sys.on_keyboard_key(keyboard_key::left, true);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -922,7 +922,7 @@ TEST_CASE("input-test-big", "[input]")
             }));
 
             // left and right down
-            sys.OnKeyboardKey(Key::RIGHT, true);
+            sys.on_keyboard_key(keyboard_key::right, true);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -930,7 +930,7 @@ TEST_CASE("input-test-big", "[input]")
             }));
 
             // only right down
-            sys.OnKeyboardKey(Key::LEFT, false);
+            sys.on_keyboard_key(keyboard_key::left, false);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},
@@ -938,7 +938,7 @@ TEST_CASE("input-test-big", "[input]")
             }));
 
             // nothing down
-            sys.OnKeyboardKey(Key::RIGHT, false);
+            sys.on_keyboard_key(keyboard_key::right, false);
             CHECK(MapEq(GetTable(&sys, player, ignore_dt), {
                 {"var_shoot", 0.0f},
                 {"var_look", 0.0f},

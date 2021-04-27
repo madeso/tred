@@ -12,9 +12,9 @@ struct CompiledMesh
 
     int number_of_indices;
 
-    VertexTypes debug_shader_types;
+    vertex_types debug_shader_types;
 
-    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st);
+    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const vertex_types& st);
 
     void
     Draw() const;
@@ -25,4 +25,4 @@ struct CompiledMesh
 
 
 CompiledMesh
-Compile(const Mesh& mesh, const CompiledVertexLayout& layout);
+Compile(const mesh& mesh, const compiled_vertex_layout& layout);

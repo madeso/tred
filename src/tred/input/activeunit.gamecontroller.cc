@@ -11,31 +11,31 @@ namespace input
 {
 
 
-void impl::GamecontrollerKeyUnit::RegisterKey(int key)
+void impl::gamecontroller_key_unit::register_key(int key)
 {
-    parent->buttons.Add(FromIndex<GamecontrollerButton>(key));
+    parent->buttons.add(from_index<gamecontroller_button>(key));
 }
 
 
-float impl::GamecontrollerKeyUnit::GetState(int key)
+float impl::gamecontroller_key_unit::get_state(int key)
 {
-    return parent->buttons.GetRaw(FromIndex<GamecontrollerButton>(key));
+    return parent->buttons.get_raw(from_index<gamecontroller_button>(key));
 }
 
 
-impl::GamecontrollerAxisUnit::GamecontrollerAxisUnit(bool ir)
+impl::gamecontroller_axis_unit::gamecontroller_axis_unit(bool ir)
     : is_relative(ir)
 {
 }
 
 
-void impl::GamecontrollerAxisUnit::RegisterAxis(AxisType type, int target, int axis)
+void impl::gamecontroller_axis_unit::register_axis(axis_type type, int target, int axis)
 {
     switch(type)
     {
-    case AxisType::GeneralAxis:
+    case axis_type::general_axis:
         assert(target == 0);
-        parent->axes.Add(FromIndex<GamecontrollerAxis>(axis));
+        parent->axes.add(from_index<gamecontroller_axis>(axis));
         break;
     default:
         assert(false && "invalid type");
@@ -43,13 +43,13 @@ void impl::GamecontrollerAxisUnit::RegisterAxis(AxisType type, int target, int a
 }
 
 
-float impl::GamecontrollerAxisUnit::GetState(AxisType type, int target, int axis, float dt)
+float impl::gamecontroller_axis_unit::get_state(axis_type type, int target, int axis, float dt)
 {
     switch(type)
     {
-    case AxisType::GeneralAxis:
+    case axis_type::general_axis:
         assert(target == 0);
-        return SmoothAxis(parent->axes.GetRaw(FromIndex<GamecontrollerAxis>(axis))) * dt;
+        return smooth_axis(parent->axes.get_raw(from_index<gamecontroller_axis>(axis))) * dt;
     default:
         assert(false && "invalid type");
         return 0.0f;
@@ -57,15 +57,15 @@ float impl::GamecontrollerAxisUnit::GetState(AxisType type, int target, int axis
 }
 
 
-GamecontrollerActiveUnit::GamecontrollerActiveUnit(JoystickId j, InputDirector* d)
+gamecontroller_active_unit::gamecontroller_active_unit(joystick_id j, input_director* d)
     : joystick(j)
     , director(d)
-    , sheduled_delete(false)
+    , scheduled_delete(false)
     , relative_axis_unit(true)
     , absolute_axis_unit(false)
 {
     assert(director);
-    director->Add(this);
+    director->add(this);
 
     key_unit.parent = this;
     relative_axis_unit.parent = this;
@@ -73,51 +73,51 @@ GamecontrollerActiveUnit::GamecontrollerActiveUnit(JoystickId j, InputDirector* 
 }
 
 
-GamecontrollerActiveUnit::~GamecontrollerActiveUnit()
+gamecontroller_active_unit::~gamecontroller_active_unit()
 {
-    director->Remove(this);
+    director->remove(this);
 }
 
 
-KeyUnit* GamecontrollerActiveUnit::GetKeyUnit()
+key_unit* gamecontroller_active_unit::get_key_unit()
 {
     return &key_unit;
 }
 
 
-AxisUnit* GamecontrollerActiveUnit::GetRelativeAxisUnit()
+axis_unit* gamecontroller_active_unit::get_relative_axis_unit()
 {
     return &relative_axis_unit;
 }
 
 
-AxisUnit* GamecontrollerActiveUnit::GetAbsoluteAxisUnit()
+axis_unit* gamecontroller_active_unit::get_absolute_axis_unit()
 {
     return &absolute_axis_unit;
 }
 
 
-bool GamecontrollerActiveUnit::IsConsideredJoystick()
+bool gamecontroller_active_unit::is_considered_joystick()
 {
     return true;
 }
 
 
-bool GamecontrollerActiveUnit::IsDeleteSheduled()
+bool gamecontroller_active_unit::is_delete_scheduled()
 {
-    return sheduled_delete;
+    return scheduled_delete;
 }
 
 
-void GamecontrollerActiveUnit::OnAxis(GamecontrollerAxis axis, float state)
+void gamecontroller_active_unit::on_axis(gamecontroller_axis axis, float state)
 {
-    axes.SetRaw(axis, state);
+    axes.set_raw(axis, state);
 }
 
 
-void GamecontrollerActiveUnit::OnButton(GamecontrollerButton button, float state)
+void gamecontroller_active_unit::on_button(gamecontroller_button button, float state)
 {
-    buttons.SetRaw(button, SmoothRange(state));
+    buttons.set_raw(button, smooth_range(state));
 }
 
 

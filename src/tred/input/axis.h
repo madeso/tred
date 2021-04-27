@@ -4,21 +4,21 @@ namespace input
 {
 
 
-enum class Axis
+enum class xy_axis
 {
-      Unbound
-    , X
-    , Y
+      unbound
+    , x
+    , y
 };
 
 
-enum class GamecontrollerAxis
+enum class gamecontroller_axis
 {
-    INVALID
-    , LEFTX
-    , LEFTY
-    , RIGHTX
-    , RIGHTY
+    invalid
+    , left_x
+    , left_y
+    , right_x
+    , right_y
 };
 
 

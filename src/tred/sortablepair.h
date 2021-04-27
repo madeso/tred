@@ -2,17 +2,17 @@
 
 
 template<typename F, typename S>
-struct SortablePair
+struct sortable_pair
 {
-    using Self = SortablePair<F, S>;
+    using self = sortable_pair<F, S>;
 
-    SortablePair(F f, S s)
+    sortable_pair(F f, S s)
         : first(f)
         , second(s)
     {
     }
 
-    bool operator<(const Self& rhs) const
+    bool operator<(const self& rhs) const
     {
         if (first == rhs.first)
         {

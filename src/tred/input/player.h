@@ -7,26 +7,26 @@ namespace input
 {
 
 
-struct Table;
-struct ConnectedUnits;
+struct table;
+struct connected_units;
 
 
 /** Represents a player.
 The idea behind decoupling the active units and the player is that the unit
 could be disconnected and swapped but the player should remain.
 */
-struct Player
+struct player
 {
-    Player();
-    ~Player();
+    player();
+    ~player();
 
-    void UpdateTable(Table* table, float dt);
-    bool IsConnected();
-    bool IsAnyConnectionConsideredJoystick();
+    void update_table(table* table, float dt) const;
+    [[nodiscard]] bool is_connected() const;
+    [[nodiscard]] bool is_any_connection_considered_joystick() const;
 
-    void UpdateConnectionStatus();
+    void update_connection_status();
 
-    std::unique_ptr<ConnectedUnits> connected_units;
+    std::unique_ptr<connected_units> connected_units;
 };
 
 }  // namespace input

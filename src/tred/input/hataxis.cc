@@ -7,14 +7,14 @@ namespace input
 {
 
 
-HatAxis::HatAxis(int h, Axis a)
+hat_and_xy_axis::hat_and_xy_axis(int h, xy_axis a)
     : hat(h)
     , axis(a)
 {
 }
 
 
-bool HatAxis::operator<(const HatAxis& rhs) const
+bool hat_and_xy_axis::operator<(const hat_and_xy_axis& rhs) const
 {
     if (axis == rhs.axis)
     {

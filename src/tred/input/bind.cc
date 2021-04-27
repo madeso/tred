@@ -12,7 +12,7 @@ namespace input
 {
 
 
-float KeepWithin(float mi, float v, float ma)
+float keep_within(float mi, float v, float ma)
 {
     if (v < mi) { return mi; }
     else if (v > ma) { return ma; }
@@ -20,41 +20,41 @@ float KeepWithin(float mi, float v, float ma)
 }
 
 
-struct KeyActiveBind : public ActiveBind
+struct key_active_bind : public active_bind
 {
     std::string var;
     int button;
-    KeyUnit* unit;
+    key_unit* unit;
 
-    KeyActiveBind(const std::string& v, int b, KeyUnit* u)
+    key_active_bind(const std::string& v, int b, key_unit* u)
         : var(v)
         , button(b)
         , unit(u)
     {
-        unit->RegisterKey(button);
+        unit->register_key(button);
     }
 
-    void SetValueInTable(Table* t, float) override
+    void set_value_in_table(table* t, float) override
     {
-        const auto state = unit->GetState(button);
-        t->Set(var, KeepWithin(0.0f, state, 1.0f));
+        const auto state = unit->get_state(button);
+        t->set(var, keep_within(0.0f, state, 1.0f));
     }
 };
 
 
 
-struct AxisActiveBind : public ActiveBind
+struct axis_active_bind : public active_bind
 {
     std::string var;
-    AxisType type;
+    axis_type type;
     int target;
     int axis;
-    AxisUnit* unit;
+    axis_unit* unit;
     bool keep_within;
     bool is_inverted;
     float sensitivity;
 
-    AxisActiveBind(const std::string& v, AxisType ty, int ta, int ax, AxisUnit* u, bool kw, bool i, float s)
+    axis_active_bind(const std::string& v, axis_type ty, int ta, int ax, axis_unit* u, bool kw, bool i, float s)
         : var(v)
         , type(ty)
         , target(ta)
@@ -64,48 +64,48 @@ struct AxisActiveBind : public ActiveBind
         , is_inverted(i)
         , sensitivity(s)
     {
-        unit->RegisterAxis(type, target, axis);
+        unit->register_axis(type, target, axis);
     }
 
-    void SetValueInTable(Table* t, float dt) override
+    void set_value_in_table(table* t, float dt) override
     {
         const auto invert_scale = is_inverted ? -1.0f : 1.0f;
-        const auto state = unit->GetState(type, target, axis, keep_within ? 1.0f : dt) * invert_scale;
-        t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state * sensitivity);
+        const auto state = unit->get_state(type, target, axis, keep_within ? 1.0f : dt) * invert_scale;
+        t->set(var, keep_within ? input::keep_within(-1.0f, state, 1.0f) : state * sensitivity);
     }
 };
 
 
 
-struct TwoKeyActiveBind : public ActiveBind
+struct two_key_active_bind : public active_bind
 {
     std::string var;
     int positive;
     int negative;
-    KeyUnit* unit;
+    key_unit* unit;
     bool keep_within;
 
-    TwoKeyActiveBind(const std::string& v, int p, int n, KeyUnit* u, bool kw)
+    two_key_active_bind(const std::string& v, int p, int n, key_unit* u, bool kw)
         : var(v)
         , positive(p)
         , negative(n)
         , unit(u)
         , keep_within(kw)
     {
-        unit->RegisterKey(positive);
-        unit->RegisterKey(negative);
+        unit->register_key(positive);
+        unit->register_key(negative);
     }
 
-    void SetValueInTable(Table* t, float dt) override
+    void set_value_in_table(table* t, float dt) override
     {
-        const auto state = unit->GetState(positive) - unit->GetState(negative);
-        t->Set(var, keep_within ? KeepWithin(-1.0f, state, 1.0f) : state * dt);
+        const auto state = unit->get_state(positive) - unit->get_state(negative);
+        t->set(var, keep_within ? input::keep_within(-1.0f, state, 1.0f) : state * dt);
     }
 };
 
 
 
-KeyBindDef::KeyBindDef(const std::string& v, int u, int k)
+key_bind_definition::key_bind_definition(const std::string& v, int u, int k)
     : var(v)
     , unit(u)
     , key(k)
@@ -113,15 +113,15 @@ KeyBindDef::KeyBindDef(const std::string& v, int u, int k)
 }
 
 
-std::unique_ptr<ActiveBind> KeyBindDef::Create(ConnectedUnits* units)
+std::unique_ptr<active_bind> key_bind_definition::create(connected_units* units)
 {
-    auto* active_unit = units->GetUnit(unit);
+    auto* active_unit = units->get_unit(unit);
     assert(active_unit);
-    return std::make_unique<KeyActiveBind>(var, key, active_unit->GetKeyUnit());
+    return std::make_unique<key_active_bind>(var, key, active_unit->get_key_unit());
 }
 
 
-RelativeAxisBindDef::RelativeAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii, float s)
+relative_axis_bind_definition::relative_axis_bind_definition(const std::string& v, int u, axis_type ty, int ta, int ax, bool ii, float s)
     : var(v)
     , unit(u)
     , type(ty)
@@ -133,16 +133,16 @@ RelativeAxisBindDef::RelativeAxisBindDef(const std::string& v, int u, AxisType t
 }
 
 
-std::unique_ptr<ActiveBind> RelativeAxisBindDef::Create(ConnectedUnits* units)
+std::unique_ptr<active_bind> relative_axis_bind_definition::create(connected_units* units)
 {
-    auto* active_unit = units->GetUnit(unit);
+    auto* active_unit = units->get_unit(unit);
     assert(active_unit);
 
-    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetRelativeAxisUnit(), false, is_inverted, sensitivity);
+    return std::make_unique<axis_active_bind>(var, type, target, axis, active_unit->get_relative_axis_unit(), false, is_inverted, sensitivity);
 }
 
 
-AbsoluteAxisBindDef::AbsoluteAxisBindDef(const std::string& v, int u, AxisType ty, int ta, int ax, bool ii, float s)
+absolute_axis_bind_definition::absolute_axis_bind_definition(const std::string& v, int u, axis_type ty, int ta, int ax, bool ii, float s)
     : var(v)
     , unit(u)
     , type(ty)
@@ -154,15 +154,15 @@ AbsoluteAxisBindDef::AbsoluteAxisBindDef(const std::string& v, int u, AxisType t
 }
 
 
-std::unique_ptr<ActiveBind> AbsoluteAxisBindDef::Create(ConnectedUnits* units)
+std::unique_ptr<active_bind> absolute_axis_bind_definition::create(connected_units* units)
 {
-    auto* active_unit = units->GetUnit(unit);
+    auto* active_unit = units->get_unit(unit);
     assert(active_unit);
-    return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->GetAbsoluteAxisUnit(), true, is_inverted, sensitivity);
+    return std::make_unique<axis_active_bind>(var, type, target, axis, active_unit->get_absolute_axis_unit(), true, is_inverted, sensitivity);
 }
 
 
-RelativeTwoKeyBindDef::RelativeTwoKeyBindDef(const std::string& v, int u, int ne, int po)
+relative_two_key_bind_definition::relative_two_key_bind_definition(const std::string& v, int u, int ne, int po)
     : var(v)
     , unit(u)
     , negative(ne)
@@ -171,15 +171,15 @@ RelativeTwoKeyBindDef::RelativeTwoKeyBindDef(const std::string& v, int u, int ne
 }
 
 
-std::unique_ptr<ActiveBind> RelativeTwoKeyBindDef::Create(ConnectedUnits* units)
+std::unique_ptr<active_bind> relative_two_key_bind_definition::create(connected_units* units)
 {
-    auto* active_unit = units->GetUnit(unit);
+    auto* active_unit = units->get_unit(unit);
     assert(active_unit);
-    return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->GetKeyUnit(), false);
+    return std::make_unique<two_key_active_bind>(var, positive, negative, active_unit->get_key_unit(), false);
 }
 
 
-AbsoluteTwoKeyBindDef::AbsoluteTwoKeyBindDef(const std::string& v, int u, int ne, int po)
+absolute_two_key_bind_definition::absolute_two_key_bind_definition(const std::string& v, int u, int ne, int po)
     : var(v)
     , unit(u)
     , negative(ne)
@@ -188,11 +188,11 @@ AbsoluteTwoKeyBindDef::AbsoluteTwoKeyBindDef(const std::string& v, int u, int ne
 }
 
 
-std::unique_ptr<ActiveBind> AbsoluteTwoKeyBindDef::Create(ConnectedUnits* units)
+std::unique_ptr<active_bind> absolute_two_key_bind_definition::create(connected_units* units)
 {
-    auto* active_unit = units->GetUnit(unit);
+    auto* active_unit = units->get_unit(unit);
     assert(active_unit);
-    return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->GetKeyUnit(), true);
+    return std::make_unique<two_key_active_bind>(var, positive, negative, active_unit->get_key_unit(), true);
 }
 
 
