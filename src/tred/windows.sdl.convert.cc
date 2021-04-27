@@ -310,12 +310,12 @@ input::gamecontroller_button to_controller_button(SDL_GameControllerButton b)
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return input::gamecontroller_button::dpad_right;
 // todo(Gustav): when were theese introduced? not in 2.0.8 at least but I can't seem to find when atm
 #if SDL_VERSION_ATLEAST(2, 0, 9)
-        case SDL_CONTROLLER_BUTTON_MISC1: return input::GamecontrollerButton::MISC1;
-        case SDL_CONTROLLER_BUTTON_PADDLE1: return input::GamecontrollerButton::PADDLE1;
-        case SDL_CONTROLLER_BUTTON_PADDLE2: return input::GamecontrollerButton::PADDLE2;
-        case SDL_CONTROLLER_BUTTON_PADDLE3: return input::GamecontrollerButton::PADDLE3;
-        case SDL_CONTROLLER_BUTTON_PADDLE4: return input::GamecontrollerButton::PADDLE4;
-        case SDL_CONTROLLER_BUTTON_TOUCHPAD: return input::GamecontrollerButton::TOUCHPAD;
+        case SDL_CONTROLLER_BUTTON_MISC1: return input::gamecontroller_button::misc1;
+        case SDL_CONTROLLER_BUTTON_PADDLE1: return input::gamecontroller_button::paddle1;
+        case SDL_CONTROLLER_BUTTON_PADDLE2: return input::gamecontroller_button::paddle2;
+        case SDL_CONTROLLER_BUTTON_PADDLE3: return input::gamecontroller_button::paddle3;
+        case SDL_CONTROLLER_BUTTON_PADDLE4: return input::gamecontroller_button::paddle4;
+        case SDL_CONTROLLER_BUTTON_TOUCHPAD: return input::gamecontroller_button::touchpad;
 #endif
         default:
         return input::gamecontroller_button::invalid;
