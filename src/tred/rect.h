@@ -33,8 +33,8 @@ struct trect
           T width
         , T height
     )
-        : minx(0.0f)
-        , miny(0.0f)
+        : minx(0)
+        , miny(0)
         , maxx(width)
         , maxy(height)
     {

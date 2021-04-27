@@ -14,6 +14,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+#include "tred/undef_windows.h"
 
 #include "tred/log.h"
 #include "tred/opengl.debug.h"

@@ -52,6 +52,7 @@ float impl::GamecontrollerAxisUnit::GetState(AxisType type, int target, int axis
         return SmoothAxis(parent->axes.GetRaw(FromIndex<GamecontrollerAxis>(axis))) * dt;
     default:
         assert(false && "invalid type");
+        return 0.0f;
     }
 }
 

@@ -246,6 +246,12 @@ Joystick GameController::GetJoystick()
     return Joystick{joystick};
 }
 
+GamecontrollerState::GamecontrollerState()
+    : buttons({ false,})
+    , axes({ 0, })
+{
+}
+
 GamecontrollerState GamecontrollerState::GetState(GameController* controller)
 {
     GamecontrollerState r;

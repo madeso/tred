@@ -62,6 +62,7 @@ float impl::JoystickAxisUnit::GetState(AxisType type, int target, int axis, floa
         return parent->balls.GetRaw({target, FromIndex<Axis>(axis)}) * dt;
     default:
         assert(false && "invalid type");
+        return 0.0f;
     }
 }
 

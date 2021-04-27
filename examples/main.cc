@@ -9,6 +9,8 @@
 #include <map>
 #include <set>
 
+#include "tred/compiler_warning.h"
+
 #include <fmt/core.h>
 
 // dependency headers
@@ -17,7 +19,13 @@
 #include "stb_image.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_NONSTANDARD_NAMELESS_STRUCT_UNION
 #include "glm/gtc/type_ptr.hpp"
+DISABLE_WARNING_POP
+
+#include "tred/undef_windows.h"
 
 // imgui
 #include "imgui.h"

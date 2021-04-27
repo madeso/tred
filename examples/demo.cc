@@ -38,7 +38,7 @@ struct color_flips
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> time_random(0.0, max_time);
-        std::uniform_int_distribution<> index_random(0, endesga64.size());
+        std::uniform_int_distribution<> index_random(0, Csizet_to_int(endesga64.size())-1);
 
         for(size_t i=0; i<width*height; i+=1) { timer[i] = static_cast<float>(time_random(gen)); }
         for(size_t i=0; i<width*height; i+=1) { index[i] = static_cast<std::size_t>(index_random(gen)); }
@@ -67,7 +67,8 @@ struct color_flips
         for(size_t x=0; x<width; x+=1)
         for(size_t y=0; y<height; y+=1)
         {
-            const auto c = endesga64[index[x*width + y]];
+            const auto color_index = index[x * width + y];
+            const auto c = endesga64[color_index];
             batch->quad
             (
                 {},

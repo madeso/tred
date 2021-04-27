@@ -98,6 +98,7 @@ struct GamecontrollerState
     std::array<bool, SDL_CONTROLLER_BUTTON_MAX> buttons;
     std::array<Sint16, SDL_CONTROLLER_AXIS_MAX> axes;
 
+    GamecontrollerState();
     static GamecontrollerState GetState(GameController* controller);
 };
 

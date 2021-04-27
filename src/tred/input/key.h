@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tred/undef_windows.h"
 
 namespace input
 {
