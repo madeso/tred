@@ -45,15 +45,38 @@ struct minesweeper
     std::vector<bool> revealed;
     std::vector<int> states; // -1 == bomb, 0=empty, 1-9=number of neighbour bombs
 
-    minesweeper(int w, int h)
+    minesweeper(int w, int h, int bombs)
         : width(w), height(h)
         , revealed(Cint_to_sizet(w*h), false)
         , states(Cint_to_sizet(w*h), 0)
     {
-        Random r;
-        for(int i=0; i<w*h; i+=1)
+        using free_type = std::vector<glm::ivec2>;
+        free_type free;
+        for(int y=0; y<height; y+=1)
         {
-            states[Cint_to_sizet(i)] = r.get_excluding(10) - 1;
+            for(int x=0; x<width; x+=1)
+            {
+                free.emplace_back(glm::ivec2{x, y});
+            }
+        }
+        Random r;
+        for(int i=0; i<bombs; i+=1)
+        {
+            const auto index = r.get_excluding(free.size());
+            const auto p = free[index];
+            free.erase(free.begin() + static_cast<free_type::difference_type>(index));
+            states[get_index(p.x, p.y)] = -1;
+        }
+
+        for(int y=0; y<height; y+=1)
+        {
+            for(int x=0; x<width; x+=1)
+            {
+                if(states[get_index(x, y)]==0)
+                {
+                    states[get_index(x, y)] = count_neighbours(x, y);
+                }
+            }
         }
     }
 
@@ -88,6 +111,27 @@ struct minesweeper
             base_x + static_cast<float>(x) * sprite.get_width(),
             base_y + static_cast<float>(y) * sprite.get_height()
         );
+    }
+
+    int count_neighbours(int x, int y) const
+    {
+        int count = 0;
+        for(int dx=-1; dx<=1; dx+=1)
+        {
+            for(int dy=-1; dy<=1; dy+=1)
+            {
+                if(dx == 0 && dy == 0) { continue; }
+                const auto xx = x + dx;
+                const auto yy = y + dy;
+                if(xx <0 || yy < 0 || xx >= width || yy >= height) { continue; }
+                if(states[get_index(xx, yy)] == -1)
+                {
+                    count += 1;
+                }
+            }
+        }
+
+        return count;
     }
 
     void render(sprite_batch* batch, texture* onebit)
@@ -157,7 +201,7 @@ struct minesweeper_game : public game
             )
         )
         , mouse(0, 0)
-        , ms(10, 10)
+        , ms(10, 10, 10)
     {
     }
 
