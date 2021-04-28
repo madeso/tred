@@ -84,6 +84,11 @@ struct minesweeper
     {
         revealed[get_index(x, y)] = true;
 
+        if(states[get_index(x, y)] == -1)
+        {
+            game_over();
+        }
+
         // auto-click on empties
         if(states[get_index(x, y)] == 0)
         {
@@ -99,6 +104,17 @@ struct minesweeper
                         click_on(xx, yy);
                     }
                 }
+            }
+        }
+    }
+
+    void game_over()
+    {
+        for(int y=0; y<height; y+=1)
+        {
+            for(int x=0; x<width; x+=1)
+            {
+                revealed[get_index(x, y)] = true;
             }
         }
     }
