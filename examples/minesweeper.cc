@@ -33,6 +33,14 @@ void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, fl
     }
 }
 
+// todo(Gustav): add markers.. bomb and question
+// todo(Gustav): add bombs counter
+// todo(Gustav): wiggle things a bit
+// todo(Gustav): animate floodfill
+// todo(Gustav): add some colors
+// todo(Gustav): center board
+// todo(Gustav): ui for selecting level size and number of bombs
+
 
 constexpr auto sprite = rect{15.0f, 15.0f};
 constexpr auto black = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
@@ -47,6 +55,7 @@ struct minesweeper
     int height;
     int bombs;
     std::vector<bool> revealed;
+    // todo(Gustav): never used font for 1+ rendering... so switch to a enum class
     std::vector<int> states; // -1 == bomb, 0=empty, 1-9=number of neighbour bombs
     bool initialized = false;
     game_state current_game_state = game_state::playing;
