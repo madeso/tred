@@ -62,6 +62,8 @@ set(src
     tred/game.cc tred/game.h
     tred/rect.cc tred/rect.h
     tred/viewportdef.cc tred/viewportdef.h
+
+    tred/random.cc tred/random.h
 )
 
 add_library(tred STATIC ${src})

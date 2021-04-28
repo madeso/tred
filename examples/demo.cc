@@ -1,7 +1,8 @@
 #include "tred/fyro.h"
 
 #include <array>
-#include <random>
+
+#include "tred/random.h"
 
 #include "cards.png.h"
 #include "letter_g.png.h"
@@ -24,7 +25,7 @@ struct color_flips
     static constexpr int width = 100;
     static constexpr int height = 100;
     static constexpr float update_time = 15.0f;
-    static constexpr double max_time = 15.0;
+    static constexpr float max_time = 15.0;
     static constexpr float size = 1.7f;
     static constexpr float spacing = 2.0f;
     static constexpr float startx = 0.0f;
@@ -35,13 +36,10 @@ struct color_flips
 
     color_flips()
     {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> time_random(0.0, max_time);
-        std::uniform_int_distribution<> index_random(0, Csizet_to_int(endesga64.size())-1);
+        auto r = Random{};
 
-        for(size_t i=0; i<width*height; i+=1) { timer[i] = static_cast<float>(time_random(gen)); }
-        for(size_t i=0; i<width*height; i+=1) { index[i] = static_cast<std::size_t>(index_random(gen)); }
+        for(size_t i=0; i<width*height; i+=1) { timer[i] = r.get_including(max_time); }
+        for(size_t i=0; i<width*height; i+=1) { index[i] = r.get_excluding(endesga64.size()); }
     }
 
     void update(float dt)
