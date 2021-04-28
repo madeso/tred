@@ -85,6 +85,7 @@ struct example_game : public game
     texture cards;
     texture letter_g;
     color_flips flips;
+    glm::vec2 mouse;
 
     example_game()
         : cards
@@ -107,6 +108,7 @@ struct example_game : public game
                 transparency::include
             )
         )
+        , mouse(0, 0)
     {
     }
 
@@ -130,9 +132,14 @@ struct example_game : public game
         constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(30);
 
         r.batch->quad(&cards, card_sprite.translate(100, 100), ::cards::hearts[2]);
-        r.batch->quad(&cards, card_sprite.translate(10, 50), ::cards::back);
+        r.batch->quad(&cards, card_sprite.translate(r.mouse_to_world(mouse)), ::cards::back);
 
-        r.batch->quad(&letter_g, rect{40, 40}.translate(50, 50), {});
+        r.batch->quad(&letter_g, rect{40, 40}.translate(40, 40), {});
+    }
+
+    void on_mouse_position(const glm::ivec2& p) override
+    {
+        mouse = {p.x, p.y};
     }
 };
 

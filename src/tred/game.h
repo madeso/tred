@@ -71,6 +71,9 @@ struct layer2
 {
     rect viewport_aabb_in_worldspace;
     sprite_batch* batch;
+    recti screen = {0,0};
+
+    glm::vec2 mouse_to_world(const glm::vec2& p) const;
 
     ~layer2();
 };
@@ -88,7 +91,7 @@ struct game
     virtual bool on_update(float);
 
     virtual void on_key(char key, bool down);
-    virtual void on_mouse_motion(const glm::ivec2& position);
+    virtual void on_mouse_position(const glm::ivec2& position);
     virtual void on_mouse_button(int button, bool down);
     virtual void on_mouse_wheel(int scroll);
 };

@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include "glm/glm.hpp"
+
 // basic rect
 // also heavily inspired by https://halt.software/dead-simple-layouts/
 
@@ -26,6 +28,7 @@ struct trect
         , maxx(max)
         , maxy(may)
     {
+        assert(minx <= maxx && miny <= maxy);
     }
 
     constexpr trect<T>
@@ -38,6 +41,7 @@ struct trect
         , maxx(width)
         , maxy(height)
     {
+        assert(width >= 0 && height >= 0);
     }
 
     constexpr trect<T>
@@ -52,10 +56,47 @@ struct trect
         return {minx * s, miny * s, maxx * s, maxy * s};
     }
 
+    // todo(Gustav): replace with a specific function call
+    template<typename Y>
+    constexpr trect<Y>
+    cast() const
+    {
+        return {static_cast<Y>(minx), static_cast<Y>(miny), static_cast<Y>(maxx), static_cast<Y>(maxy)};
+    }
+
     constexpr trect<T>
     translate(T dx, T dy) const
     {
         return {minx + dx, miny + dy, maxx + dx, maxy + dy};
+    }
+
+    template<glm::qualifier Q>
+    constexpr trect<T>
+    translate(const glm::vec<2, T, Q>& v) const
+    {
+        return translate(v.x, v.y);
+    }
+
+    template<glm::qualifier Q>
+    constexpr glm::vec<2, T, Q>
+    to01(const glm::vec<2, T, Q>& p) const
+    {
+        return
+        {
+            (p.x - minx) / get_width(),
+            (p.y - miny) / get_height()
+        };
+    }
+
+    template<glm::qualifier Q>
+    constexpr glm::vec<2, T, Q>
+    from01(const glm::vec<2, T, Q>& p) const
+    {
+        return
+        {
+            minx + (p.x * get_width()),
+            miny + (p.y * get_height())
+        };
     }
 
     constexpr T
@@ -99,7 +140,7 @@ struct trect
     constexpr trect<T>
     set_bottom_left(T x, T y)
     {
-        return zero().translate(x, y - get_height());
+        return zero().translate(x, y);
     }
 };
 

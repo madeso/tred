@@ -25,7 +25,7 @@
 
 void set_gl_viewport(const recti& r)
 {
-    glViewport(r.minx, r.miny + r.get_height(), r.get_width(), r.get_height());
+    glViewport(r.minx, r.miny, r.get_width(), r.get_height());
 }
 
 layer2::~layer2()
@@ -44,7 +44,14 @@ layer2 create_layer(const render_command2& rc, const viewport_definition& vp, co
     rc.render->quad_shader.set_mat(rc.render->transform_uniform, camera);
 
     // todo(Gustav): transform viewport according to the camera
-    return layer2{{vp.virtual_width, vp.virtual_height}, &rc.render->batch};
+    return layer2{{vp.virtual_width, vp.virtual_height}, &rc.render->batch, vp.screen_rect};
+}
+
+glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
+{
+    // transform from mouse pixels to window 0-1
+    const auto n = screen.cast<float>().to01(p);
+    return viewport_aabb_in_worldspace.from01(n);
 }
 
 layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
@@ -268,7 +275,7 @@ void game::on_render(const render_command2&) {}
 void game::on_imgui() {}
 bool game::on_update(float) { return true; }
 void game::on_key(char, bool) {}
-void game::on_mouse_motion(const glm::ivec2&) {}
+void game::on_mouse_position(const glm::ivec2&) {}
 void game::on_mouse_button(int, bool) {}
 void game::on_mouse_wheel(int) {}
 
@@ -455,7 +462,7 @@ void pump_events(window* window)
         case SDL_MOUSEMOTION:
             if(handle_mouse)
             {
-                window->game->on_mouse_motion(glm::ivec2{e.motion.x, e.motion.y});
+                window->game->on_mouse_position(glm::ivec2{e.motion.x, window->size.y - e.motion.y});
             }
             break;
 
