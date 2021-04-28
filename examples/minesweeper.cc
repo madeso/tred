@@ -83,6 +83,24 @@ struct minesweeper
     void click_on(int x, int y)
     {
         revealed[get_index(x, y)] = true;
+
+        // auto-click on empties
+        if(states[get_index(x, y)] == 0)
+        {
+            for(int dx=-1; dx<=1; dx+=1)
+            {
+                for(int dy=-1; dy<=1; dy+=1)
+                {
+                    const auto xx = x + dx;
+                    const auto yy = y + dy;
+                    if(xx <0 || yy < 0 || xx >= width || yy >= height) { continue; }
+                    if(false == revealed[get_index(xx, yy)])
+                    {
+                        click_on(xx, yy);
+                    }
+                }
+            }
+        }
     }
 
     void on_mouse(const glm::vec2& m)
