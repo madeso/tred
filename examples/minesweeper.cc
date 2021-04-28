@@ -42,21 +42,33 @@ struct minesweeper
 {
     int width;
     int height;
+    int bombs;
     std::vector<bool> revealed;
     std::vector<int> states; // -1 == bomb, 0=empty, 1-9=number of neighbour bombs
+    bool initialized = false;
 
-    minesweeper(int w, int h, int bombs)
-        : width(w), height(h)
+    minesweeper(int w, int h, int b)
+        : width(w), height(h), bombs(b)
         , revealed(Cint_to_sizet(w*h), false)
         , states(Cint_to_sizet(w*h), 0)
     {
+    }
+
+    void init()
+    {
+        if(initialized) { return; }
+        initialized = true;
+
         using free_type = std::vector<glm::ivec2>;
         free_type free;
         for(int y=0; y<height; y+=1)
         {
             for(int x=0; x<width; x+=1)
             {
-                free.emplace_back(glm::ivec2{x, y});
+                if(false == revealed[get_index(x, y)])
+                {
+                    free.emplace_back(glm::ivec2{x, y});
+                }
             }
         }
         Random r;
@@ -83,6 +95,8 @@ struct minesweeper
     void click_on(int x, int y)
     {
         revealed[get_index(x, y)] = true;
+
+        init();
 
         if(states[get_index(x, y)] == -1)
         {
