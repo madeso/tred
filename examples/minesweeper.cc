@@ -33,10 +33,13 @@ void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, fl
     }
 }
 
+
 constexpr auto sprite = rect{15.0f, 15.0f};
 constexpr auto black = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 constexpr float base_x = 0.0f;
 constexpr float base_y = 0.0f;
+
+enum class game_state { playing, game_over, game_completed};
 
 struct minesweeper
 {
@@ -46,6 +49,7 @@ struct minesweeper
     std::vector<bool> revealed;
     std::vector<int> states; // -1 == bomb, 0=empty, 1-9=number of neighbour bombs
     bool initialized = false;
+    game_state current_game_state = game_state::playing;
 
     minesweeper(int w, int h, int b)
         : width(w), height(h), bombs(b)
@@ -131,6 +135,7 @@ struct minesweeper
                 revealed[get_index(x, y)] = true;
             }
         }
+        current_game_state = game_state::game_over;
     }
 
     void on_mouse(const glm::vec2& m)
@@ -253,6 +258,11 @@ struct minesweeper_game : public game
     {
     }
 
+    void new_game()
+    {
+        ms = minesweeper{10, 10, 10};
+    }
+
     void
     on_render(const render_command2& rc) override
     {
@@ -263,12 +273,29 @@ struct minesweeper_game : public game
 
         ms.render(r.batch, &onebit);
 
+        auto draw_game_button = [&](const recti& sprite)
+        {
+            r.batch->quad(&onebit, game_button(), sprite, black);
+        };
+
+        switch(ms.current_game_state)
+        {
+            case game_state::playing: draw_game_button(::onebit::smiley_happy); break;
+            case game_state::game_completed: draw_game_button(::onebit::smiley_joy); break;
+            case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
+        }
+
         simple_text(r.batch, &onebit, black, 0.0f, 180.0f, "minesweeper 42");
     }
 
     void on_mouse_position(const glm::ivec2& p) override
     {
         mouse = {p.x, p.y};
+    }
+
+    rect game_button() const
+    {
+        return sprite.translate(100, 160);
     }
 
     void on_mouse_button(const command2& c, input::mouse_button button, bool down) override
@@ -279,6 +306,11 @@ struct minesweeper_game : public game
         auto r = with_layer_extended(c, 200.0f, 200.0f, glm::mat4(1.0f));
         const auto world = r.mouse_to_world(mouse);
         ms.on_mouse(world);
+
+        if(game_button().is_inside_inclusive(world.x, world.y))
+        {
+            new_game();
+        }
     }
 };
 

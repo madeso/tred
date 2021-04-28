@@ -39,6 +39,14 @@ namespace onebit
 
     constexpr recti bomb = get(45, 9);
     constexpr recti box = get(39, 14);
+    constexpr recti box_cross = get(40, 14);
+    constexpr recti box_skull = get(41, 14);
+
+    constexpr recti smiley_happy = get(35, 14);
+    constexpr recti smiley_angry = get(36, 14);
+    constexpr recti smiley_joy = get(37, 14);
+    constexpr recti smiley_sad = get(38, 14);
+    constexpr recti smiley_skull = get(38, 11);
 
     constexpr recti n0 = get(35, 17); constexpr recti n1 = get(36, 17); constexpr recti n2 = get(37, 17); constexpr recti n3 = get(38, 17); constexpr recti n4 = get(39, 17);
     constexpr recti n5 = get(40, 17); constexpr recti n6 = get(41, 17); constexpr recti n7 = get(42, 17); constexpr recti n8 = get(43, 17); constexpr recti n9 = get(44, 17);
