@@ -12,6 +12,7 @@
 #include "tred/rect.h"
 #include "tred/types.h"
 #include "tred/texture.h"
+#include "tred/input/key.h"
 
 struct texture;
 struct render2;
@@ -61,6 +62,11 @@ struct render2
     sprite_batch batch;
 };
 
+struct command2
+{
+    glm::ivec2 size;
+};
+
 struct render_command2
 {
     render2* render;
@@ -70,16 +76,25 @@ struct render_command2
 struct layer2
 {
     rect viewport_aabb_in_worldspace;
-    sprite_batch* batch;
-    recti screen = {0,0};
+    recti screen;
 
     glm::vec2 mouse_to_world(const glm::vec2& p) const;
-
-    ~layer2();
 };
 
-layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
-layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+struct render_layer2 : layer2
+{
+    sprite_batch* batch;
+
+    render_layer2(layer2&& l, sprite_batch* batch);
+
+    ~render_layer2();
+};
+
+render_layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+render_layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+
+layer2 with_layer_fit_with_bars(const command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+layer2 with_layer_extended(const command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
 
 struct game
 {
@@ -92,7 +107,7 @@ struct game
 
     virtual void on_key(char key, bool down);
     virtual void on_mouse_position(const glm::ivec2& position);
-    virtual void on_mouse_button(int button, bool down);
+    virtual void on_mouse_button(const command2&, input::mouse_button button, bool down);
     virtual void on_mouse_wheel(int scroll);
 };
 

@@ -56,6 +56,13 @@ struct trect
         return {minx * s, miny * s, maxx * s, maxy * s};
     }
 
+    constexpr bool
+    is_inside_inclusive(T x, T y) const
+    {
+        return x >= minx && x <= maxx
+            && y >= miny && y <= maxy;
+    }
+
     // todo(Gustav): replace with a specific function call
     template<typename Y>
     constexpr trect<Y>

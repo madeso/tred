@@ -40,3 +40,19 @@ target_include_directories(demo
     PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+
+embed(demo_minesweeper
+    AS_BINARY
+        ../data/sprites/onebit.png
+)
+add_executable(minesweeper WIN32 MACOSX_BUNDLE minesweeper.cc ${demo_minesweeper})
+target_link_libraries(
+    minesweeper
+    PUBLIC tred sprites
+    PRIVATE project_options project_warnings
+)
+target_include_directories(minesweeper
+    PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+)

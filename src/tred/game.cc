@@ -23,17 +23,30 @@
 #include "tred/image.h"
 #include "tred/viewportdef.h"
 
+#include "tred/windows.sdl.convert.h"
+
 void set_gl_viewport(const recti& r)
 {
     glViewport(r.minx, r.miny, r.get_width(), r.get_height());
 }
 
-layer2::~layer2()
+render_layer2::~render_layer2()
 {
     batch->submit();
 }
 
-layer2 create_layer(const render_command2& rc, const viewport_definition& vp, const glm::mat4 camera)
+render_layer2::render_layer2(layer2&& l, sprite_batch* b)
+    : layer2(l)
+    , batch(b)
+{
+}
+
+layer2 create_layer(const viewport_definition& vp)
+{
+    return {{vp.virtual_width, vp.virtual_height}, vp.screen_rect};
+}
+
+render_layer2 create_layer(const render_command2& rc, const viewport_definition& vp, const glm::mat4 camera)
 {
     set_gl_viewport(vp.screen_rect);
 
@@ -44,7 +57,7 @@ layer2 create_layer(const render_command2& rc, const viewport_definition& vp, co
     rc.render->quad_shader.set_mat(rc.render->transform_uniform, camera);
 
     // todo(Gustav): transform viewport according to the camera
-    return layer2{{vp.virtual_width, vp.virtual_height}, &rc.render->batch, vp.screen_rect};
+    return render_layer2{create_layer(vp), &rc.render->batch};
 }
 
 glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
@@ -54,16 +67,28 @@ glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
     return viewport_aabb_in_worldspace.from01(n);
 }
 
-layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+render_layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
 {
     const auto vp = viewport_definition::fit_with_black_bars(requested_width, requested_height, rc.size.x, rc.size.y);
     return create_layer(rc, vp, camera);
 }
 
-layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+render_layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
 {
     const auto vp = viewport_definition::extend(requested_width, requested_height, rc.size.x, rc.size.y);
     return create_layer(rc, vp, camera);
+}
+
+layer2 with_layer_fit_with_bars(const command2& rc, float requested_width, float requested_height, const glm::mat4)
+{
+    const auto vp = viewport_definition::fit_with_black_bars(requested_width, requested_height, rc.size.x, rc.size.y);
+    return create_layer(vp);
+}
+
+layer2 with_layer_extended(const command2& rc, float requested_width, float requested_height, const glm::mat4)
+{
+    const auto vp = viewport_definition::extend(requested_width, requested_height, rc.size.x, rc.size.y);
+    return create_layer(vp);
 }
 
 sprite_batch::sprite_batch(shader* quad_shader, render2* r)
@@ -276,7 +301,7 @@ void game::on_imgui() {}
 bool game::on_update(float) { return true; }
 void game::on_key(char, bool) {}
 void game::on_mouse_position(const glm::ivec2&) {}
-void game::on_mouse_button(int, bool) {}
+void game::on_mouse_button(const command2&, input::mouse_button, bool) {}
 void game::on_mouse_wheel(int) {}
 
 namespace
@@ -470,7 +495,7 @@ void pump_events(window* window)
         case SDL_MOUSEBUTTONUP:
             if(handle_mouse)
             {
-                window->game->on_mouse_button(e.button.button, e.type == SDL_MOUSEBUTTONDOWN);
+                window->game->on_mouse_button({window->size}, sdl::to_mouse_button(e.button.button), e.type == SDL_MOUSEBUTTONDOWN);
             }
             break;
 
