@@ -120,8 +120,7 @@ struct example_game : public game
     void
     on_render(const render_command2& rc) override
     {
-        // auto r = with_layer_fit_with_bars(rc, 200.0f, 200.0f, glm::mat4(1.0f));
-        auto r = with_layer_extended(rc, 200.0f, 200.0f, glm::mat4(1.0f));
+        auto r = with_layer(rc, {viewport_style::extended, 200.0f, 200.0f, glm::mat4(1.0f)});
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 

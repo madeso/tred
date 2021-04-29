@@ -67,27 +67,27 @@ glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
     return viewport_aabb_in_worldspace.from01(n);
 }
 
-render_layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+viewport_definition create_viewport(const layout_data& ld, const glm::ivec2& size)
 {
-    const auto vp = viewport_definition::fit_with_black_bars(requested_width, requested_height, rc.size.x, rc.size.y);
-    return create_layer(rc, vp, camera);
+    if(ld.style==viewport_style::black_bars)
+    {
+        return viewport_definition::fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
+    }
+    else
+    {
+        return viewport_definition::extend(ld.requested_width, ld.requested_height, size.x, size.y);
+    }
 }
 
-render_layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera)
+render_layer2 with_layer(const render_command2& rc, const layout_data& ld)
 {
-    const auto vp = viewport_definition::extend(requested_width, requested_height, rc.size.x, rc.size.y);
-    return create_layer(rc, vp, camera);
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer(rc, vp, ld.camera);
 }
 
-layer2 with_layer_fit_with_bars(const command2& rc, float requested_width, float requested_height, const glm::mat4)
+layer2 with_layer(const command2& rc, const layout_data& ld)
 {
-    const auto vp = viewport_definition::fit_with_black_bars(requested_width, requested_height, rc.size.x, rc.size.y);
-    return create_layer(vp);
-}
-
-layer2 with_layer_extended(const command2& rc, float requested_width, float requested_height, const glm::mat4)
-{
-    const auto vp = viewport_definition::extend(requested_width, requested_height, rc.size.x, rc.size.y);
+    const auto vp = create_viewport(ld, rc.size);
     return create_layer(vp);
 }
 

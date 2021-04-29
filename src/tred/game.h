@@ -90,11 +90,18 @@ struct render_layer2 : layer2
     ~render_layer2();
 };
 
-render_layer2 with_layer_fit_with_bars(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
-render_layer2 with_layer_extended(const render_command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+enum class viewport_style { black_bars, extended};
 
-layer2 with_layer_fit_with_bars(const command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
-layer2 with_layer_extended(const command2& rc, float requested_width, float requested_height, const glm::mat4 camera);
+struct layout_data
+{
+    viewport_style style;
+    float requested_width;
+    float requested_height;
+    const glm::mat4 camera;
+};
+
+render_layer2 with_layer(const render_command2& rc, const layout_data& ld);
+layer2 with_layer(const command2& rc, const layout_data& ld);
 
 struct game
 {
