@@ -10,24 +10,61 @@
 
 constexpr auto font_size = 12.0f;
 
-void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text)
+struct text_animation
+{
+    virtual ~text_animation() = default;
+    virtual rect transform(int at, const rect& r) const = 0;
+};
+
+struct no_text_animation : public text_animation
+{
+    rect transform(int, const rect& r) const override { return r; }
+};
+
+struct siny_animation : public text_animation
+{
+    float change;
+    float scale;
+    float offset;
+
+    siny_animation(float c, float s, float o)
+        : change(c)
+        , scale(s)
+        , offset(o)
+    {
+    }
+
+    rect transform(int index, const rect& r) const override
+    {
+        const auto a = static_cast<float>(index) * scale + offset;
+        constexpr float one_turn = 6.28318530718f; // 2*pi, thanks google
+        return r.translate(0.0f, std::sin(a * one_turn) * change);
+    }
+};
+
+void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim)
 {
     constexpr auto spacing = font_size * 0.7f;
     constexpr auto sprite = rect{font_size, font_size};
+
+
+    int position_in_string = 0;
 
     for(char c: text)
     {
         if(c == ' ')
         {
             x += spacing;
+            position_in_string += 1;
         }
         else
         {
             // silently ignore missing characters
             if(auto index = ::onebit::text_string.find(c); index != std::string_view::npos)
             {
-                batch->quad(onebit, sprite.translate(x, y), ::onebit::text[static_cast<std::size_t>(index)], color);
+                batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[static_cast<std::size_t>(index)], color);
                 x += spacing;
+                position_in_string += 1;
             }
         }
     }
@@ -278,6 +315,14 @@ struct minesweeper_game : public game
         return {viewport_style::extended, 200.0f, 200.0f, glm::mat4(1.0f)};
     }
 
+    float title_anim = 0.0f;
+    bool on_update(float dt) override
+    {
+        title_anim += dt * 1.0f;
+        while(title_anim > 1.0f) { title_anim -= 1.0f;}
+        return true;
+    }
+
     void
     on_render(const render_command2& rc) override
     {
@@ -299,7 +344,7 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        simple_text(r.batch, &onebit, black, 0.0f, 180.0f, "minesweeper 42");
+        simple_text(r.batch, &onebit, black, 0.0f, 180.0f, "minesweeper 42", siny_animation{1.5f, 0.2f, title_anim});
     }
 
     void on_mouse_position(const glm::ivec2& p) override
