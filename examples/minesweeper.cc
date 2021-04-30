@@ -79,7 +79,6 @@ void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, fl
 // todo(Gustav): ui for selecting level size and number of bombs
 
 
-constexpr auto sprite = rect{15.0f, 15.0f};
 constexpr auto black = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 constexpr float base_x = 0.0f;
 constexpr float base_y = 0.0f;
@@ -102,6 +101,11 @@ struct minesweeper
         , revealed(Cint_to_sizet(w*h), false)
         , states(Cint_to_sizet(w*h), 0)
     {
+    }
+
+    rect sprite() const
+    {
+        return {15.0f, 15.0f};
     }
 
     void init()
@@ -205,10 +209,11 @@ struct minesweeper
 
     rect get_rect(int x, int y) const
     {
-        return sprite.translate
+        const auto s = sprite();
+        return s.translate
         (
-            base_x + static_cast<float>(x) * sprite.get_width(),
-            base_y + static_cast<float>(y) * sprite.get_height()
+            base_x + static_cast<float>(x) * s.get_width(),
+            base_y + static_cast<float>(y) * s.get_height()
         );
     }
 
@@ -354,7 +359,8 @@ struct minesweeper_game : public game
 
     rect game_button() const
     {
-        return sprite.translate(100, 160);
+        constexpr auto button_sprite = rect{15.0f, 15.0f};
+        return button_sprite.translate(100, 160);
     }
 
     void on_mouse_button(const command2& c, input::mouse_button button, bool down) override
