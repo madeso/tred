@@ -76,12 +76,12 @@ float get_width_of_string(const std::string& text)
     return static_cast<float>(text.length()) * font_spacing;
 }
 
+// todo(Gustav): look into weird board rendering with mirrored/duplicate clicks
 // todo(Gustav): add markers.. bomb and question
 // todo(Gustav): add bombs counter
 // todo(Gustav): wiggle things a bit
 // todo(Gustav): animate floodfill
 // todo(Gustav): add some colors
-// todo(Gustav): center board
 // todo(Gustav): ui for selecting level size and number of bombs
 
 
