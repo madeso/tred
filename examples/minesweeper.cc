@@ -76,7 +76,7 @@ float get_width_of_string(const std::string& text)
     return static_cast<float>(text.length()) * font_spacing;
 }
 
-// todo(Gustav): look into weird board rendering with mirrored/duplicate clicks
+
 // todo(Gustav): add markers.. bomb and question
 // todo(Gustav): add bombs counter
 // todo(Gustav): wiggle things a bit
@@ -206,8 +206,8 @@ struct minesweeper
     size_t get_index(int x, int y) const
     {
         assert(x >= 0 && x<width);
-        assert(y >= 0 && y<width);
-        return Cint_to_sizet(x + y * height);
+        assert(y >= 0 && y<height);
+        return Cint_to_sizet(x + y * width);
     }
 
     static constexpr float window_size = 200.0f;
@@ -264,12 +264,12 @@ struct minesweeper
         {
             for(int x=0; x<width; x+=1)
             {
-                auto draw = [x, y, batch, onebit, this](const recti& sprite, const glm::vec4& color)
+                auto draw = [batch, onebit](const rect& r, const recti& sprite, const glm::vec4& color)
                 {
                     batch->quad
                     (
                         onebit,
-                        get_rect(x, y),
+                        r,
                         sprite, color
                     );
                 };
@@ -281,24 +281,26 @@ struct minesweeper
 
                 constexpr auto color = black;
 
+                const auto r = get_rect(x, y);
+
                 if(is_revealed == false)
                 {
-                    draw(::onebit::box, color);
+                    draw(r, ::onebit::box, color);
                 }
                 else
                 {
                     switch(state)
                     {
-                    case -1: draw(::onebit::bomb, color); break;
-                    case 1:  draw(::onebit::n1, color); break;
-                    case 2:  draw(::onebit::n2, color); break;
-                    case 3:  draw(::onebit::n3, color); break;
-                    case 4:  draw(::onebit::n4, color); break;
-                    case 5:  draw(::onebit::n5, color); break;
-                    case 6:  draw(::onebit::n6, color); break;
-                    case 7:  draw(::onebit::n7, color); break;
-                    case 8:  draw(::onebit::n8, color); break;
-                    case 9:  draw(::onebit::n9, color); break;
+                    case -1: draw(r, ::onebit::bomb, color); break;
+                    case 1:  draw(r, ::onebit::n1, color); break;
+                    case 2:  draw(r, ::onebit::n2, color); break;
+                    case 3:  draw(r, ::onebit::n3, color); break;
+                    case 4:  draw(r, ::onebit::n4, color); break;
+                    case 5:  draw(r, ::onebit::n5, color); break;
+                    case 6:  draw(r, ::onebit::n6, color); break;
+                    case 7:  draw(r, ::onebit::n7, color); break;
+                    case 8:  draw(r, ::onebit::n8, color); break;
+                    case 9:  draw(r, ::onebit::n9, color); break;
                     }
                 }
             }
