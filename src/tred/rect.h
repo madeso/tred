@@ -149,6 +149,43 @@ struct trect
     {
         return zero().translate(x, y);
     }
+
+
+    // These will add a rectangle outside of the input rectangle.
+    // Useful for tooltips and other overlay elements.
+    constexpr trect<T> add_left(T a) const
+    {
+        return {minx-a, miny, maxx, maxy};
+    }
+
+    constexpr trect<T> add_right(T a) const
+    {
+        return {minx, miny, maxx+a, maxy};
+    }
+
+    constexpr trect<T> add_top(T a) const
+    {
+        return {minx, miny, maxx, maxy+a};
+    }
+
+    constexpr trect<T> add_bottom(T a) const
+    {
+        return {minx, miny-a, maxx, maxy};
+    }
+
+    constexpr trect<T> extend(T a) const
+    {
+        return add_left(a).add_right(a).add_top(a).add_bottom(a);
+    }
+
+    constexpr trect<T> cut_to_center(T w, T h) const
+    {
+        const auto dx = (get_width() - w)/2;
+        const auto dy = (get_height() - h)/2;
+        const auto x = minx+dx;
+        const auto y = miny+dy;
+        return {x,y, x+w, y+h};
+    }
 };
 
 
@@ -231,14 +268,8 @@ rect get_right(const trect<T>& rect, T a);
 rect get_top(const trect<T>& rect, T a);
 rect get_bottom(const trect<T>& rect, T a);
 
-// These will add a rectangle outside of the input rectangle.
-// Useful for tooltips and other overlay elements.
-rect add_left(const trect<T>& rect, T a);
-rect add_right(const trect<T>& rect, T a);
-rect add_top(const trect<T>& rect, T a);
-rect add_bottom(const trect<T>& rect, T a);
-
 #endif
+
 
 using rect = trect<float>;
 using recti = trect<int>;

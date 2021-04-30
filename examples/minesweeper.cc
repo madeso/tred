@@ -347,15 +347,17 @@ struct minesweeper_game : public game
     on_render(const render_command2& rc) override
     {
         constexpr float spacing = 0.2f;
+        constexpr float button_size = 15.0f;
+        constexpr float wavy_range = 1.5f;
         auto r = with_layer(rc, get_main_layout());
 
         auto game_world = rect{200.0f, 200.0f};
 
-        const auto title_rect = cut_bottom(&game_world, font_size + spacing * 2);
-        const auto restart_rect = cut_bottom(&game_world, font_size + spacing * 2);
+        const auto title_rect = cut_bottom(&game_world, font_size + wavy_range + spacing * 2);
+        const auto restart_rect = cut_bottom(&game_world, button_size + spacing * 2);
         /* const auto score_rect = */ cut_bottom(&game_world, font_size + spacing * 2);
-        ms.play_area = game_world;
-        game_button = restart_rect; // todo(Gustav): inset + center
+        ms.play_area = game_world.extend(-1.0f);
+        game_button = restart_rect.cut_to_center(button_size, button_size);
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
@@ -373,7 +375,7 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, "minesweeper 42", siny_animation{1.5f, 0.2f, title_anim});
+        simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, "minesweeper 42", siny_animation{wavy_range, 0.2f, title_anim});
     }
 
     void on_mouse_position(const glm::ivec2& p) override
