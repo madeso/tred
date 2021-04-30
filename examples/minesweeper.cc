@@ -42,9 +42,10 @@ struct siny_animation : public text_animation
     }
 };
 
+constexpr auto font_spacing = font_size * 0.7f;
+
 void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim)
 {
-    constexpr auto spacing = font_size * 0.7f;
     constexpr auto sprite = rect{font_size, font_size};
 
 
@@ -54,7 +55,7 @@ void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, fl
     {
         if(c == ' ')
         {
-            x += spacing;
+            x += font_spacing;
             position_in_string += 1;
         }
         else
@@ -63,11 +64,16 @@ void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, fl
             if(auto index = ::onebit::text_string.find(c); index != std::string_view::npos)
             {
                 batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[static_cast<std::size_t>(index)], color);
-                x += spacing;
+                x += font_spacing;
                 position_in_string += 1;
             }
         }
     }
+}
+
+float get_width_of_string(const std::string& text)
+{
+    return static_cast<float>(text.length()) * font_spacing;
 }
 
 // todo(Gustav): add markers.. bomb and question
@@ -346,6 +352,8 @@ struct minesweeper_game : public game
     void
     on_render(const render_command2& rc) override
     {
+        const std::string game_title = "minesweeper 42";
+
         constexpr float spacing = 0.2f;
         constexpr float button_size = 15.0f;
         constexpr float wavy_range = 1.5f;
@@ -353,7 +361,9 @@ struct minesweeper_game : public game
 
         auto game_world = rect{200.0f, 200.0f};
 
-        const auto title_rect = cut_bottom(&game_world, font_size + wavy_range + spacing * 2);
+        const auto title_rect = cut_bottom(&game_world, font_size + wavy_range + spacing * 2)
+            .center_hor(get_width_of_string(game_title))
+            .center_vert(font_size);
         const auto restart_rect = cut_bottom(&game_world, button_size + spacing * 2);
         /* const auto score_rect = */ cut_bottom(&game_world, font_size + spacing * 2);
         ms.play_area = game_world.extend(-1.0f);
@@ -375,7 +385,7 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, "minesweeper 42", siny_animation{wavy_range, 0.2f, title_anim});
+        simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, siny_animation{wavy_range, 0.2f, title_anim});
     }
 
     void on_mouse_position(const glm::ivec2& p) override

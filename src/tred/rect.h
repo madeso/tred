@@ -178,13 +178,23 @@ struct trect
         return add_left(a).add_right(a).add_top(a).add_bottom(a);
     }
 
-    constexpr trect<T> cut_to_center(T w, T h) const
+    constexpr trect<T> center_hor(T w) const
     {
         const auto dx = (get_width() - w)/2;
-        const auto dy = (get_height() - h)/2;
         const auto x = minx+dx;
+        return {x,miny, x+w, maxy};
+    }
+
+    constexpr trect<T> center_vert(T h) const
+    {
+        const auto dy = (get_height() - h)/2;
         const auto y = miny+dy;
-        return {x,y, x+w, y+h};
+        return {minx,y, maxx, y+h};
+    }
+
+    constexpr trect<T> cut_to_center(T w, T h) const
+    {
+        return center_hor(w).center_vert(h);
     }
 };
 
