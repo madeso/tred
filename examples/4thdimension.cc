@@ -997,23 +997,23 @@ struct Game
           , interactive(true)
           , aiHasMoved(false)
     {
-        add(new Background("BackgroundSprite"));
+        add(std::make_shared<Background>("BackgroundSprite"));
         for (int i = 0; i < 4; ++i)
         {
             add
             (
-                cube[i] = new Cube(
+                cube[i] = std::make_shared<Cube>(
                     Cint_to_float(25 + i * 193),
                     Cint_to_float(48 + i * 126),
                     world, i, &combo
                 )
             );
         }
-        add(new PressKeyToContinue());
-        auto* placer = new IconPlacer();
+        add(std::make_shared<PressKeyToContinue>());
+        auto placer = std::make_shared<IconPlacer>();
         gSuggestedLocation = &placer->gSuggestedLocation;
         add(placer);
-        add(new FadeFromBlack(fade_time_intro));
+        add(std::make_shared<FadeFromBlack>(fade_time_intro));
     }
 
     void buildRules(const foo_global_data& gd)
@@ -1099,7 +1099,7 @@ struct Game
     {
         if (!quiting)
         {
-            add(new FadeToBlackAndExit(fade_time_outro));
+            add(std::make_shared<FadeToBlackAndExit>(fade_time_outro));
             quiting = true;
         }
     }
@@ -1159,7 +1159,7 @@ struct Game
         {
             if (gCurrentCursorState == cross_or_circle::ai && !aiHasMoved)
             {
-                add(new AiPlacerObject(rand));
+                add(std::make_shared<AiPlacerObject>(rand));
                 aiHasMoved = true;
             }
             else if (gCurrentCursorState != cross_or_circle::ai)
@@ -1188,9 +1188,8 @@ struct Game
         cheer();
     }
 
-    void add(Object* iObject)
+    void add(ObjectPtr object)
     {
-        ObjectPtr object(iObject);
         mObjects.push_back(object);
     }
 
@@ -1198,7 +1197,7 @@ struct Game
     bool quit;
     bool quiting;
     GameWorld world;
-    Cube* cube[4];
+    std::shared_ptr<Cube> cube[4];
     bool hasWon;
     WinningCombination mWinningCombo;
     WinningCombination* combo;
@@ -1501,7 +1500,7 @@ struct StartNewGameFader : FullscreenColorSprite
 
 void AddStartNewGameFader(Game& iGame)
 {
-    iGame.add(new StartNewGameFader());
+    iGame.add(std::make_shared<StartNewGameFader>());
 }
 
 void QuitGame()
