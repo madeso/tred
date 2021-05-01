@@ -276,13 +276,15 @@ struct FadeFromBlack : FullscreenColorSprite
     const float time;
 };
 
-void QuitGame();
-
 struct FadeToBlackAndExit : FullscreenColorSprite
 {
-    FadeToBlackAndExit(float iTime)
+    const float time;
+    std::function<void()> callback;
+
+    FadeToBlackAndExit(float iTime, std::function<void ()>&& f)
         : FullscreenColorSprite({0, 0, 0, 0})
-          , time(iTime)
+        , time(iTime)
+        , callback(f)
     {
     }
 
@@ -291,12 +293,11 @@ struct FadeToBlackAndExit : FullscreenColorSprite
         color.a += delta / time;
         if (color.a > 1.0f)
         {
-            QuitGame();
+            callback();
         }
         color.a = std::max(color.a, 0.0f);
     }
 
-    const float time;
 };
 
 
@@ -1095,7 +1096,7 @@ struct Game
     {
         if (!quiting)
         {
-            add(std::make_shared<FadeToBlackAndExit>(fade_time_outro));
+            add(std::make_shared<FadeToBlackAndExit>(fade_time_outro, [this]() {quit = false; }));
             quiting = true;
         }
     }
@@ -1509,12 +1510,6 @@ void AddStartNewGameFader(Game& iGame)
     iGame.add(std::make_shared<StartNewGameFader>());
 }
 
-void QuitGame()
-{
-    gGame->quit = true;
-}
-
-
 enum struct game_state { game, menu };
 
 struct fourthd_game : game
@@ -1568,7 +1563,7 @@ struct fourthd_game : game
         {
         case game_state::game:
             game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
-            return !gGame->quit;
+            return !game.quit;
         case game_state::menu:
             menu.update(&gd, mouse, mouse_button, dt);
             break;
