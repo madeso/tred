@@ -127,8 +127,9 @@ struct example_game : public game
         r.batch->quad(&letter_g, rect{40, 40}.translate(40, 40), {});
     }
 
-    void on_mouse_position(const glm::ivec2& p) override
+    void on_mouse_position(const command2&, const glm::ivec2& p) override
     {
+        // todo(Gustav): store world mouse?
         mouse = {p.x, p.y};
     }
 };

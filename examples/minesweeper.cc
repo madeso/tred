@@ -18,6 +18,7 @@
 
 
 constexpr auto black = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
+constexpr auto font = ::onebit::font{12.0f};
 
 enum class game_state { playing, game_over, game_completed};
 
@@ -289,11 +290,11 @@ struct minesweeper_game : public game
 
         auto game_world = rect{200.0f, 200.0f};
 
-        const auto title_rect = cut_bottom(&game_world, ::onebit::font_size + wavy_range + spacing * 2)
-            .center_hor(::onebit::get_width_of_string(game_title))
-            .center_vert(::onebit::font_size);
+        const auto title_rect = cut_bottom(&game_world, font.size + wavy_range + spacing * 2)
+            .center_hor(font.get_width_of_string(game_title))
+            .center_vert(font.size);
         const auto restart_rect = cut_bottom(&game_world, button_size + spacing * 2);
-        /* const auto score_rect = */ cut_bottom(&game_world, ::onebit::font_size + spacing * 2);
+        /* const auto score_rect = */ cut_bottom(&game_world, font.size + spacing * 2);
         ms.play_area = game_world.extend(-1.0f);
         game_button = restart_rect.cut_to_center(button_size, button_size);
 
@@ -313,11 +314,12 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        ::onebit::simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
+        font.simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
-    void on_mouse_position(const glm::ivec2& p) override
+    void on_mouse_position(const command2&, const glm::ivec2& p) override
     {
+        // todo(gustav): transform to world...
         mouse = {p.x, p.y};
     }
 

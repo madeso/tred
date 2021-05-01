@@ -16,8 +16,11 @@
 
 constexpr rect sprite_size = {16, 16};
 
+constexpr auto font = ::onebit::font{30.0f};
+
 struct render_data
 {
+    rect viewport_aabb_in_worldspace;
     texture* onebit;
     sprite_batch* batch;
 };
@@ -49,7 +52,7 @@ public:
     void render(const render_data& data)
     {
         float gray = 0.6f;
-        ::onebit::simple_text(data.batch, data.onebit, {gray, gray, gray, 1}, x, y, text, ::onebit::no_text_animation{});
+        font.simple_text(data.batch, data.onebit, {gray, gray, gray, 1}, x, y, text, ::onebit::no_text_animation{});
     }
 
     std::string text;
@@ -69,13 +72,13 @@ public:
         constexpr glm::vec4 over_color = {0, 0, 1, 1};
         constexpr glm::vec4 default_color = {1, 1, 1, 1};
         const auto color = over ? over_color : default_color;
-        ::onebit::simple_text(data.batch, data.onebit, color, x, y, text, ::onebit::no_text_animation{});
+        font.simple_text(data.batch, data.onebit, color, x, y, text, ::onebit::no_text_animation{});
     }
 
     bool test(const glm::vec2& mouse)
     {
-        const float w = ::onebit::get_width_of_string(text);
-        const float h = ::onebit::font_size;
+        const float w = font.get_width_of_string(text);
+        const float h = font.size;
         const auto rect = ::rect{x, y, x+w, y+h};
         over = rect.is_inside_inclusive(mouse.x, mouse.y);
         return over;
@@ -233,9 +236,10 @@ struct Background : public Object
     {
     }
 
-    void render(const render_data&)
+    void render(const render_data& rd)
     {
         // sprite->RenderStretch(0, 0, WIDTH, HEIGHT);
+        rd.batch->quad({}, rd.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
     }
 };
 
@@ -555,6 +559,7 @@ public:
 
         return COC_NEITHER;
     }
+
     void addWinningCondition(TestWinningConditionFunction condition)
     {
         mWinningConditions.push_back(condition);
@@ -953,7 +958,7 @@ struct PressKeyToContinue : public Object
         if( interact )
         {
             // todo(Gustav): make center
-            ::onebit::simple_text(rd.batch, rd.onebit, {}, WIDTH / 2, HEIGHT - 35, "Click To Play Again", ::onebit::no_text_animation{});
+            font.simple_text(rd.batch, rd.onebit, {}, WIDTH / 2, HEIGHT - 35, "Click To Play Again", ::onebit::no_text_animation{});
         }
     }
 
@@ -1609,12 +1614,14 @@ struct fourthd_game : public game
         return true;
     }
 
+    constexpr static auto layout = layout_data{viewport_style::black_bars, WIDTH, HEIGHT, glm::mat4(1.0f)};
+
     void
     on_render(const render_command2& rc) override
     {
-        auto r = with_layer(rc, {viewport_style::extended, WIDTH, HEIGHT, glm::mat4(1.0f)});
+        auto r = with_layer(rc, layout);
 
-        auto rd = render_data{&onebit, r.batch};
+        auto rd = render_data{r.viewport_aabb_in_worldspace, &onebit, r.batch};
 
         switch(state)
         {
@@ -1633,9 +1640,9 @@ struct fourthd_game : public game
         }
     }
 
-    void on_mouse_position(const glm::ivec2& p) override
+    void on_mouse_position(const command2& c, const glm::ivec2& p) override
     {
-        mouse = {p.x, p.y};
+        mouse = with_layer(c, layout).mouse_to_world({p.x, p.y});
     }
 };
 

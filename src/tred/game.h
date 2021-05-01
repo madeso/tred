@@ -113,7 +113,7 @@ struct game
     virtual bool on_update(float);
 
     virtual void on_key(char key, bool down);
-    virtual void on_mouse_position(const glm::ivec2& position);
+    virtual void on_mouse_position(const command2&, const glm::ivec2& position);
     virtual void on_mouse_button(const command2&, input::mouse_button button, bool down);
     virtual void on_mouse_wheel(int scroll);
 };

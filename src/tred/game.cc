@@ -300,7 +300,7 @@ void game::on_render(const render_command2&) {}
 void game::on_imgui() {}
 bool game::on_update(float) { return true; }
 void game::on_key(char, bool) {}
-void game::on_mouse_position(const glm::ivec2&) {}
+void game::on_mouse_position(const command2&, const glm::ivec2&) {}
 void game::on_mouse_button(const command2&, input::mouse_button, bool) {}
 void game::on_mouse_wheel(int) {}
 
@@ -487,7 +487,7 @@ void pump_events(window* window)
         case SDL_MOUSEMOTION:
             if(handle_mouse)
             {
-                window->game->on_mouse_position(glm::ivec2{e.motion.x, window->size.y - e.motion.y});
+                window->game->on_mouse_position({window->size}, glm::ivec2{e.motion.x, window->size.y - e.motion.y});
             }
             break;
 

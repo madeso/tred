@@ -25,9 +25,10 @@ namespace onebit
     }
 
 
-    void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim)
+    void font::simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim) const
     {
-        constexpr auto sprite = rect{font_size, font_size};
+        const auto font_spacing = get_spacing();
+        const auto sprite = rect{size, size};
 
         int position_in_string = 0;
 
@@ -51,9 +52,9 @@ namespace onebit
         }
     }
 
-    float get_width_of_string(const std::string& text_to_draw)
+    float font::get_width_of_string(const std::string& text_to_draw) const
     {
-        return static_cast<float>(text_to_draw.length()) * font_spacing;
+        return static_cast<float>(text_to_draw.length()) * get_spacing();
     }
 
 }
