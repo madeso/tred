@@ -55,4 +55,7 @@ namespace onebit
     constexpr recti n5 = get(40, 17); constexpr recti n6 = get(41, 17); constexpr recti n7 = get(42, 17); constexpr recti n8 = get(43, 17); constexpr recti n9 = get(44, 17);
 
     constexpr recti char_a = get(35, 18);
+
+    constexpr recti cross = get(39, 13);
+    constexpr recti circle = get(40, 13);
 }

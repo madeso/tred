@@ -48,3 +48,9 @@ Csizet_to_glsizei(std::size_t t)
 {
     return static_cast<GLsizei>(t);
 }
+
+float
+Cint_to_float(int i)
+{
+    return static_cast<float>(i);
+}

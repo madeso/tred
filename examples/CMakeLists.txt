@@ -51,3 +51,10 @@ target_include_directories(minesweeper
     PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_executable(4d WIN32 MACOSX_BUNDLE 4thdimension.cc)
+target_link_libraries(
+    4d
+    PUBLIC tred sprites_onebit
+    PRIVATE project_options project_warnings
+)

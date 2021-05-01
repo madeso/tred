@@ -34,3 +34,5 @@ Csizet_to_glsizeiptr(std::size_t t);
 GLsizei
 Csizet_to_glsizei(std::size_t t);
 
+float
+Cint_to_float(int i);
