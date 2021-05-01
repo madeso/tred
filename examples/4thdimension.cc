@@ -208,7 +208,7 @@ void ExecuteComputerMove(cursor* cur, const game_settings& gd, Random* rand);
 struct Object
 {
     Object()
-        : mShouldKill(false)
+        : should_kill(false)
     {
     }
 
@@ -225,16 +225,10 @@ struct Object
 
     void kill()
     {
-        mShouldKill = true;
+        should_kill = true;
     }
 
-    bool shouldKill() const
-    {
-        return mShouldKill;
-    }
-
-private:
-    bool mShouldKill;
+    bool should_kill;
 };
 
 struct Background : Object
@@ -308,10 +302,6 @@ struct FadeToBlackAndExit : FullscreenColorSprite
     const float time;
 };
 
-bool IsRemoveable(const std::shared_ptr<Object>& object)
-{
-    return object->shouldKill();
-}
 
 struct SuggestedLocation
 {
@@ -1129,14 +1119,24 @@ struct Game
         {
             mObjects[i]->update(gd, delta, interact, mouse_position, mouse);
         }
-        mObjects.erase(std::remove_if(mObjects.begin(), mObjects.end(), IsRemoveable), mObjects.end());
+        mObjects.erase
+        (
+            std::remove_if
+            (
+                mObjects.begin(), mObjects.end(),
+                [](const std::shared_ptr<Object>&object)
+                {
+                    return object->should_kill;
+                }
+            ),
+            mObjects.end()
+        );
 
         if (interact)
         {
             for(int i=0; i<4; i+=1)
             {
-                cube[i]->
-                testPlacements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+                cube[i]->testPlacements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
             }
         }
 
