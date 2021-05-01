@@ -1500,17 +1500,6 @@ void QuitGame()
     gGame->quit = true;
 }
 
-bool FrameFunc(const foo_global_data& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
-{
-    gGame->update(gd, rand, mouse, oldMouse, delta, mouse_position, enter_state);
-    return gGame->quit;
-}
-
-void RenderFunc(const render_data& rd)
-{
-    gGame->render(rd);
-}
-
 bool FrameFuncNull()
 {
     return false;
@@ -1588,8 +1577,8 @@ struct fourthd_game : game
             FrameFuncNull();
             break;
         case game_state::game:
-            FrameFunc(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
-            break;
+            game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
+            return !gGame->quit;
         case game_state::menu:
             menu.update(&gd, mouse, mouse_button, dt);
             break;
@@ -1617,7 +1606,7 @@ struct fourthd_game : game
             RenderFuncNull(rd);
             break;
         case game_state::game:
-            RenderFunc(rd);
+            game.render(rd);
             break;
         case game_state::menu:
             menu.render(rd);
