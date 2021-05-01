@@ -16,6 +16,7 @@ enable_sanitizers(project_options)
 
 add_subdirectory(tools)
 add_subdirectory(external)
+add_subdirectory(data/sprites)
 add_subdirectory(src)
 add_subdirectory(examples)
 

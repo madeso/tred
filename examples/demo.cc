@@ -4,7 +4,6 @@
 
 #include "tred/random.h"
 
-#include "cards.png.h"
 #include "letter_g.png.h"
 #include "sprites/cards.h"
 
@@ -88,13 +87,7 @@ struct example_game : public game
     example_game()
         : cards
         (
-            load_image_from_embedded
-            (
-                CARDS_PNG,
-                texture_edge::clamp,
-                texture_render_style::smooth,
-                transparency::include
-            )
+            ::cards::load_texture()
         )
         , letter_g
         (

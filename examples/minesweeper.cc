@@ -3,7 +3,6 @@
 #include <array>
 #include <vector>
 
-#include "onebit.png.h"
 #include "sprites/onebit.h"
 
 #include "tred/random.h"
@@ -318,13 +317,7 @@ struct minesweeper_game : public game
     minesweeper_game()
         : onebit
         (
-            load_image_from_embedded
-            (
-                ONEBIT_PNG,
-                texture_edge::clamp,
-                texture_render_style::pixel,
-                transparency::include
-            )
+            ::onebit::load_texture()
         )
         , mouse(0, 0)
         , ms(10, 10, 10)

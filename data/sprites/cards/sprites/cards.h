@@ -1,11 +1,14 @@
 #pragma once
 
 #include "tred/rect.h"
+#include "tred/image.h"
 
 #include <array>
 
 namespace cards
 {
+    loaded_image load_texture();
+
     // probably want to move this to a game logic?
     enum class type
     {

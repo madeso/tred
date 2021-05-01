@@ -25,15 +25,14 @@ target_include_directories(example
 source_group("" FILES ${src})
 source_group("generated" FILES ${generated})
 
-embed(demo_cards
+embed(demo_letter
     AS_BINARY
-        ../data/sprites/cards.png
         ../data/sprites/letter_g.png
 )
-add_executable(demo WIN32 MACOSX_BUNDLE demo.cc ${demo_cards})
+add_executable(demo WIN32 MACOSX_BUNDLE demo.cc ${demo_letter})
 target_link_libraries(
     demo
-    PUBLIC tred sprites
+    PUBLIC tred sprites_cards
     PRIVATE project_options project_warnings
 )
 target_include_directories(demo
@@ -42,14 +41,10 @@ target_include_directories(demo
 )
 
 
-embed(demo_minesweeper
-    AS_BINARY
-        ../data/sprites/onebit.png
-)
-add_executable(minesweeper WIN32 MACOSX_BUNDLE minesweeper.cc ${demo_minesweeper})
+add_executable(minesweeper WIN32 MACOSX_BUNDLE minesweeper.cc)
 target_link_libraries(
     minesweeper
-    PUBLIC tred sprites
+    PUBLIC tred sprites_onebit
     PRIVATE project_options project_warnings
 )
 target_include_directories(minesweeper

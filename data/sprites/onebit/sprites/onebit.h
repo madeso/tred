@@ -1,11 +1,14 @@
 #pragma once
 
+#include "tred/image.h"
 #include "tred/rect.h"
 
 #include <string_view>
 
 namespace onebit
 {
+    loaded_image load_texture();
+
 	constexpr recti get(int x, int y) { return recti::from_xywh(16*x, 16*y, 16, 16); }
 
     constexpr std::string_view text_string =
