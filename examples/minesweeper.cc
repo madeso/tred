@@ -4,76 +4,9 @@
 #include <vector>
 
 #include "sprites/onebit.h"
+#include "sprites/onebit_font.h"
 
 #include "tred/random.h"
-
-constexpr auto font_size = 12.0f;
-
-struct text_animation
-{
-    virtual ~text_animation() = default;
-    virtual rect transform(int at, const rect& r) const = 0;
-};
-
-struct no_text_animation : public text_animation
-{
-    rect transform(int, const rect& r) const override { return r; }
-};
-
-struct siny_animation : public text_animation
-{
-    float change;
-    float scale;
-    float offset;
-
-    siny_animation(float c, float s, float o)
-        : change(c)
-        , scale(s)
-        , offset(o)
-    {
-    }
-
-    rect transform(int index, const rect& r) const override
-    {
-        const auto a = static_cast<float>(index) * scale + offset;
-        constexpr float one_turn = 6.28318530718f; // 2*pi, thanks google
-        return r.translate(0.0f, std::sin(a * one_turn) * change);
-    }
-};
-
-constexpr auto font_spacing = font_size * 0.7f;
-
-void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim)
-{
-    constexpr auto sprite = rect{font_size, font_size};
-
-
-    int position_in_string = 0;
-
-    for(char c: text)
-    {
-        if(c == ' ')
-        {
-            x += font_spacing;
-            position_in_string += 1;
-        }
-        else
-        {
-            // silently ignore missing characters
-            if(auto index = ::onebit::text_string.find(c); index != std::string_view::npos)
-            {
-                batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[static_cast<std::size_t>(index)], color);
-                x += font_spacing;
-                position_in_string += 1;
-            }
-        }
-    }
-}
-
-float get_width_of_string(const std::string& text)
-{
-    return static_cast<float>(text.length()) * font_spacing;
-}
 
 
 // todo(Gustav): add markers.. bomb and question
@@ -356,11 +289,11 @@ struct minesweeper_game : public game
 
         auto game_world = rect{200.0f, 200.0f};
 
-        const auto title_rect = cut_bottom(&game_world, font_size + wavy_range + spacing * 2)
-            .center_hor(get_width_of_string(game_title))
-            .center_vert(font_size);
+        const auto title_rect = cut_bottom(&game_world, ::onebit::font_size + wavy_range + spacing * 2)
+            .center_hor(::onebit::get_width_of_string(game_title))
+            .center_vert(::onebit::font_size);
         const auto restart_rect = cut_bottom(&game_world, button_size + spacing * 2);
-        /* const auto score_rect = */ cut_bottom(&game_world, font_size + spacing * 2);
+        /* const auto score_rect = */ cut_bottom(&game_world, ::onebit::font_size + spacing * 2);
         ms.play_area = game_world.extend(-1.0f);
         game_button = restart_rect.cut_to_center(button_size, button_size);
 
@@ -380,7 +313,7 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, siny_animation{wavy_range, 0.2f, title_anim});
+        ::onebit::simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
     void on_mouse_position(const glm::ivec2& p) override

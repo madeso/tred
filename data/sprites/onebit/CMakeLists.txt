@@ -1,5 +1,6 @@
 set(src
     sprites/onebit.cc sprites/onebit.h
+    sprites/onebit_font.cc sprites/onebit_font.h
 )
 embed(sprites
     AS_BINARY

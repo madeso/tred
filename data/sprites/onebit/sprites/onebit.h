@@ -54,5 +54,5 @@ namespace onebit
     constexpr recti n0 = get(35, 17); constexpr recti n1 = get(36, 17); constexpr recti n2 = get(37, 17); constexpr recti n3 = get(38, 17); constexpr recti n4 = get(39, 17);
     constexpr recti n5 = get(40, 17); constexpr recti n6 = get(41, 17); constexpr recti n7 = get(42, 17); constexpr recti n8 = get(43, 17); constexpr recti n9 = get(44, 17);
 
-    constexpr recti a = get(35, 18);
+    constexpr recti char_a = get(35, 18);
 }
