@@ -32,11 +32,14 @@ using namespace std;
 
 void Click();
 
+struct Menu;
+
 struct foo_global_data
 {
     bool gAgainstComputer = true;
     bool gBadAi = true;
     bool gHardMode = false;
+    Menu* gMenu = nullptr;
 };
 
 void SetGameCallbacks();
@@ -198,8 +201,6 @@ struct Menu
     Label mostRulesDesc;
     Label rulesLabel;
 };
-
-Menu* gMenu = nullptr;
 
 void ExecuteComputerMove(const foo_global_data& gd, Random* rand);
 
@@ -1510,18 +1511,6 @@ void RenderFunc(const render_data& rd)
     gGame->render(rd);
 }
 
-bool MenuFrameFunc(foo_global_data* gd, const glm::vec2& mouse, bool down, float dt)
-{
-    gMenu->update(gd, mouse, down, dt);
-    return false;
-}
-
-
-void MenuRenderFunc(const render_data& rd)
-{
-    gMenu->render(rd);
-}
-
 bool FrameFuncNull()
 {
     return false;
@@ -1587,7 +1576,7 @@ struct fourthd_game : game
           , mouse(0, 0)
     {
         gGame = &game;
-        gMenu = &menu;
+        gd.gMenu = &menu;
     }
 
     bool
@@ -1602,7 +1591,7 @@ struct fourthd_game : game
             FrameFunc(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
             break;
         case game_state::menu:
-            MenuFrameFunc(&gd, mouse, mouse_button, dt);
+            menu.update(&gd, mouse, mouse_button, dt);
             break;
         default:
             assert(false);
@@ -1631,7 +1620,7 @@ struct fourthd_game : game
             RenderFunc(rd);
             break;
         case game_state::menu:
-            MenuRenderFunc(rd);
+            menu.render(rd);
             break;
         default:
             assert(false);
