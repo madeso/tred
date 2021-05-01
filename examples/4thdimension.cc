@@ -39,7 +39,6 @@ struct foo_global_data
     bool gAgainstComputer = true;
     bool gBadAi = true;
     bool gHardMode = false;
-    Menu* gMenu = nullptr;
 };
 
 void SetGameCallbacks();
@@ -1559,7 +1558,6 @@ struct fourthd_game : game
           , mouse(0, 0)
     {
         gGame = &game;
-        gd.gMenu = &menu;
     }
 
     bool
