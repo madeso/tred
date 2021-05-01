@@ -864,11 +864,7 @@ struct Cube : public Object
         }
         if( interact )
         {
-            const auto rect = sprite_size.translate(x, y);
-            if( rect.is_inside_inclusive(mouse.x, mouse.y) )
-            {
-                testPlacements(mouse.x, mouse.y, down);
-            }
+            testPlacements(mouse.x, mouse.y, down);
         }
     }
 
