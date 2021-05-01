@@ -1500,28 +1500,14 @@ void QuitGame()
     gGame->quit = true;
 }
 
-bool FrameFuncNull()
-{
-    return false;
-}
-
-void RenderFuncNull(const render_data&)
-{
-}
-
 void BuildRules(const foo_global_data& gd)
 {
     gGame->buildRules(gd);
 }
 
-enum struct game_state { empty, game, menu };
+enum struct game_state { game, menu };
 
 game_state state = game_state::menu;
-
-void Clear()
-{
-    state = game_state::empty;
-}
 
 void SetGameCallbacks()
 {
@@ -1573,9 +1559,6 @@ struct fourthd_game : game
     {
         switch (state)
         {
-        case game_state::empty:
-            FrameFuncNull();
-            break;
         case game_state::game:
             game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
             return !gGame->quit;
@@ -1602,9 +1585,6 @@ struct fourthd_game : game
 
         switch (state)
         {
-        case game_state::empty:
-            RenderFuncNull(rd);
-            break;
         case game_state::game:
             game.render(rd);
             break;
