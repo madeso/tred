@@ -11,24 +11,24 @@
 template<typename T>
 struct trect
 {
-    T minx;
-    T miny;
-    T maxx;
-    T maxy;
+    T left;
+    T bottom;
+    T right;
+    T top;
 
     constexpr trect<T>
     (
-          T mix
-        , T miy
-        , T max
-        , T may
+          T l
+        , T b
+        , T r
+        , T t
     )
-        : minx(mix)
-        , miny(miy)
-        , maxx(max)
-        , maxy(may)
+        : left(l)
+        , bottom(b)
+        , right(r)
+        , top(t)
     {
-        assert(minx <= maxx && miny <= maxy);
+        assert(left <= right && bottom <= top);
     }
 
     constexpr trect<T>
@@ -36,10 +36,10 @@ struct trect
           T width
         , T height
     )
-        : minx(0)
-        , miny(0)
-        , maxx(width)
-        , maxy(height)
+        : left(0)
+        , bottom(0)
+        , right(width)
+        , top(height)
     {
         assert(width >= 0 && height >= 0);
     }
@@ -47,34 +47,26 @@ struct trect
     constexpr trect<T>
     zero() const
     {
-        return {0, 0, maxx - minx, maxy - miny};
+        return {0, 0, right - left, top - bottom};
     }
 
     constexpr trect<T>
     scale_uniform(T s) const
     {
-        return {minx * s, miny * s, maxx * s, maxy * s};
+        return {left * s, bottom * s, right * s, top * s};
     }
 
     constexpr bool
     is_inside_inclusive(T x, T y) const
     {
-        return x >= minx && x <= maxx
-            && y >= miny && y <= maxy;
-    }
-
-    // todo(Gustav): replace with a specific function call
-    template<typename Y>
-    constexpr trect<Y>
-    cast() const
-    {
-        return {static_cast<Y>(minx), static_cast<Y>(miny), static_cast<Y>(maxx), static_cast<Y>(maxy)};
+        return x >= left && x <= right
+            && y >= bottom && y <= top;
     }
 
     constexpr trect<T>
     translate(T dx, T dy) const
     {
-        return {minx + dx, miny + dy, maxx + dx, maxy + dy};
+        return {left + dx, bottom + dy, right + dx, top + dy};
     }
 
     template<glm::qualifier Q>
@@ -90,8 +82,8 @@ struct trect
     {
         return
         {
-            (p.x - minx) / get_width(),
-            (p.y - miny) / get_height()
+            (p.x - left) / get_width(),
+            (p.y - bottom) / get_height()
         };
     }
 
@@ -101,21 +93,21 @@ struct trect
     {
         return
         {
-            minx + (p.x * get_width()),
-            miny + (p.y * get_height())
+            left + (p.x * get_width()),
+            bottom + (p.y * get_height())
         };
     }
 
     constexpr T
     get_height() const
     {
-        return maxy - miny;
+        return top - bottom;
     }
 
     constexpr T
     get_width() const
     {
-        return maxx - minx;
+        return right - left;
     }
 
     constexpr T
@@ -155,22 +147,22 @@ struct trect
     // Useful for tooltips and other overlay elements.
     constexpr trect<T> add_left(T a) const
     {
-        return {minx-a, miny, maxx, maxy};
+        return {left-a, bottom, right, top};
     }
 
     constexpr trect<T> add_right(T a) const
     {
-        return {minx, miny, maxx+a, maxy};
+        return {left, bottom, right+a, top};
     }
 
     constexpr trect<T> add_top(T a) const
     {
-        return {minx, miny, maxx, maxy+a};
+        return {left, bottom, right, top+a};
     }
 
     constexpr trect<T> add_bottom(T a) const
     {
-        return {minx, miny-a, maxx, maxy};
+        return {left, bottom-a, right, top};
     }
 
     constexpr trect<T> extend(T a) const
@@ -181,15 +173,15 @@ struct trect
     constexpr trect<T> center_hor(T w) const
     {
         const auto dx = (get_width() - w)/2;
-        const auto x = minx+dx;
-        return {x,miny, x+w, maxy};
+        const auto x = left+dx;
+        return {x,bottom, x+w, top};
     }
 
     constexpr trect<T> center_vert(T h) const
     {
         const auto dy = (get_height() - h)/2;
-        const auto y = miny+dy;
-        return {minx,y, maxx, y+h};
+        const auto y = bottom+dy;
+        return {left,y, right, y+h};
     }
 
     constexpr trect<T> cut_to_center(T w, T h) const
@@ -218,36 +210,36 @@ template<typename T>
 trect<T>
 cut_left(trect<T>* rect, T a)
 {
-    T minx = rect->minx;
-    rect->minx = std::min(rect->maxx, rect->minx + a);
-    return { minx, rect->miny, rect->minx, rect->maxy };
+    T old_left = rect->left;
+    rect->left = std::min(rect->right, rect->left + a);
+    return { old_left, rect->bottom, rect->left, rect->top };
 }
 
 template<typename T>
 trect<T>
 cut_right(trect<T>* rect, T a)
 {
-    T maxx = rect->maxx;
-    rect->maxx = std::max(rect->minx, rect->maxx - a);
-    return { rect->maxx, rect->miny, maxx, rect->maxy };
+    T old_right = rect->right;
+    rect->right = std::max(rect->left, rect->right - a);
+    return { rect->right, rect->bottom, old_right, rect->top };
 }
 
 template<typename T>
 trect<T>
 cut_top(trect<T>* rect, T a)
 {
-    T miny = rect->miny;
-    rect->miny = std::min(rect->maxy, rect->miny + a);
-    return { rect->minx, miny, rect->maxx, rect->miny };
+    T old_bottom = rect->bottom;
+    rect->bottom = std::min(rect->top, rect->bottom + a);
+    return { rect->left, old_bottom, rect->right, rect->bottom };
 }
 
 template<typename T>
 trect<T>
 cut_bottom(trect<T>* rect, T a)
 {
-    T maxy = rect->maxy;
-    rect->maxy = std::max(rect->miny, rect->maxy - a);
-    return { rect->minx, rect->maxy, rect->maxx, maxy };
+    T old_top = rect->top;
+    rect->top = std::max(rect->bottom, rect->top - a);
+    return { rect->left, rect->top, rect->right, old_top };
 }
 
 template<typename T>
@@ -289,9 +281,9 @@ Cint_to_float(const recti& r)
 {
     return
     {
-        static_cast<float>(r.minx),
-        static_cast<float>(r.miny),
-        static_cast<float>(r.maxx),
-        static_cast<float>(r.maxy)
+        static_cast<float>(r.left),
+        static_cast<float>(r.bottom),
+        static_cast<float>(r.right),
+        static_cast<float>(r.top)
     };
 }

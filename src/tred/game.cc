@@ -27,7 +27,7 @@
 
 void set_gl_viewport(const recti& r)
 {
-    glViewport(r.minx, r.miny, r.get_width(), r.get_height());
+    glViewport(r.left, r.bottom, r.get_width(), r.get_height());
 }
 
 render_layer2::~render_layer2()
@@ -63,7 +63,7 @@ render_layer2 create_layer(const render_command2& rc, const viewport_definition&
 glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
 {
     // transform from mouse pixels to window 0-1
-    const auto n = screen.cast<float>().to01(p);
+    const auto n = Cint_to_float(screen).to01(p);
     return viewport_aabb_in_worldspace.from01(n);
 }
 
@@ -158,7 +158,7 @@ rect get_sprite(const texture& texture, const recti& ri)
     const auto r = Cint_to_float(ri);
     const auto w = 1.0f/static_cast<float>(texture.width);
     const auto h = 1.0f/static_cast<float>(texture.height);
-    return {r.minx * w, 1-r.maxy * h, r.maxx * w, 1-r.miny * h};
+    return {r.left * w, 1-r.top * h, r.right * w, 1-r.bottom * h};
 }
 
 void sprite_batch::quad(std::optional<texture*> texture_argument, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
@@ -194,10 +194,10 @@ void sprite_batch::quad(std::optional<texture*> texture, const rect& scr, const 
     quad
     (
         texture,
-        {{scr.minx, scr.miny, 0.0f}, tint, {tc.minx, tc.miny}},
-        {{scr.maxx, scr.miny, 0.0f}, tint, {tc.maxx, tc.miny}},
-        {{scr.maxx, scr.maxy, 0.0f}, tint, {tc.maxx, tc.maxy}},
-        {{scr.minx, scr.maxy, 0.0f}, tint, {tc.minx, tc.maxy}}
+        {{scr.left, scr.bottom, 0.0f}, tint, {tc.left, tc.bottom}},
+        {{scr.right, scr.bottom, 0.0f}, tint, {tc.right, tc.bottom}},
+        {{scr.right, scr.top, 0.0f}, tint, {tc.right, tc.top}},
+        {{scr.left, scr.top, 0.0f}, tint, {tc.left, tc.top}}
     );
 }
 

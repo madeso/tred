@@ -161,8 +161,8 @@ struct minesweeper
             return (avaiable - sprite_size * static_cast<float>(count)) / 2.0f;
         };
         const auto s = sprite();
-        const auto base_x = play_area.minx + center(s.get_width(), play_area.get_width(), width);
-        const auto base_y = play_area.miny + center(s.get_height(), play_area.get_height(), height);
+        const auto base_x = play_area.left + center(s.get_width(), play_area.get_width(), width);
+        const auto base_y = play_area.bottom + center(s.get_height(), play_area.get_height(), height);
         return s.translate
         (
             base_x + static_cast<float>(x) * s.get_width(),
@@ -314,7 +314,7 @@ struct minesweeper_game : public game
             case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
-        font.simple_text(r.batch, &onebit, black, title_rect.minx, title_rect.miny, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
+        font.simple_text(r.batch, &onebit, black, title_rect.left, title_rect.bottom, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
     void on_mouse_position(const command2&, const glm::ivec2& p) override
