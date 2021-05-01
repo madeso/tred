@@ -41,10 +41,6 @@ struct game_settings
     bool use_hard_mode = false;
 };
 
-void SetGameCallbacks();
-void SetMenuCallbacks();
-void BuildRules(const game_settings& gd);
-
 struct Label
 {
     Label(const std::string& iText, float iX, float iY)
@@ -115,6 +111,8 @@ struct Menu
     {
     }
 
+    std::function<void()> on_start_game;
+
     void update(game_settings* gd, const glm::vec2& mouse, bool down, float)
     {
         const auto clicked = !down && cursorDown;
@@ -161,8 +159,7 @@ struct Menu
         }
         else
         {
-            BuildRules(*gd);
-            SetGameCallbacks();
+            on_start_game();
             state = 0;
         }
     }
@@ -1449,17 +1446,17 @@ void ExecuteComputerMoveTest(cursor* cur, const game_settings& gd, Random* rand)
 
     vector<Index> bestPlacements;
     const int bestValue = placements.rbegin()->factor;
-    for (multiset<Placement>::iterator i = placements.begin(); i != placements.end(); ++i)
+    for (auto placement : placements)
     {
-        if (i->factor == bestValue)
+        if (placement.factor == bestValue)
         {
-            bestPlacements.push_back(i->index);
+            bestPlacements.push_back(placement.index);
         }
     }
 
     const int index = rand->get_excluding(Csizet_to_int(bestPlacements.size()));
-    Index placeThis = bestPlacements[Cint_to_sizet(index)];
-    ComputerPlaceMarker(cur, gd, placeThis.cube, placeThis.column, placeThis.row);
+    const auto place_here = bestPlacements[Cint_to_sizet(index)];
+    ComputerPlaceMarker(cur, gd, place_here.cube, place_here.column, place_here.row);
 }
 
 void ExecuteComputerMove(cursor* cur, const game_settings& gd, Random* rand)
@@ -1517,25 +1514,8 @@ void QuitGame()
     gGame->quit = true;
 }
 
-void BuildRules(const game_settings& gd)
-{
-    gGame->buildRules(gd);
-}
 
 enum struct game_state { game, menu };
-
-game_state state = game_state::menu;
-
-void SetGameCallbacks()
-{
-    state = game_state::game;
-}
-
-void SetMenuCallbacks()
-{
-    state = game_state::menu;
-}
-
 
 struct fourthd_game : game
 {
@@ -1559,6 +1539,13 @@ struct fourthd_game : game
         mouse_button = down;
     }
 
+    game_state state = game_state::menu;
+
+    void start_game()
+    {
+        state = game_state::game;
+        game.buildRules(gd);
+    }
 
     fourthd_game()
         : onebit
@@ -1568,6 +1555,10 @@ struct fourthd_game : game
           , mouse(0, 0)
     {
         gGame = &game;
+        menu.on_start_game = [this]()
+        {
+            start_game();
+        };
     }
 
     bool
