@@ -944,7 +944,7 @@ struct PressKeyToContinue : Object
         if (interact)
         {
             // todo(Gustav): make center
-            font.simple_text(rd.batch, rd.onebit, {}, width / 2, height - 35, "Click To Play Again",
+            font.simple_text(rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "Click To Play Again",
                              onebit::no_text_animation{});
         }
     }
