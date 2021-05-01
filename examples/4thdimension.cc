@@ -34,16 +34,16 @@ void Click();
 
 struct Menu;
 
-struct foo_global_data
+struct game_settings
 {
-    bool gAgainstComputer = true;
-    bool gBadAi = true;
-    bool gHardMode = false;
+    bool play_against_computer = true;
+    bool use_bad_ai = true;
+    bool use_hard_mode = false;
 };
 
 void SetGameCallbacks();
 void SetMenuCallbacks();
-void BuildRules(const foo_global_data& gd);
+void BuildRules(const game_settings& gd);
 
 struct Label
 {
@@ -115,7 +115,7 @@ struct Menu
     {
     }
 
-    void update(foo_global_data* gd, const glm::vec2& mouse, bool down, float)
+    void update(game_settings* gd, const glm::vec2& mouse, bool down, float)
     {
         const auto clicked = !down && cursorDown;
         cursorDown = down;
@@ -125,22 +125,22 @@ struct Menu
             if (hardAi.test(mouse) && clicked)
             {
                 ++state;
-                gd->gAgainstComputer = true;
-                gd->gBadAi = false;
+                gd->play_against_computer = true;
+                gd->use_bad_ai = false;
                 Click();
             }
             else if (easyAi.test(mouse) && clicked)
             {
                 ++state;
-                gd->gAgainstComputer = true;
-                gd->gBadAi = true;
+                gd->play_against_computer = true;
+                gd->use_bad_ai = true;
                 Click();
             }
             else if (noAi.test(mouse) && clicked)
             {
                 ++state;
-                gd->gAgainstComputer = false;
-                gd->gBadAi = false;
+                gd->play_against_computer = false;
+                gd->use_bad_ai = false;
                 Click();
             }
         }
@@ -150,13 +150,13 @@ struct Menu
             {
                 state++;
                 Click();
-                gd->gHardMode = true;
+                gd->use_hard_mode = true;
             }
             else if (mostRules.test(mouse) && clicked)
             {
                 state++;
                 Click();
-                gd->gHardMode = false;
+                gd->use_hard_mode = false;
             }
         }
         else
@@ -201,7 +201,7 @@ struct Menu
     Label rulesLabel;
 };
 
-void ExecuteComputerMove(const foo_global_data& gd, Random* rand);
+void ExecuteComputerMove(const game_settings& gd, Random* rand);
 
 struct Object
 {
@@ -217,7 +217,7 @@ struct Object
     }
 
     // const foo_global_data& gd, float delta, bool interact, const glm::vec2& mouse, bool down
-    virtual void update(const foo_global_data&, float, bool, const glm::vec2&, bool)
+    virtual void update(const game_settings&, float, bool, const glm::vec2&, bool)
     {
     }
 
@@ -270,7 +270,7 @@ struct FadeFromBlack : FullscreenColorSprite
     {
     }
 
-    void update(const foo_global_data&, float delta, bool, const glm::vec2&, bool) override
+    void update(const game_settings&, float delta, bool, const glm::vec2&, bool) override
     {
         color.a -= delta / time;
         if (color.a <= 0.0f)
@@ -293,7 +293,7 @@ struct FadeToBlackAndExit : FullscreenColorSprite
     {
     }
 
-    void update(const foo_global_data&, float delta, bool, const glm::vec2&, bool) override
+    void update(const game_settings&, float delta, bool, const glm::vec2&, bool) override
     {
         color.a += delta / time;
         if (color.a > 1.0f)
@@ -372,11 +372,11 @@ void SetStartCursor()
     gCurrentCursorState = cross_or_circle::cross;
 }
 
-void flip_current_cursor_state(const foo_global_data& gd)
+void flip_current_cursor_state(const game_settings& gd)
 {
     if (gCurrentCursorState == cross_or_circle::cross)
     {
-        if (gd.gAgainstComputer)
+        if (gd.play_against_computer)
         {
             gCurrentCursorState = cross_or_circle::ai;
         }
@@ -613,7 +613,7 @@ cross_or_circle WinningCombination::test(const GameWorld& iWorld) const
 int gWinPulsatingIndex = 0;
 
 
-void PlaceMarker(const foo_global_data& gd, GameWorld* world, int cube, int col, int row);
+void PlaceMarker(const game_settings& gd, GameWorld* world, int cube, int col, int row);
 
 struct Part
 {
@@ -743,7 +743,7 @@ struct Part
         }
     }
 
-    void testPlacements(const foo_global_data& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
+    void testPlacements(const game_settings& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
     {
         cross_or_circle state = world->getState(cube, col, row);
         if (state == cross_or_circle::neither)
@@ -786,7 +786,7 @@ struct Part
     bool animateIntro;
 };
 
-void PlaceMarker(const foo_global_data& gd, GameWorld* world, int cube, int col, int row)
+void PlaceMarker(const game_settings& gd, GameWorld* world, int cube, int col, int row)
 {
     if (gCurrentCursorState == cross_or_circle::circle || gCurrentCursorState == cross_or_circle::cross)
     {
@@ -841,7 +841,7 @@ struct Cube : Object
         }
     }
 
-    void update(const foo_global_data&, float delta, bool, const glm::vec2&, bool) override
+    void update(const game_settings&, float delta, bool, const glm::vec2&, bool) override
     {
         for (int col = 0; col < 4; ++col)
         {
@@ -852,7 +852,7 @@ struct Cube : Object
         }
     }
 
-    void testPlacements(const foo_global_data& gd, SuggestedLocation* location, float mx, float my, bool mouse)
+    void testPlacements(const game_settings& gd, SuggestedLocation* location, float mx, float my, bool mouse)
     {
         for (int col = 0; col < 4; ++col)
         {
@@ -927,7 +927,7 @@ struct PressKeyToContinue : Object
     {
     }
 
-    void update(const foo_global_data&, float delta, bool iInteract, const glm::vec2&, bool) override
+    void update(const game_settings&, float delta, bool iInteract, const glm::vec2&, bool) override
     {
         interact = !iInteract;
         if (interact)
@@ -971,7 +971,7 @@ struct AiPlacerObject : Object
     {
     }
 
-    void update(const foo_global_data& gd, float delta, bool interact, const glm::vec2&, bool) override
+    void update(const game_settings& gd, float delta, bool interact, const glm::vec2&, bool) override
     {
         if (interact)
         {
@@ -1015,7 +1015,7 @@ struct Game
         add(std::make_shared<FadeFromBlack>(fade_time_intro));
     }
 
-    void buildRules(const foo_global_data& gd)
+    void buildRules(const game_settings& gd)
     {
         for (int cube_index = 0; cube_index < 4; ++cube_index)
         {
@@ -1031,7 +1031,7 @@ struct Game
                     WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(i, 0)));
             }
         }
-        if (gd.gHardMode)
+        if (gd.use_hard_mode)
         {
             world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(0, 1)));
             world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(3, -1)));
@@ -1103,7 +1103,7 @@ struct Game
         }
     }
 
-    void update(const foo_global_data& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
+    void update(const game_settings& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
     {
         gSuggestedLocation->clear();
 
@@ -1154,7 +1154,7 @@ struct Game
             }
         }
 
-        if (interactive && gd.gAgainstComputer)
+        if (interactive && gd.play_against_computer)
         {
             if (gCurrentCursorState == cross_or_circle::ai && !aiHasMoved)
             {
@@ -1206,10 +1206,10 @@ struct Game
 
 Game* gGame = nullptr;
 
-void ComputerPlaceMarker(const foo_global_data& agd, int cube, int col, int row)
+void ComputerPlaceMarker(const game_settings& agd, int cube, int col, int row)
 {
     auto gd = agd;
-    gd.gAgainstComputer = false;
+    gd.play_against_computer = false;
     gCurrentCursorState = cross_or_circle::circle;
     const bool free = gGame->world.isPlaceFree(cube, col, row);
     assert(free);
@@ -1262,7 +1262,7 @@ float GetStopFactorPlacement(const WinningCombination& combo)
     return 0;
 }
 
-bool ExecutePlaceWin(const foo_global_data& gd, Random* rand)
+bool ExecutePlaceWin(const game_settings& gd, Random* rand)
 {
     vector<WinningCombination> combinations;
     const size_t count = gGame->world.getWinningComditions(&combinations);
@@ -1307,7 +1307,7 @@ int GenerateRandomPlace(Random* r)
     return r->get_excluding(4);
 }
 
-void ExecuteRandomPlacement(const foo_global_data& gd, Random* r)
+void ExecuteRandomPlacement(const game_settings& gd, Random* r)
 {
     int cube = -1;
     int col = -1;
@@ -1413,7 +1413,7 @@ struct Placement
     }
 };
 
-void ExecuteComputerMoveTest(const foo_global_data& gd, Random* rand)
+void ExecuteComputerMoveTest(const game_settings& gd, Random* rand)
 {
     multiset<Placement> placements;
     vector<WinningCombination> rules;
@@ -1452,9 +1452,9 @@ void ExecuteComputerMoveTest(const foo_global_data& gd, Random* rand)
     ComputerPlaceMarker(gd, placeThis.cube, placeThis.column, placeThis.row);
 }
 
-void ExecuteComputerMove(const foo_global_data& gd, Random* rand)
+void ExecuteComputerMove(const game_settings& gd, Random* rand)
 {
-    if (gd.gBadAi)
+    if (gd.use_bad_ai)
     {
         if (ExecutePlaceWin(gd, rand)) return;
         ExecuteRandomPlacement(gd, rand);
@@ -1478,7 +1478,7 @@ struct StartNewGameFader : FullscreenColorSprite
     {
     }
 
-    void update(const foo_global_data&, float delta, bool, const glm::vec2&, bool) override
+    void update(const game_settings&, float delta, bool, const glm::vec2&, bool) override
     {
         color.a += delta * direction;
 
@@ -1507,7 +1507,7 @@ void QuitGame()
     gGame->quit = true;
 }
 
-void BuildRules(const foo_global_data& gd)
+void BuildRules(const game_settings& gd)
 {
     gGame->buildRules(gd);
 }
@@ -1537,7 +1537,7 @@ struct fourthd_game : game
     bool enter_state = false;
     Random random;
 
-    foo_global_data gd;
+    game_settings gd;
 
     Game game;
     Menu menu;
