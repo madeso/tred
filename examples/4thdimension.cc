@@ -14,7 +14,8 @@
 #include <set>
 #include <iostream>
 
-constexpr rect sprite_size = {16, 16};
+constexpr float sprite_square = 40.0f;
+constexpr rect sprite_size = {sprite_square, sprite_square};
 
 constexpr auto font = ::onebit::font{30.0f};
 
@@ -643,11 +644,16 @@ struct Part
     void render(const render_data& rd)
     {
         CrossOrCircle state = world->getState(cube, col, row);
-        if( state != COC_NEITHER )
+        // if( state != COC_NEITHER )
         {
-            const auto sprite = state == COC_CROSS
-                ? ::onebit::cross
-                : ::onebit::circle
+            const auto sprite = state == COC_NEITHER
+                ? ::onebit::box
+                :
+                (
+                    state == COC_CROSS
+                    ? ::onebit::cross
+                    : ::onebit::circle
+                )
                 ;
 
             float dx = 0;
@@ -823,6 +829,10 @@ struct Cube : public Object
     {
         // todo(Gustav): render cube
         // cubeSprite->Render(x,y);
+        constexpr float g = 0.5f;
+        constexpr auto s = sprite_size.get_width() * 4.0f;
+        constexpr auto back = rect{s , s};
+        rd.batch->quad({}, back.translate(x, y), {}, {g, g, g, 1.0f});
         for(int col=0; col<4; ++col)
         {
             for(int row=0; row<4; ++row)
