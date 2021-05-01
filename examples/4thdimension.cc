@@ -306,9 +306,7 @@ struct FadeToBlackAndExit : FullscreenColorSprite
     const float time;
 };
 
-typedef shared_ptr<Object> ObjectPtr;
-
-bool IsRemoveable(const ObjectPtr& object)
+bool IsRemoveable(const std::shared_ptr<Object>& object)
 {
     return object->shouldKill();
 }
@@ -1187,12 +1185,12 @@ struct Game
         cheer();
     }
 
-    void add(ObjectPtr object)
+    void add(std::shared_ptr<Object> object)
     {
         mObjects.push_back(object);
     }
 
-    vector<ObjectPtr> mObjects;
+    vector<std::shared_ptr<Object>> mObjects;
     bool quit;
     bool quiting;
     GameWorld world;
