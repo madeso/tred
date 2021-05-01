@@ -201,7 +201,9 @@ struct Menu
     Label rulesLabel;
 };
 
-void ExecuteComputerMove(const game_settings& gd, Random* rand);
+struct cursor;
+
+void ExecuteComputerMove(cursor* cur, const game_settings& gd, Random* rand);
 
 struct Object
 {
@@ -330,14 +332,14 @@ struct SuggestedLocation
         valid = false;
     }
 
-    bool get(float* x, float* y)
+    bool get(float* out_x, float* out_y)
     {
         if (valid)
         {
             float dx = 0;
             float dy = 0;
-            *x = mx + dx;
-            *y = my + dy;
+            *out_x = mx + dx;
+            *out_y = my + dy;
             return true;
         }
         return false;
@@ -358,59 +360,66 @@ enum class cross_or_circle
     ai
 };
 
-cross_or_circle gCurrentCursorState = cross_or_circle::cross;
-
-void SetCompleteCursor()
+struct cursor
 {
-    gCurrentCursorState = cross_or_circle::neither;
-}
+    cross_or_circle gCurrentCursorState = cross_or_circle::cross;
 
-void SetStartCursor()
-{
-    gCurrentCursorState = cross_or_circle::cross;
-}
-
-void flip_current_cursor_state(const game_settings& gd)
-{
-    if (gCurrentCursorState == cross_or_circle::cross)
+    void SetCompleteCursor()
     {
-        if (gd.play_against_computer)
-        {
-            gCurrentCursorState = cross_or_circle::ai;
-        }
-        else
-        {
-            gCurrentCursorState = cross_or_circle::circle;
-        }
+        gCurrentCursorState = cross_or_circle::neither;
     }
-    else
+
+    void SetStartCursor()
     {
         gCurrentCursorState = cross_or_circle::cross;
     }
-}
+
+    void flip_current_cursor_state(const game_settings& gd)
+    {
+        if (gCurrentCursorState == cross_or_circle::cross)
+        {
+            if (gd.play_against_computer)
+            {
+                gCurrentCursorState = cross_or_circle::ai;
+            }
+            else
+            {
+                gCurrentCursorState = cross_or_circle::circle;
+            }
+        }
+        else
+        {
+            gCurrentCursorState = cross_or_circle::cross;
+        }
+    }
+};
 
 
 struct IconPlacer : Object
 {
-    IconPlacer() = default;
+    IconPlacer(cursor* c)
+        : cur(c)
+    {
+    }
 
     SuggestedLocation gSuggestedLocation;
+    cursor* cur;
 
     void render(const render_data& data) override
     {
         std::optional<recti> cursor = onebit::cross;
 
-        if (gCurrentCursorState == cross_or_circle::circle)
+        if (cur->gCurrentCursorState == cross_or_circle::circle)
         {
             cursor = onebit::circle;
         }
 
-        if (gCurrentCursorState == cross_or_circle::neither)
+        if (cur->gCurrentCursorState == cross_or_circle::neither)
         {
             cursor = {};
         }
 
-        if (gCurrentCursorState == cross_or_circle::ai)
+        if (cur->gCurrentCursorState == cross_or_circle::ai)
         {
             cursor = {}; // hourglass ?
         }
@@ -611,7 +620,7 @@ cross_or_circle WinningCombination::test(const GameWorld& iWorld) const
 int gWinPulsatingIndex = 0;
 
 
-void PlaceMarker(const game_settings& gd, GameWorld* world, int cube, int col, int row);
+void PlaceMarker(cursor* cur, const game_settings& gd, GameWorld* world, int cube, int col, int row);
 
 struct Part
 {
@@ -741,7 +750,7 @@ struct Part
         }
     }
 
-    void testPlacements(const game_settings& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
+    void testPlacements(cursor* cur, const game_settings& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
     {
         cross_or_circle state = world->getState(cube, col, row);
         if (state == cross_or_circle::neither)
@@ -761,7 +770,7 @@ struct Part
 
             if (!mouse && over && me == gCurrent)
             {
-                PlaceMarker(gd, world, cube, col, row);
+                PlaceMarker(cur, gd, world, cube, col, row);
             }
 
             if (over)
@@ -784,12 +793,12 @@ struct Part
     bool animateIntro;
 };
 
-void PlaceMarker(const game_settings& gd, GameWorld* world, int cube, int col, int row)
+void PlaceMarker(cursor* cur, const game_settings& gd, GameWorld* world, int cube, int col, int row)
 {
-    if (gCurrentCursorState == cross_or_circle::circle || gCurrentCursorState == cross_or_circle::cross)
+    if (cur->gCurrentCursorState == cross_or_circle::circle || cur->gCurrentCursorState == cross_or_circle::cross)
     {
-        world->setState(cube, col, row, gCurrentCursorState);
-        flip_current_cursor_state(gd);
+        world->setState(cube, col, row, cur->gCurrentCursorState);
+        cur->flip_current_cursor_state(gd);
         gCurrent.clear();
         Click();
     }
@@ -850,13 +859,13 @@ struct Cube : Object
         }
     }
 
-    void testPlacements(const game_settings& gd, SuggestedLocation* location, float mx, float my, bool mouse)
+    void testPlacements(cursor* cur, const game_settings& gd, SuggestedLocation* location, float mx, float my, bool mouse)
     {
         for (int col = 0; col < 4; ++col)
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].testPlacements(gd, location, mx, my, mouse);
+                parts[col][row].testPlacements(cur, gd, location, mx, my, mouse);
             }
         }
     }
@@ -962,10 +971,12 @@ struct AiPlacerObject : Object
 {
     float thinkTime;
     Random* rand;
+    cursor* cur;
 
-    AiPlacerObject(Random* r)
+    AiPlacerObject(Random* r, cursor* c)
         : thinkTime(0.35f)
-          , rand(r)
+        , rand(r)
+        , cur(c)
     {
     }
 
@@ -977,7 +988,7 @@ struct AiPlacerObject : Object
             if (thinkTime < 0)
             {
                 kill();
-                ExecuteComputerMove(gd, rand);
+                ExecuteComputerMove(cur, gd, rand);
             }
         }
     }
@@ -985,6 +996,8 @@ struct AiPlacerObject : Object
 
 struct Game
 {
+    cursor current_cursor;
+
     SuggestedLocation* gSuggestedLocation;
     Game()
         : quit(false)
@@ -1007,7 +1020,7 @@ struct Game
             );
         }
         add(std::make_shared<PressKeyToContinue>());
-        auto placer = std::make_shared<IconPlacer>();
+        auto placer = std::make_shared<IconPlacer>(&current_cursor);
         gSuggestedLocation = &placer->gSuggestedLocation;
         add(placer);
         add(std::make_shared<FadeFromBlack>(fade_time_intro));
@@ -1078,7 +1091,7 @@ struct Game
 
     void newGame()
     {
-        SetStartCursor();
+        current_cursor.SetStartCursor();
         interactive = true;
     }
 
@@ -1124,7 +1137,7 @@ struct Game
             for(int i=0; i<4; i+=1)
             {
                 cube[i]->
-                testPlacements(gd, gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+                testPlacements(&current_cursor, gd, gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
             }
         }
 
@@ -1154,12 +1167,12 @@ struct Game
 
         if (interactive && gd.play_against_computer)
         {
-            if (gCurrentCursorState == cross_or_circle::ai && !aiHasMoved)
+            if (current_cursor.gCurrentCursorState == cross_or_circle::ai && !aiHasMoved)
             {
-                add(std::make_shared<AiPlacerObject>(rand));
+                add(std::make_shared<AiPlacerObject>(rand, &current_cursor));
                 aiHasMoved = true;
             }
-            else if (gCurrentCursorState != cross_or_circle::ai)
+            else if (current_cursor.gCurrentCursorState != cross_or_circle::ai)
             {
                 aiHasMoved = false;
             }
@@ -1170,7 +1183,7 @@ struct Game
     {
         hasWon = true;
         mWinningCombo = WinningCombination();
-        SetCompleteCursor();
+        current_cursor.SetCompleteCursor();
         gWinPulsatingIndex = 0;
         combo = nullptr;
     }
@@ -1179,7 +1192,7 @@ struct Game
     {
         hasWon = true;
         mWinningCombo = new_combo;
-        SetCompleteCursor();
+        current_cursor.SetCompleteCursor();
         gWinPulsatingIndex = 0;
         combo = &mWinningCombo;
         cheer();
@@ -1204,14 +1217,14 @@ struct Game
 
 Game* gGame = nullptr;
 
-void ComputerPlaceMarker(const game_settings& agd, int cube, int col, int row)
+void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int col, int row)
 {
     auto gd = agd;
     gd.play_against_computer = false;
-    gCurrentCursorState = cross_or_circle::circle;
+    cur->gCurrentCursorState = cross_or_circle::circle;
     const bool free = gGame->world.isPlaceFree(cube, col, row);
     assert(free);
-    PlaceMarker(gd, &gGame->world, cube, col, row);
+    PlaceMarker(cur, gd, &gGame->world, cube, col, row);
 }
 
 float GetWinFactorPlacement(const WinningCombination& combo)
@@ -1260,7 +1273,7 @@ float GetStopFactorPlacement(const WinningCombination& combo)
     return 0;
 }
 
-bool ExecutePlaceWin(const game_settings& gd, Random* rand)
+bool ExecutePlaceWin(cursor* cur, const game_settings& gd, Random* rand)
 {
     vector<WinningCombination> combinations;
     const size_t count = gGame->world.getWinningComditions(&combinations);
@@ -1293,7 +1306,7 @@ bool ExecutePlaceWin(const game_settings& gd, Random* rand)
         }
         while (!gGame->world.isPlaceFree(bestCombo.combination[index]));
         const auto place = bestCombo.combination[index];
-        ComputerPlaceMarker(gd, place.cube, place.column, place.row);
+        ComputerPlaceMarker(cur, gd, place.cube, place.column, place.row);
         return true;
     }
 
@@ -1305,7 +1318,7 @@ int GenerateRandomPlace(Random* r)
     return r->get_excluding(4);
 }
 
-void ExecuteRandomPlacement(const game_settings& gd, Random* r)
+void ExecuteRandomPlacement(cursor* cur, const game_settings& gd, Random* r)
 {
     int cube = -1;
     int col = -1;
@@ -1317,7 +1330,7 @@ void ExecuteRandomPlacement(const game_settings& gd, Random* r)
         row = GenerateRandomPlace(r);
     }
     while (!gGame->world.isPlaceFree(cube, col, row));
-    ComputerPlaceMarker(gd, cube, col, row);
+    ComputerPlaceMarker(cur, gd, cube, col, row);
 }
 
 typedef int placing_factor;
@@ -1411,7 +1424,7 @@ struct Placement
     }
 };
 
-void ExecuteComputerMoveTest(const game_settings& gd, Random* rand)
+void ExecuteComputerMoveTest(cursor* cur, const game_settings& gd, Random* rand)
 {
     multiset<Placement> placements;
     vector<WinningCombination> rules;
@@ -1447,19 +1460,19 @@ void ExecuteComputerMoveTest(const game_settings& gd, Random* rand)
 
     const int index = rand->get_excluding(Csizet_to_int(bestPlacements.size()));
     Index placeThis = bestPlacements[Cint_to_sizet(index)];
-    ComputerPlaceMarker(gd, placeThis.cube, placeThis.column, placeThis.row);
+    ComputerPlaceMarker(cur, gd, placeThis.cube, placeThis.column, placeThis.row);
 }
 
-void ExecuteComputerMove(const game_settings& gd, Random* rand)
+void ExecuteComputerMove(cursor* cur, const game_settings& gd, Random* rand)
 {
     if (gd.use_bad_ai)
     {
-        if (ExecutePlaceWin(gd, rand)) return;
-        ExecuteRandomPlacement(gd, rand);
+        if (ExecutePlaceWin(cur, gd, rand)) return;
+        ExecuteRandomPlacement(cur, gd, rand);
     }
     else
     {
-        ExecuteComputerMoveTest(gd, rand);
+        ExecuteComputerMoveTest(cur, gd, rand);
     }
 }
 
