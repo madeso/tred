@@ -29,10 +29,10 @@ struct render_data
 using namespace std;
 
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
-constexpr float FADE_TIME_INTRO = 2;
-constexpr float FADE_TIME_OUTRO = 1;
+constexpr int width = 800;
+constexpr int height = 600;
+constexpr float fade_time_intro = 2;
+constexpr float fade_time_outro = 1;
 
 void Click();
 
@@ -44,8 +44,7 @@ void SetGameCallbacks();
 void SetMenuCallbacks();
 void BuildRules();
 
-class Label {
-public:
+struct Label {
     Label(const std::string& iText, float iX, float iY) : x(iX), y(iY), text(iText)
     {
     }
@@ -61,14 +60,17 @@ public:
     float y;
 };
 
-class Button
+struct Button
 {
-public:
-    Button(const std::string& iText, float iX, float iY) : x(iX), y(iY), text(iText), over(false)
+    Button(const std::string& iText, float iX, float iY)
+        : text(iText)
+        , x(iX)
+        , y(iY)
+        , over(false)
     {
     }
 
-    void render(const render_data& data)
+    void render(const render_data& data) const
     {
         constexpr glm::vec4 over_color = {0, 0, 1, 1};
         constexpr glm::vec4 default_color = {1, 1, 1, 1};
@@ -91,9 +93,8 @@ public:
     bool over;
 };
 
-class Menu
+struct Menu
 {
-public:
     Menu()
         : state(0)
         , cursorDown(false)
@@ -101,17 +102,17 @@ public:
         , easyAi("Human Versus Easy AI", 250, 250)
         , noAi("Human Versus Human", 250, 300)
         , aiLabel("Select Gameplay:", 200, 100)
-        , mostRules("Use most rules", 150, 200)
-        , mostRulesDesc(" (ignores most trans-square rules)\n - recomended for beginners", 200, 250)
         , allRules("Use all rules", 150, 350)
         , allRulesDesc(" - only for 4d masters", 200, 400)
+        , mostRules("Use most rules", 150, 200)
+        , mostRulesDesc(" (ignores most trans-square rules)\n - recomended for beginners", 200, 250)
         , rulesLabel("Select how many rules you want to use", 100, 100)
     {
     }
 
     void update(const glm::vec2& mouse, bool down, float)
     {
-        const bool clicked = !down && cursorDown;
+        const auto clicked = !down && cursorDown;
         cursorDown = down;
 
         if( state==0 )
@@ -231,7 +232,7 @@ private:
     bool mShouldKill;
 };
 
-struct Background : public Object
+struct Background : Object
 {
     Background(const std::string&)
     {
@@ -244,7 +245,7 @@ struct Background : public Object
     }
 };
 
-struct FullscreenColorSprite : public Object
+struct FullscreenColorSprite : Object
 {
     FullscreenColorSprite(const glm::vec4& iColor) : color(iColor)
     {
@@ -252,13 +253,13 @@ struct FullscreenColorSprite : public Object
 
     void render(const render_data& data)
     {
-        data.batch->quad({}, {WIDTH, HEIGHT}, {}, color);
+        data.batch->quad({}, {width, height}, {}, color);
     }
 
     glm::vec4 color;
 };
 
-struct FadeFromBlack : public FullscreenColorSprite
+struct FadeFromBlack : FullscreenColorSprite
 {
     FadeFromBlack(float iTime)
         : FullscreenColorSprite({0,0,0, 1})
@@ -280,7 +281,7 @@ struct FadeFromBlack : public FullscreenColorSprite
 
 void QuitGame();
 
-struct FadeToBlackAndExit : public FullscreenColorSprite
+struct FadeToBlackAndExit : FullscreenColorSprite
 {
     FadeToBlackAndExit(float iTime)
         : FullscreenColorSprite({0,0,0, 0})
@@ -387,7 +388,7 @@ void flipCurrentCursorState()
 
 glm::vec2 mouse_cursor;
 
-struct IconPlacer : public Object {
+struct IconPlacer : Object {
     IconPlacer()
     {
     }
@@ -469,7 +470,7 @@ struct Index
     int mRow;
 };
 
-class GameWorld;
+struct GameWorld;
 struct WinningCombination
 {
     Index combination[4];
@@ -478,7 +479,7 @@ struct WinningCombination
 
 typedef std::function<WinningCombination ()> TestWinningConditionFunction;
 
-class GameWorld
+struct GameWorld
 {
 public:
     GameWorld()
@@ -807,7 +808,7 @@ void PlaceMarker(GameWorld* world, int cube, int col, int row)
     }
 }
 
-struct Cube : public Object
+struct Cube : Object
 {
     Cube(float ix, float iy, GameWorld& iWorld, int iCube, WinningCombination** icombo)
         : x(ix)
@@ -936,7 +937,7 @@ struct WinningConditionModular
     Index step;
 };
 
-struct PressKeyToContinue : public Object
+struct PressKeyToContinue : Object
 {
     PressKeyToContinue()
         : time(0)
@@ -964,7 +965,7 @@ struct PressKeyToContinue : public Object
         if( interact )
         {
             // todo(Gustav): make center
-            font.simple_text(rd.batch, rd.onebit, {}, WIDTH / 2, HEIGHT - 35, "Click To Play Again", ::onebit::no_text_animation{});
+            font.simple_text(rd.batch, rd.onebit, {}, width / 2, height - 35, "Click To Play Again", ::onebit::no_text_animation{});
         }
     }
 
@@ -975,7 +976,7 @@ struct PressKeyToContinue : public Object
 struct Game;
 void AddStartNewGameFader(Game& iGame);
 
-struct AiPlacerObject : public Object
+struct AiPlacerObject : Object
 {
     float thinkTime;
     Random* rand;
@@ -1025,7 +1026,7 @@ struct Game
         }
         add( new PressKeyToContinue() );
         add( new IconPlacer() );
-        add( new FadeFromBlack(FADE_TIME_INTRO) );
+        add( new FadeFromBlack(fade_time_intro) );
     }
 
     void buildRules()
@@ -1106,7 +1107,7 @@ struct Game
     {
         if( !quiting )
         {
-            add( new FadeToBlackAndExit(FADE_TIME_OUTRO) );
+            add( new FadeToBlackAndExit(fade_time_outro) );
             quiting = true;
         }
     }
@@ -1470,7 +1471,7 @@ void Click()
     gGame->click();
 }
 
-struct StartNewGameFader : public FullscreenColorSprite
+struct StartNewGameFader : FullscreenColorSprite
 {
     StartNewGameFader()
         : FullscreenColorSprite({0,0,0,0})
@@ -1546,7 +1547,7 @@ void BuildRules()
     gGame->buildRules();
 }
 
-enum class game_state {empty, game, menu};
+enum struct game_state {empty, game, menu};
 game_state state = game_state::menu;
 
 void Clear()
@@ -1565,7 +1566,7 @@ void SetMenuCallbacks()
 }
 
 
-struct fourthd_game : public game
+struct fourthd_game : game
 {
     glm::vec2 mouse;
     texture onebit;
@@ -1620,7 +1621,7 @@ struct fourthd_game : public game
         return true;
     }
 
-    constexpr static auto layout = layout_data{viewport_style::black_bars, WIDTH, HEIGHT, glm::mat4(1.0f)};
+    constexpr static auto layout = layout_data{viewport_style::black_bars, width, height, glm::mat4(1.0f)};
 
     void
     on_render(const render_command2& rc) override
