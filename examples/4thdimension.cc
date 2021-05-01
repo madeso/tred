@@ -352,7 +352,6 @@ private:
     bool valid;
 };
 
-SuggestedLocation gSuggestedLocation;
 
 enum class cross_or_circle
 {
@@ -397,6 +396,8 @@ void flip_current_cursor_state(const foo_global_data& gd)
 struct IconPlacer : Object
 {
     IconPlacer() = default;
+
+    SuggestedLocation gSuggestedLocation;
 
     void render(const render_data& data) override
     {
@@ -743,7 +744,7 @@ struct Part
         }
     }
 
-    void testPlacements(const foo_global_data& gd, float mx, float my, bool mouse)
+    void testPlacements(const foo_global_data& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
     {
         cross_or_circle state = world->getState(cube, col, row);
         if (state == cross_or_circle::neither)
@@ -768,7 +769,7 @@ struct Part
 
             if (over)
             {
-                gSuggestedLocation.set(rx, ry);
+                gSuggestedLocation->set(rx, ry);
             }
         }
     }
@@ -841,7 +842,7 @@ struct Cube : Object
         }
     }
 
-    void update(const foo_global_data& gd, float delta, bool interact, const glm::vec2& mouse, bool down) override
+    void update(const foo_global_data&, float delta, bool, const glm::vec2&, bool) override
     {
         for (int col = 0; col < 4; ++col)
         {
@@ -850,19 +851,15 @@ struct Cube : Object
                 parts[col][row].update(*combo, delta);
             }
         }
-        if (interact)
-        {
-            testPlacements(gd, mouse.x, mouse.y, down);
-        }
     }
 
-    void testPlacements(const foo_global_data& gd, float mx, float my, bool mouse)
+    void testPlacements(const foo_global_data& gd, SuggestedLocation* location, float mx, float my, bool mouse)
     {
         for (int col = 0; col < 4; ++col)
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].testPlacements(gd, mx, my, mouse);
+                parts[col][row].testPlacements(gd, location, mx, my, mouse);
             }
         }
     }
@@ -991,6 +988,7 @@ struct AiPlacerObject : Object
 
 struct Game
 {
+    SuggestedLocation* gSuggestedLocation;
     Game()
         : quit(false)
           , quiting(false)
@@ -1012,7 +1010,9 @@ struct Game
             );
         }
         add(new PressKeyToContinue());
-        add(new IconPlacer());
+        auto* placer = new IconPlacer();
+        gSuggestedLocation = &placer->gSuggestedLocation;
+        add(placer);
         add(new FadeFromBlack(fade_time_intro));
     }
 
@@ -1106,7 +1106,7 @@ struct Game
 
     void update(const foo_global_data& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
     {
-        gSuggestedLocation.clear();
+        gSuggestedLocation->clear();
 
         if (interactive && hasWon && mouse == false && mouse != oldMouse)
         {
@@ -1121,6 +1121,15 @@ struct Game
             mObjects[i]->update(gd, delta, interact, mouse_position, mouse);
         }
         mObjects.erase(std::remove_if(mObjects.begin(), mObjects.end(), IsRemoveable), mObjects.end());
+
+        if (interact)
+        {
+            for(int i=0; i<4; i+=1)
+            {
+                cube[i]->
+                testPlacements(gd, gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+            }
+        }
 
         if (interactive && enter_state)
         {
