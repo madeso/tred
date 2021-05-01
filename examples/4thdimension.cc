@@ -397,13 +397,14 @@ struct cursor
 
 struct IconPlacer : Object
 {
-    IconPlacer(cursor* c)
+    IconPlacer(cursor* c, SuggestedLocation* l)
         : cur(c)
+        , gSuggestedLocation(l)
     {
     }
 
-    SuggestedLocation gSuggestedLocation;
     cursor* cur;
+    SuggestedLocation* gSuggestedLocation;
 
     void render(const render_data& data) override
     {
@@ -426,7 +427,7 @@ struct IconPlacer : Object
 
         float mx = 0;
         float my = 0;
-        if (cursor && gSuggestedLocation.get(&mx, &my))
+        if (cursor && gSuggestedLocation->get(&mx, &my))
         {
             // if a location isn't suggested, the data isn't modified
             data.batch->quad(data.onebit, sprite_size.translate(mx, my), *cursor);
@@ -998,7 +999,7 @@ struct Game
 {
     cursor current_cursor;
 
-    SuggestedLocation* gSuggestedLocation;
+    SuggestedLocation gSuggestedLocation;
     Game()
         : quit(false)
           , quiting(false)
@@ -1020,9 +1021,7 @@ struct Game
             );
         }
         add(std::make_shared<PressKeyToContinue>());
-        auto placer = std::make_shared<IconPlacer>(&current_cursor);
-        gSuggestedLocation = &placer->gSuggestedLocation;
-        add(placer);
+        add(std::make_shared<IconPlacer>(&current_cursor, &gSuggestedLocation));
         add(std::make_shared<FadeFromBlack>(fade_time_intro));
     }
 
@@ -1116,7 +1115,7 @@ struct Game
 
     void update(const game_settings& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
     {
-        gSuggestedLocation->clear();
+        gSuggestedLocation.clear();
 
         if (interactive && hasWon && mouse == false && mouse != oldMouse)
         {
@@ -1137,7 +1136,7 @@ struct Game
             for(int i=0; i<4; i+=1)
             {
                 cube[i]->
-                testPlacements(&current_cursor, gd, gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+                testPlacements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
             }
         }
 
