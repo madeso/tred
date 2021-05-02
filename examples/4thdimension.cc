@@ -1559,11 +1559,12 @@ struct fourthd_game : game
     bool
     on_update(float dt) override
     {
+        bool r = true;
         switch (state)
         {
         case game_state::game:
             game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
-            return !game.quit;
+            r = !game.quit;
         case game_state::menu:
             menu.update(&gd, mouse, mouse_button, dt);
             break;
@@ -1573,7 +1574,7 @@ struct fourthd_game : game
         }
 
         old_mouse_button = mouse_button;
-        return true;
+        return r;
     }
 
     constexpr static auto layout = layout_data{viewport_style::black_bars, width, height, glm::mat4(1.0f)};
