@@ -1017,16 +1017,12 @@ struct Game
     {
         for (int cube_index = 0; cube_index < 4; ++cube_index)
         {
-            world.addWinningCondition(
-                WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(0, 1)));
-            world.addWinningCondition(
-                WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(3, -1)));
+            world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(0, 1)));
+            world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(3, -1)));
             for (int i = 0; i < 4; ++i)
             {
-                world.addWinningCondition(
-                    WinningConditionModular(StartStep(cube_index, 0), StartStep(i, 0), StartStep(0, 1)));
-                world.addWinningCondition(
-                    WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(i, 0)));
+                world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(i, 0), StartStep(0, 1)));
+                world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(i, 0)));
             }
         }
         if (gd.use_hard_mode)
@@ -1050,8 +1046,7 @@ struct Game
         {
             for (int col = 0; col < 4; ++col)
             {
-                world.addWinningCondition(
-                    WinningConditionModular(StartStep(0, 1), StartStep(col, 0), StartStep(row, 0)));
+                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(col, 0), StartStep(row, 0)));
             }
         }
     }
