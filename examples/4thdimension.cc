@@ -8,9 +8,7 @@
 #include <functional>
 #include <vector>
 #include <string>
-#include <sstream>
 #include <set>
-#include <iostream>
 
 constexpr float sprite_square = 40.0f;
 constexpr rect sprite_size = {sprite_square, sprite_square};
