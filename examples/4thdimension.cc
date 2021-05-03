@@ -97,15 +97,15 @@ struct Menu
     Menu()
         : state(0)
           , cursorDown(false)
-          , hardAi("Human Versus Hard AI", 250, 200)
-          , easyAi("Human Versus Easy AI", 250, 250)
-          , noAi("Human Versus Human", 250, 300)
-          , aiLabel("Select Gameplay:", 200, 100)
-          , allRules("Use all rules", 150, 350)
+          , hardAi("human versus hard ai", 250, 200)
+          , easyAi("human versus easy ai", 250, 250)
+          , noAi("human versus human", 250, 300)
+          , aiLabel("select gameplay:", 200, 100)
+          , allRules("use all rules", 150, 350)
           , allRulesDesc(" - only for 4d masters", 200, 400)
-          , mostRules("Use most rules", 150, 200)
-          , mostRulesDesc(" (ignores most trans-square rules)\n - recommended for beginners", 200, 250)
-          , rulesLabel("Select how many rules you want to use", 100, 100)
+          , mostRules("use most rules", 150, 200)
+          , mostRulesDesc(" ignores most trans-square rules\n - recommended for beginners", 200, 250)
+          , rulesLabel("select how many rules you want to use", 100, 100)
     {
     }
 
@@ -926,8 +926,9 @@ struct PressKeyToContinue : Object
             // todo(Gustav): make center
             font.simple_text
             (
-                rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "Click To Play Again",
-                onebit::no_text_animation{});
+                rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "click to play again",
+                onebit::no_text_animation{}
+            );
         }
     }
 };

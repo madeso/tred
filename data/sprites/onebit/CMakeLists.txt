@@ -10,7 +10,7 @@ embed(sprites
 add_library(sprites_onebit STATIC ${src} ${sprites})
 target_link_libraries(sprites_onebit
     PUBLIC tred
-    PRIVATE project_options project_warnings
+    PRIVATE project_options project_warnings fmt
 )
 target_include_directories(sprites_onebit
     PUBLIC

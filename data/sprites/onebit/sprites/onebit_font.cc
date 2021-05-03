@@ -1,10 +1,13 @@
 #include "sprites/onebit_font.h"
 
+#include <cassert>
 
 #include "tred/texture.h"
 #include "tred/game.h"
 
 #include "sprites/onebit.h"
+
+#include "fmt/format.h"
 
 namespace onebit
 {
@@ -31,6 +34,7 @@ namespace onebit
         const auto sprite = rect{size, size};
 
         int position_in_string = 0;
+        const auto start_x = x;
 
         for(char c: text_to_draw)
         {
@@ -39,14 +43,24 @@ namespace onebit
                 x += font_spacing;
                 position_in_string += 1;
             }
+            else if(c == '\n')
+            {
+                x = start_x;
+                y += font_spacing;
+            }
             else
             {
-                // silently ignore missing characters
-                if(auto index = ::onebit::text_string.find(c); index != std::string_view::npos)
+                auto index = ::onebit::text_string.find(c);
+                if(index != std::string_view::npos)
                 {
                     batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[static_cast<std::size_t>(index)], color);
                     x += font_spacing;
                     position_in_string += 1;
+                }
+                else
+                {
+                    fmt::print("Invalid character {}\n", c);
+                    assert(false && "invalid character");
                 }
             }
         }
