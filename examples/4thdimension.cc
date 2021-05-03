@@ -908,13 +908,10 @@ struct PressKeyToContinue : Object
         interact = !iInteract;
         if (interact)
         {
-            const float PI = 3.14159265f;
-            const float max = 2 * PI;
-            const float speed = 4.0f;
-            time += delta * speed;
-            while (time > max)
+            time += delta;
+            if (time > 1.0f)
             {
-                time -= max;
+                time -= 1.0f;
             }
         }
     }
@@ -923,11 +920,19 @@ struct PressKeyToContinue : Object
     {
         if (interact)
         {
-            // todo(Gustav): make center
+            const std::string text = "click to play again";
+            constexpr auto factor = 0.5f;
+
+            const float PI = 3.14159265f;
+            const float max = 2 * PI;
+
+            const auto sin01 = (sin(time * max)+1) / 2.0f;
+            const auto alpha = factor + (1-factor) * sin01;
+            // fmt::print("factor is {} {}\n", sin01, alpha);
             font.simple_text
             (
-                rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "click to play again",
-                onebit::no_text_animation{}
+                rd.batch, rd.onebit, {0, 0, 0, alpha}, (width - font.get_width_of_string(text)) / 2.0f, 35.0f, text,
+                onebit::siny_animation{5.0f, 0.1f, time}
             );
         }
     }
