@@ -348,34 +348,34 @@ enum class cross_or_circle
 
 struct cursor
 {
-    cross_or_circle gCurrentCursorState = cross_or_circle::cross;
+    cross_or_circle cursor_state = cross_or_circle::cross;
 
-    void SetCompleteCursor()
+    void set_complete_cursor()
     {
-        gCurrentCursorState = cross_or_circle::neither;
+        cursor_state = cross_or_circle::neither;
     }
 
-    void SetStartCursor()
+    void set_start_cursor()
     {
-        gCurrentCursorState = cross_or_circle::cross;
+        cursor_state = cross_or_circle::cross;
     }
 
-    void flip_current_cursor_state(const game_settings& gd)
+    void flip_state(const game_settings& settings)
     {
-        if (gCurrentCursorState == cross_or_circle::cross)
+        if (cursor_state == cross_or_circle::cross)
         {
-            if (gd.play_against_computer)
+            if (settings.play_against_computer)
             {
-                gCurrentCursorState = cross_or_circle::ai;
+                cursor_state = cross_or_circle::ai;
             }
             else
             {
-                gCurrentCursorState = cross_or_circle::circle;
+                cursor_state = cross_or_circle::circle;
             }
         }
         else
         {
-            gCurrentCursorState = cross_or_circle::cross;
+            cursor_state = cross_or_circle::cross;
         }
     }
 };
@@ -396,17 +396,17 @@ struct IconPlacer : Object
     {
         std::optional<recti> cursor = onebit::cross;
 
-        if (cur->gCurrentCursorState == cross_or_circle::circle)
+        if (cur->cursor_state == cross_or_circle::circle)
         {
             cursor = onebit::circle;
         }
 
-        if (cur->gCurrentCursorState == cross_or_circle::neither)
+        if (cur->cursor_state == cross_or_circle::neither)
         {
             cursor = {};
         }
 
-        if (cur->gCurrentCursorState == cross_or_circle::ai)
+        if (cur->cursor_state == cross_or_circle::ai)
         {
             cursor = {}; // hourglass ?
         }
@@ -425,15 +425,15 @@ struct Index
 {
     Index()
         : cube(-1)
-          , column(-1)
-          , row(-1)
+        , column(-1)
+        , row(-1)
     {
     }
 
     Index(int cu, int co, int ro)
         : cube(cu)
-          , column(co)
-          , row(ro)
+        , column(co)
+        , row(ro)
     {
     }
 
@@ -463,38 +463,42 @@ struct Index
     int row;
 };
 
-struct GameWorld;
+struct World;
 
 struct WinningCombination
 {
     Index combination[4];
-    cross_or_circle test(const GameWorld& iWorld) const;
+    cross_or_circle test(const World& iWorld) const;
 };
 
 typedef std::function<WinningCombination ()> TestWinningConditionFunction;
 
-struct GameWorld
+struct World
 {
-    GameWorld()
-        : mIsModified(false)
+    bool is_modified;
+    cross_or_circle state[4][4][4];
+    std::vector<TestWinningConditionFunction> mWinningConditions;
+
+    World()
+        : is_modified(false)
     {
         clear();
     }
 
-    cross_or_circle getState(int cube, int col, int row) const
+    cross_or_circle get_state(int cube, int col, int row) const
     {
-        return mState[cube][col][row];
+        return state[cube][col][row];
     }
 
-    cross_or_circle getState(const Index& index) const
+    cross_or_circle get_state(const Index& index) const
     {
-        return mState[index.cube][index.column][index.row];
+        return state[index.cube][index.column][index.row];
     }
 
-    void setState(int cube, int col, int row, cross_or_circle state)
+    void set_state(int cube, int col, int row, cross_or_circle new_state)
     {
-        mState[cube][col][row] = state;
-        mIsModified = true;
+        state[cube][col][row] = new_state;
+        is_modified = true;
     }
 
     void clear()
@@ -505,11 +509,11 @@ struct GameWorld
             {
                 for (int k = 0; k < 4; ++k)
                 {
-                    mState[i][j][k] = cross_or_circle::neither;
+                    state[i][j][k] = cross_or_circle::neither;
                 }
             }
         }
-        mIsModified = true;
+        is_modified = true;
     }
 
     bool can_place_marker() const
@@ -520,7 +524,7 @@ struct GameWorld
             {
                 for (int k = 0; k < 4; ++k)
                 {
-                    if (mState[i][j][k] == cross_or_circle::neither)
+                    if (state[i][j][k] == cross_or_circle::neither)
                     {
                         return true;
                     }
@@ -533,8 +537,8 @@ struct GameWorld
 
     bool hasBeenModifiedSinceLastCall()
     {
-        bool modified = mIsModified;
-        mIsModified = false;
+        bool modified = is_modified;
+        is_modified = false;
         return modified;
     }
 
@@ -555,47 +559,41 @@ struct GameWorld
         return cross_or_circle::neither;
     }
 
-    void addWinningCondition(TestWinningConditionFunction condition)
+    void add_winning_condition(TestWinningConditionFunction&& condition)
     {
-        mWinningConditions.push_back(condition);
+        mWinningConditions.emplace_back(condition);
     }
 
-    size_t getWinningComditions(vector<WinningCombination>* conditions)
+    vector<WinningCombination> get_winning_conditions() const
     {
-        const std::size_t count = mWinningConditions.size();
-        for (std::size_t i = 0; i < count; ++i)
+        vector<WinningCombination> conditions;
+        for (const auto& cond: mWinningConditions)
         {
-            const WinningCombination combo = mWinningConditions[i]();
-            conditions->push_back(combo);
+            conditions.emplace_back(cond());
         }
-        return count;
+        return conditions;
     }
 
-    bool isPlaceFree(int cube, int col, int row) const
+    bool is_place_free(int cube, int col, int row) const
     {
-        return mState[cube][col][row] == cross_or_circle::neither;
+        return state[cube][col][row] == cross_or_circle::neither;
     }
 
-    bool isPlaceFree(Index index) const
+    bool is_place_free(Index index) const
     {
-        return isPlaceFree(index.cube, index.column, index.row);
+        return is_place_free(index.cube, index.column, index.row);
     }
-
-private:
-    cross_or_circle mState[4][4][4];
-    std::vector<TestWinningConditionFunction> mWinningConditions;
-    bool mIsModified;
 };
 
 
 Index gCurrent;
 
-cross_or_circle WinningCombination::test(const GameWorld& iWorld) const
+cross_or_circle WinningCombination::test(const World& iWorld) const
 {
-    cross_or_circle first = iWorld.getState(combination[0]);
+    cross_or_circle first = iWorld.get_state(combination[0]);
     for (int i = 1; i < 4; ++i)
     {
-        if (first != iWorld.getState(combination[i]))
+        if (first != iWorld.get_state(combination[i]))
         {
             return cross_or_circle::neither;
         }
@@ -607,18 +605,23 @@ cross_or_circle WinningCombination::test(const GameWorld& iWorld) const
 int gWinPulsatingIndex = 0;
 
 
-void PlaceMarker(cursor* cur, const game_settings& gd, GameWorld* world, int cube, int col, int row);
+void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row);
 
 struct Part
 {
-    Part()
-        : extraScale(0)
-          , direction(1)
-          , animateIntro(true)
-    {
-    }
+    int cube = -1;
+    int row = -1;
+    int col = -1;
 
-    void setup(GameWorld* iWorld, float* iox, float* ioy, int icube, int r, int c)
+    float* ox = nullptr;
+    float* oy = nullptr;
+    World* world = nullptr;
+
+    float extraScale = 0;
+    float direction = 1;
+    bool animateIntro = true;
+
+    void setup(World* iWorld, float* iox, float* ioy, int icube, int r, int c)
     {
         world = iWorld;
         ox = iox;
@@ -634,37 +637,32 @@ struct Part
         animateIntro = true;
     }
 
-    void render(const render_data& rd)
+    void render(const render_data& rd) const
     {
-        cross_or_circle state = world->getState(cube, col, row);
-        {
-            const auto sprite = state == cross_or_circle::neither
-                                    ? onebit::box
-                                    : (
-                                        state == cross_or_circle::cross
-                                            ? onebit::cross
-                                            : onebit::circle
-                                    );
-
-            float dx = 0;
-            float dy = 0;
-
-            const auto extra_size = sprite_size.get_width() * (1 + extraScale) - sprite_size.get_width();
-
-            rd.batch->quad
-            (
-                rd.onebit, sprite_size.translate
-                (
-                    *ox + Cint_to_float(col) * sprite_size.get_width() + dx,
-                    *oy + Cint_to_float(row) * sprite_size.get_height() + dy
-                ).extend(extra_size), sprite
+        cross_or_circle state = world->get_state(cube, col, row);
+        const auto sprite = state == cross_or_circle::neither
+            ? onebit::box
+            : (
+                state == cross_or_circle::cross
+                    ? onebit::cross
+                    : onebit::circle
             );
-        }
+
+        const auto extra_size = sprite_size.get_width() * (1 + extraScale) - sprite_size.get_width();
+
+        rd.batch->quad
+        (
+            rd.onebit, sprite_size.translate
+            (
+                *ox + Cint_to_float(col) * sprite_size.get_width(),
+                *oy + Cint_to_float(row) * sprite_size.get_height()
+            ).extend(extra_size), sprite
+        );
     }
 
     const recti* getSprite() const
     {
-        cross_or_circle state = world->getState(cube, col, row);
+        cross_or_circle state = world->get_state(cube, col, row);
         if (state != cross_or_circle::neither)
         {
             if (state == cross_or_circle::cross)
@@ -737,18 +735,18 @@ struct Part
         }
     }
 
-    void testPlacements(cursor* cur, const game_settings& gd, SuggestedLocation* gSuggestedLocation, float mx, float my, bool mouse)
+    void test_placements(cursor* cur, const game_settings& settings, SuggestedLocation* suggested_location, float mx, float my, bool mouse) const
     {
-        cross_or_circle state = world->getState(cube, col, row);
+        const cross_or_circle state = world->get_state(cube, col, row);
         if (state == cross_or_circle::neither)
         {
             const float w = sprite_size.get_width();
             const float h = sprite_size.get_height();
             const float rx = *ox + Cint_to_float(col) * w;
             const float ry = *oy + Cint_to_float(row) * h;
-            auto rect = ::rect{rx, ry, rx + w, ry + h};
+            const auto rect = ::rect{rx, ry, rx + w, ry + h};
             const bool over = rect.is_inside_inclusive(mx, my);
-            Index me(cube, col, row);
+            const Index me(cube, col, row);
 
             if (mouse && over)
             {
@@ -757,35 +755,23 @@ struct Part
 
             if (!mouse && over && me == gCurrent)
             {
-                PlaceMarker(cur, gd, world, cube, col, row);
+                PlaceMarker(cur, settings, world, cube, col, row);
             }
 
             if (over)
             {
-                gSuggestedLocation->set(rx, ry);
+                suggested_location->set(rx, ry);
             }
         }
     }
-
-    int cube;
-    int row;
-    int col;
-
-    float* ox;
-    float* oy;
-    GameWorld* world;
-
-    float extraScale;
-    float direction;
-    bool animateIntro;
 };
 
-void PlaceMarker(cursor* cur, const game_settings& gd, GameWorld* world, int cube, int col, int row)
+void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row)
 {
-    if (cur->gCurrentCursorState == cross_or_circle::circle || cur->gCurrentCursorState == cross_or_circle::cross)
+    if (cur->cursor_state == cross_or_circle::circle || cur->cursor_state == cross_or_circle::cross)
     {
-        world->setState(cube, col, row, cur->gCurrentCursorState);
-        cur->flip_current_cursor_state(gd);
+        world->set_state(cube, col, row, cur->cursor_state);
+        cur->flip_state(gd);
         gCurrent.clear();
         Click();
     }
@@ -793,12 +779,19 @@ void PlaceMarker(cursor* cur, const game_settings& gd, GameWorld* world, int cub
 
 struct Cube : Object
 {
-    Cube(float ix, float iy, GameWorld& iWorld, int iCube, WinningCombination** icombo)
+    float x;
+    float y;
+    World& world;
+    const int cube;
+    WinningCombination** combo;
+    Part parts[4][4];
+
+    Cube(float ix, float iy, World& iWorld, int iCube, WinningCombination** icombo)
         : x(ix)
-          , y(iy)
-          , world(iWorld)
-          , cube(iCube)
-          , combo(icombo)
+        , y(iy)
+        , world(iWorld)
+        , cube(iCube)
+        , combo(icombo)
     {
         for (int col = 0; col < 4; ++col)
         {
@@ -846,54 +839,45 @@ struct Cube : Object
         }
     }
 
-    void testPlacements(cursor* cur, const game_settings& gd, SuggestedLocation* location, float mx, float my, bool mouse)
+    void test_placements(cursor* cur, const game_settings& gd, SuggestedLocation* location, float mx, float my, bool mouse) const
     {
         for (int col = 0; col < 4; ++col)
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].testPlacements(cur, gd, location, mx, my, mouse);
+                parts[col][row].test_placements(cur, gd, location, mx, my, mouse);
             }
         }
     }
-
-private:
-    float x;
-    float y;
-    GameWorld& world;
-    const int cube;
-
-    WinningCombination** combo;
-    Part parts[4][4];
 };
 
 struct StartStep
 {
+    int start;
+    int step;
+
     StartStep(int iStart, int iStep)
         : start(iStart)
-          , step(iStep)
+        , step(iStep)
     {
     }
 
     StartStep(int iStep)
         : start(0)
-          , step(iStep)
+        , step(iStep)
     {
         if (iStep < 0)
         {
             start = 3;
         }
     }
-
-    int start;
-    int step;
 };
 
 struct WinningConditionModular
 {
     WinningConditionModular(const StartStep& cube, const StartStep& col, const StartStep& row)
         : start(cube.start, col.start, row.start)
-          , step(cube.step, col.step, row.step)
+        , step(cube.step, col.step, row.step)
     {
     }
 
@@ -916,10 +900,8 @@ struct WinningConditionModular
 
 struct PressKeyToContinue : Object
 {
-    PressKeyToContinue()
-        : time(0)
-    {
-    }
+    float time = 0;
+    bool interact = false;
 
     void update(const game_settings&, float delta, bool iInteract, const glm::vec2&, bool) override
     {
@@ -942,13 +924,12 @@ struct PressKeyToContinue : Object
         if (interact)
         {
             // todo(Gustav): make center
-            font.simple_text(rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "Click To Play Again",
-                             onebit::no_text_animation{});
+            font.simple_text
+            (
+                rd.batch, rd.onebit, {0, 0, 0, 1.0f}, width / 2, height - 35, "Click To Play Again",
+                onebit::no_text_animation{});
         }
     }
-
-    float time;
-    bool interact;
 };
 
 struct Game;
@@ -1015,28 +996,28 @@ struct Game
     {
         for (int cube_index = 0; cube_index < 4; ++cube_index)
         {
-            world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(0, 1)));
-            world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(3, -1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(0, 1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(3, -1)));
             for (int i = 0; i < 4; ++i)
             {
-                world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(i, 0), StartStep(0, 1)));
-                world.addWinningCondition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(i, 0)));
+                world.add_winning_condition(WinningConditionModular(StartStep(cube_index, 0), StartStep(i, 0), StartStep(0, 1)));
+                world.add_winning_condition(WinningConditionModular(StartStep(cube_index, 0), StartStep(0, 1), StartStep(i, 0)));
             }
         }
         if (gd.use_hard_mode)
         {
-            world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(0, 1)));
-            world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(3, -1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(0, 1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(3, -1)));
 
-            world.addWinningCondition(WinningConditionModular(StartStep(3, -1), StartStep(0, 1), StartStep(0, 1)));
-            world.addWinningCondition(WinningConditionModular(StartStep(3, -1), StartStep(0, 1), StartStep(3, -1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(3, -1), StartStep(0, 1), StartStep(0, 1)));
+            world.add_winning_condition(WinningConditionModular(StartStep(3, -1), StartStep(0, 1), StartStep(3, -1)));
             for (int i = 0; i < 4; ++i)
             {
-                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(i, 0), StartStep(0, 1)));
-                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(i, 0)));
+                world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(i, 0), StartStep(0, 1)));
+                world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(0, 1), StartStep(i, 0)));
 
-                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(i, 0), StartStep(3, -1)));
-                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(3, -1), StartStep(i, 0)));
+                world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(i, 0), StartStep(3, -1)));
+                world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(3, -1), StartStep(i, 0)));
             }
         }
 
@@ -1044,7 +1025,7 @@ struct Game
         {
             for (int col = 0; col < 4; ++col)
             {
-                world.addWinningCondition(WinningConditionModular(StartStep(0, 1), StartStep(col, 0), StartStep(row, 0)));
+                world.add_winning_condition(WinningConditionModular(StartStep(0, 1), StartStep(col, 0), StartStep(row, 0)));
             }
         }
     }
@@ -1071,7 +1052,7 @@ struct Game
 
     void newGame()
     {
-        current_cursor.SetStartCursor();
+        current_cursor.set_start_cursor();
         interactive = true;
     }
 
@@ -1127,7 +1108,7 @@ struct Game
         {
             for(int i=0; i<4; i+=1)
             {
-                cube[i]->testPlacements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+                cube[i]->test_placements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
             }
         }
 
@@ -1157,12 +1138,12 @@ struct Game
 
         if (interactive && gd.play_against_computer)
         {
-            if (current_cursor.gCurrentCursorState == cross_or_circle::ai && !aiHasMoved)
+            if (current_cursor.cursor_state == cross_or_circle::ai && !aiHasMoved)
             {
                 add(std::make_shared<AiPlacerObject>(rand, &current_cursor));
                 aiHasMoved = true;
             }
-            else if (current_cursor.gCurrentCursorState != cross_or_circle::ai)
+            else if (current_cursor.cursor_state != cross_or_circle::ai)
             {
                 aiHasMoved = false;
             }
@@ -1173,7 +1154,7 @@ struct Game
     {
         hasWon = true;
         mWinningCombo = WinningCombination();
-        current_cursor.SetCompleteCursor();
+        current_cursor.set_complete_cursor();
         gWinPulsatingIndex = 0;
         combo = nullptr;
     }
@@ -1182,7 +1163,7 @@ struct Game
     {
         hasWon = true;
         mWinningCombo = new_combo;
-        current_cursor.SetCompleteCursor();
+        current_cursor.set_complete_cursor();
         gWinPulsatingIndex = 0;
         combo = &mWinningCombo;
         cheer();
@@ -1196,7 +1177,7 @@ struct Game
     vector<std::shared_ptr<Object>> mObjects;
     bool quit;
     bool quiting;
-    GameWorld world;
+    World world;
     std::shared_ptr<Cube> cube[4];
     bool hasWon;
     WinningCombination mWinningCombo;
@@ -1211,8 +1192,8 @@ void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int co
 {
     auto gd = agd;
     gd.play_against_computer = false;
-    cur->gCurrentCursorState = cross_or_circle::circle;
-    const bool free = gGame->world.isPlaceFree(cube, col, row);
+    cur->cursor_state = cross_or_circle::circle;
+    const bool free = gGame->world.is_place_free(cube, col, row);
     assert(free);
     PlaceMarker(cur, gd, &gGame->world, cube, col, row);
 }
@@ -1222,7 +1203,7 @@ float GetWinFactorPlacement(const WinningCombination& combo)
     float value = 0;
     for (int i = 0; i < 4; ++i)
     {
-        switch (gGame->world.getState(combo.combination[i]))
+        switch (gGame->world.get_state(combo.combination[i]))
         {
         case cross_or_circle::circle:
             value += 1;
@@ -1244,7 +1225,7 @@ float GetStopFactorPlacement(const WinningCombination& combo)
     float value = 1;
     for (int i = 0; i < 4; ++i)
     {
-        switch (gGame->world.getState(combo.combination[i]))
+        switch (gGame->world.get_state(combo.combination[i]))
         {
         case cross_or_circle::circle:
             return 0;
@@ -1265,24 +1246,23 @@ float GetStopFactorPlacement(const WinningCombination& combo)
 
 bool ExecutePlaceWin(cursor* cur, const game_settings& gd, Random* rand)
 {
-    vector<WinningCombination> combinations;
-    const size_t count = gGame->world.getWinningComditions(&combinations);
+    vector<WinningCombination> combinations = gGame->world.get_winning_conditions();
     WinningCombination bestCombo;
     float bestFactor = -1;
-    for (size_t i = 0; i < count; ++i)
+    for (const auto& combo: combinations)
     {
         auto is_place_free = [&](int j) -> bool
         {
-            return gGame->world.isPlaceFree(combinations[i].combination[j]);
+            return gGame->world.is_place_free(combo.combination[j]);
         };
 
         if (is_place_free(0) || is_place_free(1) || is_place_free(2) || is_place_free(3))
         {
-            const auto factor = GetWinFactorPlacement(combinations[i]) + GetStopFactorPlacement(combinations[i]);
+            const auto factor = GetWinFactorPlacement(combo) + GetStopFactorPlacement(combo);
             if (bestFactor < 0 || (factor > bestFactor && rand->get_excluding(100) < 73))
             {
                 bestFactor = factor;
-                bestCombo = combinations[i];
+                bestCombo = combo;
             }
         }
     }
@@ -1294,7 +1274,7 @@ bool ExecutePlaceWin(cursor* cur, const game_settings& gd, Random* rand)
         {
             index = rand->get_excluding(4);
         }
-        while (!gGame->world.isPlaceFree(bestCombo.combination[index]));
+        while (!gGame->world.is_place_free(bestCombo.combination[index]));
         const auto place = bestCombo.combination[index];
         ComputerPlaceMarker(cur, gd, place.cube, place.column, place.row);
         return true;
@@ -1319,22 +1299,22 @@ void ExecuteRandomPlacement(cursor* cur, const game_settings& gd, Random* r)
         col = GenerateRandomPlace(r);
         row = GenerateRandomPlace(r);
     }
-    while (!gGame->world.isPlaceFree(cube, col, row));
+    while (!gGame->world.is_place_free(cube, col, row));
     ComputerPlaceMarker(cur, gd, cube, col, row);
 }
 
 typedef int placing_factor;
 
-placing_factor GetPlacingFactor(const Index& i, const vector<WinningCombination>& rules, size_t count)
+placing_factor GetPlacingFactor(const Index& i, const vector<WinningCombination>& rules)
 {
     placing_factor factor = 0;
-    for (size_t ruleIndex = 0; ruleIndex < count; ++ruleIndex)
+    for (size_t ruleIndex = 0; ruleIndex < rules.size(); ++ruleIndex)
     {
         bool hasMe = false;
         bool hasFree = false;
         for (int placementIndex = 0; placementIndex < 4; ++placementIndex)
         {
-            if (gGame->world.isPlaceFree(rules[ruleIndex].combination[placementIndex]))
+            if (gGame->world.is_place_free(rules[ruleIndex].combination[placementIndex]))
             {
                 hasFree = true;
             }
@@ -1351,7 +1331,7 @@ placing_factor GetPlacingFactor(const Index& i, const vector<WinningCombination>
             for (int placementIndex = 0; placementIndex < 4; ++placementIndex)
             {
                 const Index at = rules[ruleIndex].combination[placementIndex];
-                switch (gGame->world.getState(at))
+                switch (gGame->world.get_state(at))
                 {
                 case cross_or_circle::circle:
                     circles += 1;
@@ -1391,13 +1371,13 @@ placing_factor GetPlacingFactor(const Index& i, const vector<WinningCombination>
 
 struct Placement
 {
-    Placement(const vector<WinningCombination>& rules, size_t count, const Index& i)
+    Placement(const vector<WinningCombination>& rules, const Index& i)
         : index(i)
-          , factor(0)
+        , factor(0)
     {
-        if (gGame->world.isPlaceFree(index))
+        if (gGame->world.is_place_free(index))
         {
-            factor = GetPlacingFactor(index, rules, count);
+            factor = GetPlacingFactor(index, rules);
         }
         else
         {
@@ -1417,8 +1397,7 @@ struct Placement
 void ExecuteComputerMoveTest(cursor* cur, const game_settings& gd, Random* rand)
 {
     multiset<Placement> placements;
-    vector<WinningCombination> rules;
-    const size_t count = gGame->world.getWinningComditions(&rules);
+    const vector<WinningCombination> rules = gGame->world.get_winning_conditions();
 
     for (int cube = 0; cube < 4; ++cube)
     {
@@ -1426,7 +1405,7 @@ void ExecuteComputerMoveTest(cursor* cur, const game_settings& gd, Random* rand)
         {
             for (int row = 0; row < 4; ++row)
             {
-                Placement placement(rules, count, Index(cube, col, row));
+                auto placement = Placement{rules, Index{cube, col, row}};
                 if (placement.factor >= 0)
                 {
                     placements.insert(placement);
