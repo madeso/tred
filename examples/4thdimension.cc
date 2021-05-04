@@ -611,15 +611,14 @@ struct Part
     float direction = 1;
     bool animateIntro = true;
 
-    void setup(World* iWorld, float* iox, float* ioy, int icube, int r, int c)
+    Part(World* iWorld, float* iox, float* ioy, int icube, int r, int c)
+        : cube(icube)
+        , row(r)
+        , col(c)
+        , ox(iox)
+        , oy(ioy)
+        , world(iWorld)
     {
-        world = iWorld;
-        ox = iox;
-        oy = ioy;
-        cube = icube;
-        row = r;
-        col = c;
-        extraScale = 0;
     }
 
     void start()
@@ -767,6 +766,21 @@ void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, i
     }
 }
 
+std::array<Part, 16> make_parts(World* world, float* x, float* y, const int cube)
+{
+    const auto w = [=](int row, int col) -> Part
+    {
+        return {world, x, y, cube, row-1, col-1};
+    };
+    return
+    {
+        w(1, 1), w(1, 2), w(1, 3), w(1, 4),
+        w(2, 1), w(2, 2), w(2, 3), w(2, 4),
+        w(3, 1), w(3, 2), w(3, 3), w(3, 4),
+        w(4, 1), w(4, 2), w(4, 3), w(4, 4)
+    };
+}
+
 struct Cube : Object
 {
     float x;
@@ -774,7 +788,7 @@ struct Cube : Object
     World& world;
     const int cube;
     WinningCombination** combo;
-    Part parts[4][4];
+    std::array<Part, 16> parts;
 
     Cube(float ix, float iy, World& iWorld, int iCube, WinningCombination** icombo)
         : x(ix)
@@ -782,14 +796,13 @@ struct Cube : Object
         , world(iWorld)
         , cube(iCube)
         , combo(icombo)
+        , parts(make_parts(&world, &x, &y, cube))
     {
-        for (int col = 0; col < 4; ++col)
-        {
-            for (int row = 0; row < 4; ++row)
-            {
-                parts[col][row].setup(&world, &x, &y, cube, row, col);
-            }
-        }
+    }
+
+    static size_t index(int col, int row)
+    {
+        return row * 4 + col;
     }
 
     void render(const render_data& rd) override
@@ -802,7 +815,7 @@ struct Cube : Object
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].render(rd);
+                parts[index(col, row)].render(rd);
             }
         }
     }
@@ -813,7 +826,7 @@ struct Cube : Object
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].start();
+                parts[index(col, row)].start();
             }
         }
     }
@@ -824,7 +837,7 @@ struct Cube : Object
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].update(*combo, delta);
+                parts[index(col, row)].update(*combo, delta);
             }
         }
     }
@@ -835,7 +848,7 @@ struct Cube : Object
         {
             for (int row = 0; row < 4; ++row)
             {
-                parts[col][row].test_placements(cur, gd, location, mx, my, mouse);
+                parts[index(col, row)].test_placements(cur, gd, location, mx, my, mouse);
             }
         }
     }
