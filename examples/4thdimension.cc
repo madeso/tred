@@ -96,7 +96,7 @@ struct Menu
 {
     Menu()
         : state(0)
-          , cursorDown(false)
+          , mouse_was_down(false)
           , hardAi("human versus hard ai", 250, 200)
           , easyAi("human versus easy ai", 250, 250)
           , noAi("human versus human", 250, 300)
@@ -111,10 +111,10 @@ struct Menu
 
     std::function<void()> on_start_game;
 
-    void update(game_settings* gd, const glm::vec2& mouse, bool down, float)
+    void update(game_settings* gd, const glm::vec2& mouse, bool mouse_is_down, float)
     {
-        const auto clicked = !down && cursorDown;
-        cursorDown = down;
+        const auto clicked = !mouse_is_down && mouse_was_down;
+        mouse_was_down = mouse_is_down;
 
         if (state == 0)
         {
@@ -182,7 +182,7 @@ struct Menu
     }
 
     int state;
-    bool cursorDown;
+    bool mouse_was_down;
 
     Button hardAi;
     Button easyAi;
@@ -477,17 +477,12 @@ struct World
 {
     bool is_modified;
     cross_or_circle state[4][4][4];
-    std::vector<TestWinningConditionFunction> mWinningConditions;
+    std::vector<TestWinningConditionFunction> winning_conditions;
 
     World()
         : is_modified(false)
     {
         clear();
-    }
-
-    cross_or_circle get_state(int cube, int col, int row) const
-    {
-        return state[cube][col][row];
     }
 
     cross_or_circle get_state(const Index& index) const
@@ -544,10 +539,10 @@ struct World
 
     cross_or_circle testWinningConditions(WinningCombination* oCombo) const
     {
-        const std::size_t count = mWinningConditions.size();
+        const std::size_t count = winning_conditions.size();
         for (std::size_t i = 0; i < count; ++i)
         {
-            const WinningCombination combo = mWinningConditions[i]();
+            const WinningCombination combo = winning_conditions[i]();
             const cross_or_circle result = combo.test(*this);
             if (result != cross_or_circle::neither)
             {
@@ -561,27 +556,22 @@ struct World
 
     void add_winning_condition(TestWinningConditionFunction&& condition)
     {
-        mWinningConditions.emplace_back(condition);
+        winning_conditions.emplace_back(condition);
     }
 
     vector<WinningCombination> get_winning_conditions() const
     {
         vector<WinningCombination> conditions;
-        for (const auto& cond: mWinningConditions)
+        for (const auto& cond: winning_conditions)
         {
             conditions.emplace_back(cond());
         }
         return conditions;
     }
 
-    bool is_place_free(int cube, int col, int row) const
-    {
-        return state[cube][col][row] == cross_or_circle::neither;
-    }
-
     bool is_place_free(Index index) const
     {
-        return is_place_free(index.cube, index.column, index.row);
+        return state[index.cube][index.column][index.row] == cross_or_circle::neither;
     }
 };
 
@@ -639,7 +629,7 @@ struct Part
 
     void render(const render_data& rd) const
     {
-        cross_or_circle state = world->get_state(cube, col, row);
+        cross_or_circle state = world->get_state({cube, col, row});
         const auto sprite = state == cross_or_circle::neither
             ? onebit::box
             : (
@@ -662,7 +652,7 @@ struct Part
 
     const recti* getSprite() const
     {
-        cross_or_circle state = world->get_state(cube, col, row);
+        cross_or_circle state = world->get_state({cube, col, row});
         if (state != cross_or_circle::neither)
         {
             if (state == cross_or_circle::cross)
@@ -737,7 +727,7 @@ struct Part
 
     void test_placements(cursor* cur, const game_settings& settings, SuggestedLocation* suggested_location, float mx, float my, bool mouse) const
     {
-        const cross_or_circle state = world->get_state(cube, col, row);
+        const cross_or_circle state = world->get_state({cube, col, row});
         if (state == cross_or_circle::neither)
         {
             const float w = sprite_size.get_width();
@@ -972,21 +962,22 @@ struct Game
 {
     cursor current_cursor;
 
-    SuggestedLocation gSuggestedLocation;
+    SuggestedLocation suggested_location;
     Game()
         : quit(false)
-          , quiting(false)
+          , is_quiting(false)
           , hasWon(false)
           , combo(nullptr)
-          , interactive(true)
+          , is_interactive(true)
           , aiHasMoved(false)
     {
-        add(std::make_shared<Background>("BackgroundSprite"));
+        add(std::make_shared<FullscreenColorSprite>(glm::vec4{0.8f, 0.8f, 0.8f, 1.0f}));
         for (int i = 0; i < 4; ++i)
         {
             add
             (
-                cube[i] = std::make_shared<Cube>(
+                cube[i] = std::make_shared<Cube>
+                (
                     Cint_to_float(25 + i * 193),
                     Cint_to_float(48 + i * 126),
                     world, i, &combo
@@ -994,7 +985,7 @@ struct Game
             );
         }
         add(std::make_shared<PressKeyToContinue>());
-        add(std::make_shared<IconPlacer>(&current_cursor, &gSuggestedLocation));
+        add(std::make_shared<IconPlacer>(&current_cursor, &suggested_location));
         add(std::make_shared<FadeFromBlack>(fade_time_intro));
     }
 
@@ -1059,7 +1050,7 @@ struct Game
     void newGame()
     {
         current_cursor.set_start_cursor();
-        interactive = true;
+        is_interactive = true;
     }
 
     void click()
@@ -1074,23 +1065,23 @@ struct Game
 
     void on_escape_key()
     {
-        if (!quiting)
+        if (!is_quiting)
         {
             add(std::make_shared<FadeToBlackAndExit>(fade_time_outro, [this]() {quit = false; }));
-            quiting = true;
+            is_quiting = true;
         }
     }
 
     void update(const game_settings& gd, Random* rand, bool mouse, bool oldMouse, float delta, const glm::vec2& mouse_position, bool enter_state)
     {
-        gSuggestedLocation.clear();
+        suggested_location.clear();
 
-        if (interactive && hasWon && mouse == false && mouse != oldMouse)
+        if (is_interactive && hasWon && mouse == false && mouse != oldMouse)
         {
             AddStartNewGameFader(*this);
-            interactive = false;
+            is_interactive = false;
         }
-        const bool interact = !hasWon && interactive;
+        const bool interact = !hasWon && is_interactive;
         const std::size_t length = mObjects.size();
 
         for (std::size_t i = 0; i < length; ++i)
@@ -1114,11 +1105,11 @@ struct Game
         {
             for(int i=0; i<4; i+=1)
             {
-                cube[i]->test_placements(&current_cursor, gd, &gSuggestedLocation, mouse_position.x, mouse_position.y, mouse);
+                cube[i]->test_placements(&current_cursor, gd, &suggested_location, mouse_position.x, mouse_position.y, mouse);
             }
         }
 
-        if (interactive && enter_state)
+        if (is_interactive && enter_state)
         {
             displayNoWinner();
         }
@@ -1142,7 +1133,7 @@ struct Game
             }
         }
 
-        if (interactive && gd.play_against_computer)
+        if (is_interactive && gd.play_against_computer)
         {
             if (current_cursor.cursor_state == cross_or_circle::ai && !aiHasMoved)
             {
@@ -1182,13 +1173,13 @@ struct Game
 
     vector<std::shared_ptr<Object>> mObjects;
     bool quit;
-    bool quiting;
+    bool is_quiting;
     World world;
     std::shared_ptr<Cube> cube[4];
     bool hasWon;
     WinningCombination mWinningCombo;
     WinningCombination* combo;
-    bool interactive;
+    bool is_interactive;
     bool aiHasMoved;
 };
 
@@ -1199,7 +1190,7 @@ void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int co
     auto gd = agd;
     gd.play_against_computer = false;
     cur->cursor_state = cross_or_circle::circle;
-    const bool free = gGame->world.is_place_free(cube, col, row);
+    const bool free = gGame->world.is_place_free({cube, col, row});
     assert(free);
     PlaceMarker(cur, gd, &gGame->world, cube, col, row);
 }
@@ -1305,7 +1296,7 @@ void ExecuteRandomPlacement(cursor* cur, const game_settings& gd, Random* r)
         col = GenerateRandomPlace(r);
         row = GenerateRandomPlace(r);
     }
-    while (!gGame->world.is_place_free(cube, col, row));
+    while (!gGame->world.is_place_free({cube, col, row}));
     ComputerPlaceMarker(cur, gd, cube, col, row);
 }
 
