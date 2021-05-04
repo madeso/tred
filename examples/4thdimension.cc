@@ -592,7 +592,6 @@ cross_or_circle WinningCombination::test(const World& iWorld) const
     return first;
 }
 
-int gWinPulsatingIndex = 0;
 
 
 void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row);
@@ -610,14 +609,16 @@ struct Part
     float extraScale = 0;
     float direction = 1;
     bool animateIntro = true;
+    int* gWinPulsatingIndex = 0;
 
-    Part(World* iWorld, float* iox, float* ioy, int icube, int r, int c)
+    Part(World* iWorld, float* iox, float* ioy, int icube, int r, int c, int* pc)
         : cube(icube)
         , row(r)
         , col(c)
         , ox(iox)
         , oy(ioy)
         , world(iWorld)
+        , gWinPulsatingIndex(pc)
     {
     }
 
@@ -673,7 +674,7 @@ struct Part
             if (combo)
             {
                 const Index me(cube, col, row);
-                if (combo->combination[gWinPulsatingIndex] == me)
+                if (combo->combination[*gWinPulsatingIndex] == me)
                 {
                     scale = true;
                 }
@@ -697,10 +698,10 @@ struct Part
             {
                 extraScale = min;
                 direction = 1;
-                gWinPulsatingIndex += 1;
-                if (gWinPulsatingIndex == 4)
+                *gWinPulsatingIndex += 1;
+                if (*gWinPulsatingIndex == 4)
                 {
-                    gWinPulsatingIndex = 0;
+                    *gWinPulsatingIndex = 0;
                 }
             }
         }
@@ -766,11 +767,11 @@ void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, i
     }
 }
 
-std::array<Part, 16> make_parts(World* world, float* x, float* y, const int cube)
+std::array<Part, 16> make_parts(World* world, float* x, float* y, const int cube, int* pc)
 {
     const auto w = [=](int row, int col) -> Part
     {
-        return {world, x, y, cube, row-1, col-1};
+        return {world, x, y, cube, row-1, col-1, pc};
     };
     return
     {
@@ -790,13 +791,13 @@ struct Cube : Object
     WinningCombination** combo;
     std::array<Part, 16> parts;
 
-    Cube(float ix, float iy, World& iWorld, int iCube, WinningCombination** icombo)
+    Cube(float ix, float iy, World& iWorld, int iCube, WinningCombination** icombo, int* pc)
         : x(ix)
         , y(iy)
         , world(iWorld)
         , cube(iCube)
         , combo(icombo)
-        , parts(make_parts(&world, &x, &y, cube))
+        , parts(make_parts(&world, &x, &y, cube, pc))
     {
     }
 
@@ -973,6 +974,7 @@ struct AiPlacerObject : Object
 
 struct Game
 {
+    int gWinPulsatingIndex = 0;
     cursor current_cursor;
 
     SuggestedLocation suggested_location;
@@ -993,7 +995,7 @@ struct Game
                 (
                     Cint_to_float(25 + i * 193),
                     Cint_to_float(48 + i * 126),
-                    world, i, &combo
+                    world, i, &combo, &gWinPulsatingIndex
                 )
             );
         }
