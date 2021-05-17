@@ -594,22 +594,22 @@ cross_or_circle WinningCombination::test(const World& iWorld) const
 
 
 
-void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row);
+void place_marker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row);
 
 struct Part
 {
-    int cube = -1;
-    int row = -1;
-    int col = -1;
+    int cube;
+    int row;
+    int col;
 
-    float* ox = nullptr;
-    float* oy = nullptr;
-    World* world = nullptr;
+    float* ox;
+    float* oy;
+    World* world;
 
     float extraScale = 0;
     float direction = 1;
     bool animateIntro = true;
-    int* gWinPulsatingIndex = 0;
+    int* pulsating_index;
 
     Part(World* iWorld, float* iox, float* ioy, int icube, int r, int c, int* pc)
         : cube(icube)
@@ -618,7 +618,7 @@ struct Part
         , ox(iox)
         , oy(ioy)
         , world(iWorld)
-        , gWinPulsatingIndex(pc)
+        , pulsating_index(pc)
     {
     }
 
@@ -629,7 +629,7 @@ struct Part
 
     void render(const render_data& rd) const
     {
-        cross_or_circle state = world->get_state({cube, col, row});
+        const auto state = world->get_state({cube, col, row});
         const auto sprite = state == cross_or_circle::neither
             ? onebit::box
             : (
@@ -650,9 +650,9 @@ struct Part
         );
     }
 
-    const recti* getSprite() const
+    [[nodiscard]] const recti* getSprite() const
     {
-        cross_or_circle state = world->get_state({cube, col, row});
+        const auto state = world->get_state({cube, col, row});
         if (state != cross_or_circle::neither)
         {
             if (state == cross_or_circle::cross)
@@ -666,27 +666,19 @@ struct Part
 
     void update(WinningCombination* combo, float delta)
     {
-        const float speed = 5.0f;
+        constexpr auto speed = 5.0f;
+        constexpr auto min = 0.0f;
+        constexpr auto max = 2.0f;
 
         if (combo)
         {
-            bool scale = false;
-            if (combo)
-            {
-                const Index me(cube, col, row);
-                if (combo->combination[*gWinPulsatingIndex] == me)
-                {
-                    scale = true;
-                }
-            }
+            const auto scale = combo && combo->combination[*pulsating_index] == Index{ cube, col, row };
 
             if (!scale)
             {
                 return;
             }
 
-            constexpr float min = 0.0f;
-            constexpr float max = 2.0f;
 
             extraScale += delta * max * speed * direction * 0.7f;
             if (extraScale > max)
@@ -698,10 +690,10 @@ struct Part
             {
                 extraScale = min;
                 direction = 1;
-                *gWinPulsatingIndex += 1;
-                if (*gWinPulsatingIndex == 4)
+                *pulsating_index += 1;
+                if (*pulsating_index == 4)
                 {
-                    *gWinPulsatingIndex = 0;
+                    *pulsating_index = 0;
                 }
             }
         }
@@ -730,12 +722,12 @@ struct Part
         const cross_or_circle state = world->get_state({cube, col, row});
         if (state == cross_or_circle::neither)
         {
-            const float w = sprite_size.get_width();
-            const float h = sprite_size.get_height();
-            const float rx = *ox + Cint_to_float(col) * w;
-            const float ry = *oy + Cint_to_float(row) * h;
+            const auto w = sprite_size.get_width();
+            const auto h = sprite_size.get_height();
+            const auto rx = *ox + Cint_to_float(col) * w;
+            const auto ry = *oy + Cint_to_float(row) * h;
             const auto rect = ::rect{rx, ry, rx + w, ry + h};
-            const bool over = rect.is_inside_inclusive(mx, my);
+            const auto over = rect.is_inside_inclusive(mx, my);
             const Index me(cube, col, row);
 
             if (mouse && over)
@@ -745,7 +737,7 @@ struct Part
 
             if (!mouse && over && me == gCurrent)
             {
-                PlaceMarker(cur, settings, world, cube, col, row);
+                place_marker(cur, settings, world, cube, col, row);
             }
 
             if (over)
@@ -756,7 +748,7 @@ struct Part
     }
 };
 
-void PlaceMarker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row)
+void place_marker(cursor* cur, const game_settings& gd, World* world, int cube, int col, int row)
 {
     if (cur->cursor_state == cross_or_circle::circle || cur->cursor_state == cross_or_circle::cross)
     {
@@ -974,17 +966,17 @@ struct AiPlacerObject : Object
 
 struct Game
 {
-    int gWinPulsatingIndex = 0;
+    int pulsating_index = 0;
     cursor current_cursor;
 
     SuggestedLocation suggested_location;
     Game()
         : quit(false)
           , is_quiting(false)
-          , hasWon(false)
+          , has_result(false)
           , combo(nullptr)
           , is_interactive(true)
-          , aiHasMoved(false)
+          , ai_has_moved(false)
     {
         add(std::make_shared<FullscreenColorSprite>(glm::vec4{0.8f, 0.8f, 0.8f, 1.0f}));
         for (int i = 0; i < 4; ++i)
@@ -995,7 +987,7 @@ struct Game
                 (
                     Cint_to_float(25 + i * 193),
                     Cint_to_float(48 + i * 126),
-                    world, i, &combo, &gWinPulsatingIndex
+                    world, i, &combo, &pulsating_index
                 )
             );
         }
@@ -1054,7 +1046,7 @@ struct Game
     void clearBoard()
     {
         world.clear();
-        hasWon = false;
+        has_result = false;
         combo = nullptr;
         for (int c = 0; c < 4; ++c)
         {
@@ -1091,12 +1083,12 @@ struct Game
     {
         suggested_location.clear();
 
-        if (is_interactive && hasWon && mouse == false && mouse != oldMouse)
+        if (is_interactive && has_result && mouse == false && mouse != oldMouse)
         {
             AddStartNewGameFader(*this);
             is_interactive = false;
         }
-        const bool interact = !hasWon && is_interactive;
+        const bool interact = !has_result && is_interactive;
         const std::size_t length = mObjects.size();
 
         for (std::size_t i = 0; i < length; ++i)
@@ -1126,7 +1118,7 @@ struct Game
 
         if (is_interactive && enter_state)
         {
-            displayNoWinner();
+            display_no_winner();
         }
 
         if (!mouse)
@@ -1137,47 +1129,47 @@ struct Game
         if (world.hasBeenModifiedSinceLastCall())
         {
             WinningCombination winning_combo;
-            cross_or_circle result = world.testWinningConditions(&winning_combo);
+            const auto result = world.testWinningConditions(&winning_combo);
             if (result != cross_or_circle::neither)
             {
-                displayWinner(winning_combo);
+                display_winner(winning_combo);
             }
             else if (!world.can_place_marker())
             {
-                displayNoWinner();
+                display_no_winner();
             }
         }
 
         if (is_interactive && gd.play_against_computer)
         {
-            if (current_cursor.cursor_state == cross_or_circle::ai && !aiHasMoved)
+            if (current_cursor.cursor_state == cross_or_circle::ai && !ai_has_moved)
             {
                 add(std::make_shared<AiPlacerObject>(rand, &current_cursor));
-                aiHasMoved = true;
+                ai_has_moved = true;
             }
             else if (current_cursor.cursor_state != cross_or_circle::ai)
             {
-                aiHasMoved = false;
+                ai_has_moved = false;
             }
         }
     }
 
-    void displayNoWinner()
+    void display_no_winner()
     {
-        hasWon = true;
-        mWinningCombo = WinningCombination();
+        has_result = true;
+        winning_combination = WinningCombination{};
         current_cursor.set_complete_cursor();
-        gWinPulsatingIndex = 0;
+        pulsating_index = 0;
         combo = nullptr;
     }
 
-    void displayWinner(const WinningCombination& new_combo)
+    void display_winner(const WinningCombination& new_combo)
     {
-        hasWon = true;
-        mWinningCombo = new_combo;
+        has_result = true;
+        winning_combination = new_combo;
         current_cursor.set_complete_cursor();
-        gWinPulsatingIndex = 0;
-        combo = &mWinningCombo;
+        pulsating_index = 0;
+        combo = &winning_combination;
         cheer();
     }
 
@@ -1191,11 +1183,11 @@ struct Game
     bool is_quiting;
     World world;
     std::shared_ptr<Cube> cube[4];
-    bool hasWon;
-    WinningCombination mWinningCombo;
+    bool has_result;
+    WinningCombination winning_combination;
     WinningCombination* combo;
     bool is_interactive;
-    bool aiHasMoved;
+    bool ai_has_moved;
 };
 
 Game* gGame = nullptr;
@@ -1207,7 +1199,7 @@ void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int co
     cur->cursor_state = cross_or_circle::circle;
     const bool free = gGame->world.is_place_free({cube, col, row});
     assert(free);
-    PlaceMarker(cur, gd, &gGame->world, cube, col, row);
+    place_marker(cur, gd, &gGame->world, cube, col, row);
 }
 
 float GetWinFactorPlacement(const WinningCombination& combo)
