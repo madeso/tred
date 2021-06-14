@@ -272,7 +272,7 @@ struct sdl_platform : public input::platform
 
         for(auto button: sdl::valid_buttons)
         {
-            const auto id = static_cast<size_t>(button);
+            const auto id = static_cast<std::size_t>(button);
             if(old_state.buttons[id] != new_state.buttons[id])
             {
                 const auto my_button = sdl::to_controller_button(button);
@@ -285,7 +285,7 @@ struct sdl_platform : public input::platform
 
         for(auto axis: sdl::valid_axes)
         {
-            const auto id = static_cast<size_t>(axis);
+            const auto id = static_cast<std::size_t>(axis);
             if(old_state.axes[id] != new_state.axes[id])
             {
                 // "The state is a value ranging from -32768 to 32767." so make sure it falls in the -1 to +1 range

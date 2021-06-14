@@ -136,7 +136,7 @@ struct minesweeper
         }
     }
 
-    size_t get_index(int x, int y) const
+    std::size_t get_index(int x, int y) const
     {
         assert(x >= 0 && x<width);
         assert(y >= 0 && y<height);

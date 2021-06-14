@@ -1312,7 +1312,7 @@ typedef int placing_factor;
 placing_factor GetPlacingFactor(const Index& i, const vector<WinningCombination>& rules)
 {
     placing_factor factor = 0;
-    for (size_t ruleIndex = 0; ruleIndex < rules.size(); ++ruleIndex)
+    for (std::size_t ruleIndex = 0; ruleIndex < rules.size(); ++ruleIndex)
     {
         bool hasMe = false;
         bool hasFree = false;

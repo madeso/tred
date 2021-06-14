@@ -21,7 +21,7 @@ struct handle_functions
     using handle = T;
     using id = Id;
     using version = Version;
-    
+
     using base = typename std::underlying_type<T>::type;
 
     static_assert
@@ -83,11 +83,11 @@ template <typename TSelf, typename TData>
 struct handle_vector_iterator
 {
     TSelf* vector;
-    size_t index;
+    std::size_t index;
 
     using self = handle_vector_iterator<TSelf, TData>;
 
-    handle_vector_iterator(TSelf* v, size_t i)
+    handle_vector_iterator(TSelf* v, std::size_t i)
         : vector(v)
         , index(i)
     {
@@ -137,11 +137,11 @@ template<typename TSelf, typename THandle, typename TData, typename TFunctions, 
 struct handle_vector_pair_iterator
 {
     TSelf* vector;
-    size_t index;
+    std::size_t index;
 
     using self = handle_vector_pair_iterator<TSelf, THandle, TData, TFunctions, TId>;
 
-    handle_vector_pair_iterator(TSelf* v, size_t i)
+    handle_vector_pair_iterator(TSelf* v, std::size_t i)
         : vector(v)
         , index(i)
     {
@@ -223,7 +223,7 @@ struct handle_vector
     using iterator = handle_vector_iterator<self, value_type>;
     using pair_iterator = handle_vector_pair_iterator<self, handle, value_type, functions, id>;
     using pair_iterator_container = handle_vector_pair_iterator_container<self, pair_iterator>;
-    
+
     using vector = std::vector<pair>;
 
     vector data;
@@ -271,7 +271,7 @@ struct handle_vector
 
     pair& get_pair(handle handle)
     {
-        const auto id = static_cast<size_t>(functions::get_id(handle));
+        const auto id = static_cast<std::size_t>(functions::get_id(handle));
         const auto version = functions::get_version(handle);
         assert(data[id].version == version && "invalid handle (use after free)");
         return data[id];

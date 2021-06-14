@@ -37,13 +37,13 @@ struct color_flips
     {
         auto r = Random{};
 
-        for(size_t i=0; i<width*height; i+=1) { timer[i] = r.get_including(max_time); }
-        for(size_t i=0; i<width*height; i+=1) { index[i] = r.get_excluding(endesga64.size()); }
+        for(std::size_t i=0; i<width*height; i+=1) { timer[i] = r.get_including(max_time); }
+        for(std::size_t i=0; i<width*height; i+=1) { index[i] = r.get_excluding(endesga64.size()); }
     }
 
     void update(float dt)
     {
-        for(size_t i=0; i<width*height; i+=1)
+        for(std::size_t i=0; i<width*height; i+=1)
         {
             timer[i] -= dt;
             if(timer[i] < 0.0f)
@@ -61,8 +61,8 @@ struct color_flips
             return ((c >> s) & 0xff) / 255.0f;
         };
 
-        for(size_t x=0; x<width; x+=1)
-        for(size_t y=0; y<height; y+=1)
+        for(std::size_t x=0; x<width; x+=1)
+        for(std::size_t y=0; y<height; y+=1)
         {
             const auto color_index = index[x * width + y];
             const auto c = endesga64[color_index];

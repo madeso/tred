@@ -32,7 +32,7 @@ struct RandomImpl
         return random(gen);
     }
 
-    size_t get_excluding(std::size_t max)
+    std::size_t get_excluding(std::size_t max)
     {
         return Cint_to_sizet(get_excluding(Csizet_to_int(max)));
     }
