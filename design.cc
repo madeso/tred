@@ -170,36 +170,6 @@ struct Camera3
 };
 
 
-// Technique or a Renderer handles shader creation
-// creates a "super" shader from a light shader (based on the lighting technique)
-//   and a material shader
-
-struct Technique
-{
-    virtual void Render(const vector<Actor>& culled); // pure virtual
-};
-
-struct TechniqueWireframe : public Technique {};
-
-struct TechniqueNoTextures : public Technique {};
-
-struct TechniqueFullyLit : public Technique {};
-
-
-// 'Game Engine Architecture' calls this structure a SceneGraph, but I think
-// that name implies some form of hierarchy and my World does not have that
-struct World3
-{
-    // how to handle memory?
-    // RemoveX function are needed
-    void AddActor(Actor);
-    void AddLight();
-    void AddParticleSystem();
-
-    virtual void Render(const Camera3& camera, Technique* technique) const = 0;
-
-    virtual void OnActorMoved(Actor*, PlacementInWorld*) =0;
-};
 
 
 
@@ -294,10 +264,17 @@ struct CombinedShader
     MaterialShader* material_shader;
 };
 
-struct Material
+struct Look
 {
     CombinedShader* combined_shader;
     vector<TextureRef> textures;
+};
+
+struct Material
+{
+    // look defines the "look" of a mesh
+    // useful vor vision modes like normal, thermal, xray
+    map<string, Look> looks;
 };
 
 struct Light
@@ -346,12 +323,42 @@ unique_ptr<Windows> Setup();
 
 enum class ActorHandle {};
 
+// WindowRenderTarget, TextureRenderTarget...
+struct RenderTarget {};
+
+// Technique or a Renderer handles shader creation
+// creates a "super" shader from a light shader (based on the lighting technique)
+//   and a material shader
+
+struct Technique
+{
+    virtual void Render(const vector<Actor>& culled); // pure virtual
+};
+
+struct TechniqueWireframe : public Technique {};
+struct TechniqueSingleShader : public Technique {};
+struct TechniqueUsingLook : public Technique {};
+
+// look here refers to the look of the meshes
+// a Material can have one to many Looks
+// a look is a shader reference, texture references, colors...
+
+
+// 'Game Engine Architecture' calls this structure a SceneGraph, but I think
+// that name implies some form of hierarchy and my World does not have that
 struct World3
 {
-    ActorHandle CreateActor(ActorDefHandle);
-    void Render(const recti& size, const Technique& t);
-    void PlaceActor(ActorHandle actor, const vec3f& pos);
+    // how to handle memory?
+    // RemoveX function are needed
+    void AddActor(Actor);
+    void AddLight();
+    void AddParticleSystem();
+
+    virtual void Render(const Camera3& camera, Technique* technique) const = 0;
+
+    virtual void OnActorMoved(Actor*, PlacementInWorld*) =0;
 };
+
 unique_ptr<World3> CreateWorld();
 
 
