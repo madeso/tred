@@ -795,7 +795,7 @@ struct Cube : Object
 
     static size_t index(int col, int row)
     {
-        return row * 4 + col;
+        return Cint_to_sizet(row * 4 + col);
     }
 
     void render(const render_data& rd) override
