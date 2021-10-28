@@ -1,8 +1,8 @@
 #include "tred/opengl.debug.h"
 
-#include "SDL.h"
 #include "glad/glad.h"
 
+#include "tred/sdl.h"
 #include "tred/opengl.h"
 #include "tred/log.h"
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SDL.h"
 #include "glm/glm.hpp"
 
+#include "tred/sdl.h"
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 

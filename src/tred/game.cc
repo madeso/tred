@@ -7,7 +7,6 @@
 #include <set>
 #include <cassert>
 
-#include "SDL.h"
 #include "glad/glad.h"
 
 // imgui
@@ -17,6 +16,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "tred/sdl.h"
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"

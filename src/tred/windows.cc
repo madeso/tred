@@ -7,7 +7,7 @@
 #include <set>
 #include <cassert>
 
-#include "SDL.h"
+
 #include "glad/glad.h"
 
 // imgui
@@ -16,6 +16,7 @@
 #include "imgui_impl_opengl3.h"
 #include "tred/undef_windows.h"
 
+#include "tred/sdl.h"
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"

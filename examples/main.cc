@@ -15,7 +15,6 @@
 
 // dependency headers
 #include "glad/glad.h"
-#include "SDL.h"
 #include "stb_image.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -33,6 +32,7 @@ DISABLE_WARNING_POP
 #include "imgui_impl_opengl3.h"
 
 // custom/local headers
+#include "tred/sdl.h"
 #include "tred/opengl.debug.h"
 #include "tred/profiler.h"
 #include "tred/cint.h"
