@@ -172,6 +172,10 @@ struct Camera3
 
 
 
+// text rendering should support animation text:
+// https://github.com/mdechatech/CharTweener
+
+
 
 // fullscreen effects are handled elsewhere, not sure yet how to approach this
 
