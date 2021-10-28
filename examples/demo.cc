@@ -117,6 +117,8 @@ struct example_game : public game
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
+        r.batch->submit();
+
         flips.render(r.batch);
 
         constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(30);
