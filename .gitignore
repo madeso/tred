@@ -1,5 +1,5 @@
-build
-.vscode
-junk/
-html/*
-data/sprites/onebit/onebit.xcf
+/build/
+/.vscode
+/junk/
+/html/*
+/data/sprites/onebit/onebit.xcf
