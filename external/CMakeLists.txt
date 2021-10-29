@@ -1,5 +1,6 @@
 add_subdirectory(catchy)
 add_subdirectory(embed)
+add_subdirectory(stb)
 
 ###################################################################################################
 # glad
@@ -78,15 +79,4 @@ add_library(glm INTERFACE)
 target_include_directories(glm
     INTERFACE
         glm
-)
-
-
-###################################################################################################
-# stb
-add_library(stb STATIC
-    stb.cc
-)
-target_include_directories(stb
-    PUBLIC
-        stb
 )

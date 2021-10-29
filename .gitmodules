@@ -10,3 +10,6 @@
 [submodule "external/embed"]
 	path = external/embed
 	url = git@github.com:madeso/embed.git
+[submodule "external/stb/stb"]
+	path = external/stb/stb
+	url = git@github.com:nothings/stb.git

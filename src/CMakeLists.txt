@@ -67,7 +67,7 @@ set(src
 
 add_library(tred STATIC ${src})
 target_link_libraries(tred
-    PUBLIC sdl2 opengl imgui fmt::fmt stb glm embed
+    PUBLIC sdl2 opengl imgui fmt::fmt stb::image glm embed
     PRIVATE project_options project_warnings
 )
 target_include_directories(tred
