@@ -76,7 +76,7 @@ target_link_libraries(opengl INTERFACE OpenGL::GL)
 add_library(glm INTERFACE)
 target_include_directories(glm
     INTERFACE
-        glm-0.9.9.8
+        glm
 )
 
 
