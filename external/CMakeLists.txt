@@ -15,17 +15,17 @@ target_include_directories(glad
 ###################################################################################################
 # imgui
 add_library(imgui STATIC
-    imgui-1.78/imgui_demo.cpp
-    imgui-1.78/imgui_widgets.cpp
-    imgui-1.78/imgui.cpp
-    imgui-1.78/imgui_draw.cpp
-    imgui-1.78/examples/imgui_impl_sdl.cpp
-    imgui-1.78/examples/imgui_impl_opengl3.cpp
+    imgui/imgui_demo.cpp
+    imgui/imgui_widgets.cpp
+    imgui/imgui.cpp
+    imgui/imgui_draw.cpp
+    imgui/examples/imgui_impl_sdl.cpp
+    imgui/examples/imgui_impl_opengl3.cpp
 )
 target_include_directories(imgui
     PUBLIC
-        imgui-1.78/
-        imgui-1.78/examples/
+        imgui/
+        imgui/examples/
 )
 target_link_libraries(imgui
     PUBLIC
