@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/embedded_types.h"
+#include "embed/types.h"
 #include "tred/types.h"
 
 enum class texture_edge

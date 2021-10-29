@@ -1,6 +1,5 @@
 set(src
     tred/cint.cc tred/cint.h
-    tred/embedded_types.cc tred/embedded_types.h
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
     tred/array.cc tred/array.h
@@ -68,7 +67,7 @@ set(src
 
 add_library(tred STATIC ${src})
 target_link_libraries(tred
-    PUBLIC sdl2 opengl imgui fmt::fmt stb glm
+    PUBLIC sdl2 opengl imgui fmt::fmt stb glm embed
     PRIVATE project_options project_warnings
 )
 target_include_directories(tred

@@ -14,7 +14,6 @@ target_compile_features(project_options INTERFACE cxx_std_17)
 set_project_warnings(project_warnings)
 enable_sanitizers(project_options)
 
-add_subdirectory(tools)
 add_subdirectory(external)
 add_subdirectory(data/sprites)
 add_subdirectory(src)
