@@ -233,34 +233,34 @@ struct handle_vector
     {
         if(free_handles.empty() == false)
         {
-            const auto handle = *free_handles.rbegin();
+            const auto h = *free_handles.rbegin();
             free_handles.pop_back();
-            get_pair(handle).in_use = true;
-            return handle;
+            get_pair(h).in_use = true;
+            return h;
         }
         else
         {
-            const version version = FIRST_VERSION;
+            const version v = FIRST_VERSION;
             const auto index = data.size();
-            data.emplace_back(version);
-            assert(data[index].version == version && "pair constructor failed");
+            data.emplace_back(v);
+            assert(data[index].version == v && "pair constructor failed");
             assert(data[index].in_use == true && "pair constructor failed");
-            return functions::compress(static_cast<id>(index), version);
+            return functions::compress(static_cast<id>(index), v);
         }
     }
 
-    void mark_for_reuse(handle handle)
+    void mark_for_reuse(handle h)
     {
-        auto& p = get_pair(handle);
+        auto& p = get_pair(h);
         p.in_use = false;
 
-        const auto id = functions::get_id(handle);
+        const auto i = functions::get_id(h);
 
         p.version += 1;
         if(p.version != functions::version_mask)
         {
             // if the version is not max reuse it
-            free_handles.emplace_back(functions::compress(id, p.version));
+            free_handles.emplace_back(functions::compress(i, p.version));
         }
     }
 
@@ -269,18 +269,18 @@ struct handle_vector
         data.clear();
     }
 
-    pair& get_pair(handle handle)
+    pair& get_pair(handle h)
     {
-        const auto id = static_cast<std::size_t>(functions::get_id(handle));
-        const auto version = functions::get_version(handle);
-        assert(data[id].version == version && "invalid handle (use after free)");
-        return data[id];
+        const auto i = static_cast<std::size_t>(functions::get_id(h));
+        const auto v = functions::get_version(h);
+        assert(data[i].version == v && "invalid handle (use after free)");
+        return data[i];
     }
 
-    value_type& operator[](handle handle)
+    value_type& operator[](handle h)
     {
-        assert(get_pair(handle).in_use == true);
-        return get_pair(handle).data;
+        assert(get_pair(h).in_use == true);
+        return get_pair(h).data;
     }
 
     iterator begin()
