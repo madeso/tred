@@ -1,3 +1,5 @@
+#pragma once
+
 #include "tred/compiler_warning.h"
 
 DISABLE_WARNING_PUSH

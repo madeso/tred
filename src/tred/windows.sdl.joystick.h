@@ -4,7 +4,7 @@
 #include <string_view>
 #include <array>
 
-#include "tred/sdl.h"
+#include "tred/dependency_sdl.h"
 #include "tred/array.h"
 
 

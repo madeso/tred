@@ -16,7 +16,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "tred/sdl.h"
+#include "tred/dependency_sdl.h"
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"

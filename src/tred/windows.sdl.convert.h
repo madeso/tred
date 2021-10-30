@@ -2,7 +2,7 @@
 
 #include "glm/glm.hpp"
 
-#include "tred/sdl.h"
+#include "tred/dependency_sdl.h"
 #include "tred/input/key.h"
 #include "tred/input/axis.h"
 

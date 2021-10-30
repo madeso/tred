@@ -1,4 +1,6 @@
 set(src
+    tred/dependency_sdl.cc tred/dependency_sdl.h
+
     tred/cint.cc tred/cint.h
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h

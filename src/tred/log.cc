@@ -1,6 +1,6 @@
 #include "tred/log.h"
 
-#include "tred/sdl.h"
+#include "tred/dependency_sdl.h"
 
 
 void
