@@ -16,24 +16,24 @@ player::~player() = default;
 void player::update_table(table* table, float dt) const
 {
     assert(table);
-    if(connected_units)
+    if(units)
     {
-        connected_units->update_table(table, dt);
+        units->update_table(table, dt);
     }
 }
 
 
 bool player::is_connected() const
 {
-    return connected_units != nullptr;
+    return units != nullptr;
 }
 
 
 bool player::is_any_connection_considered_joystick() const
 {
-    if(connected_units)
+    if(units)
     {
-        return connected_units->is_any_connection_considered_joystick();
+        return units->is_any_connection_considered_joystick();
     }
     else
     {
@@ -44,11 +44,11 @@ bool player::is_any_connection_considered_joystick() const
 
 void player::update_connection_status()
 {
-    if(connected_units)
+    if(units)
     {
-        if(connected_units->is_delete_scheduled())
+        if(units->is_delete_scheduled())
         {
-            connected_units.reset();
+            units.reset();
         }
     }
 }

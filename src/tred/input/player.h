@@ -26,7 +26,7 @@ struct player
 
     void update_connection_status();
 
-    std::unique_ptr<connected_units> connected_units;
+    std::unique_ptr<connected_units> units;
 };
 
 }  // namespace input

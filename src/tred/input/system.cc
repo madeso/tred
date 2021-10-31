@@ -90,7 +90,7 @@ void input_system::update_player_connections(unit_discovery discovery, platform*
                 const auto detected = ignore_this == false && config_pair.second->can_detect(&m->input_director, discovery, &setup, platform);
                 if(detected)
                 {
-                    p->connected_units = config_pair.second->connect(&m->input_director, setup);
+                    p->units = config_pair.second->connect(&m->input_director, setup);
                     platform->on_changed_connection(config_pair.first);
                 }
             }
