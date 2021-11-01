@@ -23,7 +23,7 @@ float impl::mouse_key_unit::get_state(int key)
 }
 
 
-void impl::relative_mouse_axis_unit::register_axis(axis_type type, int target, int axis)
+void impl::relative_mouse_axis_unit::register_axis(axis_type type, [[maybe_unused]]int target, int axis)
 {
     assert(target == 0);
     if(type == axis_type::general_axis)
@@ -41,7 +41,7 @@ void impl::relative_mouse_axis_unit::register_axis(axis_type type, int target, i
 }
 
 
-float impl::relative_mouse_axis_unit::get_state(axis_type type, int target, int axis, float)
+float impl::relative_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]int target, int axis, float)
 {
     assert(target == 0);
     if(type == axis_type::general_axis)
@@ -60,7 +60,7 @@ float impl::relative_mouse_axis_unit::get_state(axis_type type, int target, int 
 }
 
 
-void impl::absolute_mouse_axis_unit::register_axis(axis_type type, int target, int axis)
+void impl::absolute_mouse_axis_unit::register_axis(axis_type type, [[maybe_unused]] int target, int axis)
 {
     assert(target == 0);
     if(type == axis_type::general_axis)
@@ -80,7 +80,7 @@ void impl::absolute_mouse_axis_unit::register_axis(axis_type type, int target, i
 
 
 // float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float dt)
-float impl::absolute_mouse_axis_unit::get_state(axis_type type, int target, int axis, float)
+float impl::absolute_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]int target, int axis, float)
 {
     assert(target == 0);
     if(type == axis_type::general_axis)

@@ -29,7 +29,7 @@ impl::gamecontroller_axis_unit::gamecontroller_axis_unit(bool ir)
 }
 
 
-void impl::gamecontroller_axis_unit::register_axis(axis_type type, int target, int axis)
+void impl::gamecontroller_axis_unit::register_axis(axis_type type, [[maybe_unused]] int target, int axis)
 {
     switch(type)
     {
@@ -43,7 +43,7 @@ void impl::gamecontroller_axis_unit::register_axis(axis_type type, int target, i
 }
 
 
-float impl::gamecontroller_axis_unit::get_state(axis_type type, int target, int axis, float dt)
+float impl::gamecontroller_axis_unit::get_state(axis_type type, [[maybe_unused]] int target, int axis, float dt)
 {
     switch(type)
     {
