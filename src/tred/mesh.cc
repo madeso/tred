@@ -1,7 +1,7 @@
 #include "tred/mesh.h"
 
 
-vertex::vertex
+Vertex::Vertex
 (
     const glm::vec3& p,
     const glm::vec3& n,
@@ -16,7 +16,7 @@ vertex::vertex
 }
 
 
-mesh::mesh(const std::vector<vertex>& verts, const std::vector<unsigned int>& tris)
+Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris)
     : vertices(verts)
     , triangles(tris)
 {

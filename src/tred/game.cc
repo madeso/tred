@@ -25,28 +25,28 @@
 
 #include "tred/windows.sdl.convert.h"
 
-void set_gl_viewport(const recti& r)
+void set_gl_viewport(const Recti& r)
 {
     glViewport(r.left, r.bottom, r.get_width(), r.get_height());
 }
 
-render_layer2::~render_layer2()
+RenderLayer2::~RenderLayer2()
 {
     batch->submit();
 }
 
-render_layer2::render_layer2(layer2&& l, sprite_batch* b)
-    : layer2(l)
+RenderLayer2::RenderLayer2(Layer2&& l, SpriteBatch* b)
+    : Layer2(l)
     , batch(b)
 {
 }
 
-layer2 create_layer(const viewport_definition& vp)
+Layer2 create_layer(const ViewportDef& vp)
 {
     return {{vp.virtual_width, vp.virtual_height}, vp.screen_rect};
 }
 
-render_layer2 create_layer(const render_command2& rc, const viewport_definition& vp, const glm::mat4 camera)
+RenderLayer2 create_layer(const RenderCommand2& rc, const ViewportDef& vp, const glm::mat4 camera)
 {
     set_gl_viewport(vp.screen_rect);
 
@@ -57,50 +57,50 @@ render_layer2 create_layer(const render_command2& rc, const viewport_definition&
     rc.render->quad_shader.set_mat(rc.render->transform_uniform, camera);
 
     // todo(Gustav): transform viewport according to the camera
-    return render_layer2{create_layer(vp), &rc.render->batch};
+    return RenderLayer2{create_layer(vp), &rc.render->batch};
 }
 
-glm::vec2 layer2::mouse_to_world(const glm::vec2& p) const
+glm::vec2 Layer2::mouse_to_world(const glm::vec2& p) const
 {
     // transform from mouse pixels to window 0-1
     const auto n = Cint_to_float(screen).to01(p);
     return viewport_aabb_in_worldspace.from01(n);
 }
 
-viewport_definition create_viewport(const layout_data& ld, const glm::ivec2& size)
+ViewportDef create_viewport(const LayoutData& ld, const glm::ivec2& size)
 {
-    if(ld.style==viewport_style::black_bars)
+    if(ld.style==ViewportStyle::black_bars)
     {
-        return viewport_definition::fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
+        return ViewportDef::fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
     }
     else
     {
-        return viewport_definition::extend(ld.requested_width, ld.requested_height, size.x, size.y);
+        return ViewportDef::extend(ld.requested_width, ld.requested_height, size.x, size.y);
     }
 }
 
-render_layer2 with_layer(const render_command2& rc, const layout_data& ld)
+RenderLayer2 with_layer(const RenderCommand2& rc, const LayoutData& ld)
 {
     const auto vp = create_viewport(ld, rc.size);
     return create_layer(rc, vp, ld.camera);
 }
 
-layer2 with_layer(const command2& rc, const layout_data& ld)
+Layer2 with_layer(const Command2& rc, const LayoutData& ld)
 {
     const auto vp = create_viewport(ld, rc.size);
     return create_layer(vp);
 }
 
-sprite_batch::sprite_batch(shader* quad_shader, render2* r)
+SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
     : render(r)
     , white_texture
     (
         load_image_from_color
         (
             0xffffffff,
-            texture_edge::clamp,
-            texture_render_style::pixel,
-            transparency::include
+            TextureEdge::clamp,
+            TextureRenderStyle::pixel,
+            Transparency::include
         )
     )
 {
@@ -138,7 +138,7 @@ sprite_batch::sprite_batch(shader* quad_shader, render2* r)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
 }
 
-void add_vertex(sprite_batch* batch, const vertex2& v)
+void add_vertex(SpriteBatch* batch, const Vertex2& v)
 {
     batch->data.push_back(v.position.x);
     batch->data.push_back(v.position.y);
@@ -153,7 +153,7 @@ void add_vertex(sprite_batch* batch, const vertex2& v)
     batch->data.push_back(v.texturecoord.y);
 }
 
-rect get_sprite(const texture& texture, const recti& ri)
+Rectf get_sprite(const Texture& texture, const Recti& ri)
 {
     const auto r = Cint_to_float(ri);
     const auto w = 1.0f/static_cast<float>(texture.width);
@@ -161,9 +161,9 @@ rect get_sprite(const texture& texture, const recti& ri)
     return {r.left * w, 1-r.top * h, r.right * w, 1-r.bottom * h};
 }
 
-void sprite_batch::quad(std::optional<texture*> texture_argument, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3)
+void SpriteBatch::quad(std::optional<Texture*> texture_argument, const Vertex2& v0, const Vertex2& v1, const Vertex2& v2, const Vertex2& v3)
 {
-    texture* texture = texture_argument.value_or(&white_texture);
+    Texture* texture = texture_argument.value_or(&white_texture);
 
     if(quads == max_quads)
     {
@@ -188,9 +188,9 @@ void sprite_batch::quad(std::optional<texture*> texture_argument, const vertex2&
     add_vertex(this, v3);
 }
 
-void sprite_batch::quad(std::optional<texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint)
+void SpriteBatch::quad(std::optional<Texture*> texture, const Rectf& scr, const std::optional<Rectf>& texturecoord, const glm::vec4& tint)
 {
-    const auto tc = texturecoord.value_or(rect{1.0f, 1.0f});
+    const auto tc = texturecoord.value_or(Rectf{1.0f, 1.0f});
     quad
     (
         texture,
@@ -201,13 +201,13 @@ void sprite_batch::quad(std::optional<texture*> texture, const rect& scr, const 
     );
 }
 
-void sprite_batch::quad(std::optional<texture*> texture_argument, const rect& scr, const recti& texturecoord, const glm::vec4& tint)
+void SpriteBatch::quad(std::optional<Texture*> texture_argument, const Rectf& scr, const Recti& texturecoord, const glm::vec4& tint)
 {
-    texture* texture = texture_argument.value_or(&white_texture);
+    Texture* texture = texture_argument.value_or(&white_texture);
     quad(texture, scr, get_sprite(*texture, texturecoord), tint);
 }
 
-void sprite_batch::submit()
+void SpriteBatch::submit()
 {
     if(quads == 0)
     {
@@ -231,13 +231,13 @@ void sprite_batch::submit()
 }
 
 
-render2::render2()
+Render2::Render2()
     : quad_description
     (
         {
-            {vertex_type::position2, "position"},
-            {vertex_type::color4, "color"},
-            {vertex_type::texture2, "uv"}
+            {VertexType::position2, "position"},
+            {VertexType::color4, "color"},
+            {VertexType::texture2, "uv"}
         }
     )
     , quad_layout
@@ -290,19 +290,19 @@ render2::render2()
     setup_textures(&quad_shader, {&texture_uniform});
 }
 
-render2::~render2()
+Render2::~Render2()
 {
     quad_shader.cleanup();
 }
 
 
-void game::on_render(const render_command2&) {}
-void game::on_imgui() {}
-bool game::on_update(float) { return true; }
-void game::on_key(char, bool) {}
-void game::on_mouse_position(const command2&, const glm::ivec2&) {}
-void game::on_mouse_button(const command2&, input::mouse_button, bool) {}
-void game::on_mouse_wheel(int) {}
+void Game::on_render(const RenderCommand2&) {}
+void Game::on_imgui() {}
+bool Game::on_update(float) { return true; }
+void Game::on_key(char, bool) {}
+void Game::on_mouse_position(const Command2&, const glm::ivec2&) {}
+void Game::on_mouse_button(const Command2&, input::MouseButton, bool) {}
+void Game::on_mouse_wheel(int) {}
 
 namespace
 {
@@ -338,7 +338,7 @@ namespace
 }
 
 
-struct window
+struct Window
 {
     std::string title;
     glm::ivec2 size;
@@ -348,10 +348,10 @@ struct window
     SDL_Window* sdl_window;
     SDL_GLContext sdl_glcontext;
 
-    std::shared_ptr<game> game;
-    std::unique_ptr<render2> render_data;
+    std::shared_ptr<Game> game;
+    std::unique_ptr<Render2> render_data;
 
-    window(const std::string& t, const glm::ivec2& s, bool i)
+    Window(const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
         , size(s)
         , imgui(i)
@@ -402,7 +402,7 @@ struct window
         setup_open_gl(sdl_window, sdl_glcontext, imgui);
     }
 
-    ~window()
+    ~Window()
     {
         if(sdl_window)
         {
@@ -455,7 +455,7 @@ struct window
 };
 
 
-void pump_events(window* window)
+void pump_events(Window* window)
 {
     SDL_Event e;
     while(SDL_PollEvent(&e) != 0)
@@ -527,14 +527,14 @@ void pump_events(window* window)
 }
 
 
-int setup_and_run(std::function<std::shared_ptr<game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
+int setup_and_run(std::function<std::shared_ptr<Game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
 {
-    auto window = ::window{title, size, call_imgui};
+    auto window = ::Window{title, size, call_imgui};
     if(window.sdl_window == nullptr)
     {
         return -1;
     }
-    window.render_data = std::make_unique<render2>();
+    window.render_data = std::make_unique<Render2>();
     window.game = make_game();
 
     auto last = SDL_GetPerformanceCounter();
@@ -557,7 +557,7 @@ int setup_and_run(std::function<std::shared_ptr<game>()> make_game, const std::s
 }
 
 
-int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<game>()> make_game)
+int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<Game>()> make_game)
 {
     constexpr Uint32 flags =
           SDL_INIT_VIDEO

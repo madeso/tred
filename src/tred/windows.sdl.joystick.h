@@ -15,7 +15,7 @@ namespace sdl
 constexpr auto valid_buttons = values_in_enum<SDL_GameControllerButton, SDL_CONTROLLER_BUTTON_MAX>();
 constexpr auto valid_axes = values_in_enum<SDL_GameControllerAxis, SDL_CONTROLLER_AXIS_MAX>();
 
-enum class power_level
+enum class PowerLevel
 {
       unknown
     , empty
@@ -27,25 +27,25 @@ enum class power_level
 };
 
 
-std::string_view ToString(power_level power);
+std::string_view to_string(PowerLevel power);
 
 
-struct joystick
+struct Joystick
 {
-    explicit joystick(int joystick_index);
-    explicit joystick(SDL_Joystick* another_joystick);
-    ~joystick();
+    explicit Joystick(int joystick_index);
+    explicit Joystick(SDL_Joystick* another_joystick);
+    ~Joystick();
 
     void ClearJoystick();
 
-    explicit joystick(joystick&& j);
-    void operator=(joystick&& j);
+    explicit Joystick(Joystick&& j);
+    void operator=(Joystick&& j);
 
     std::string get_name();
 
     SDL_JoystickID get_device_index();
 
-    power_level get_power_level();
+    PowerLevel get_power_level();
 
     // expand with type? SDL_JoystickGetType
 
@@ -65,10 +65,10 @@ struct joystick
 };
 
 
-struct haptic
+struct Haptic
 {
-    haptic(joystick* joystick);
-    ~haptic();
+    Haptic(Joystick* joystick);
+    ~Haptic();
 
     bool has_haptic();
 
@@ -80,34 +80,34 @@ struct haptic
 };
 
 
-struct game_controller
+struct GameController
 {
-    game_controller(int joystick_index);
-    ~game_controller();
+    GameController(int joystick_index);
+    ~GameController();
 
     [[nodiscard]] bool is_valid() const;
     std::string get_mapping();
 
-    joystick get_joystick();
+    Joystick get_joystick();
 
     SDL_GameController* controller;
 };
 
 
-struct gamecontroller_state
+struct GamecontrollerState
 {
     std::array<bool, SDL_CONTROLLER_BUTTON_MAX> buttons;
     std::array<Sint16, SDL_CONTROLLER_AXIS_MAX> axes;
 
-    gamecontroller_state();
-    static gamecontroller_state get_state(game_controller* controller);
+    GamecontrollerState();
+    static GamecontrollerState get_state(GameController* controller);
 };
 
 
-void log_info_about_joystick(joystick* joy);
+void log_info_about_joystick(Joystick* joy);
 
 
-void log_info_about_controller(game_controller* controller);
+void log_info_about_controller(GameController* controller);
 
 
 void log_info_about_joystick(int joystick_index);

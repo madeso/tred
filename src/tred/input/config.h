@@ -15,71 +15,71 @@ namespace input::config
 {
 
 
-struct action
+struct Action
 {
-    action(const std::string& name, const std::string& var, input::range);
-    action(const std::string& name_and_var, input::range);
-    action(const std::string_view& name_and_var, input::range);
+    Action(const std::string& name, const std::string& var, input::Range);
+    Action(const std::string& name_and_var, input::Range);
+    Action(const std::string_view& name_and_var, input::Range);
 
     std::string name;
     std::string var;
-    input::range range;
+    input::Range range;
 };
 
 
-struct keyboard_definition
+struct KeyboardDefinition
 {
-    keyboard_definition();
-    keyboard_definition(keyboard_key);
+    KeyboardDefinition();
+    KeyboardDefinition(KeyboardKey);
 
-    keyboard_key detection_key;
+    KeyboardKey detection_key;
 };
 
 
-struct mouse_definition
+struct MouseDefinition
 {
-    mouse_definition();
-    mouse_definition(input::mouse_button);
+    MouseDefinition();
+    MouseDefinition(input::MouseButton);
 
-    input::mouse_button detection_button;
+    input::MouseButton detection_button;
 };
 
 
-struct joystick_definition
+struct JoystickDefinition
 {
-    joystick_definition();
-    joystick_definition(int, const std::string&);
+    JoystickDefinition();
+    JoystickDefinition(int, const std::string&);
 
     int start_button;
     std::string unit;
 };
 
 
-struct gamecontroller_definition
+struct GamecontrollerDefinition
 {
 };
 
 
-struct unit_definition
+struct UnitDefinition
 {
-    unit_definition(const keyboard_definition&);
-    unit_definition(const mouse_definition&);
-    unit_definition(const joystick_definition&);
-    unit_definition(const gamecontroller_definition&);
+    UnitDefinition(const KeyboardDefinition&);
+    UnitDefinition(const MouseDefinition&);
+    UnitDefinition(const JoystickDefinition&);
+    UnitDefinition(const GamecontrollerDefinition&);
 
-    std::optional<keyboard_definition> keyboard;
-    std::optional<mouse_definition> mouse;
-    std::optional<joystick_definition> joystick;
-    std::optional<gamecontroller_definition> gamecontroller;
+    std::optional<KeyboardDefinition> keyboard;
+    std::optional<MouseDefinition> mouse;
+    std::optional<JoystickDefinition> joystick;
+    std::optional<GamecontrollerDefinition> gamecontroller;
 };
 
 
-struct key_bind_definition
+struct KeyBindDefinition
 {
-    key_bind_definition(const std::string&, int, input::keyboard_key);
-    key_bind_definition(const std::string&, int, input::gamecontroller_button);
-    key_bind_definition(const std::string&, int, input::mouse_button);
-    key_bind_definition(const std::string&, int, int);
+    KeyBindDefinition(const std::string&, int, input::KeyboardKey);
+    KeyBindDefinition(const std::string&, int, input::GamecontrollerButton);
+    KeyBindDefinition(const std::string&, int, input::MouseButton);
+    KeyBindDefinition(const std::string&, int, int);
 
     std::string action;
     int unit;
@@ -87,15 +87,15 @@ struct key_bind_definition
 };
 
 
-struct axis_bind_definition
+struct AxisBindDefinition
 {
-    axis_bind_definition(const std::string&, int, input::xy_axis, float sens = 1.0f, bool ii = false);
-    axis_bind_definition(const std::string&, int, input::gamecontroller_axis, float sens = 1.0f, bool ii = false);
-    axis_bind_definition(const std::string&, int, input::axis_type, int, int, float sens=1.0f, bool ii = false);
+    AxisBindDefinition(const std::string&, int, input::Axis2, float sens = 1.0f, bool ii = false);
+    AxisBindDefinition(const std::string&, int, input::GamecontrollerAxis, float sens = 1.0f, bool ii = false);
+    AxisBindDefinition(const std::string&, int, input::AxisType, int, int, float sens=1.0f, bool ii = false);
 
     std::string action;
     int unit;
-    axis_type type;
+    AxisType type;
     int target; // (joystick axis, hat or ball index)
     int axis;
     float sensitivity;
@@ -103,11 +103,11 @@ struct axis_bind_definition
 };
 
 
-struct two_key_bind_definition
+struct TwoKeyBindDefinition
 {
-    two_key_bind_definition(const std::string&, int, input::keyboard_key, input::keyboard_key);
-    two_key_bind_definition(const std::string&, int, input::gamecontroller_button, input::gamecontroller_button);
-    two_key_bind_definition(const std::string&, int, int, int);
+    TwoKeyBindDefinition(const std::string&, int, input::KeyboardKey, input::KeyboardKey);
+    TwoKeyBindDefinition(const std::string&, int, input::GamecontrollerButton, input::GamecontrollerButton);
+    TwoKeyBindDefinition(const std::string&, int, int, int);
 
     std::string action;
     int unit;
@@ -116,44 +116,44 @@ struct two_key_bind_definition
 };
 
 
-struct bind_definition
+struct BindDefinition
 {
-    bind_definition(const key_bind_definition&);
-    bind_definition(const axis_bind_definition&);
-    bind_definition(const two_key_bind_definition&);
+    BindDefinition(const KeyBindDefinition&);
+    BindDefinition(const AxisBindDefinition&);
+    BindDefinition(const TwoKeyBindDefinition&);
 
-    std::optional<key_bind_definition> key;
-    std::optional<axis_bind_definition> axis;
-    std::optional<two_key_bind_definition> twokey;
+    std::optional<KeyBindDefinition> key;
+    std::optional<AxisBindDefinition> axis;
+    std::optional<TwoKeyBindDefinition> twokey;
 };
 
 
-using unit_definitions = std::vector<unit_definition>;
-using bind_definitions = std::vector<bind_definition>;
+using unit_definitions = std::vector<UnitDefinition>;
+using bind_definitions = std::vector<BindDefinition>;
 
 
-struct mapping
+struct Mapping
 {
-    mapping(const std::string&, const std::vector<unit_definition>&, const std::vector<bind_definition>&);
+    Mapping(const std::string&, const std::vector<UnitDefinition>&, const std::vector<BindDefinition>&);
 
     std::string name;
 
-    std::vector<unit_definition> units;
-    std::vector<bind_definition> binds;
+    std::vector<UnitDefinition> units;
+    std::vector<BindDefinition> binds;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // roots
 
-using action_map = std::vector<action>;
-using mapping_list = std::vector<mapping>;
+using ActionMap = std::vector<Action>;
+using MappingList = std::vector<Mapping>;
 
-struct input_system
+struct InputSystem
 {
-    input_system(const action_map&, const mapping_list&);
+    InputSystem(const ActionMap&, const MappingList&);
 
-    action_map actions;
-    mapping_list keys;
+    ActionMap actions;
+    MappingList keys;
 };
 
 }

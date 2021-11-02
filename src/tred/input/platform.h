@@ -9,22 +9,22 @@
 namespace input
 {
 
-enum class joystick_id : u64 {};
+enum class JoystickId : u64 {};
 
-enum class joystick_type
+enum class JoystickType
 {
     joystick, game_controller
 };
 
-struct platform
+struct Platform
 {
-    virtual ~platform() = default;
+    virtual ~Platform() = default;
 
-    virtual std::vector<joystick_id> get_active_and_free_joysticks() = 0;
+    virtual std::vector<JoystickId> get_active_and_free_joysticks() = 0;
 
-    virtual void start_using(joystick_id joy, joystick_type type) = 0;
+    virtual void start_using(JoystickId joy, JoystickType type) = 0;
 
-    virtual bool match_unit(joystick_id joy, const std::string& unit) = 0;
+    virtual bool match_unit(JoystickId joy, const std::string& unit) = 0;
 
     virtual void on_changed_connection(const std::string& config) = 0;
 };

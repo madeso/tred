@@ -33,7 +33,6 @@ DISABLE_WARNING_POP
 // custom/local headers
 #include "tred/dependency_sdl.h"
 #include "tred/opengl.debug.h"
-#include "tred/profiler.h"
 #include "tred/cint.h"
 #include "tred/mesh.h"
 #include "tred/mesh.default.h"
@@ -59,17 +58,17 @@ DISABLE_WARNING_POP
 
 
 
-struct material
+struct Material
 {
-    texture diffuse;
-    texture specular;
+    Texture diffuse;
+    Texture specular;
 
     glm::vec3 tint = glm::vec3{1.0f, 1.0f, 1.0f};
     float shininess = 32.0f;
 
     float specular_strength = 1.0f;
 
-    explicit material(const texture& d, const texture& s)
+    explicit Material(const Texture& d, const Texture& s)
         : diffuse(d)
         , specular(s)
     {
@@ -77,18 +76,18 @@ struct material
 };
 
 
-struct material_uniforms
+struct MaterialUniforms
 {
-    uniform diffuse;
-    uniform specular;
+    Uniform diffuse;
+    Uniform specular;
 
-    uniform tint;
-    uniform shininess;
-    uniform specular_strength;
+    Uniform tint;
+    Uniform shininess;
+    Uniform specular_strength;
 
-    material_uniforms
+    MaterialUniforms
     (
-        shader* shader,
+        Shader* shader,
         const std::string& base_name
     )
         : diffuse(shader->get_uniform(base_name + ".diffuse"))
@@ -101,7 +100,7 @@ struct material_uniforms
     }
 
     void
-    set_shader(shader* shader, const material& material) const
+    set_shader(Shader* shader, const Material& material) const
     {
         bind_texture(diffuse, material.diffuse);
         bind_texture(specular, material.specular);
@@ -113,7 +112,7 @@ struct material_uniforms
 };
 
 
-struct directional_light
+struct DirectionalLight
 {
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -131,16 +130,16 @@ struct directional_light
 };
 
 
-struct directional_light_uniforms
+struct DirectionalLightUniforms
 {
-    uniform direction;
-    uniform ambient;
-    uniform diffuse;
-    uniform specular;
+    Uniform direction;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
 
-    directional_light_uniforms
+    DirectionalLightUniforms
     (
-        const shader& shader,
+        const Shader& shader,
         const std::string& base_name
     )
     :
@@ -152,7 +151,7 @@ struct directional_light_uniforms
     }
 
     void
-    set_shader(shader* shader, const directional_light& light) const
+    set_shader(Shader* shader, const DirectionalLight& light) const
     {
         shader->set_vec3(direction, light.GetDirection());
         shader->set_vec3(ambient, light.ambient * light.ambient_strength);
@@ -162,7 +161,7 @@ struct directional_light_uniforms
 };
 
 
-struct attenuation
+struct Attenuation
 {
     float constant = 1.0f;
     float linear = 0.09f;
@@ -170,15 +169,15 @@ struct attenuation
 };
 
 
-struct attenuation_uniforms
+struct AttenuationUniforms
 {
-    uniform constant;
-    uniform linear;
-    uniform quadratic;
+    Uniform constant;
+    Uniform linear;
+    Uniform quadratic;
 
-    attenuation_uniforms
+    AttenuationUniforms
     (
-        const shader& shader,
+        const Shader& shader,
         const std::string& base_name
     )
     :
@@ -189,7 +188,7 @@ struct attenuation_uniforms
     }
 
     void
-    set_shader(shader* shader, const attenuation& att) const
+    set_shader(Shader* shader, const Attenuation& att) const
     {
         shader->set_float(constant, att.constant);
         shader->set_float(linear, att.linear);
@@ -198,9 +197,9 @@ struct attenuation_uniforms
 };
 
 
-struct point_light
+struct PointLight
 {
-    attenuation attenuation;
+    Attenuation attenuation;
 
     glm::vec3 position;
 
@@ -209,21 +208,21 @@ struct point_light
     glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
 
-    point_light(const glm::vec3& p) : position(p) {}
+    PointLight(const glm::vec3& p) : position(p) {}
 };
 
 
-struct point_light_uniforms
+struct PointLightUniforms
 {
-    attenuation_uniforms attenuation;
-    uniform position;
-    uniform ambient;
-    uniform diffuse;
-    uniform specular;
+    AttenuationUniforms attenuation;
+    Uniform position;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
 
-    point_light_uniforms
+    PointLightUniforms
     (
-        const shader& shader,
+        const Shader& shader,
         const std::string& base_name
     )
     :
@@ -236,7 +235,7 @@ struct point_light_uniforms
     }
 
     void
-    set_shader(shader* shader, const point_light& light) const
+    set_shader(Shader* shader, const PointLight& light) const
     {
         attenuation.set_shader(shader, light.attenuation);
         shader->set_vec3(position, light.position);
@@ -247,9 +246,9 @@ struct point_light_uniforms
 };
 
 
-struct spot_light
+struct SpotLight
 {
-    attenuation attenuation;
+    Attenuation attenuation;
 
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
     glm::vec3 direction = glm::vec3{0.0f, 0.0f, 0.0f};
@@ -263,20 +262,20 @@ struct spot_light
 };
 
 
-struct spot_light_uniforms
+struct SpotLightUniforms
 {
-    attenuation_uniforms attenuation;
-    uniform position;
-    uniform direction;
-    uniform cos_cutoff;
-    uniform cos_outer_cutoff;
-    uniform ambient;
-    uniform diffuse;
-    uniform specular;
+    AttenuationUniforms attenuation;
+    Uniform position;
+    Uniform direction;
+    Uniform cos_cutoff;
+    Uniform cos_outer_cutoff;
+    Uniform ambient;
+    Uniform diffuse;
+    Uniform specular;
 
-    spot_light_uniforms
+    SpotLightUniforms
     (
-        const shader& shader,
+        const Shader& shader,
         const std::string& base_name
     )
     :
@@ -292,7 +291,7 @@ struct spot_light_uniforms
     }
 
     void
-    set_shader(shader* shader, const spot_light& light) const
+    set_shader(Shader* shader, const SpotLight& light) const
     {
         attenuation.set_shader(shader, light.attenuation);
         shader->set_vec3(position, light.position);
@@ -312,14 +311,14 @@ constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
 constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
-struct camera_vectors
+struct CameraVectors
 {
     glm::vec3 front;
     glm::vec3 right;
     glm::vec3 up;
     glm::vec3 position;
 
-    camera_vectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
+    CameraVectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
         : front(f)
         , right(r)
         , up(u)
@@ -329,7 +328,7 @@ struct camera_vectors
 };
 
 
-struct camera
+struct Camera
 {
     float fov = 45.0f;
 
@@ -341,7 +340,7 @@ struct camera
     float yaw = -90.0f;
     float pitch = 0.0f;
 
-    camera_vectors create_vectors() const
+    CameraVectors create_vectors() const
     {
         const auto direction = glm::vec3
         {
@@ -358,12 +357,12 @@ struct camera
 };
 
 
-struct compiled_camera
+struct CompiledCamera
 {
     glm::mat4 view;
     glm::vec3 position;
 
-    compiled_camera(const glm::mat4& v, const glm::vec3& p)
+    CompiledCamera(const glm::mat4& v, const glm::vec3& p)
         : view(v)
         , position(p)
     {
@@ -371,18 +370,18 @@ struct compiled_camera
 };
 
 
-compiled_camera compile(const camera_vectors& camera)
+CompiledCamera compile(const CameraVectors& camera)
 {
     const auto view = glm::lookAt(camera.position, camera.position + camera.front, UP);
     return {view, camera.position};
 }
 
 
-struct engine
+struct Engine
 {
-    std::function<void (const glm::mat4& projection, const compiled_camera& camera)> painter_callback;
+    std::function<void (const glm::mat4& projection, const CompiledCamera& camera)> painter_callback;
 
-    void render(const glm::ivec2& size, const camera& camera) const
+    void render(const glm::ivec2& size, const Camera& camera) const
     {
         glViewport(0, 0, size.x, size.y);
 
@@ -421,15 +420,15 @@ main(int, char**)
     constexpr std::string_view look_updown = "look_updown";
     constexpr std::string_view look_leftright = "look_leftright";
 
-    auto sdl_input_loaded = input::load(input::config::input_system
+    auto sdl_input_loaded = input::load(input::config::InputSystem
     {
         {
-            {quit, input::range::within_zero_to_one},
-            {leftright, input::range::within_negative_one_to_positive_one},
-            {inout, input::range::within_negative_one_to_positive_one},
-            {updown, input::range::within_negative_one_to_positive_one},
-            {look_updown, input::range::infinite},
-            {look_leftright, input::range::infinite},
+            {quit, input::Range::within_zero_to_one},
+            {leftright, input::Range::within_negative_one_to_positive_one},
+            {inout, input::Range::within_negative_one_to_positive_one},
+            {updown, input::Range::within_negative_one_to_positive_one},
+            {look_updown, input::Range::infinite},
+            {look_leftright, input::Range::infinite},
         },
 
         // controller setup (bind)
@@ -437,19 +436,19 @@ main(int, char**)
             {
                 "mouse+keyboard",
                 {
-                    input::config::keyboard_definition{input::keyboard_key::return_key},
-                    input::config::mouse_definition{}
+                    input::config::KeyboardDefinition{input::KeyboardKey::return_key},
+                    input::config::MouseDefinition{}
                 },
                 {
                     // keyboard
-                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
-                    input::config::two_key_bind_definition{"leftright", 0, input::keyboard_key::a, input::keyboard_key::d},
-                    input::config::two_key_bind_definition{"inout", 0, input::keyboard_key::s, input::keyboard_key::w},
-                    input::config::two_key_bind_definition{"updown", 0, input::keyboard_key::space, input::keyboard_key::ctrl_left},
+                    input::config::KeyBindDefinition{"quit", 0, input::KeyboardKey::escape},
+                    input::config::TwoKeyBindDefinition{"leftright", 0, input::KeyboardKey::a, input::KeyboardKey::d},
+                    input::config::TwoKeyBindDefinition{"inout", 0, input::KeyboardKey::s, input::KeyboardKey::w},
+                    input::config::TwoKeyBindDefinition{"updown", 0, input::KeyboardKey::space, input::KeyboardKey::ctrl_left},
 
                     // mouse
-                    input::config::axis_bind_definition{"look_leftright", 1, input::xy_axis::x, 0.1f},
-                    input::config::axis_bind_definition{"look_updown", 1, input::xy_axis::y, 0.1f}
+                    input::config::AxisBindDefinition{"look_leftright", 1, input::Axis2::x, 0.1f},
+                    input::config::AxisBindDefinition{"look_updown", 1, input::Axis2::y, 0.1f}
                 }
             },
             {
@@ -458,37 +457,37 @@ main(int, char**)
                 // identified as mega world usb controller
                 "joystick",
                 {
-                    input::config::keyboard_definition{},
-                    input::config::joystick_definition{4, "03000000b50700001703000010010000"}
+                    input::config::KeyboardDefinition{},
+                    input::config::JoystickDefinition{4, "03000000b50700001703000010010000"}
                 },
                 {
                     // keyboard
-                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
+                    input::config::KeyBindDefinition{"quit", 0, input::KeyboardKey::escape},
 
                     // joystick
-                    input::config::axis_bind_definition{"inout",     1, input::axis_type::general_axis, 0, 2},
-                    input::config::axis_bind_definition{"leftright", 1, input::axis_type::hat, 0, 1, 0.5f},
-                    input::config::axis_bind_definition{"updown",    1, input::axis_type::hat, 0, 2, 0.5f},
-                    input::config::axis_bind_definition{"look_leftright", 1, input::axis_type::general_axis, 0, 0, 50.0f, true},
-                    input::config::axis_bind_definition{"look_updown",    1, input::axis_type::general_axis, 0, 1, 50.0f, true}
+                    input::config::AxisBindDefinition{"inout",     1, input::AxisType::general_axis, 0, 2},
+                    input::config::AxisBindDefinition{"leftright", 1, input::AxisType::hat, 0, 1, 0.5f},
+                    input::config::AxisBindDefinition{"updown",    1, input::AxisType::hat, 0, 2, 0.5f},
+                    input::config::AxisBindDefinition{"look_leftright", 1, input::AxisType::general_axis, 0, 0, 50.0f, true},
+                    input::config::AxisBindDefinition{"look_updown",    1, input::AxisType::general_axis, 0, 1, 50.0f, true}
                 }
             },
             {
                 "gamecontroller",
                 {
-                    input::config::keyboard_definition{},
-                    input::config::gamecontroller_definition{}
+                    input::config::KeyboardDefinition{},
+                    input::config::GamecontrollerDefinition{}
                 },
                 {
                     // keyboard
-                    input::config::key_bind_definition{"quit", 0, input::keyboard_key::escape},
+                    input::config::KeyBindDefinition{"quit", 0, input::KeyboardKey::escape},
 
                     // gamecontroller
-                    input::config::axis_bind_definition{"inout",     1, input::gamecontroller_axis::left_y, 1.0f, true},
-                    input::config::axis_bind_definition{"leftright", 1, input::gamecontroller_axis::left_x},
-                    input::config::two_key_bind_definition{"updown", 1, input::gamecontroller_button::trigger_left, input::gamecontroller_button::trigger_right},
-                    input::config::axis_bind_definition{"look_leftright", 1, input::gamecontroller_axis::right_x, 50.0f},
-                    input::config::axis_bind_definition{"look_updown",    1, input::gamecontroller_axis::right_y, 50.0f, true}
+                    input::config::AxisBindDefinition{"inout",     1, input::GamecontrollerAxis::left_y, 1.0f, true},
+                    input::config::AxisBindDefinition{"leftright", 1, input::GamecontrollerAxis::left_x},
+                    input::config::TwoKeyBindDefinition{"updown", 1, input::GamecontrollerButton::trigger_left, input::GamecontrollerButton::trigger_right},
+                    input::config::AxisBindDefinition{"look_leftright", 1, input::GamecontrollerAxis::right_x, 50.0f},
+                    input::config::AxisBindDefinition{"look_updown",    1, input::GamecontrollerAxis::right_y, 50.0f, true}
                 }
             },
         }
@@ -502,9 +501,9 @@ main(int, char**)
 
     auto sdl_input = std::move(*sdl_input_loaded.value);
 
-    engine engine;
+    Engine engine;
 
-    auto camera = ::camera{};
+    auto camera = ::Camera{};
 
     windows->add_window
     (
@@ -517,51 +516,51 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto layout = vertex_layout_description
+    const auto layout = VertexLayoutDescription
     {
-        {vertex_type::position3, "aPos"},
-        {vertex_type::normal3, "aNormal"},
-        {vertex_type::color4, "aColor"},
-        {vertex_type::texture2, "aTexCoord"}
+        {VertexType::position3, "aPos"},
+        {VertexType::normal3, "aNormal"},
+        {VertexType::color4, "aColor"},
+        {VertexType::texture2, "aTexCoord"}
     };
     auto layout_compiler = compile({layout});
     const auto compiled_layout = layout_compiler.compile(layout);
 
-    const auto light_layout = vertex_layout_description
+    const auto light_layout = VertexLayoutDescription
     {
-        {vertex_type::position3, "aPos"}
+        {VertexType::position3, "aPos"}
     };
     auto light_compiler = compile({light_layout});
     const auto compiled_light_layout = light_compiler.compile(light_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = ::shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    auto shader = ::Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
     const auto uni_color = shader.get_uniform("uColor");
     const auto uni_transform = shader.get_uniform("uTransform");
     const auto uni_model_transform = shader.get_uniform("uModelTransform");
     const auto uni_normal_matrix = shader.get_uniform("uNormalMatrix");
     const auto uni_view_position = shader.get_uniform("uViewPosition");
-    const auto uni_material = material_uniforms{&shader, "uMaterial"};
-    const auto uni_directional_light = directional_light_uniforms{shader, "uDirectionalLight"};
-    const auto uni_point_lights = std::array<point_light_uniforms, NUMBER_OF_POINT_LIGHTS>
+    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
+    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
+    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
     {
-        point_light_uniforms{shader, "uPointLights[0]"},
-        point_light_uniforms{shader, "uPointLights[1]"},
-        point_light_uniforms{shader, "uPointLights[2]"},
-        point_light_uniforms{shader, "uPointLights[3]"}
+        PointLightUniforms{shader, "uPointLights[0]"},
+        PointLightUniforms{shader, "uPointLights[1]"},
+        PointLightUniforms{shader, "uPointLights[2]"},
+        PointLightUniforms{shader, "uPointLights[3]"}
     };
-    const auto uni_spot_light = spot_light_uniforms{shader, "uSpotLight"};
+    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
-    auto light_shader = ::shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    auto light_shader = ::Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
     const auto uni_light_transform = light_shader.get_uniform("uTransform");
     const auto uni_light_color = light_shader.get_uniform("uColor");
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = Compile(create_box_mesh(1.0f), compiled_layout);
-    const auto light_mesh = Compile(create_box_mesh(0.2f), compiled_light_layout);
-    const auto plane_mesh = Compile(create_plane_mesh(20.0f, 20.0f), compiled_layout);
+    const auto mesh = compile(create_box_mesh(1.0f), compiled_layout);
+    const auto light_mesh = compile(create_box_mesh(0.2f), compiled_light_layout);
+    const auto plane_mesh = compile(create_plane_mesh(20.0f, 20.0f), compiled_layout);
 
     auto cube_positions = std::vector<glm::vec3>
     {
@@ -578,40 +577,40 @@ main(int, char**)
     };
     auto cube_color = glm::vec4{1.0f};
 
-    auto material = ::material
+    auto material = ::Material
     {
-        texture
+        Texture
         {
             load_image_from_embedded
             (
                 CONTAINER_DIFFUSE_PNG,
-                texture_edge::repeat,
-                texture_render_style::smooth,
-                transparency::exclude
+                TextureEdge::repeat,
+                TextureRenderStyle::smooth,
+                Transparency::exclude
             )
         },
-        texture
+        Texture
         {
             load_image_from_embedded
             (
                 CONTAINER_SPECULAR_PNG,
-                texture_edge::repeat,
-                texture_render_style::smooth,
-                transparency::exclude
+                TextureEdge::repeat,
+                TextureRenderStyle::smooth,
+                Transparency::exclude
             )
         }
     };
-    auto directional_light = ::directional_light{};
-    auto point_lights = std::array<point_light, NUMBER_OF_POINT_LIGHTS>
+    auto directional_light = ::DirectionalLight{};
+    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
     {
         glm::vec3{ 0.7f,  0.2f,  2.0f},
         glm::vec3{ 2.3f, -3.3f, -4.0f},
         glm::vec3{-4.0f,  2.0f, -12.0f},
         glm::vec3{ 0.0f,  0.0f, -3.0f}
     };
-    auto spot_light = ::spot_light{};
+    auto spot_light = ::SpotLight{};
 
-    engine.painter_callback = [&](const glm::mat4& projection, const compiled_camera& camera)
+    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& camera)
     {
         const auto view = camera.view;
 
@@ -625,7 +624,7 @@ main(int, char**)
                 const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
                 light_shader.set_mat(uni_light_transform, pv * model);
             }
-            light_mesh.Draw();
+            light_mesh.draw();
         }
 
         shader.use();
@@ -656,7 +655,7 @@ main(int, char**)
                 shader.set_mat(uni_model_transform, model);
                 shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
             }
-            mesh.Draw();
+            mesh.draw();
         }
 
         {
@@ -664,12 +663,12 @@ main(int, char**)
             shader.set_mat(uni_transform, pv * model);
             shader.set_mat(uni_model_transform, model);
             shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-            plane_mesh.Draw();
+            plane_mesh.draw();
         }
     };
 
     auto player = sdl_input.add_player();
-    auto get = [](const input::table& table, std::string_view name, float d=0.0f) -> float
+    auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
     {
         const auto found = table.data.find(std::string{name});
         if(found == table.data.end()) { return d; }
@@ -678,7 +677,7 @@ main(int, char**)
 
     return main_loop(input::unit_discovery::find_highest, std::move(windows), &sdl_input, [&](float dt) -> bool
     {
-        input::table table;
+        input::Table table;
         sdl_input.update_table(player, &table, dt);
 
         if(get(table, quit, 1.0f) > 0.5f)

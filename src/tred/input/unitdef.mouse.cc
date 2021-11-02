@@ -14,21 +14,21 @@
 namespace input
 {
 
-mouse_definition::mouse_definition(const config::mouse_definition& data)
+MouseUnitDef::MouseUnitDef(const config::MouseDefinition& data)
     : detection_button(data.detection_button)
 {
 }
 
 
-std::optional<std::string> mouse_definition::validate_key(int key)
+std::optional<std::string> MouseUnitDef::validate_key(int key)
 {
-    switch(from_index<mouse_button>(key))
+    switch(from_index<MouseButton>(key))
     {
-        case mouse_button::left:
-        case mouse_button::middle:
-        case mouse_button::right:
-        case mouse_button::x1:
-        case mouse_button::x2:
+        case MouseButton::left:
+        case MouseButton::middle:
+        case MouseButton::right:
+        case MouseButton::x1:
+        case MouseButton::x2:
             return std::nullopt;
         default:
             return fmt::format("Invalid mouse button: {}", key);
@@ -36,17 +36,17 @@ std::optional<std::string> mouse_definition::validate_key(int key)
 }
 
 
-std::optional<std::string> mouse_definition::validate_axis(axis_type type, int target, int axis)
+std::optional<std::string> MouseUnitDef::validate_axis(AxisType type, int target, int axis)
 {
     if(target != 0) { return fmt::format("Invalid target: {}", target); }
     switch (type)
     {
-        case axis_type::general_axis:
-        case axis_type::wheel:
-            switch(from_index<xy_axis>(axis))
+        case AxisType::general_axis:
+        case AxisType::wheel:
+            switch(from_index<Axis2>(axis))
             {
-                case xy_axis::x:
-                case xy_axis::y:
+                case Axis2::x:
+                case Axis2::y:
                     break;
                 default:
                     return fmt::format("Invalid axis: {}", axis);
@@ -58,13 +58,13 @@ std::optional<std::string> mouse_definition::validate_axis(axis_type type, int t
 }
 
 
-bool mouse_definition::is_considered_joystick()
+bool MouseUnitDef::is_considered_joystick()
 {
     return false;
 }
 
 
-bool mouse_definition::can_detect(input_director* director, unit_discovery discovery, unit_setup*, platform*)
+bool MouseUnitDef::can_detect(Director* director, unit_discovery discovery, UnitSetup*, Platform*)
 {
     if(discovery == unit_discovery::find_highest)
     {
@@ -75,11 +75,11 @@ bool mouse_definition::can_detect(input_director* director, unit_discovery disco
 }
 
 
-std::unique_ptr<active_unit> mouse_definition::create(input_director* director, const unit_setup&)
+std::unique_ptr<ActiveUnit> MouseUnitDef::create(Director* director, const UnitSetup&)
 {
     assert(director);
 
-    return std::make_unique<mouse_active_unit>(director);
+    return std::make_unique<MouseActiveUnit>(director);
 }
 
 

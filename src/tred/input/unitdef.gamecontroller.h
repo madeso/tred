@@ -9,29 +9,29 @@
 
 namespace input::config
 {
-struct gamecontroller_definition;
+struct GamecontrollerDefinition;
 }
 
 
 namespace input
 {
 
-struct input_director;
-struct active_unit;
-struct input_action_map;
-struct platform;
+struct Director;
+struct ActiveUnit;
+struct ActionMap;
+struct Platform;
 
 
-struct gamecontroller_definition : public unit_definition
+struct GamecontrollerUnitDef : public UnitDef
 {
-    gamecontroller_definition(int index, const config::gamecontroller_definition& data);
+    GamecontrollerUnitDef(int index, const config::GamecontrollerDefinition& data);
 
     std::optional<std::string> validate_key(int key) override;
-    std::optional<std::string> validate_axis(axis_type type, int target, int axis) override;
+    std::optional<std::string> validate_axis(AxisType type, int target, int axis) override;
 
     bool is_considered_joystick() override;
-    bool can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform) override;
-    std::unique_ptr<active_unit> create(input_director* director, const unit_setup& setup) override;
+    bool can_detect(Director* director, unit_discovery discovery, UnitSetup* setup, Platform* platform) override;
+    std::unique_ptr<ActiveUnit> create(Director* director, const UnitSetup& setup) override;
 
     int index;
 };

@@ -14,65 +14,65 @@ namespace input
 {
 
 
-struct table;
-struct input_director;
+struct Table;
+struct Director;
 
-struct joystick_active_unit;
+struct JoystickActiveUnit;
 
 
 namespace impl
 {
-    struct joystick_key_unit : public key_unit
+    struct JoystickKeyUnit : public KeyUnit
     {
-        joystick_active_unit* parent = nullptr;
+        JoystickActiveUnit* parent = nullptr;
 
         void register_key(int key) override;
         float get_state(int key) override;
     };
 
-    struct joystick_axis_unit : public axis_unit
+    struct JoystickAxisUnit : public AxisUnit
     {
-        joystick_axis_unit(bool is_relative);
+        JoystickAxisUnit(bool is_relative);
 
         bool is_relative;
 
-        joystick_active_unit* parent;
+        JoystickActiveUnit* parent;
 
-        void register_axis(axis_type type, int target, int axis) override;
-        float get_state(axis_type type, int target, int axis, float dt) override;
+        void register_axis(AxisType type, int target, int axis) override;
+        float get_state(AxisType type, int target, int axis, float dt) override;
     };
 }
 
 
-struct joystick_active_unit : public active_unit
+struct JoystickActiveUnit : public ActiveUnit
 {
-    joystick_active_unit(joystick_id joystick, input_director* director);
-    ~joystick_active_unit() override;
+    JoystickActiveUnit(JoystickId joystick, Director* director);
+    ~JoystickActiveUnit() override;
 
-    key_unit* get_key_unit() override;
-    axis_unit* get_relative_axis_unit() override;
-    axis_unit* get_absolute_axis_unit() override;
+    KeyUnit* get_key_unit() override;
+    AxisUnit* get_relative_axis_unit() override;
+    AxisUnit* get_absolute_axis_unit() override;
 
     bool is_considered_joystick() override;
     bool is_delete_scheduled() override;
 
     void on_axis(int axis, float state);
     void on_button(int button, float state);
-    void on_hat(const hat_and_xy_axis& hatAxis, float state);
-    void on_ball(const hat_and_xy_axis& hatAxis, float state);
+    void on_hat(const HatAndAxis2& hatAxis, float state);
+    void on_ball(const HatAndAxis2& hatAxis, float state);
 
-    joystick_id joystick;
-    input_director* director;
+    JoystickId joystick;
+    Director* director;
     bool scheduled_delete;
 
-    bind_map<int> axes;
-    bind_map<int> buttons;
-    bind_map<hat_and_xy_axis> hats;
-    bind_map<hat_and_xy_axis> balls;
+    BindMap<int> axes;
+    BindMap<int> buttons;
+    BindMap<HatAndAxis2> hats;
+    BindMap<HatAndAxis2> balls;
 
-    impl::joystick_key_unit key_unit;
-    impl::joystick_axis_unit relative_axis_unit;
-    impl::joystick_axis_unit absolute_axis_unit;
+    impl::JoystickKeyUnit key_unit;
+    impl::JoystickAxisUnit relative_axis_unit;
+    impl::JoystickAxisUnit absolute_axis_unit;
 };
 
 

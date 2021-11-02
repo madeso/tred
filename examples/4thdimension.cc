@@ -11,7 +11,7 @@
 #include <set>
 
 constexpr float sprite_square = 40.0f;
-constexpr rect sprite_size = {sprite_square, sprite_square};
+constexpr Rectf sprite_size = {sprite_square, sprite_square};
 constexpr auto font = onebit::font{30.0f};
 constexpr int width = 800;
 constexpr int height = 600;
@@ -20,9 +20,9 @@ constexpr float fade_time_outro = 1;
 
 struct render_data
 {
-    rect viewport_aabb_in_worldspace;
-    texture* onebit;
-    sprite_batch* batch;
+    Rectf viewport_aabb_in_worldspace;
+    Texture* onebit;
+    SpriteBatch* batch;
 };
 
 using namespace std;
@@ -81,7 +81,7 @@ struct Button
     {
         const float w = font.get_width_of_string(text);
         const float h = font.size;
-        const auto rect = ::rect{x, y, x + w, y + h};
+        const auto rect = ::Rectf{x, y, x + w, y + h};
         over = rect.is_inside_inclusive(mouse.x, mouse.y);
         return over;
     }
@@ -394,7 +394,7 @@ struct IconPlacer : Object
 
     void render(const render_data& data) override
     {
-        std::optional<recti> cursor = onebit::cross;
+        std::optional<Recti> cursor = onebit::cross;
 
         if (cur->cursor_state == cross_or_circle::circle)
         {
@@ -650,7 +650,7 @@ struct Part
         );
     }
 
-    [[nodiscard]] const recti* getSprite() const
+    [[nodiscard]] const Recti* getSprite() const
     {
         const auto state = world->get_state({cube, col, row});
         if (state != cross_or_circle::neither)
@@ -726,7 +726,7 @@ struct Part
             const auto h = sprite_size.get_height();
             const auto rx = *ox + Cint_to_float(col) * w;
             const auto ry = *oy + Cint_to_float(row) * h;
-            const auto rect = ::rect{rx, ry, rx + w, ry + h};
+            const auto rect = ::Rectf{rx, ry, rx + w, ry + h};
             const auto over = rect.is_inside_inclusive(mx, my);
             const Index me(cube, col, row);
 
@@ -802,7 +802,7 @@ struct Cube : Object
     {
         constexpr float g = 0.5f;
         constexpr auto s = sprite_size.get_width() * 4.0f;
-        constexpr auto back = rect{s, s};
+        constexpr auto back = Rectf{s, s};
         rd.batch->quad({}, back.translate(x, y), {}, {g, g, g, 1.0f});
         for (int col = 0; col < 4; ++col)
         {
@@ -934,8 +934,8 @@ struct PressKeyToContinue : Object
     }
 };
 
-struct Game;
-void AddStartNewGameFader(Game& iGame);
+struct OldGame;
+void AddStartNewGameFader(OldGame& iGame);
 
 struct AiPlacerObject : Object
 {
@@ -964,13 +964,13 @@ struct AiPlacerObject : Object
     }
 };
 
-struct Game
+struct OldGame
 {
     int pulsating_index = 0;
     cursor current_cursor;
 
     SuggestedLocation suggested_location;
-    Game()
+    OldGame()
         : quit(false)
           , is_quiting(false)
           , has_result(false)
@@ -1190,7 +1190,7 @@ struct Game
     bool ai_has_moved;
 };
 
-Game* gGame = nullptr;
+OldGame* gGame = nullptr;
 
 void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int col, int row)
 {
@@ -1481,16 +1481,16 @@ struct StartNewGameFader : FullscreenColorSprite
     float direction;
 };
 
-void AddStartNewGameFader(Game& iGame)
+void AddStartNewGameFader(OldGame& iGame)
 {
     iGame.add(std::make_shared<StartNewGameFader>());
 }
 
-enum struct game_state { game, menu };
+enum struct GameState { game, menu };
 
-struct fourthd_game : game
+struct GameWrapper : Game
 {
-    texture onebit;
+    Texture onebit;
     glm::vec2 mouse;
 
     bool mouse_button = false;
@@ -1500,25 +1500,25 @@ struct fourthd_game : game
 
     game_settings gd;
 
-    Game game;
+    OldGame game;
     Menu menu;
 
-    void on_mouse_button(const command2&, input::mouse_button button, bool down) override
+    void on_mouse_button(const Command2&, input::MouseButton button, bool down) override
     {
-        if (button != input::mouse_button::left) { return; }
+        if (button != input::MouseButton::left) { return; }
 
         mouse_button = down;
     }
 
-    game_state state = game_state::menu;
+    GameState state = GameState::menu;
 
     void start_game()
     {
-        state = game_state::game;
+        state = GameState::game;
         game.buildRules(gd);
     }
 
-    fourthd_game()
+    GameWrapper()
         : onebit
           (
               onebit::load_texture()
@@ -1538,10 +1538,10 @@ struct fourthd_game : game
         bool r = true;
         switch (state)
         {
-        case game_state::game:
+        case GameState::game:
             game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
             r = !game.quit;
-        case game_state::menu:
+        case GameState::menu:
             menu.update(&gd, mouse, mouse_button, dt);
             break;
         default:
@@ -1553,10 +1553,10 @@ struct fourthd_game : game
         return r;
     }
 
-    constexpr static auto layout = layout_data{viewport_style::black_bars, width, height, glm::mat4(1.0f)};
+    constexpr static auto layout = LayoutData{ViewportStyle::black_bars, width, height, glm::mat4(1.0f)};
 
     void
-    on_render(const render_command2& rc) override
+    on_render(const RenderCommand2& rc) override
     {
         auto r = with_layer(rc, layout);
 
@@ -1564,10 +1564,10 @@ struct fourthd_game : game
 
         switch (state)
         {
-        case game_state::game:
+        case GameState::game:
             game.render(rd);
             break;
-        case game_state::menu:
+        case GameState::menu:
             menu.render(rd);
             break;
         default:
@@ -1576,7 +1576,7 @@ struct fourthd_game : game
         }
     }
 
-    void on_mouse_position(const command2& c, const glm::ivec2& p) override
+    void on_mouse_position(const Command2& c, const glm::ivec2& p) override
     {
         mouse = with_layer(c, layout).mouse_to_world({p.x, p.y});
     }
@@ -1589,7 +1589,7 @@ main(int, char**)
     (
         "4th Dimension", glm::ivec2{800, 600}, false, []()
         {
-            return std::make_shared<fourthd_game>();
+            return std::make_shared<GameWrapper>();
         }
     );
 }

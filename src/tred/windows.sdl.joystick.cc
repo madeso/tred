@@ -8,23 +8,23 @@ namespace sdl
 {
 
 
-std::string_view ToString(power_level power)
+std::string_view to_string(PowerLevel power)
 {
     switch(power)
     {
-        case power_level::unknown: return "Unknown";
-        case power_level::empty: return "Empty";
-        case power_level::low: return "Low";
-        case power_level::medium: return "Medium";
-        case power_level::full: return "Full";
-        case power_level::wired: return "Wired";
-        case power_level::max: return "Max";
+        case PowerLevel::unknown: return "Unknown";
+        case PowerLevel::empty: return "Empty";
+        case PowerLevel::low: return "Low";
+        case PowerLevel::medium: return "Medium";
+        case PowerLevel::full: return "Full";
+        case PowerLevel::wired: return "Wired";
+        case PowerLevel::max: return "Max";
         default: return "<unknown>";
     }
 }
 
 
-joystick::joystick(int joystick_index)
+Joystick::Joystick(int joystick_index)
     : sdl_joystick(SDL_JoystickOpen(joystick_index))
     , own_joystick(true)
 {
@@ -35,21 +35,21 @@ joystick::joystick(int joystick_index)
 }
 
 
-joystick::joystick(SDL_Joystick* another_joystick)
+Joystick::Joystick(SDL_Joystick* another_joystick)
     : sdl_joystick(another_joystick)
     , own_joystick(false)
 {
 }
 
 
-joystick::~joystick()
+Joystick::~Joystick()
 {
     ClearJoystick();
 }
 
 
 
-void joystick::ClearJoystick()
+void Joystick::ClearJoystick()
 {
     if(sdl_joystick && own_joystick)
     {
@@ -61,7 +61,7 @@ void joystick::ClearJoystick()
 }
 
 
-joystick::joystick(joystick&& j)
+Joystick::Joystick(Joystick&& j)
     : sdl_joystick(j.sdl_joystick)
     , own_joystick(j.own_joystick)
 {
@@ -70,7 +70,7 @@ joystick::joystick(joystick&& j)
 }
 
 
-void joystick::operator=(joystick&& j)
+void Joystick::operator=(Joystick&& j)
 {
     ClearJoystick();
 
@@ -81,7 +81,7 @@ void joystick::operator=(joystick&& j)
 }
 
 
-std::string joystick::get_name()
+std::string Joystick::get_name()
 {
     if(sdl_joystick)
     {
@@ -94,7 +94,7 @@ std::string joystick::get_name()
 }
 
 
-SDL_JoystickID joystick::get_device_index()
+SDL_JoystickID Joystick::get_device_index()
 {
     if(sdl_joystick)
     {
@@ -106,52 +106,52 @@ SDL_JoystickID joystick::get_device_index()
 }
 
 
-power_level joystick::get_power_level()
+PowerLevel Joystick::get_power_level()
 {
     const auto power = SDL_JoystickCurrentPowerLevel(sdl_joystick);
     switch(power)
     {
-        case SDL_JOYSTICK_POWER_UNKNOWN: return power_level::unknown;
-        case SDL_JOYSTICK_POWER_EMPTY: return power_level::empty;
-        case SDL_JOYSTICK_POWER_LOW: return power_level::low;
-        case SDL_JOYSTICK_POWER_MEDIUM: return power_level::medium;
-        case SDL_JOYSTICK_POWER_FULL: return power_level::full;
-        case SDL_JOYSTICK_POWER_WIRED: return power_level::wired;
-        case SDL_JOYSTICK_POWER_MAX: return power_level::max;
-        default: return power_level::unknown;
+        case SDL_JOYSTICK_POWER_UNKNOWN: return PowerLevel::unknown;
+        case SDL_JOYSTICK_POWER_EMPTY: return PowerLevel::empty;
+        case SDL_JOYSTICK_POWER_LOW: return PowerLevel::low;
+        case SDL_JOYSTICK_POWER_MEDIUM: return PowerLevel::medium;
+        case SDL_JOYSTICK_POWER_FULL: return PowerLevel::full;
+        case SDL_JOYSTICK_POWER_WIRED: return PowerLevel::wired;
+        case SDL_JOYSTICK_POWER_MAX: return PowerLevel::max;
+        default: return PowerLevel::unknown;
     }
 }
 
 
-int joystick::get_number_of_axes()
+int Joystick::get_number_of_axes()
 {
     if(sdl_joystick) return SDL_JoystickNumAxes(sdl_joystick);
     else return -1;
 }
 
 
-int joystick::get_number_of_balls()
+int Joystick::get_number_of_balls()
 {
     if(sdl_joystick) return SDL_JoystickNumBalls(sdl_joystick);
     else return -1;
 }
 
 
-int joystick::get_number_of_buttons()
+int Joystick::get_number_of_buttons()
 {
     if(sdl_joystick) return SDL_JoystickNumButtons(sdl_joystick);
     else return -1;
 }
 
 
-int joystick::get_number_of_hats()
+int Joystick::get_number_of_hats()
 {
     if(sdl_joystick) return SDL_JoystickNumHats(sdl_joystick);
     else return -1;
 }
 
 
-std::string joystick::get_guid()
+std::string Joystick::get_guid()
 {
     if(sdl_joystick)
     {
@@ -167,13 +167,13 @@ std::string joystick::get_guid()
 }
 
 
-haptic::haptic(joystick* joystick)
+Haptic::Haptic(Joystick* joystick)
     : sdl_haptic(SDL_HapticOpenFromJoystick(joystick->sdl_joystick))
 {
 }
 
 
-haptic::~haptic()
+Haptic::~Haptic()
 {
     if(sdl_haptic != nullptr)
     {
@@ -182,13 +182,13 @@ haptic::~haptic()
 }
 
 
-bool haptic::has_haptic()
+bool Haptic::has_haptic()
 {
     return sdl_haptic != nullptr;
 }
 
 
-bool haptic::has_sine()
+bool Haptic::has_sine()
 {
     if(sdl_haptic == nullptr) { return false; }
     const auto query = SDL_HapticQuery(sdl_haptic);
@@ -196,7 +196,7 @@ bool haptic::has_sine()
 }
 
 
-std::string_view haptic::get_status()
+std::string_view Haptic::get_status()
 {
     if(has_haptic() == false) { return "no haptic"; }
     if(has_sine() == false) { return "has haptics"; }
@@ -204,7 +204,7 @@ std::string_view haptic::get_status()
 }
 
 
-game_controller::game_controller(int joystick_index)
+GameController::GameController(int joystick_index)
     : controller(SDL_GameControllerOpen(joystick_index))
 {
     if(controller == nullptr)
@@ -214,7 +214,7 @@ game_controller::game_controller(int joystick_index)
 }
 
 
-game_controller::~game_controller()
+GameController::~GameController()
 {
     if(controller)
     {
@@ -223,13 +223,13 @@ game_controller::~game_controller()
 }
 
 
-bool game_controller::is_valid() const
+bool GameController::is_valid() const
 {
     return controller != nullptr;
 }
 
 
-std::string game_controller::get_mapping()
+std::string GameController::get_mapping()
 {
     if(controller == nullptr) { return ""; }
     char* mapping = SDL_GameControllerMapping(controller);
@@ -240,21 +240,21 @@ std::string game_controller::get_mapping()
 }
 
 
-joystick game_controller::get_joystick()
+Joystick GameController::get_joystick()
 {
     SDL_Joystick* joy = controller ? SDL_GameControllerGetJoystick(controller) : nullptr;
-    return joystick{ joy };
+    return Joystick{ joy };
 }
 
-gamecontroller_state::gamecontroller_state()
+GamecontrollerState::GamecontrollerState()
     : buttons({ false,})
     , axes({ 0, })
 {
 }
 
-gamecontroller_state gamecontroller_state::get_state(game_controller* controller)
+GamecontrollerState GamecontrollerState::get_state(GameController* controller)
 {
-    gamecontroller_state r;
+    GamecontrollerState r;
 
     for(auto button: valid_buttons)
     {
@@ -270,7 +270,7 @@ gamecontroller_state gamecontroller_state::get_state(game_controller* controller
 }
 
 
-void log_info_about_joystick(joystick* joy)
+void log_info_about_joystick(Joystick* joy)
 {
     LOG_INFO("  Name: {}", joy->get_name());
     LOG_INFO("  Device: {}", joy->get_device_index());
@@ -278,16 +278,16 @@ void log_info_about_joystick(joystick* joy)
     LOG_INFO("  Balls: {}", joy->get_number_of_balls());
     LOG_INFO("  Buttons: {}", joy->get_number_of_buttons());
     LOG_INFO("  Hats: {}", joy->get_number_of_hats());
-    LOG_INFO("  Power: {}", ToString(joy->get_power_level()));
+    LOG_INFO("  Power: {}", to_string(joy->get_power_level()));
     {
-        auto haptics = haptic{joy};
+        auto haptics = Haptic{joy};
         LOG_INFO("  Haptic: {}", haptics.get_status());
     }
     LOG_INFO("  Guid: {}", joy->get_guid());
 }
 
 
-void log_info_about_controller(game_controller* controller)
+void log_info_about_controller(GameController* controller)
 {
     // Works but it's kinda long
     // LOG_INFO("  Mapping: {}", controller->GetMapping());
@@ -304,13 +304,13 @@ void log_info_about_joystick(int joystick_index)
     if(is_game_controller)
     {
         LOG_INFO("Joystick {} (gamecontroller)", joystick_index);
-        auto controller = game_controller{joystick_index};
+        auto controller = GameController{joystick_index};
         log_info_about_controller(&controller);
     }
     else
     {
         LOG_INFO("Joystick {}", joystick_index);
-        auto j = joystick{joystick_index};
+        auto j = Joystick{joystick_index};
         log_info_about_joystick(&j);
     }
 }

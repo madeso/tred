@@ -20,7 +20,7 @@ TEST_CASE("only f", "[internal]")
 TEST_CASE("handle 8 + 8 = 16", "[handle]")
 {
     enum class e64 : u64 {};
-    using F = handle_functions<e64, u32, u32>;
+    using F = HandleFunctions<e64, u32, u32>;
 
     SECTION("0")
     {
@@ -51,7 +51,7 @@ TEST_CASE("handle 8 + 8 = 16", "[handle]")
 TEST_CASE("handle 5 + 3 = 8", "[handle]")
 {
     enum class e32 : u64 {};
-    using F = handle_functions<e32, u32, u16, 5, 3>;
+    using F = HandleFunctions<e32, u32, u16, 5, 3>;
 
     SECTION("0")
     {
@@ -120,8 +120,8 @@ catchy::FalseString VectorEquals
 TEST_CASE("handle vector", "[handle]")
 {
     enum class H : u64 {};
-    using F = handle_functions64<H>;
-    handle_vector<int, F> v;
+    using F = HandleFunctions64<H>;
+    HandleVector<int, F> v;
 
     CHECK(v.begin().index == 0);
     CHECK(v.end().index == 0);

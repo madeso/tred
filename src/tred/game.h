@@ -14,108 +14,108 @@
 #include "tred/texture.h"
 #include "tred/input/key.h"
 
-struct texture;
-struct render2;
+struct Texture;
+struct Render2;
 
-struct vertex2
+struct Vertex2
 {
     glm::vec3 position;
     glm::vec4 color;
     glm::vec2 texturecoord;
 };
 
-struct sprite_batch
+struct SpriteBatch
 {
     static constexpr int max_quads = 100;
 
     std::vector<float> data;
     int quads = 0;
-    texture* current_texture = nullptr;
+    Texture* current_texture = nullptr;
     u32 va;
     u32 vb;
     u32 ib;
-    render2* render;
-    texture white_texture;
+    Render2* render;
+    Texture white_texture;
 
-    sprite_batch(shader* shader, render2* r);
+    SpriteBatch(Shader* shader, Render2* r);
 
-    void quad(std::optional<texture*> texture, const vertex2& v0, const vertex2& v1, const vertex2& v2, const vertex2& v3);
-    void quad(std::optional<texture*> texture, const rect& scr, const std::optional<rect>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
-    void quad(std::optional<texture*> texture, const rect& scr, const recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<Texture*> texture, const Vertex2& v0, const Vertex2& v1, const Vertex2& v2, const Vertex2& v3);
+    void quad(std::optional<Texture*> texture, const Rectf& scr, const std::optional<Rectf>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
+    void quad(std::optional<Texture*> texture, const Rectf& scr, const Recti& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));
 
     void submit();
 
 };
 
-struct render2
+struct Render2
 {
-    render2();
-    ~render2();
+    Render2();
+    ~Render2();
 
-    vertex_layout_description quad_description;
-    compiled_vertex_layout quad_layout;
-    shader quad_shader;
-    uniform view_projection_uniform;
-    uniform transform_uniform;
-    uniform texture_uniform;
+    VertexLayoutDescription quad_description;
+    CompiledVertexLayout quad_layout;
+    Shader quad_shader;
+    Uniform view_projection_uniform;
+    Uniform transform_uniform;
+    Uniform texture_uniform;
 
-    sprite_batch batch;
+    SpriteBatch batch;
 };
 
-struct command2
+struct Command2
 {
     glm::ivec2 size;
 };
 
-struct render_command2
+struct RenderCommand2
 {
-    render2* render;
+    Render2* render;
     glm::ivec2 size;
 };
 
-struct layer2
+struct Layer2
 {
-    rect viewport_aabb_in_worldspace;
-    recti screen;
+    Rectf viewport_aabb_in_worldspace;
+    Recti screen;
 
     glm::vec2 mouse_to_world(const glm::vec2& p) const;
 };
 
-struct render_layer2 : layer2
+struct RenderLayer2 : Layer2
 {
-    sprite_batch* batch;
+    SpriteBatch* batch;
 
-    render_layer2(layer2&& l, sprite_batch* batch);
+    RenderLayer2(Layer2&& l, SpriteBatch* batch);
 
-    ~render_layer2();
+    ~RenderLayer2();
 };
 
-enum class viewport_style { black_bars, extended};
+enum class ViewportStyle { black_bars, extended};
 
-struct layout_data
+struct LayoutData
 {
-    viewport_style style;
+    ViewportStyle style;
     float requested_width;
     float requested_height;
     const glm::mat4 camera;
 };
 
-render_layer2 with_layer(const render_command2& rc, const layout_data& ld);
-layer2 with_layer(const command2& rc, const layout_data& ld);
+RenderLayer2 with_layer(const RenderCommand2& rc, const LayoutData& ld);
+Layer2 with_layer(const Command2& rc, const LayoutData& ld);
 
-struct game
+struct Game
 {
-    game() = default;
-    virtual ~game() = default;
+    Game() = default;
+    virtual ~Game() = default;
 
-    virtual void on_render(const render_command2& rc);
+    virtual void on_render(const RenderCommand2& rc);
     virtual void on_imgui();
     virtual bool on_update(float);
 
     virtual void on_key(char key, bool down);
-    virtual void on_mouse_position(const command2&, const glm::ivec2& position);
-    virtual void on_mouse_button(const command2&, input::mouse_button button, bool down);
+    virtual void on_mouse_position(const Command2&, const glm::ivec2& position);
+    virtual void on_mouse_button(const Command2&, input::MouseButton button, bool down);
     virtual void on_mouse_wheel(int scroll);
 };
 
-int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<game>()> make_game);
+int run_game(const std::string& title, const glm::ivec2& size, bool call_imgui, std::function<std::shared_ptr<Game>()> make_game);

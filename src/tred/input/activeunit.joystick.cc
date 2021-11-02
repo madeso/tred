@@ -11,37 +11,37 @@ namespace input
 {
 
 
-void impl::joystick_key_unit::register_key(int key)
+void impl::JoystickKeyUnit::register_key(int key)
 {
     parent->buttons.add(key);
 }
 
 
-float impl::joystick_key_unit::get_state(int key)
+float impl::JoystickKeyUnit::get_state(int key)
 {
     return parent->buttons.get_raw(key);
 }
 
 
-impl::joystick_axis_unit::joystick_axis_unit(bool ir)
+impl::JoystickAxisUnit::JoystickAxisUnit(bool ir)
     : is_relative(ir)
 {
 }
 
 
-void impl::joystick_axis_unit::register_axis(axis_type type, int target, int axis)
+void impl::JoystickAxisUnit::register_axis(AxisType type, int target, int axis)
 {
     switch(type)
     {
-    case axis_type::general_axis:
+    case AxisType::general_axis:
         assert(target == 0);
         parent->axes.add(axis);
         break;
-    case axis_type::hat:
-        parent->hats.add({target, from_index<xy_axis>(axis)});
+    case AxisType::hat:
+        parent->hats.add({target, from_index<Axis2>(axis)});
         break;
-    case axis_type::ball:
-        parent->balls.add({target, from_index<xy_axis>(axis)});
+    case AxisType::ball:
+        parent->balls.add({target, from_index<Axis2>(axis)});
         break;
     default:
         assert(false && "invalid type");
@@ -49,17 +49,17 @@ void impl::joystick_axis_unit::register_axis(axis_type type, int target, int axi
 }
 
 
-float impl::joystick_axis_unit::get_state(axis_type type, int target, int axis, float dt)
+float impl::JoystickAxisUnit::get_state(AxisType type, int target, int axis, float dt)
 {
     switch(type)
     {
-    case axis_type::general_axis:
+    case AxisType::general_axis:
         assert(target == 0);
         return smooth_axis(parent->axes.get_raw(axis)) * dt;
-    case axis_type::hat:
-        return parent->hats.get_raw({target, from_index<xy_axis>(axis)}) * dt;
-    case axis_type::ball:
-        return parent->balls.get_raw({target, from_index<xy_axis>(axis)}) * dt;
+    case AxisType::hat:
+        return parent->hats.get_raw({target, from_index<Axis2>(axis)}) * dt;
+    case AxisType::ball:
+        return parent->balls.get_raw({target, from_index<Axis2>(axis)}) * dt;
     default:
         assert(false && "invalid type");
         return 0.0f;
@@ -67,7 +67,7 @@ float impl::joystick_axis_unit::get_state(axis_type type, int target, int axis, 
 }
 
 
-joystick_active_unit::joystick_active_unit(joystick_id j, input_director* d)
+JoystickActiveUnit::JoystickActiveUnit(JoystickId j, Director* d)
     : joystick(j)
     , director(d)
     , scheduled_delete(false)
@@ -83,61 +83,61 @@ joystick_active_unit::joystick_active_unit(joystick_id j, input_director* d)
 }
 
 
-joystick_active_unit::~joystick_active_unit()
+JoystickActiveUnit::~JoystickActiveUnit()
 {
     director->remove(this);
 }
 
 
-key_unit* joystick_active_unit::get_key_unit()
+KeyUnit* JoystickActiveUnit::get_key_unit()
 {
     return &key_unit;
 }
 
 
-axis_unit* joystick_active_unit::get_relative_axis_unit()
+AxisUnit* JoystickActiveUnit::get_relative_axis_unit()
 {
     return &relative_axis_unit;
 }
 
 
-axis_unit* joystick_active_unit::get_absolute_axis_unit()
+AxisUnit* JoystickActiveUnit::get_absolute_axis_unit()
 {
     return &absolute_axis_unit;
 }
 
 
-bool joystick_active_unit::is_considered_joystick()
+bool JoystickActiveUnit::is_considered_joystick()
 {
     return true;
 }
 
 
-bool joystick_active_unit::is_delete_scheduled()
+bool JoystickActiveUnit::is_delete_scheduled()
 {
     return scheduled_delete;
 }
 
 
-void joystick_active_unit::on_axis(int axis, float state)
+void JoystickActiveUnit::on_axis(int axis, float state)
 {
     axes.set_raw(axis, state);
 }
 
 
-void joystick_active_unit::on_button(int button, float state)
+void JoystickActiveUnit::on_button(int button, float state)
 {
     buttons.set_raw(button, state);
 }
 
 
-void joystick_active_unit::on_hat(const hat_and_xy_axis& hatAxis, float state)
+void JoystickActiveUnit::on_hat(const HatAndAxis2& hatAxis, float state)
 {
     hats.set_raw(hatAxis, state);
 }
 
 
-void joystick_active_unit::on_ball(const hat_and_xy_axis& hatAxis, float state)
+void JoystickActiveUnit::on_ball(const HatAndAxis2& hatAxis, float state)
 {
     balls.set_raw(hatAxis, state);
 }

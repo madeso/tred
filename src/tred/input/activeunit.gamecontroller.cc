@@ -11,31 +11,31 @@ namespace input
 {
 
 
-void impl::gamecontroller_key_unit::register_key(int key)
+void impl::GamecontrollerKeyUnit::register_key(int key)
 {
-    parent->buttons.add(from_index<gamecontroller_button>(key));
+    parent->buttons.add(from_index<GamecontrollerButton>(key));
 }
 
 
-float impl::gamecontroller_key_unit::get_state(int key)
+float impl::GamecontrollerKeyUnit::get_state(int key)
 {
-    return parent->buttons.get_raw(from_index<gamecontroller_button>(key));
+    return parent->buttons.get_raw(from_index<GamecontrollerButton>(key));
 }
 
 
-impl::gamecontroller_axis_unit::gamecontroller_axis_unit(bool ir)
+impl::GamecontrollerAxisUnit::GamecontrollerAxisUnit(bool ir)
     : is_relative(ir)
 {
 }
 
 
-void impl::gamecontroller_axis_unit::register_axis(axis_type type, [[maybe_unused]] int target, int axis)
+void impl::GamecontrollerAxisUnit::register_axis(AxisType type, [[maybe_unused]] int target, int axis)
 {
     switch(type)
     {
-    case axis_type::general_axis:
+    case AxisType::general_axis:
         assert(target == 0);
-        parent->axes.add(from_index<gamecontroller_axis>(axis));
+        parent->axes.add(from_index<GamecontrollerAxis>(axis));
         break;
     default:
         assert(false && "invalid type");
@@ -43,13 +43,13 @@ void impl::gamecontroller_axis_unit::register_axis(axis_type type, [[maybe_unuse
 }
 
 
-float impl::gamecontroller_axis_unit::get_state(axis_type type, [[maybe_unused]] int target, int axis, float dt)
+float impl::GamecontrollerAxisUnit::get_state(AxisType type, [[maybe_unused]] int target, int axis, float dt)
 {
     switch(type)
     {
-    case axis_type::general_axis:
+    case AxisType::general_axis:
         assert(target == 0);
-        return smooth_axis(parent->axes.get_raw(from_index<gamecontroller_axis>(axis))) * dt;
+        return smooth_axis(parent->axes.get_raw(from_index<GamecontrollerAxis>(axis))) * dt;
     default:
         assert(false && "invalid type");
         return 0.0f;
@@ -57,7 +57,7 @@ float impl::gamecontroller_axis_unit::get_state(axis_type type, [[maybe_unused]]
 }
 
 
-gamecontroller_active_unit::gamecontroller_active_unit(joystick_id j, input_director* d)
+GamecontrollerActiveUnit::GamecontrollerActiveUnit(JoystickId j, Director* d)
     : joystick(j)
     , director(d)
     , scheduled_delete(false)
@@ -73,49 +73,49 @@ gamecontroller_active_unit::gamecontroller_active_unit(joystick_id j, input_dire
 }
 
 
-gamecontroller_active_unit::~gamecontroller_active_unit()
+GamecontrollerActiveUnit::~GamecontrollerActiveUnit()
 {
     director->remove(this);
 }
 
 
-key_unit* gamecontroller_active_unit::get_key_unit()
+KeyUnit* GamecontrollerActiveUnit::get_key_unit()
 {
     return &key_unit;
 }
 
 
-axis_unit* gamecontroller_active_unit::get_relative_axis_unit()
+AxisUnit* GamecontrollerActiveUnit::get_relative_axis_unit()
 {
     return &relative_axis_unit;
 }
 
 
-axis_unit* gamecontroller_active_unit::get_absolute_axis_unit()
+AxisUnit* GamecontrollerActiveUnit::get_absolute_axis_unit()
 {
     return &absolute_axis_unit;
 }
 
 
-bool gamecontroller_active_unit::is_considered_joystick()
+bool GamecontrollerActiveUnit::is_considered_joystick()
 {
     return true;
 }
 
 
-bool gamecontroller_active_unit::is_delete_scheduled()
+bool GamecontrollerActiveUnit::is_delete_scheduled()
 {
     return scheduled_delete;
 }
 
 
-void gamecontroller_active_unit::on_axis(gamecontroller_axis axis, float state)
+void GamecontrollerActiveUnit::on_axis(GamecontrollerAxis axis, float state)
 {
     axes.set_raw(axis, state);
 }
 
 
-void gamecontroller_active_unit::on_button(gamecontroller_button button, float state)
+void GamecontrollerActiveUnit::on_button(GamecontrollerButton button, float state)
 {
     buttons.set_raw(button, smooth_range(state));
 }

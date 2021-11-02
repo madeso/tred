@@ -5,7 +5,7 @@
 namespace input
 {
 
-enum class mouse_button
+enum class MouseButton
 {
     invalid
     , unbound  /// No key
@@ -17,7 +17,7 @@ enum class mouse_button
 };
 
 
-enum class gamecontroller_button
+enum class GamecontrollerButton
 {
     invalid
     , a
@@ -47,7 +47,7 @@ enum class gamecontroller_button
 };
 
 
-enum class keyboard_key
+enum class KeyboardKey
 {
     invalid
     , unbound  /// No key

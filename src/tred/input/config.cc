@@ -6,7 +6,7 @@ namespace input::config
 {
 
 
-action::action(const std::string& n, const std::string& v, input::range r)
+Action::Action(const std::string& n, const std::string& v, input::Range r)
     : name(n)
     , var(v)
     , range(r)
@@ -14,7 +14,7 @@ action::action(const std::string& n, const std::string& v, input::range r)
 }
 
 
-action::action(const std::string& nv, input::range r)
+Action::Action(const std::string& nv, input::Range r)
     : name(nv)
     , var(nv)
     , range(r)
@@ -22,7 +22,7 @@ action::action(const std::string& nv, input::range r)
 }
 
 
-action::action(const std::string_view& nv, input::range r)
+Action::Action(const std::string_view& nv, input::Range r)
     : name(nv)
     , var(nv)
     , range(r)
@@ -30,38 +30,38 @@ action::action(const std::string_view& nv, input::range r)
 }
 
 
-keyboard_definition::keyboard_definition()
-    : detection_key(input::keyboard_key::unbound)
+KeyboardDefinition::KeyboardDefinition()
+    : detection_key(input::KeyboardKey::unbound)
 {
 }
 
 
-keyboard_definition::keyboard_definition(input::keyboard_key dk)
+KeyboardDefinition::KeyboardDefinition(input::KeyboardKey dk)
     : detection_key(dk)
 {
 }
 
 
-mouse_definition::mouse_definition()
-    : detection_button(input::mouse_button::unbound)
+MouseDefinition::MouseDefinition()
+    : detection_button(input::MouseButton::unbound)
 {
 }
 
 
-mouse_definition::mouse_definition(input::mouse_button db)
+MouseDefinition::MouseDefinition(input::MouseButton db)
     : detection_button(db)
 {
 }
 
 
-joystick_definition::joystick_definition()
+JoystickDefinition::JoystickDefinition()
     : start_button(0)
     , unit("")
 {
 }
 
 
-joystick_definition::joystick_definition(int sb, const std::string& u)
+JoystickDefinition::JoystickDefinition(int sb, const std::string& u)
     : start_button(sb)
     , unit(u)
 {
@@ -69,52 +69,52 @@ joystick_definition::joystick_definition(int sb, const std::string& u)
 
 
 
-unit_definition::unit_definition(const keyboard_definition& k)
+UnitDefinition::UnitDefinition(const KeyboardDefinition& k)
     : keyboard(k)
 {
 }
 
 
-unit_definition::unit_definition(const mouse_definition& m)
+UnitDefinition::UnitDefinition(const MouseDefinition& m)
     : mouse(m)
 {
 }
 
 
-unit_definition::unit_definition(const joystick_definition& j)
+UnitDefinition::UnitDefinition(const JoystickDefinition& j)
     : joystick(j)
 {
 }
 
 
-unit_definition::unit_definition(const gamecontroller_definition& g)
+UnitDefinition::UnitDefinition(const GamecontrollerDefinition& g)
     : gamecontroller(g)
 {
 }
 
 
-key_bind_definition::key_bind_definition(const std::string& a, int u, input::keyboard_key k)
+KeyBindDefinition::KeyBindDefinition(const std::string& a, int u, input::KeyboardKey k)
     : action(a)
     , unit(u)
     , key(to_index(k))
 {
 }
 
-key_bind_definition::key_bind_definition(const std::string& a, int u, input::gamecontroller_button k)
+KeyBindDefinition::KeyBindDefinition(const std::string& a, int u, input::GamecontrollerButton k)
     : action(a)
     , unit(u)
     , key(to_index(k))
 {
 }
 
-key_bind_definition::key_bind_definition(const std::string& a, int u, input::mouse_button k)
+KeyBindDefinition::KeyBindDefinition(const std::string& a, int u, input::MouseButton k)
     : action(a)
     , unit(u)
     , key(to_index(k))
 {
 }
 
-key_bind_definition::key_bind_definition(const std::string& a, int u, int k)
+KeyBindDefinition::KeyBindDefinition(const std::string& a, int u, int k)
     : action(a)
     , unit(u)
     , key(k)
@@ -122,10 +122,10 @@ key_bind_definition::key_bind_definition(const std::string& a, int u, int k)
 }
 
 
-axis_bind_definition::axis_bind_definition(const std::string& a, int u, input::xy_axis ax, float s, bool ii)
+AxisBindDefinition::AxisBindDefinition(const std::string& a, int u, input::Axis2 ax, float s, bool ii)
     : action(a)
     , unit(u)
-    , type(axis_type::general_axis)
+    , type(AxisType::general_axis)
     , target(0)
     , axis(to_index(ax))
     , sensitivity(s)
@@ -133,10 +133,10 @@ axis_bind_definition::axis_bind_definition(const std::string& a, int u, input::x
 {
 }
 
-axis_bind_definition::axis_bind_definition(const std::string& a, int u, input::gamecontroller_axis ax, float s, bool ii)
+AxisBindDefinition::AxisBindDefinition(const std::string& a, int u, input::GamecontrollerAxis ax, float s, bool ii)
     : action(a)
     , unit(u)
-    , type(axis_type::general_axis)
+    , type(AxisType::general_axis)
     , target(0)
     , axis(to_index(ax))
     , sensitivity(s)
@@ -144,7 +144,7 @@ axis_bind_definition::axis_bind_definition(const std::string& a, int u, input::g
 {
 }
 
-axis_bind_definition::axis_bind_definition(const std::string& a, int u, axis_type ty, int ta, int ax, float s, bool ii)
+AxisBindDefinition::AxisBindDefinition(const std::string& a, int u, AxisType ty, int ta, int ax, float s, bool ii)
     : action(a)
     , unit(u)
     , type(ty)
@@ -156,7 +156,7 @@ axis_bind_definition::axis_bind_definition(const std::string& a, int u, axis_typ
 }
 
 
-two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, input::keyboard_key n, input::keyboard_key p)
+TwoKeyBindDefinition::TwoKeyBindDefinition(const std::string& a, int u, input::KeyboardKey n, input::KeyboardKey p)
     : action(a)
     , unit(u)
     , negative(to_index(n))
@@ -164,7 +164,7 @@ two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, in
 {
 }
 
-two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, input::gamecontroller_button n, input::gamecontroller_button p)
+TwoKeyBindDefinition::TwoKeyBindDefinition(const std::string& a, int u, input::GamecontrollerButton n, input::GamecontrollerButton p)
     : action(a)
     , unit(u)
     , negative(to_index(n))
@@ -172,7 +172,7 @@ two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, in
 {
 }
 
-two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, int n, int p)
+TwoKeyBindDefinition::TwoKeyBindDefinition(const std::string& a, int u, int n, int p)
     : action(a)
     , unit(u)
     , negative(n)
@@ -181,25 +181,25 @@ two_key_bind_definition::two_key_bind_definition(const std::string& a, int u, in
 }
 
 
-bind_definition::bind_definition(const key_bind_definition& k)
+BindDefinition::BindDefinition(const KeyBindDefinition& k)
     : key(k)
 {
 }
 
 
-bind_definition::bind_definition(const axis_bind_definition& a)
+BindDefinition::BindDefinition(const AxisBindDefinition& a)
     : axis(a)
 {
 }
 
 
-bind_definition::bind_definition(const two_key_bind_definition& t)
+BindDefinition::BindDefinition(const TwoKeyBindDefinition& t)
     : twokey(t)
 {
 }
 
 
-mapping::mapping(const std::string& n, const std::vector<unit_definition>& u, const std::vector<bind_definition>& b)
+Mapping::Mapping(const std::string& n, const std::vector<UnitDefinition>& u, const std::vector<BindDefinition>& b)
     : name(n)
     , units(u)
     , binds(b)
@@ -207,7 +207,7 @@ mapping::mapping(const std::string& n, const std::vector<unit_definition>& u, co
 }
 
 
-input_system::input_system(const action_map& a, const mapping_list& k)
+InputSystem::InputSystem(const ActionMap& a, const MappingList& k)
     : actions(a)
     , keys(k)
 {

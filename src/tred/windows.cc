@@ -49,31 +49,31 @@ namespace
 }
 
 
-struct gamecontroller_data
+struct GamecontrollerData
 {
-    std::unique_ptr<sdl::game_controller> controller;
-    sdl::gamecontroller_state last_state;
+    std::unique_ptr<sdl::GameController> controller;
+    sdl::GamecontrollerState last_state;
 };
 
 
-enum class joystick_detection_state
+enum class JoystickDetectionState
 {
     joystick, gamecontroller, not_detected
 };
 
 
-struct joystick_data
+struct JoystickData
 {
-    std::unique_ptr<sdl::joystick> joystick;
-    std::unique_ptr<gamecontroller_data> gamecontroller;
+    std::unique_ptr<sdl::Joystick> joystick;
+    std::unique_ptr<GamecontrollerData> gamecontroller;
     SDL_JoystickID instance_id = 0;
-    joystick_detection_state in_use = joystick_detection_state::not_detected;
+    JoystickDetectionState in_use = JoystickDetectionState::not_detected;
 };
 
 
-struct sdl_platform : public input::platform
+struct SdlPlatform : public input::Platform
 {
-    sdl_platform()
+    SdlPlatform()
     {
         if(log_joysticks_at_startup)
         {
@@ -91,38 +91,38 @@ struct sdl_platform : public input::platform
     float last_mouse_x = 0.0f;
     float last_mouse_y = 0.0f;
 
-    void OnEventsCompleted(input::input_system* system)
+    void on_events_completed(input::InputSystem* system)
     {
         if(mouse_motion_this_frame == false && mouse_motion_last_frame == true)
         {
             // we got motion last frame but not this frame
             // ... then reset the motion to 0,0
-            OnMouseRelativeAxis(system, 0.0f, 0.0f);
+            on_mouse_relative_axis(system, 0.0f, 0.0f);
         }
         mouse_motion_last_frame = mouse_motion_this_frame;
         mouse_motion_this_frame = false;
     }
 
 
-    void OnMouseRelativeAxis(input::input_system* system, float dx, float dy)
+    void on_mouse_relative_axis(input::InputSystem* system, float dx, float dy)
     {
-        system->on_mouse_axis(input::xy_axis::x, dx, last_mouse_x);
-        system->on_mouse_axis(input::xy_axis::y, dy, last_mouse_y);
+        system->on_mouse_axis(input::Axis2::x, dx, last_mouse_x);
+        system->on_mouse_axis(input::Axis2::y, dy, last_mouse_y);
     }
 
-    void OnEvent(std::vector<input::joystick_id>* lost_joysticks, input::input_system* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
+    void on_event(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
     {
-        std::optional<input::joystick_id> detected_controller;
-        auto should_handle_joystick = [this, &detected_controller](input::joystick_id id) -> bool
+        std::optional<input::JoystickId> detected_controller;
+        auto should_handle_joystick = [this, &detected_controller](input::JoystickId id) -> bool
         {
             switch(joysticks[id].in_use)
             {
-            case joystick_detection_state::gamecontroller:
+            case JoystickDetectionState::gamecontroller:
                 detected_controller = id;
                 return false;
-            case joystick_detection_state::joystick:
+            case JoystickDetectionState::joystick:
                 return true;
-            case joystick_detection_state::not_detected:
+            case JoystickDetectionState::not_detected:
                 if(joysticks[id].gamecontroller)
                 {
                     detected_controller = id;
@@ -158,8 +158,8 @@ struct sdl_platform : public input::platform
                     if(found == sdljoystick_to_id.end()) { return; }
                     if(should_handle_joystick(found->second))
                     {
-                        system->on_joystick_ball(found->second, input::xy_axis::x, event.jball.ball, event.jball.xrel);
-                        system->on_joystick_ball(found->second, input::xy_axis::y, event.jball.ball, event.jball.yrel);
+                        system->on_joystick_ball(found->second, input::Axis2::x, event.jball.ball, event.jball.xrel);
+                        system->on_joystick_ball(found->second, input::Axis2::y, event.jball.ball, event.jball.yrel);
                     }
                 }
                 break;
@@ -171,8 +171,8 @@ struct sdl_platform : public input::platform
                     if(should_handle_joystick(found->second))
                     {
                         const auto hat = sdl::get_hat_values(event.jhat.value);
-                        system->on_joystick_hat(found->second, input::xy_axis::x, event.jhat.hat, static_cast<float>(hat.x));
-                        system->on_joystick_hat(found->second, input::xy_axis::y, event.jhat.hat, static_cast<float>(hat.y));
+                        system->on_joystick_hat(found->second, input::Axis2::x, event.jhat.hat, static_cast<float>(hat.x));
+                        system->on_joystick_hat(found->second, input::Axis2::y, event.jhat.hat, static_cast<float>(hat.y));
                     }
                 }
                 break;
@@ -202,14 +202,14 @@ struct sdl_platform : public input::platform
                 {
                     LOG_INFO("SDL: joystick added");
                 }
-                AddJoystickFromDevice(event.jdevice.which);
+                add_joystick_from_device(event.jdevice.which);
                 break;
             case SDL_JOYDEVICEREMOVED:
                 if(log_joystick_connection_events)
                 {
                     LOG_INFO("SDL: Joystick removed");
                 }
-                RemoveJoystickFromInstance(system, lost_joysticks, event.jdevice.which);
+                remove_joystick_from_instance(system, lost_joysticks, event.jdevice.which);
                 break;
 
             case SDL_MOUSEMOTION:
@@ -226,7 +226,7 @@ struct sdl_platform : public input::platform
                     };
                     last_mouse_x = pos_to_abs(event.motion.x, size.x);
                     last_mouse_y = pos_to_abs(event.motion.y, size.y);
-                    OnMouseRelativeAxis(system, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel));
+                    on_mouse_relative_axis(system, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel));
                     mouse_motion_this_frame = true;
                 }
                 break;
@@ -245,11 +245,11 @@ struct sdl_platform : public input::platform
                     const auto direction = event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
                     if(event.wheel.x != 0)
                     {
-                        system->on_mouse_wheel(input::xy_axis::x, static_cast<float>(event.wheel.x) * direction);
+                        system->on_mouse_wheel(input::Axis2::x, static_cast<float>(event.wheel.x) * direction);
                     }
                     if(event.wheel.y != 0)
                     {
-                        system->on_mouse_wheel(input::xy_axis::y, static_cast<float>(event.wheel.y) * direction);
+                        system->on_mouse_wheel(input::Axis2::y, static_cast<float>(event.wheel.y) * direction);
                     }
                 }
                 break;
@@ -261,14 +261,14 @@ struct sdl_platform : public input::platform
         // todo(Gustav): move to the end of event loop so we don't iterate controlls for each event
         if(detected_controller)
         {
-            SendEventsForGameController(system, *detected_controller);
+            send_events_for_game_controller(system, *detected_controller);
         }
     }
 
-    void SendEventsForGameController(input::input_system* system, input::joystick_id detected_controller)
+    void send_events_for_game_controller(input::InputSystem* system, input::JoystickId detected_controller)
     {
-        gamecontroller_data* controller = joysticks[detected_controller].gamecontroller.get();
-        const auto new_state = sdl::gamecontroller_state::get_state(controller->controller.get());
+        GamecontrollerData* controller = joysticks[detected_controller].gamecontroller.get();
+        const auto new_state = sdl::GamecontrollerState::get_state(controller->controller.get());
         auto& old_state = controller->last_state;
 
         for(auto button: sdl::valid_buttons)
@@ -277,7 +277,7 @@ struct sdl_platform : public input::platform
             if(old_state.buttons[id] != new_state.buttons[id])
             {
                 const auto my_button = sdl::to_controller_button(button);
-                if(my_button != input::gamecontroller_button::invalid)
+                if(my_button != input::GamecontrollerButton::invalid)
                 {
                     system->on_gamecontroller_button(detected_controller, my_button, new_state.buttons[id] ? 1.0f : 0.0f);
                 }
@@ -295,7 +295,7 @@ struct sdl_platform : public input::platform
                 const float state = state_abs * state_sign;
 
                 const auto my_button = sdl::to_controller_button(axis);
-                if(my_button != input::gamecontroller_button::invalid)
+                if(my_button != input::GamecontrollerButton::invalid)
                 {
                     // special case for 'triggers'
                     // a trigger is axis in sdl but considered buttons in input system
@@ -313,13 +313,13 @@ struct sdl_platform : public input::platform
     }
 
 
-    std::vector<input::joystick_id> get_active_and_free_joysticks() override
+    std::vector<input::JoystickId> get_active_and_free_joysticks() override
     {
-        auto r = std::vector<input::joystick_id>{};
+        auto r = std::vector<input::JoystickId>{};
 
         for(auto joy: joysticks.as_pairs())
         {
-            if(joy.second.in_use == joystick_detection_state::not_detected)
+            if(joy.second.in_use == JoystickDetectionState::not_detected)
             {
                 r.emplace_back(joy.first);
             }
@@ -328,17 +328,17 @@ struct sdl_platform : public input::platform
         return r;
     }
 
-    using JoystickFunctions = handle_functions64<input::joystick_id>;
-    handle_vector<joystick_data, JoystickFunctions> joysticks;
-    std::map<SDL_JoystickID, input::joystick_id> sdljoystick_to_id;
+    using JoystickFunctions = HandleFunctions64<input::JoystickId>;
+    HandleVector<JoystickData, JoystickFunctions> joysticks;
+    std::map<SDL_JoystickID, input::JoystickId> sdljoystick_to_id;
 
-    input::joystick_id AddJoystickFromDevice(int device_id)
+    input::JoystickId add_joystick_from_device(int device_id)
     {
         if(log_joystick_connection_events)
         {
             LOG_INFO("Adding joystick from device {}", device_id);
         }
-        auto joystick = std::make_unique<sdl::joystick>(device_id);
+        auto joystick = std::make_unique<sdl::Joystick>(device_id);
         const auto instance_id = joystick->get_device_index();
 
         auto found = sdljoystick_to_id.find(instance_id);
@@ -349,8 +349,8 @@ struct sdl_platform : public input::platform
 
         const auto id = joysticks.create_new_handle();
         {
-            auto controller = std::make_unique<gamecontroller_data>();
-            controller->controller = std::make_unique<sdl::game_controller>(device_id);
+            auto controller = std::make_unique<GamecontrollerData>();
+            controller->controller = std::make_unique<sdl::GameController>(device_id);
             if(controller->controller->is_valid())
             {
                 joysticks[id].gamecontroller = std::move(controller);
@@ -358,7 +358,7 @@ struct sdl_platform : public input::platform
         }
         joysticks[id].joystick = std::move(joystick);
         joysticks[id].instance_id = instance_id;
-        joysticks[id].in_use = joystick_detection_state::not_detected;
+        joysticks[id].in_use = JoystickDetectionState::not_detected;
 
         // overwrite existing (if any) sdl joystick instance_id with the new id
         sdljoystick_to_id[instance_id] = id;
@@ -368,7 +368,7 @@ struct sdl_platform : public input::platform
 
     }
 
-    void RemoveJoystickFromInstance(input::input_system* system, std::vector<input::joystick_id>* lost_joysticks, SDL_JoystickID instance_id)
+    void remove_joystick_from_instance(input::InputSystem* system, std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
     {
         if(log_joystick_connection_events)
         {
@@ -389,24 +389,24 @@ struct sdl_platform : public input::platform
         }
         joysticks[id].joystick.reset();
         joysticks[id].gamecontroller.reset();
-        joysticks[id].in_use = joystick_detection_state::not_detected;
+        joysticks[id].in_use = JoystickDetectionState::not_detected;
         lost_joysticks->push_back(id);
         joysticks.mark_for_reuse(id);
         sdljoystick_to_id.erase(instance_id);
     }
 
-    bool match_unit(input::joystick_id joy, const std::string& unit) override
+    bool match_unit(input::JoystickId joy, const std::string& unit) override
     {
         return joysticks[joy].joystick->get_guid() == unit;
     }
 
-    void start_using(input::joystick_id joy, input::joystick_type type) override
+    void start_using(input::JoystickId joy, input::JoystickType type) override
     {
         if(log_joystick_connection_events)
         {
-            LOG_INFO("Started using {}", type == input::joystick_type::joystick ? "joystick" : "gamecontroller");
+            LOG_INFO("Started using {}", type == input::JoystickType::joystick ? "joystick" : "gamecontroller");
         }
-        joysticks[joy].in_use = type == input::joystick_type::game_controller ? joystick_detection_state::gamecontroller : joystick_detection_state::joystick;
+        joysticks[joy].in_use = type == input::JoystickType::game_controller ? JoystickDetectionState::gamecontroller : JoystickDetectionState::joystick;
     }
 
     void on_changed_connection(const std::string& new_connection) override
@@ -447,7 +447,7 @@ namespace
 }
 
 
-struct window_implementation : public detail::window
+struct WindowImplementation : public detail::Window
 {
     std::string title;
     glm::ivec2 size;
@@ -457,7 +457,7 @@ struct window_implementation : public detail::window
     SDL_Window* sdl_window;
     SDL_GLContext sdl_glcontext;
 
-    window_implementation(const std::string& t, const glm::ivec2& s, render_function&& r, std::optional<imgui_function>&& i)
+    WindowImplementation(const std::string& t, const glm::ivec2& s, render_function&& r, std::optional<imgui_function>&& i)
         : title(t)
         , size(s)
         , on_render(r)
@@ -509,7 +509,7 @@ struct window_implementation : public detail::window
         setup_open_gl(sdl_window, sdl_glcontext, imgui.has_value());
     }
 
-    ~window_implementation() override
+    ~WindowImplementation() override
     {
         if(sdl_window)
         {
@@ -563,29 +563,29 @@ struct window_implementation : public detail::window
 };
 
 
-void windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render)
+void Windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render)
 {
     add_window_implementation(title, size, std::move(on_render), std::nullopt);
 }
 
 
-void windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui)
+void Windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui)
 {
     add_window_implementation(title, size, std::move(on_render), std::move(on_imgui));
 }
 
 
-struct windows_implementation : public windows
+struct WindowsImplementation : public Windows
 {
-    std::map<window_id, std::unique_ptr<window_implementation>> windows;
-    std::unique_ptr<sdl_platform> platform;
+    std::map<window_id, std::unique_ptr<WindowImplementation>> windows;
+    std::unique_ptr<SdlPlatform> platform;
 
-    explicit windows_implementation()
-        : platform(std::make_unique<sdl_platform>())
+    explicit WindowsImplementation()
+        : platform(std::make_unique<SdlPlatform>())
     {
     }
 
-    ~windows_implementation()
+    ~WindowsImplementation()
     {
         windows.clear();
         platform.reset();
@@ -594,7 +594,7 @@ struct windows_implementation : public windows
 
     void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) override
     {
-        auto window = std::make_unique<window_implementation>(title, size, std::move(on_render), std::move(imgui));
+        auto window = std::make_unique<WindowImplementation>(title, size, std::move(on_render), std::move(imgui));
         windows[window->get_id()] = std::move(window);
     }
 
@@ -619,14 +619,14 @@ struct windows_implementation : public windows
         return false;
     }
 
-    input::platform* get_input_platform() override
+    input::Platform* get_input_platform() override
     {
         return platform.get();
     }
 
-    void pump_events(input::input_system* input_system) override
+    void pump_events(input::InputSystem* input_system) override
     {
-        std::vector<input::joystick_id> lost_joysticks;
+        std::vector<input::JoystickId> lost_joysticks;
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
@@ -635,7 +635,7 @@ struct windows_implementation : public windows
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }
 
-            platform->OnEvent(&lost_joysticks, input_system, e, [&](u32 id) {return windows[id]->size;});
+            platform->on_event(&lost_joysticks, input_system, e, [&](u32 id) {return windows[id]->size;});
 
             switch(e.type)
             {
@@ -667,12 +667,12 @@ struct windows_implementation : public windows
             input_system->on_joystick_lost(joystick);
         }
 
-        platform->OnEventsCompleted(input_system);
+        platform->on_events_completed(input_system);
     }
 };
 
 
-std::unique_ptr<windows> setup()
+std::unique_ptr<Windows> setup()
 {
     constexpr Uint32 flags =
           SDL_INIT_VIDEO
@@ -710,11 +710,11 @@ std::unique_ptr<windows> setup()
         }
     }
 
-    return std::make_unique<windows_implementation>();
+    return std::make_unique<WindowsImplementation>();
 }
 
 
-int main_loop(input::unit_discovery discovery, std::unique_ptr<windows>&& windows, input::input_system* input_system, update_function&& on_update)
+int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, update_function&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
 

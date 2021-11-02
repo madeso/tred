@@ -8,7 +8,7 @@ namespace input
 {
 
 
-struct table
+struct Table
 {
     void set(const std::string& name, float value);
 

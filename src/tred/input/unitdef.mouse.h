@@ -10,7 +10,7 @@
 
 namespace input::config
 {
-struct mouse_definition;
+struct MouseDefinition;
 }
 
 
@@ -18,21 +18,21 @@ namespace input
 {
 
 
-struct input_action_map;
+struct ActionMap;
 
 
-struct mouse_definition : public unit_definition
+struct MouseUnitDef : public UnitDef
 {
-    mouse_definition(const config::mouse_definition& data);
+    MouseUnitDef(const config::MouseDefinition& data);
 
     std::optional<std::string> validate_key(int key) override;
-    std::optional<std::string> validate_axis(axis_type type, int target, int axis) override;
+    std::optional<std::string> validate_axis(AxisType type, int target, int axis) override;
 
     bool is_considered_joystick() override;
-    bool can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform) override;
-    std::unique_ptr<active_unit> create(input_director* director, const unit_setup& setup) override;
+    bool can_detect(Director* director, unit_discovery discovery, UnitSetup* setup, Platform* platform) override;
+    std::unique_ptr<ActiveUnit> create(Director* director, const UnitSetup& setup) override;
 
-    mouse_button detection_button;
+    MouseButton detection_button;
 };
 
 

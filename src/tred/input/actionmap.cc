@@ -13,38 +13,38 @@ namespace input
 {
 
 
-input_action_map::input_action_map()
+ActionMap::ActionMap()
 {
 }
 
 
-input_action_map::input_action_map(input_action_map&& m)
+ActionMap::ActionMap(ActionMap&& m)
     : actions(std::move(m.actions))
 {
 }
 
 
-void input_action_map::operator=(input_action_map&& m)
+void ActionMap::operator=(ActionMap&& m)
 {
     actions = std::move(m.actions);
 }
 
 
-input_action_map::~input_action_map()
+ActionMap::~ActionMap()
 {
 }
 
 
-void input_action_map::add_action(const std::string& name, std::unique_ptr<input_action>&& action)
+void ActionMap::add_action(const std::string& name, std::unique_ptr<Action>&& action)
 {
     assert(action);
     actions.insert(std::make_pair(name, std::move(action)));
 }
 
 
-result<input_action_map> load_action_map(const input::config::action_map& root)
+Result<ActionMap> load_action_map(const input::config::ActionMap& root)
 {
-    input_action_map map;
+    ActionMap map;
 
     for (const auto& d: root)
     {
@@ -53,7 +53,7 @@ result<input_action_map> load_action_map(const input::config::action_map& root)
         {
             return fmt::format("Duplicate action found {}", d.name);
         }
-        map.add_action(d.name, std::make_unique<input_action>(d.name, d.var, d.range));
+        map.add_action(d.name, std::make_unique<Action>(d.name, d.var, d.range));
     }
 
     return std::move(map);

@@ -8,9 +8,9 @@
 
 namespace onebit
 {
-    loaded_image load_texture();
+    LoadedImage load_texture();
 
-	constexpr recti get(int x, int y) { return recti::from_xywh(16*x, 16*y, 16, 16); }
+	constexpr Recti get(int x, int y) { return Recti::from_xywh(16*x, 16*y, 16, 16); }
 
     constexpr std::string_view text_string =
         "01234" "56789" ":.%"
@@ -19,7 +19,7 @@ namespace onebit
         "#+-*/" "=@"
         "!?$"
         ;
-    constexpr std::array<recti, 49> text =
+    constexpr std::array<Recti, 49> text =
     {
         get(35, 17), get(36, 17), get(37, 17), get(38, 17), get(39, 17),
         get(40, 17), get(41, 17), get(42, 17), get(43, 17), get(44, 17),
@@ -41,22 +41,22 @@ namespace onebit
 
     static_assert(text.size() == text_string.size());
 
-    constexpr recti bomb = get(45, 9);
-    constexpr recti box = get(39, 14);
-    constexpr recti box_cross = get(40, 14);
-    constexpr recti box_skull = get(41, 14);
+    constexpr Recti bomb = get(45, 9);
+    constexpr Recti box = get(39, 14);
+    constexpr Recti box_cross = get(40, 14);
+    constexpr Recti box_skull = get(41, 14);
 
-    constexpr recti smiley_happy = get(35, 14);
-    constexpr recti smiley_angry = get(36, 14);
-    constexpr recti smiley_joy = get(37, 14);
-    constexpr recti smiley_sad = get(38, 14);
-    constexpr recti smiley_skull = get(38, 11);
+    constexpr Recti smiley_happy = get(35, 14);
+    constexpr Recti smiley_angry = get(36, 14);
+    constexpr Recti smiley_joy = get(37, 14);
+    constexpr Recti smiley_sad = get(38, 14);
+    constexpr Recti smiley_skull = get(38, 11);
 
-    constexpr recti n0 = get(35, 17); constexpr recti n1 = get(36, 17); constexpr recti n2 = get(37, 17); constexpr recti n3 = get(38, 17); constexpr recti n4 = get(39, 17);
-    constexpr recti n5 = get(40, 17); constexpr recti n6 = get(41, 17); constexpr recti n7 = get(42, 17); constexpr recti n8 = get(43, 17); constexpr recti n9 = get(44, 17);
+    constexpr Recti n0 = get(35, 17); constexpr Recti n1 = get(36, 17); constexpr Recti n2 = get(37, 17); constexpr Recti n3 = get(38, 17); constexpr Recti n4 = get(39, 17);
+    constexpr Recti n5 = get(40, 17); constexpr Recti n6 = get(41, 17); constexpr Recti n7 = get(42, 17); constexpr Recti n8 = get(43, 17); constexpr Recti n9 = get(44, 17);
 
-    constexpr recti char_a = get(35, 18);
+    constexpr Recti char_a = get(35, 18);
 
-    constexpr recti cross = get(39, 13);
-    constexpr recti circle = get(40, 13);
+    constexpr Recti cross = get(39, 13);
+    constexpr Recti circle = get(40, 13);
 }

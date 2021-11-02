@@ -7,14 +7,14 @@
 
 /** A unique combination of position/normal/texturecoord/etc. in a Mesh.
  */
-struct vertex
+struct Vertex
 {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texture;
     glm::vec4 color;
 
-    vertex
+    Vertex
     (
         const glm::vec3& p,
         const glm::vec3& n,
@@ -24,14 +24,14 @@ struct vertex
 };
 
 
-using triangle = glm::ivec3;
+using Triangle = glm::ivec3;
 
 
-struct mesh
+struct Mesh
 {
-    std::vector<vertex> vertices;
+    std::vector<Vertex> vertices;
     std::vector<unsigned int> triangles; // %3 == 0
 
-    mesh(const std::vector<vertex>& verts, const std::vector<unsigned int>& tris);
+    Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris);
 };
 

@@ -8,7 +8,7 @@
 #include "tred/log.h"
 #include "tred/cint.h"
 
-#include "tred/input/mapping.h"
+#include "tred/input/Mapping.h"
 #include "tred/input/unitdef.keyboard.h"
 #include "tred/input/unitdef.joystick.h"
 #include "tred/input/unitdef.mouse.h"
@@ -22,35 +22,35 @@ namespace input
 {
 
 
-mapping_list::mapping_list()
+MappingList::MappingList()
 {
 }
 
 
-mapping_list::mapping_list(mapping_list&& m)
+MappingList::MappingList(MappingList&& m)
     : configs(std::move(m.configs))
 {
 }
 
 
-void mapping_list::operator=(mapping_list&& m)
+void MappingList::operator=(MappingList&& m)
 {
     configs = std::move(m.configs);
 }
 
-mapping_list::~mapping_list()
+MappingList::~MappingList()
 {
 }
 
 
-void mapping_list::add(const std::string& name, std::unique_ptr<mapping>&& config)
+void MappingList::add(const std::string& name, std::unique_ptr<Mapping>&& config)
 {
     assert(config);
     configs.insert(std::make_pair(name, std::move(config)));
 }
 
 
-using BindDefResult = result<std::unique_ptr<bind_definition>>;
+using BindDefResult = Result<std::unique_ptr<BindDefinition>>;
 
 
 std::string with_action(const std::string&action, const std::string& error)
@@ -78,7 +78,7 @@ std::optional<std::string> with_action(const std::string&action, std::optional<s
 }
 
 
-std::optional<std::string> validate_unit(const std::string& action, mapping* config, int unit)
+std::optional<std::string> validate_unit(const std::string& action, Mapping* config, int unit)
 {
     if(unit < 0)
     {
@@ -95,27 +95,27 @@ std::optional<std::string> validate_unit(const std::string& action, mapping* con
 }
 
 
-std::optional<std::string> validate_key(const std::string& action, mapping* config, int unit, int key)
+std::optional<std::string> validate_key(const std::string& action, Mapping* config, int unit, int key)
 {
     return with_action(action, config->units[Cint_to_sizet(unit)]->validate_key(key));
 }
 
 
-std::optional<std::string> validate_axis(const std::string& action, mapping* config, int unit, axis_type type, int target, int axis)
+std::optional<std::string> validate_axis(const std::string& action, Mapping* config, int unit, AxisType type, int target, int axis)
 {
     return with_action(action, config->units[Cint_to_sizet(unit)]->validate_axis(type, target, axis));
 }
 
 
-BindDefResult create_key_bind_def(mapping* config, const input_action_map& map, const input::config::key_bind_definition& def)
+BindDefResult create_key_bind_def(Mapping* config, const ActionMap& map, const input::config::KeyBindDefinition& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
         return fmt::format("Unknown action {}", def.action);
     }
-    input::input_action* action = found->second.get();
-    if(action->range != range::within_zero_to_one)
+    input::Action* action = found->second.get();
+    if(action->range != Range::within_zero_to_one)
     {
         return with_action(def.action, "Invalid binding key to anything but 0-1");
     }
@@ -123,29 +123,29 @@ BindDefResult create_key_bind_def(mapping* config, const input_action_map& map, 
     if(auto error = validate_unit(def.action, config, def.unit); error) { return *error; }
     if(auto error = validate_key(def.action, config, def.unit, def.key); error) { return *error; }
 
-    return {std::make_unique<key_bind_definition>(action->scriptvarname, def.unit, def.key)};
+    return {std::make_unique<KeyBindDefinition>(action->scriptvarname, def.unit, def.key)};
 }
 
 
-BindDefResult create_axis_bind_def(mapping* config, const input_action_map& map, const input::config::axis_bind_definition& def)
+BindDefResult create_axis_bind_def(Mapping* config, const ActionMap& map, const input::config::AxisBindDefinition& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
         return fmt::format("Unknown action {}", def.action);
     }
-    input::input_action* action = found->second.get();
-    if(action->range == range::infinite)
+    input::Action* action = found->second.get();
+    if(action->range == Range::infinite)
     {
         if(auto error = validate_unit(def.action, config, def.unit); error) { return *error; }
         if(auto error = validate_axis(def.action, config, def.unit, def.type, def.target, def.axis); error) { return *error; }
-        return {std::make_unique<relative_axis_bind_definition>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted, def.sensitivity)};
+        return {std::make_unique<RelativeAxisBindDefinition>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted, def.sensitivity)};
     }
-    else if(action->range == range::within_negative_one_to_positive_one)
+    else if(action->range == Range::within_negative_one_to_positive_one)
     {
         if(auto error = validate_unit(def.action, config, def.unit); error) { return *error; }
         if(auto error = validate_axis(def.action, config, def.unit, def.type, def.target, def.axis); error) { return *error; }
-        return {std::make_unique<absolute_axis_bind_definition>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted, def.sensitivity)};
+        return {std::make_unique<AbsoluteAxisBindDefinition>(action->scriptvarname, def.unit, def.type, def.target, def.axis, def.is_inverted, def.sensitivity)};
     }
     else
     {
@@ -154,27 +154,27 @@ BindDefResult create_axis_bind_def(mapping* config, const input_action_map& map,
 }
 
 
-BindDefResult create_two_key_bind_def(mapping* config, const input_action_map& map, const input::config::two_key_bind_definition& def)
+BindDefResult create_two_key_bind_def(Mapping* config, const ActionMap& map, const input::config::TwoKeyBindDefinition& def)
 {
     const auto found = map.actions.find(def.action);
     if(found == map.actions.end())
     {
         return fmt::format("Unknown action {}", def.action);
     }
-    input::input_action* action = found->second.get();
-    if(action->range == range::infinite)
+    input::Action* action = found->second.get();
+    if(action->range == Range::infinite)
     {
         if(auto error = validate_unit(def.action, config, def.unit); error) { return *error; }
         if(auto error = validate_key(def.action, config, def.unit, def.negative); error) { return *error; }
         if(auto error = validate_key(def.action, config, def.unit, def.positive); error) { return *error; }
-        return {std::make_unique<relative_two_key_bind_definition>(action->scriptvarname, def.unit, def.negative, def.positive)};
+        return {std::make_unique<RelativeTwoKeyBindDefinition>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
-    else if(action->range == range::within_negative_one_to_positive_one)
+    else if(action->range == Range::within_negative_one_to_positive_one)
     {
         if(auto error = validate_unit(def.action, config, def.unit); error) { return *error; }
         if(auto error = validate_key(def.action, config, def.unit, def.negative); error) { return *error; }
         if(auto error = validate_key(def.action, config, def.unit, def.positive); error) { return *error; }
-        return {std::make_unique<absolute_two_key_bind_definition>(action->scriptvarname, def.unit, def.negative, def.positive)};
+        return {std::make_unique<AbsoluteTwoKeyBindDefinition>(action->scriptvarname, def.unit, def.negative, def.positive)};
     }
     else
     {
@@ -183,7 +183,7 @@ BindDefResult create_two_key_bind_def(mapping* config, const input_action_map& m
 }
 
 
-std::optional<std::string> load(mapping* config, const input::config::mapping& root, const input_action_map& map)
+std::optional<std::string> load(Mapping* config, const input::config::Mapping& root, const ActionMap& map)
 {
     assert(config);
 
@@ -193,20 +193,20 @@ std::optional<std::string> load(mapping* config, const input::config::mapping& r
     {
         if(d.keyboard)
         {
-            config->add(std::make_unique<keyboard_definition>(*d.keyboard));
+            config->add(std::make_unique<KeyboardUnitDef>(*d.keyboard));
         }
         else if(d.mouse)
         {
-            config->add(std::make_unique<mouse_definition>(*d.mouse));
+            config->add(std::make_unique<MouseUnitDef>(*d.mouse));
         }
         else if(d.joystick)
         {
-            config->add(std::make_unique<joystick_definition>(joystick_id, *d.joystick));
+            config->add(std::make_unique<JoystickUnitDef>(joystick_id, *d.joystick));
             joystick_id += 1;
         }
         else if(d.gamecontroller)
         {
-            config->add(std::make_unique<gamecontroller_definition>(joystick_id, *d.gamecontroller));
+            config->add(std::make_unique<GamecontrollerUnitDef>(joystick_id, *d.gamecontroller));
             joystick_id += 1;
         }
         else
@@ -252,14 +252,14 @@ std::optional<std::string> load(mapping* config, const input::config::mapping& r
 }
 
 
-result<mapping_list> load_mapping_list(const input::config::mapping_list& root, const input_action_map& map)
+Result<MappingList> load_mapping_list(const input::config::MappingList& root, const ActionMap& map)
 {
-    mapping_list configs;
+    MappingList configs;
 
     for (const auto& d: root)
     {
         const std::string name = d.name;
-        auto config = std::make_unique<mapping>(map, d);
+        auto config = std::make_unique<Mapping>(map, d);
         auto error = load(config.get(), d, map);
         if(error)
         {

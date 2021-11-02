@@ -4,7 +4,7 @@ namespace input
 {
 
 
-enum class xy_axis
+enum class Axis2
 {
       unbound
     , x
@@ -12,7 +12,7 @@ enum class xy_axis
 };
 
 
-enum class gamecontroller_axis
+enum class GamecontrollerAxis
 {
     invalid
     , left_x

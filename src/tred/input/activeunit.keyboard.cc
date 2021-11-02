@@ -12,19 +12,19 @@ namespace input
 {
 
 
-void impl::keyboard_key_unit::register_key(int key)
+void impl::KeyboardKeyUnit::register_key(int key)
 {
-    parent->keys.add(from_index<keyboard_key>(key));
+    parent->keys.add(from_index<KeyboardKey>(key));
 }
 
 
-float impl::keyboard_key_unit::get_state(int key)
+float impl::KeyboardKeyUnit::get_state(int key)
 {
-    return parent->keys.get_raw(from_index<keyboard_key>(key));
+    return parent->keys.get_raw(from_index<KeyboardKey>(key));
 }
 
 
-keyboard_active_unit::keyboard_active_unit(input_director* d)
+KeyboardActiveUnit::KeyboardActiveUnit(Director* d)
     : director(d)
 {
     assert(director);
@@ -35,45 +35,45 @@ keyboard_active_unit::keyboard_active_unit(input_director* d)
 }
 
 
-keyboard_active_unit::~keyboard_active_unit()
+KeyboardActiveUnit::~KeyboardActiveUnit()
 {
     director->remove(this);
 }
 
 
-key_unit* keyboard_active_unit::get_key_unit()
+KeyUnit* KeyboardActiveUnit::get_key_unit()
 {
     return &key_unit;
 }
 
 
-axis_unit* keyboard_active_unit::get_relative_axis_unit()
+AxisUnit* KeyboardActiveUnit::get_relative_axis_unit()
 {
     assert(false && "invalid call");
     return nullptr;
 }
 
 
-axis_unit* keyboard_active_unit::get_absolute_axis_unit()
+AxisUnit* KeyboardActiveUnit::get_absolute_axis_unit()
 {
     assert(false && "invalid call");
     return nullptr;
 }
 
 
-bool keyboard_active_unit::is_considered_joystick()
+bool KeyboardActiveUnit::is_considered_joystick()
 {
     return false;
 }
 
 
-bool keyboard_active_unit::is_delete_scheduled()
+bool KeyboardActiveUnit::is_delete_scheduled()
 {
     return false;
 }
 
 
-void keyboard_active_unit::on_key(const keyboard_key& key, bool state)
+void KeyboardActiveUnit::on_key(const KeyboardKey& key, bool state)
 {
     keys.set_raw(key, state ? 1.0f : 0.0f);
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include "tred/input/player.h"
+#include "tred/input/system.h"
 #include "tred/input/director.h"
 #include "tred/input/mappinglist.h"
 #include "tred/input/actionmap.h"
@@ -14,13 +16,13 @@ namespace input
 
 struct InputSystemPiml
 {
-    using PlayerHandleFunctions = handle_functions64<PlayerHandle>;
-    using PlayerHandleVector = handle_vector<std::unique_ptr<player>, PlayerHandleFunctions>;
+    using PlayerHandleFunctions = HandleFunctions64<PlayerHandle>;
+    using PlayerHandleVector = HandleVector<std::unique_ptr<Player>, PlayerHandleFunctions>;
 
-    input_action_map actions;
+    ActionMap actions;
     PlayerHandleVector players;
-    mapping_list configs;
-    input::input_director input_director;
+    MappingList configs;
+    input::Director input_director;
 };
 
 }

@@ -15,29 +15,29 @@ namespace input
 {
 
 
-struct table;
-struct connected_units;
+struct Table;
+struct ConnectedUnits;
 
 
-struct active_bind
+struct ActiveBind
 {
-    virtual ~active_bind() = default;
-    virtual void set_value_in_table(table* table, float dt) = 0;
+    virtual ~ActiveBind() = default;
+    virtual void set_value_in_table(Table* table, float dt) = 0;
 };
 
 
-struct bind_definition
+struct BindDefinition
 {
-    virtual ~bind_definition() = default;
-    virtual std::unique_ptr<active_bind> create(connected_units*) = 0;
+    virtual ~BindDefinition() = default;
+    virtual std::unique_ptr<ActiveBind> create(ConnectedUnits*) = 0;
 };
 
 
-struct key_bind_definition : public bind_definition
+struct KeyBindDefinition : public BindDefinition
 {
-    key_bind_definition(const std::string& var, int unit, int key);
+    KeyBindDefinition(const std::string& var, int unit, int key);
 
-    std::unique_ptr<active_bind> create(connected_units* units) override;
+    std::unique_ptr<ActiveBind> create(ConnectedUnits* units) override;
 
     std::string var;
     int unit;
@@ -45,15 +45,15 @@ struct key_bind_definition : public bind_definition
 };
 
 
-struct relative_axis_bind_definition : public bind_definition
+struct RelativeAxisBindDefinition : public BindDefinition
 {
-    relative_axis_bind_definition(const std::string& var, int unit, axis_type type, int target, int axis, bool is_inverted, float sensitivity);
+    RelativeAxisBindDefinition(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted, float sensitivity);
 
-    std::unique_ptr<active_bind> create(connected_units* units) override;
+    std::unique_ptr<ActiveBind> create(ConnectedUnits* units) override;
 
     std::string var;
     int unit;
-    axis_type type;
+    AxisType type;
     int target;
     int axis;
     bool is_inverted;
@@ -61,15 +61,15 @@ struct relative_axis_bind_definition : public bind_definition
 };
 
 
-struct absolute_axis_bind_definition : public bind_definition
+struct AbsoluteAxisBindDefinition : public BindDefinition
 {
-    absolute_axis_bind_definition(const std::string& var, int unit, axis_type type, int target, int axis, bool is_inverted, float sensitivity);
+    AbsoluteAxisBindDefinition(const std::string& var, int unit, AxisType type, int target, int axis, bool is_inverted, float sensitivity);
 
-    std::unique_ptr<active_bind> create(connected_units* units) override;
+    std::unique_ptr<ActiveBind> create(ConnectedUnits* units) override;
 
     std::string var;
     int unit;
-    axis_type type;
+    AxisType type;
     int target;
     int axis;
     bool is_inverted;
@@ -77,11 +77,11 @@ struct absolute_axis_bind_definition : public bind_definition
 };
 
 
-struct relative_two_key_bind_definition : public bind_definition
+struct RelativeTwoKeyBindDefinition : public BindDefinition
 {
-    relative_two_key_bind_definition(const std::string& var, int unit, int negative, int positive);
+    RelativeTwoKeyBindDefinition(const std::string& var, int unit, int negative, int positive);
 
-    std::unique_ptr<active_bind> create(connected_units* units) override;
+    std::unique_ptr<ActiveBind> create(ConnectedUnits* units) override;
 
     std::string var;
     int unit;
@@ -90,11 +90,11 @@ struct relative_two_key_bind_definition : public bind_definition
 };
 
 
-struct absolute_two_key_bind_definition : public bind_definition
+struct AbsoluteTwoKeyBindDefinition : public BindDefinition
 {
-    absolute_two_key_bind_definition(const std::string& var, int unit, int negative, int positive);
+    AbsoluteTwoKeyBindDefinition(const std::string& var, int unit, int negative, int positive);
 
-    std::unique_ptr<active_bind> create(connected_units* units) override;
+    std::unique_ptr<ActiveBind> create(ConnectedUnits* units) override;
 
     std::string var;
     int unit;
@@ -104,7 +104,7 @@ struct absolute_two_key_bind_definition : public bind_definition
 
 
 template<typename T>
-struct bind_map
+struct BindMap
 {
     void add(const T& t, float state=0.0f)
     {

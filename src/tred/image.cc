@@ -15,30 +15,30 @@ unsigned int create_texture()
 }
 
 
-loaded_image
+LoadedImage
 load_image_from_pixel_buffer
 (
     void* pixel_data, int width, int height,
-    texture_edge te,
-    texture_render_style trs,
-    transparency t
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
 )
 {
     const auto texture = create_texture();
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    const auto wrap = te == texture_edge::clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+    const auto wrap = te == TextureEdge::clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
-    const auto render_pixels = trs == texture_render_style::pixel;
+    const auto render_pixels = trs == TextureRenderStyle::pixel;
 
     const auto min_filter = render_pixels ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
     const auto mag_filter = render_pixels ? GL_NEAREST : GL_LINEAR;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
-    const auto include_transparency = t == transparency::include;
+    const auto include_transparency = t == Transparency::include;
 
     if(pixel_data == nullptr)
     {
@@ -66,21 +66,21 @@ load_image_from_pixel_buffer
 }
 
 
-loaded_image
+LoadedImage
 LoadImage
 (
     const unsigned char* image_source,
     int size,
-    texture_edge te,
-    texture_render_style trs,
-    transparency t
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
 )
 {
     int width = 0;
     int height = 0;
     int junk_channels;
     stbi_set_flip_vertically_on_load(true);
-    const auto include_transparency = t == transparency::include;
+    const auto include_transparency = t == Transparency::include;
     auto* pixel_data = stbi_load_from_memory
     (
         image_source, size,
@@ -99,13 +99,13 @@ LoadImage
 }
 
 
-loaded_image
+LoadedImage
 load_image_from_embedded
 (
     const embedded_binary& image_binary,
-    texture_edge te,
-    texture_render_style trs,
-    transparency t
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
 )
 {
     return LoadImage
@@ -119,13 +119,13 @@ load_image_from_embedded
 }
 
 
-loaded_image
+LoadedImage
 load_image_from_color
 (
     u32 pixel,
-    texture_edge te,
-    texture_render_style trs,
-    transparency t
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
 )
 {
     return load_image_from_pixel_buffer

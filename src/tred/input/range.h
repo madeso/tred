@@ -9,7 +9,7 @@ namespace input
 // bidirectional absolute axes (joy sticks)
 // relative axes (mouse axes, wheels, trackballs)
 
-enum class range
+enum class Range
 {
     infinite,
     within_zero_to_one, // oneway

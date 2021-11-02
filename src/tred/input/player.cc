@@ -9,11 +9,11 @@ namespace input
 {
 
 
-player::player() = default;
-player::~player() = default;
+Player::Player() = default;
+Player::~Player() = default;
 
 
-void player::update_table(table* table, float dt) const
+void Player::update_table(Table* table, float dt) const
 {
     assert(table);
     if(units)
@@ -23,13 +23,13 @@ void player::update_table(table* table, float dt) const
 }
 
 
-bool player::is_connected() const
+bool Player::is_connected() const
 {
     return units != nullptr;
 }
 
 
-bool player::is_any_connection_considered_joystick() const
+bool Player::is_any_connection_considered_joystick() const
 {
     if(units)
     {
@@ -42,7 +42,7 @@ bool player::is_any_connection_considered_joystick() const
 }
 
 
-void player::update_connection_status()
+void Player::update_connection_status()
 {
     if(units)
     {

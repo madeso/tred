@@ -14,20 +14,20 @@
 namespace input
 {
 
-keyboard_definition::keyboard_definition(const config::keyboard_definition& data)
+KeyboardUnitDef::KeyboardUnitDef(const config::KeyboardDefinition& data)
     : detection_key(data.detection_key)
 {
 }
 
 
-std::optional<std::string> keyboard_definition::validate_key(int key)
+std::optional<std::string> KeyboardUnitDef::validate_key(int key)
 {
-    if(key <= to_index(keyboard_key::unbound))
+    if(key <= to_index(KeyboardKey::unbound))
     {
         return fmt::format("Invalid bind to unbound: {}", key);
     }
 
-    if(key > to_index(keyboard_key::sleep))
+    if(key > to_index(KeyboardKey::sleep))
     {
         return fmt::format("Invalid bind to invalid key: {}", key);
     }
@@ -36,19 +36,19 @@ std::optional<std::string> keyboard_definition::validate_key(int key)
 }
 
 
-std::optional<std::string> keyboard_definition::validate_axis(axis_type, int, int)
+std::optional<std::string> KeyboardUnitDef::validate_axis(AxisType, int, int)
 {
     return "Keyboard doesn't support axis binds";
 }
 
 
-bool keyboard_definition::is_considered_joystick()
+bool KeyboardUnitDef::is_considered_joystick()
 {
     return false;
 }
 
 
-bool keyboard_definition::can_detect(input_director* director, unit_discovery discovery, unit_setup*, platform*)
+bool KeyboardUnitDef::can_detect(Director* director, unit_discovery discovery, UnitSetup*, Platform*)
 {
     if(discovery == unit_discovery::find_highest)
     {
@@ -59,11 +59,11 @@ bool keyboard_definition::can_detect(input_director* director, unit_discovery di
 }
 
 
-std::unique_ptr<active_unit> keyboard_definition::create(input_director* director, const unit_setup&)
+std::unique_ptr<ActiveUnit> KeyboardUnitDef::create(Director* director, const UnitSetup&)
 {
     assert(director);
 
-    return std::make_unique<keyboard_active_unit>(director);
+    return std::make_unique<KeyboardActiveUnit>(director);
 }
 
 

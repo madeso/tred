@@ -7,14 +7,14 @@ namespace input
 {
 
 
-struct hat_and_xy_axis
+struct HatAndAxis2
 {
-    hat_and_xy_axis(int hat, xy_axis axis);
+    HatAndAxis2(int hat, Axis2 axis);
 
-    bool operator<(const hat_and_xy_axis& rhs) const;
+    bool operator<(const HatAndAxis2& rhs) const;
 
     int hat;
-    xy_axis axis;
+    Axis2 axis;
 };
 
 

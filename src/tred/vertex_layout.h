@@ -7,7 +7,7 @@
 
 
 /** Vertex source type, position, normal etc. */
-enum class vertex_type
+enum class VertexType
 {
     position2, position3, normal3, color4, texture2
     // change to include other textcoords and custom types that are created from scripts
@@ -15,65 +15,65 @@ enum class vertex_type
 
 
 /** A not-yet-realised binding to a shader variable like 'vec3 position' */
-struct vertex_element_description
+struct VertexElementDescription
 {
-    vertex_type type;
+    VertexType type;
     std::string name;
 
-    vertex_element_description(vertex_type t, const std::string& n);
+    VertexElementDescription(VertexType t, const std::string& n);
 };
 
 /** A realized VertexElementDescription */
-struct compiled_vertex_element
+struct CompiledVertexElement
 {
-    vertex_type type;
+    VertexType type;
     std::string name;
     int index;
 
-    compiled_vertex_element(const vertex_element_description& d, int i);
+    CompiledVertexElement(const VertexElementDescription& d, int i);
 };
 
 
-using vertex_layout_description = std::vector<vertex_element_description>;
-using vertex_types = std::vector<vertex_type>;
+using VertexLayoutDescription = std::vector<VertexElementDescription>;
+using VertexTypes = std::vector<VertexType>;
 
 /** A list of CompiledVertexElement */
-struct compiled_vertex_layout
+struct CompiledVertexLayout
 {
-    using compiled_vertex_layout_list = std::vector<compiled_vertex_element>;
+    using compiled_vertex_layout_list = std::vector<CompiledVertexElement>;
 
-    compiled_vertex_layout(const compiled_vertex_layout_list& e, const vertex_types& t);
+    CompiledVertexLayout(const compiled_vertex_layout_list& e, const VertexTypes& t);
 
     compiled_vertex_layout_list elements;
-    vertex_types types;
+    VertexTypes types;
 };
 
 /** A list of things we need to extract from the Mesh when compiling */
-struct vertex_type_list
+struct VertexTypeList
 {
     void
-    add(const vertex_layout_description& elements);
+    add(const VertexLayoutDescription& elements);
 
-    std::set<vertex_type> indices;
+    std::set<VertexType> indices;
 };
 
 /** A mapping of the vertex type (position...) to the actual shader id */
-struct compiled_vertex_type_list
+struct CompiledVertexTypeList
 {
-    compiled_vertex_type_list(const std::map<vertex_type, int>& i, const vertex_types& v);
+    CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v);
 
-    [[nodiscard]] compiled_vertex_layout
-    compile(const vertex_layout_description& elements) const;
+    [[nodiscard]] CompiledVertexLayout
+    compile(const VertexLayoutDescription& elements) const;
 
-    std::map<vertex_type, int> indices;
-    vertex_types types;
+    std::map<VertexType, int> indices;
+    VertexTypes types;
 };
 
 
-compiled_vertex_type_list
-compile(const vertex_type_list& list);
+CompiledVertexTypeList
+compile(const VertexTypeList& list);
 
 
-compiled_vertex_type_list
-compile(const std::vector<vertex_layout_description>& descriptions);
+CompiledVertexTypeList
+compile(const std::vector<VertexLayoutDescription>& descriptions);
 

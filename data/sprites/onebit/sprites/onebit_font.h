@@ -5,8 +5,8 @@
 #include "tred/rect.h"
 #include "glm/glm.hpp"
 
-struct texture;
-struct sprite_batch;
+struct Texture;
+struct SpriteBatch;
 
 namespace onebit
 {
@@ -16,12 +16,12 @@ namespace onebit
     struct text_animation
     {
         virtual ~text_animation() = default;
-        virtual rect transform(int at, const rect& r) const = 0;
+        virtual Rectf transform(int at, const Rectf& r) const = 0;
     };
 
     struct no_text_animation : public text_animation
     {
-        rect transform(int, const rect& r) const override;
+        Rectf transform(int, const Rectf& r) const override;
     };
 
     struct siny_animation : public text_animation
@@ -32,7 +32,7 @@ namespace onebit
 
         siny_animation(float c, float s, float o);
 
-        rect transform(int index, const rect& r) const override;
+        Rectf transform(int index, const Rectf& r) const override;
     };
 
     struct font
@@ -44,7 +44,7 @@ namespace onebit
             return size * 0.7f;
         }
 
-        void simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim) const;
+        void simple_text(SpriteBatch* batch, Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim) const;
 
         float get_width_of_string(const std::string& text) const;
     };

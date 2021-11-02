@@ -15,12 +15,15 @@ constexpr T only_f_hex(int size)
 }
 
 
-template<typename T, typename Id, typename Version, int IdSize=sizeof(Id), int VersionSize=sizeof(Version)>
-struct handle_functions
+template<typename T, typename TId, typename TVersion, int TIdSize=sizeof(TId), int TVersionSize=sizeof(TVersion)>
+struct HandleFunctions
 {
-    using handle = T;
-    using id = Id;
-    using version = Version;
+    using Handle = T;
+    using Id = TId;
+    using Version = TVersion;
+
+    static constexpr int IdSize = TIdSize;
+    static constexpr int VersionSize = TVersionSize;
 
     using base = typename std::underlying_type<T>::type;
 
@@ -57,22 +60,22 @@ struct handle_functions
 };
 
 template<typename E>
-using handle_functions64 = handle_functions<E, u32, u16, 5, 3>;
+using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
 
 template<typename TData, typename TVersion, TVersion TEmptyVersion>
-struct handle_vector_pair
+struct HandleVectorPair
 {
     TData data;
     TVersion version;
     bool in_use;
 
-    handle_vector_pair()
+    HandleVectorPair()
         : version(TEmptyVersion)
         , in_use(false)
     {
     }
 
-    explicit handle_vector_pair(TVersion v)
+    explicit HandleVectorPair(TVersion v)
         : version(v)
         , in_use(true)
     {
@@ -80,21 +83,21 @@ struct handle_vector_pair
 };
 
 template <typename TSelf, typename TData>
-struct handle_vector_iterator
+struct HandleVectorIterator
 {
     TSelf* vector;
     std::size_t index;
 
-    using self = handle_vector_iterator<TSelf, TData>;
+    using self = HandleVectorIterator<TSelf, TData>;
 
-    handle_vector_iterator(TSelf* v, std::size_t i)
+    HandleVectorIterator(TSelf* v, std::size_t i)
         : vector(v)
         , index(i)
     {
         advance_until_current_is_used();
     }
 
-    handle_vector_iterator operator++()
+    HandleVectorIterator operator++()
     {
         self r = *this;
         index += 1;
@@ -102,7 +105,7 @@ struct handle_vector_iterator
         return r;
     }
 
-    handle_vector_iterator& operator++(int)
+    HandleVectorIterator& operator++(int)
     {
         index += 1;
         advance_until_current_is_used();
@@ -134,14 +137,14 @@ struct handle_vector_iterator
 };
 
 template<typename TSelf, typename THandle, typename TData, typename TFunctions, typename TId>
-struct handle_vector_pair_iterator
+struct HandleVectorPairIterator
 {
     TSelf* vector;
     std::size_t index;
 
-    using self = handle_vector_pair_iterator<TSelf, THandle, TData, TFunctions, TId>;
+    using self = HandleVectorPairIterator<TSelf, THandle, TData, TFunctions, TId>;
 
-    handle_vector_pair_iterator(TSelf* v, std::size_t i)
+    HandleVectorPairIterator(TSelf* v, std::size_t i)
         : vector(v)
         , index(i)
     {
@@ -189,11 +192,11 @@ struct handle_vector_pair_iterator
 };
 
 template<typename TSelf, typename TPairIterator>
-struct handle_vector_pair_iterator_container
+struct HandleVectorPairIteratorContainer
 {
     TSelf* self;
 
-    explicit handle_vector_pair_iterator_container(TSelf* s) : self(s) {}
+    explicit HandleVectorPairIteratorContainer(TSelf* s) : self(s) {}
 
     TPairIterator begin()
     {
@@ -207,29 +210,29 @@ struct handle_vector_pair_iterator_container
 };
 
 template<typename T, typename F>
-struct handle_vector
+struct HandleVector
 {
-    using self = handle_vector<T, F>;
-    using value_type = T;
-    using functions = F;
-    using handle = typename functions::handle;
-    using id = typename functions::id;
-    using version = typename functions::version;
+    using Self = HandleVector<T, F>;
+    using ValueType = T;
+    using Functions = F;
+    using Handle = typename Functions::Handle;
+    using Id = typename Functions::Id;
+    using Version = typename Functions::Version;
 
-    constexpr static version EMPTY_VERSION = 0;
-    constexpr static version FIRST_VERSION = 1;
+    constexpr static Version EMPTY_VERSION = 0;
+    constexpr static Version FIRST_VERSION = 1;
 
-    using pair = handle_vector_pair<value_type, version, EMPTY_VERSION>;
-    using iterator = handle_vector_iterator<self, value_type>;
-    using pair_iterator = handle_vector_pair_iterator<self, handle, value_type, functions, id>;
-    using pair_iterator_container = handle_vector_pair_iterator_container<self, pair_iterator>;
+    using Pair = HandleVectorPair<ValueType, Version, EMPTY_VERSION>;
+    using Iterator = HandleVectorIterator<Self, ValueType>;
+    using PairIterator = HandleVectorPairIterator<Self, Handle, ValueType, Functions, Id>;
+    using PairIteratorContainer = HandleVectorPairIteratorContainer<Self, PairIterator>;
 
-    using vector = std::vector<pair>;
+    using Vector = std::vector<Pair>;
 
-    vector data;
-    std::vector<handle> free_handles;
+    Vector data;
+    std::vector<Handle> free_handles;
 
-    handle create_new_handle()
+    Handle create_new_handle()
     {
         if(free_handles.empty() == false)
         {
@@ -240,27 +243,27 @@ struct handle_vector
         }
         else
         {
-            const version v = FIRST_VERSION;
+            const Version v = FIRST_VERSION;
             const auto index = data.size();
             data.emplace_back(v);
             assert(data[index].version == v && "pair constructor failed");
             assert(data[index].in_use == true && "pair constructor failed");
-            return functions::compress(static_cast<id>(index), v);
+            return Functions::compress(static_cast<Id>(index), v);
         }
     }
 
-    void mark_for_reuse(handle h)
+    void mark_for_reuse(Handle h)
     {
         auto& p = get_pair(h);
         p.in_use = false;
 
-        const auto i = functions::get_id(h);
+        const auto i = Functions::get_id(h);
 
         p.version += 1;
-        if(p.version != functions::version_mask)
+        if(p.version != Functions::version_mask)
         {
             // if the version is not max reuse it
-            free_handles.emplace_back(functions::compress(i, p.version));
+            free_handles.emplace_back(Functions::compress(i, p.version));
         }
     }
 
@@ -269,33 +272,33 @@ struct handle_vector
         data.clear();
     }
 
-    pair& get_pair(handle h)
+    Pair& get_pair(Handle h)
     {
-        const auto i = static_cast<std::size_t>(functions::get_id(h));
-        const auto v = functions::get_version(h);
+        const auto i = static_cast<std::size_t>(Functions::get_id(h));
+        const auto v = Functions::get_version(h);
         assert(data[i].version == v && "invalid handle (use after free)");
         return data[i];
     }
 
-    value_type& operator[](handle h)
+    ValueType& operator[](Handle h)
     {
         assert(get_pair(h).in_use == true);
         return get_pair(h).data;
     }
 
-    iterator begin()
+    Iterator begin()
     {
         return {this, 0};
     }
 
-    iterator end()
+    Iterator end()
     {
         return {this, data.size()};
     }
 
-    pair_iterator_container as_pairs()
+    PairIteratorContainer as_pairs()
     {
-        return pair_iterator_container{this};
+        return PairIteratorContainer{this};
     }
 };
 

@@ -1,4 +1,4 @@
-#include "tred/input/mapping.h"
+#include "tred/input/Mapping.h"
 
 #include <cassert>
 #include <algorithm>
@@ -17,31 +17,31 @@ namespace input
 {
 
 
-mapping::mapping(const input_action_map&, const config::mapping&)
+Mapping::Mapping(const ActionMap&, const config::Mapping&)
 {
 }
 
 
-mapping::~mapping()
+Mapping::~Mapping()
 {
 }
 
 
-void mapping::add(std::unique_ptr<unit_definition>&& unit)
+void Mapping::add(std::unique_ptr<UnitDef>&& unit)
 {
     assert(unit);
     units.push_back(std::move(unit));
 }
 
 
-void mapping::add(std::unique_ptr<bind_definition>&& bind)
+void Mapping::add(std::unique_ptr<BindDefinition>&& bind)
 {
     assert(bind);
     binds.push_back(std::move(bind));
 }
 
 
-bool mapping::is_any_considered_joystick()
+bool Mapping::is_any_considered_joystick()
 {
     for (auto& def: units)
     {
@@ -55,21 +55,21 @@ bool mapping::is_any_considered_joystick()
 }
 
 
-bool mapping::can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform)
+bool Mapping::can_detect(Director* director, unit_discovery discovery, UnitSetup* setup, Platform* platform)
 {
     return mapping_detection
     (
         units,
-        [&](const std::unique_ptr<unit_definition>& def) -> bool { return def->is_considered_joystick(); },
-        [&](const std::unique_ptr<unit_definition>& def) -> bool { return def->can_detect(director, discovery, setup, platform); }
+        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->is_considered_joystick(); },
+        [&](const std::unique_ptr<UnitDef>& def) -> bool { return def->can_detect(director, discovery, setup, platform); }
     );
 }
 
 
-std::unique_ptr<connected_units> mapping::connect(input_director* director, const unit_setup& setup)
+std::unique_ptr<ConnectedUnits> Mapping::connect(Director* director, const UnitSetup& setup)
 {
     assert(director);
-    auto connected = std::make_unique<connected_units>();
+    auto connected = std::make_unique<ConnectedUnits>();
 
     for (auto& def: units)
     {

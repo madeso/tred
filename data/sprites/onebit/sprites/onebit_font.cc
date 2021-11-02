@@ -11,7 +11,7 @@
 
 namespace onebit
 {
-    rect no_text_animation::transform(int, const rect& r) const { return r; }
+    Rectf no_text_animation::transform(int, const Rectf& r) const { return r; }
 
     siny_animation::siny_animation(float c, float s, float o)
         : change(c)
@@ -20,7 +20,7 @@ namespace onebit
     {
     }
 
-    rect siny_animation::transform(int index, const rect& r) const
+    Rectf siny_animation::transform(int index, const Rectf& r) const
     {
         const auto a = static_cast<float>(index) * scale + offset;
         constexpr float one_turn = 6.28318530718f; // 2*pi, thanks google
@@ -28,10 +28,10 @@ namespace onebit
     }
 
 
-    void font::simple_text(sprite_batch* batch, texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim) const
+    void font::simple_text(SpriteBatch* batch, Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim) const
     {
         const auto font_spacing = get_spacing();
-        const auto sprite = rect{size, size};
+        const auto sprite = Rectf{size, size};
 
         int position_in_string = 0;
         const auto start_x = x;

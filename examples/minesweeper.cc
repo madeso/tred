@@ -20,9 +20,9 @@
 constexpr auto black = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 constexpr auto font = ::onebit::font{12.0f};
 
-enum class game_state { playing, game_over, game_completed};
+enum class GameState { playing, game_over, game_completed};
 
-struct minesweeper
+struct Minesweeper
 {
     int width;
     int height;
@@ -31,11 +31,11 @@ struct minesweeper
     // todo(Gustav): never used font for 1+ rendering... so switch to a enum class
     std::vector<int> states; // -1 == bomb, 0=empty, 1-9=number of neighbour bombs
     bool initialized = false;
-    game_state current_game_state = game_state::playing;
+    GameState current_game_state = GameState::playing;
 
-    rect play_area = {100.0f, 100.0f};
+    Rectf play_area = {100.0f, 100.0f};
 
-    minesweeper(int w, int h, int b)
+    Minesweeper(int w, int h, int b)
         : width(w), height(h), bombs(b)
         , revealed(Cint_to_sizet(w*h), false)
         , states(Cint_to_sizet(w*h), 0)
@@ -119,7 +119,7 @@ struct minesweeper
                 revealed[get_index(x, y)] = true;
             }
         }
-        current_game_state = game_state::game_over;
+        current_game_state = GameState::game_over;
     }
 
     void on_mouse(const glm::vec2& m)
@@ -146,7 +146,7 @@ struct minesweeper
     static constexpr float window_size = 200.0f;
     static constexpr float window_spacing = 10.0f;
 
-    rect sprite() const
+    Rectf sprite() const
     {
         const auto w = play_area.get_width()/static_cast<float>(width);
         const auto h = play_area.get_height()/static_cast<float>(height);
@@ -154,7 +154,7 @@ struct minesweeper
         return {s, s};
     }
 
-    rect get_rect(int x, int y) const
+    Rectf get_rect(int x, int y) const
     {
         const auto center = [](float sprite_size, float avaiable, int count) -> float
         {
@@ -191,13 +191,13 @@ struct minesweeper
         return count;
     }
 
-    void render(sprite_batch* batch, texture* onebit)
+    void render(SpriteBatch* batch, Texture* onebit)
     {
         for(int y=0; y<height; y+=1)
         {
             for(int x=0; x<width; x+=1)
             {
-                auto draw = [batch, onebit](const rect& r, const recti& sprite, const glm::vec4& color)
+                auto draw = [batch, onebit](const Rectf& r, const Recti& sprite, const glm::vec4& color)
                 {
                     batch->quad
                     (
@@ -241,14 +241,14 @@ struct minesweeper
     }
 };
 
-struct minesweeper_game : public game
+struct MinesweeperGame : public Game
 {
-    texture onebit;
+    Texture onebit;
     glm::vec2 mouse;
 
-    minesweeper ms;
+    Minesweeper ms;
 
-    minesweeper_game()
+    MinesweeperGame()
         : onebit
         (
             ::onebit::load_texture()
@@ -261,13 +261,13 @@ struct minesweeper_game : public game
 
     void new_game()
     {
-        ms = minesweeper{20, 10, 10};
+        ms = Minesweeper{20, 10, 10};
     }
 
-    layout_data get_main_layout() const
+    LayoutData get_main_layout() const
     {
         // return {viewport_style::black_bars, 200.0f, 200.0f, glm::mat4(1.0f)};
-        return {viewport_style::extended, 200.0f, 200.0f, glm::mat4(1.0f)};
+        return {ViewportStyle::extended, 200.0f, 200.0f, glm::mat4(1.0f)};
     }
 
     float title_anim = 0.0f;
@@ -279,7 +279,7 @@ struct minesweeper_game : public game
     }
 
     void
-    on_render(const render_command2& rc) override
+    on_render(const RenderCommand2& rc) override
     {
         const std::string game_title = "minesweeper 42";
 
@@ -288,7 +288,7 @@ struct minesweeper_game : public game
         constexpr float wavy_range = 1.5f;
         auto r = with_layer(rc, get_main_layout());
 
-        auto game_world = rect{200.0f, 200.0f};
+        auto game_world = Rectf{200.0f, 200.0f};
 
         const auto title_rect = cut_bottom(&game_world, font.size + wavy_range + spacing * 2)
             .center_hor(font.get_width_of_string(game_title))
@@ -302,33 +302,33 @@ struct minesweeper_game : public game
 
         ms.render(r.batch, &onebit);
 
-        auto draw_game_button = [&](const recti& sprite)
+        auto draw_game_button = [&](const Recti& sprite)
         {
             r.batch->quad(&onebit, game_button, sprite, black);
         };
 
         switch(ms.current_game_state)
         {
-            case game_state::playing: draw_game_button(::onebit::smiley_happy); break;
-            case game_state::game_completed: draw_game_button(::onebit::smiley_joy); break;
-            case game_state::game_over: draw_game_button(::onebit::smiley_skull); break;
+            case GameState::playing: draw_game_button(::onebit::smiley_happy); break;
+            case GameState::game_completed: draw_game_button(::onebit::smiley_joy); break;
+            case GameState::game_over: draw_game_button(::onebit::smiley_skull); break;
         }
 
         font.simple_text(r.batch, &onebit, black, title_rect.left, title_rect.bottom, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
-    void on_mouse_position(const command2&, const glm::ivec2& p) override
+    void on_mouse_position(const Command2&, const glm::ivec2& p) override
     {
         // todo(gustav): transform to world...
         mouse = {p.x, p.y};
     }
 
-    rect game_button = rect{15.0f, 15.0f}.translate(100, 160);
+    Rectf game_button = Rectf{15.0f, 15.0f}.translate(100, 160);
 
-    void on_mouse_button(const command2& c, input::mouse_button button, bool down) override
+    void on_mouse_button(const Command2& c, input::MouseButton button, bool down) override
     {
         if(down != false) { return; }
-        if(button != input::mouse_button::left) { return; }
+        if(button != input::MouseButton::left) { return; }
 
         auto r = with_layer(c, get_main_layout());
         const auto world = r.mouse_to_world(mouse);
@@ -348,7 +348,7 @@ main(int, char**)
     (
         "minesweeper", glm::ivec2{800, 600}, false, []()
         {
-            return std::make_shared<minesweeper_game>();
+            return std::make_shared<MinesweeperGame>();
         }
     );
 }

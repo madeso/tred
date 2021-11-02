@@ -19,7 +19,7 @@ constexpr std::array<int, 64> endesga64 =
     0xca52c9, 0xc85086, 0xf68187, 0xf5555d, 0xea323c, 0xc42430, 0x891e2b, 0x571c27
 };
 
-struct color_flips
+struct ColorFlips
 {
     static constexpr int width = 100;
     static constexpr int height = 100;
@@ -33,7 +33,7 @@ struct color_flips
     float timer[width * height] = { 0.0f, };
     std::size_t index[width * height] = { 0, };
 
-    color_flips()
+    ColorFlips()
     {
         auto r = Random{};
 
@@ -54,7 +54,7 @@ struct color_flips
         }
     }
 
-    void render(sprite_batch* batch)
+    void render(SpriteBatch* batch)
     {
         const auto color = [](int c, int s) -> float
         {
@@ -69,7 +69,7 @@ struct color_flips
             batch->quad
             (
                 {},
-                rect{size, size}
+                Rectf{size, size}
                     .translate(startx, starty)
                     .translate(static_cast<float>(x)*spacing, static_cast<float>(y)*spacing),
                 {}, {color(c, 2), color(c, 1), color(c, 0), 1.0f});
@@ -77,14 +77,14 @@ struct color_flips
     }
 };
 
-struct example_game : public game
+struct ExampleGame : public Game
 {
-    texture cards;
-    texture letter_g;
-    color_flips flips;
+    Texture cards;
+    Texture letter_g;
+    ColorFlips flips;
     glm::vec2 mouse;
 
-    example_game()
+    ExampleGame()
         : cards
         (
             ::cards::load_texture()
@@ -94,9 +94,9 @@ struct example_game : public game
             load_image_from_embedded
             (
                 LETTER_G_PNG,
-                texture_edge::clamp,
-                texture_render_style::smooth,
-                transparency::include
+                TextureEdge::clamp,
+                TextureRenderStyle::smooth,
+                Transparency::include
             )
         )
         , mouse(0, 0)
@@ -111,9 +111,9 @@ struct example_game : public game
     }
 
     void
-    on_render(const render_command2& rc) override
+    on_render(const RenderCommand2& rc) override
     {
-        auto r = with_layer(rc, {viewport_style::extended, 200.0f, 200.0f, glm::mat4(1.0f)});
+        auto r = with_layer(rc, {ViewportStyle::extended, 200.0f, 200.0f, glm::mat4(1.0f)});
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
@@ -126,10 +126,10 @@ struct example_game : public game
         r.batch->quad(&cards, card_sprite.translate(100, 100), ::cards::hearts[2]);
         r.batch->quad(&cards, card_sprite.translate(r.mouse_to_world(mouse)), ::cards::back);
 
-        r.batch->quad(&letter_g, rect{40, 40}.translate(40, 40), {});
+        r.batch->quad(&letter_g, Rectf{40, 40}.translate(40, 40), {});
     }
 
-    void on_mouse_position(const command2&, const glm::ivec2& p) override
+    void on_mouse_position(const Command2&, const glm::ivec2& p) override
     {
         // todo(Gustav): store world mouse?
         mouse = {p.x, p.y};
@@ -143,7 +143,7 @@ main(int, char**)
     (
         "Example", glm::ivec2{800, 600}, false, []()
         {
-            return std::make_shared<example_game>();
+            return std::make_shared<ExampleGame>();
         }
     );
 }

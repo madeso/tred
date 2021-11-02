@@ -16,36 +16,36 @@ using update_function = std::function<bool (float)>;
 
 namespace detail
 {
-struct window
+struct Window
 {
-    virtual ~window() = default;
+    virtual ~Window() = default;
     virtual void render() = 0;
 };
 }
 
 namespace input
 {
-struct input_system;
-struct platform;
+struct InputSystem;
+struct Platform;
 }
 
-struct windows
+struct Windows
 {
     bool running = true;
 
-    virtual ~windows() = default;
+    virtual ~Windows() = default;
 
     void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render);
     void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui);
 
-    virtual input::platform* get_input_platform() = 0;
+    virtual input::Platform* get_input_platform() = 0;
 
     virtual void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) = 0;
     virtual void render() = 0;
-    virtual void pump_events(input::input_system* input_system) = 0;
+    virtual void pump_events(input::InputSystem* input_system) = 0;
 };
 
 
-std::unique_ptr<windows> setup();
+std::unique_ptr<Windows> setup();
 
-int main_loop(input::unit_discovery discovery, std::unique_ptr<windows>&& windows, input::input_system* sdl_input, update_function&& on_update);
+int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* sdl_input, update_function&& on_update);

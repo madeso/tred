@@ -14,7 +14,7 @@ DISABLE_WARNING_POP
 
 
 bool
-CheckShaderCompilationError(const char* name, unsigned int shader)
+check_shader_compilation_error(const char* name, unsigned int shader)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -32,7 +32,7 @@ CheckShaderCompilationError(const char* name, unsigned int shader)
 
 
 bool
-CheckShaderLinkError(unsigned int program)
+check_shader_link_error(unsigned int program)
 {
     int  success = 0;
     char log[512] = {0,};
@@ -49,7 +49,7 @@ CheckShaderLinkError(unsigned int program)
 
 
 void
-UploadShaderSource(unsigned int shader, std::string_view source)
+upload_shader_source(unsigned int shader, std::string_view source)
 {
     const char* const s = &source[0];
     const int length = Csizet_to_int(source.length());
@@ -59,7 +59,7 @@ UploadShaderSource(unsigned int shader, std::string_view source)
 
 
 void
-BindShaderAttributeLocation(unsigned int shader_program, const compiled_vertex_layout& layout)
+bind_shader_attribute_location(unsigned int shader_program, const CompiledVertexLayout& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -69,7 +69,7 @@ BindShaderAttributeLocation(unsigned int shader_program, const compiled_vertex_l
 
 
 void
-VerifyShaderAttributeLocation(unsigned int shader_program, const compiled_vertex_layout& layout)
+verify_shader_attribute_location(unsigned int shader_program, const CompiledVertexLayout& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -93,30 +93,30 @@ VerifyShaderAttributeLocation(unsigned int shader_program, const compiled_vertex
 }
 
 
-shader::shader
+Shader::Shader
 (
     std::string_view vertex_source,
     std::string_view fragment_source,
-    const compiled_vertex_layout& layout
+    const CompiledVertexLayout& layout
 )
     : shader_program(glCreateProgram())
     , vertex_types(layout.types)
 {
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    UploadShaderSource(vertex_shader, vertex_source);
+    upload_shader_source(vertex_shader, vertex_source);
     glCompileShader(vertex_shader);
-    const auto vertex_ok = CheckShaderCompilationError("vertex", vertex_shader);
+    const auto vertex_ok = check_shader_compilation_error("vertex", vertex_shader);
 
     const auto fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    UploadShaderSource(fragment_shader, fragment_source);
+    upload_shader_source(fragment_shader, fragment_source);
     glCompileShader(fragment_shader);
-    const auto fragment_ok = CheckShaderCompilationError("fragment", fragment_shader);
+    const auto fragment_ok = check_shader_compilation_error("fragment", fragment_shader);
 
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
-    BindShaderAttributeLocation(shader_program, layout);
+    bind_shader_attribute_location(shader_program, layout);
     glLinkProgram(shader_program);
-    const auto link_ok = CheckShaderLinkError(shader_program);
+    const auto link_ok = check_shader_link_error(shader_program);
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
@@ -126,7 +126,7 @@ shader::shader
     if(vertex_ok && fragment_ok && link_ok)
     {
         // nop
-        VerifyShaderAttributeLocation(shader_program, layout);
+        verify_shader_attribute_location(shader_program, layout);
     }
     else
     {
@@ -136,14 +136,14 @@ shader::shader
 
 
 void
-shader::use() const
+Shader::use() const
 {
     set_shader_program(shader_program, vertex_types);
 }
 
 
 void
-shader::cleanup()
+Shader::cleanup()
 {
     clear_shader_program();
     glDeleteProgram(shader_program);
@@ -151,10 +151,10 @@ shader::cleanup()
 }
 
 
-uniform
-shader::get_uniform(const std::string& name) const
+Uniform
+Shader::get_uniform(const std::string& name) const
 {
-    const auto uni = uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
+    const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
     if(uni.is_valid() == false)
     {
         LOG_ERROR("Uniform {} not found", name.c_str());
@@ -165,7 +165,7 @@ shader::get_uniform(const std::string& name) const
 
 // shader neeeds to be bound
 void
-shader::set_float(const uniform& uniform, float value) const
+Shader::set_float(const Uniform& uniform, float value) const
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -176,7 +176,7 @@ shader::set_float(const uniform& uniform, float value) const
 }
 
 void
-shader::set_vec3(const uniform& uniform, float x, float y, float z)
+Shader::set_vec3(const Uniform& uniform, float x, float y, float z)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -188,14 +188,14 @@ shader::set_vec3(const uniform& uniform, float x, float y, float z)
 
 
 void
-shader::set_vec3(const uniform& uniform, const glm::vec3& v)
+Shader::set_vec3(const Uniform& uniform, const glm::vec3& v)
 {
     set_vec3(uniform, v.x, v.y, v.z);
 }
 
 
 void
-shader::set_vec4(const uniform& uniform, float x, float y, float z, float w)
+Shader::set_vec4(const Uniform& uniform, float x, float y, float z, float w)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -206,14 +206,14 @@ shader::set_vec4(const uniform& uniform, float x, float y, float z, float w)
 }
 
 void
-shader::set_vec4(const uniform& uniform, const glm::vec4& v)
+Shader::set_vec4(const Uniform& uniform, const glm::vec4& v)
 {
     set_vec4(uniform, v.x, v.y, v.z, v.w);
 }
 
 
 void
-shader::set_texture(const uniform& uniform)
+Shader::set_texture(const Uniform& uniform)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -225,7 +225,7 @@ shader::set_texture(const uniform& uniform)
 
 
 void
-shader::set_mat(const uniform& uniform, const glm::mat4& mat)
+Shader::set_mat(const Uniform& uniform, const glm::mat4& mat)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -237,7 +237,7 @@ shader::set_mat(const uniform& uniform, const glm::mat4& mat)
 
 
 void
-shader::set_mat(const uniform& uniform, const glm::mat3& mat)
+Shader::set_mat(const Uniform& uniform, const glm::mat3& mat)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -249,7 +249,7 @@ shader::set_mat(const uniform& uniform, const glm::mat3& mat)
 
 
 void
-setup_textures(shader* shader, std::vector<uniform*> uniform_list)
+setup_textures(Shader* shader, std::vector<Uniform*> uniform_list)
 {
     // OpenGL should support atleast 16 textures
     assert(uniform_list.size() <= 16);

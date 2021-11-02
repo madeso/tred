@@ -10,7 +10,7 @@
 
 namespace input::config
 {
-struct keyboard_definition;
+struct KeyboardDefinition;
 }
 
 
@@ -18,22 +18,22 @@ namespace input
 {
 
 
-struct input_action_map;
-struct active_unit;
-struct input_director;
+struct ActionMap;
+struct ActiveUnit;
+struct Director;
 
-struct keyboard_definition : public unit_definition
+struct KeyboardUnitDef : public UnitDef
 {
-    keyboard_definition(const config::keyboard_definition& data);
+    KeyboardUnitDef(const config::KeyboardDefinition& data);
 
     std::optional<std::string> validate_key(int key) override;
-    std::optional<std::string> validate_axis(axis_type type, int target, int axis) override;
+    std::optional<std::string> validate_axis(AxisType type, int target, int axis) override;
 
     bool is_considered_joystick() override;
-    bool can_detect(input_director* director, unit_discovery discovery, unit_setup* setup, platform* platform) override;
-    std::unique_ptr<active_unit> create(input_director* director, const unit_setup& setup) override;
+    bool can_detect(Director* director, unit_discovery discovery, UnitSetup* setup, Platform* platform) override;
+    std::unique_ptr<ActiveUnit> create(Director* director, const UnitSetup& setup) override;
 
-    keyboard_key detection_key;
+    KeyboardKey detection_key;
 };
 
 

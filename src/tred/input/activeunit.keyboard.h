@@ -14,15 +14,15 @@ namespace input
 {
 
 struct AxisKey;
-struct input_director;
+struct Director;
 
-struct keyboard_active_unit;
+struct KeyboardActiveUnit;
 
 namespace impl
 {
-    struct keyboard_key_unit : public key_unit
+    struct KeyboardKeyUnit : public KeyUnit
     {
-        keyboard_active_unit* parent = nullptr;
+        KeyboardActiveUnit* parent = nullptr;
 
         void register_key(int key) override;
         float get_state(int key) override;
@@ -30,23 +30,23 @@ namespace impl
 }
 
 
-struct keyboard_active_unit : public active_unit
+struct KeyboardActiveUnit : public ActiveUnit
 {
-    keyboard_active_unit(input_director* director);
-    ~keyboard_active_unit() override;
+    KeyboardActiveUnit(Director* director);
+    ~KeyboardActiveUnit() override;
 
-    key_unit* get_key_unit() override;
-    axis_unit* get_relative_axis_unit() override;
-    axis_unit* get_absolute_axis_unit() override;
+    KeyUnit* get_key_unit() override;
+    AxisUnit* get_relative_axis_unit() override;
+    AxisUnit* get_absolute_axis_unit() override;
 
     bool is_considered_joystick() override;
     bool is_delete_scheduled() override;
 
-    void on_key(const keyboard_key& key, bool state);
+    void on_key(const KeyboardKey& key, bool state);
 
-    input_director* director;
-    bind_map<keyboard_key> keys;
-    impl::keyboard_key_unit key_unit;
+    Director* director;
+    BindMap<KeyboardKey> keys;
+    impl::KeyboardKeyUnit key_unit;
 };
 
 

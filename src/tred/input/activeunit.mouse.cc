@@ -11,28 +11,28 @@ namespace input
 {
 
 
-void impl::mouse_key_unit::register_key(int key)
+void impl::MouseKeyUnit::register_key(int key)
 {
-    parent->buttons.add(from_index<mouse_button>(key));
+    parent->buttons.add(from_index<MouseButton>(key));
 }
 
 
-float impl::mouse_key_unit::get_state(int key)
+float impl::MouseKeyUnit::get_state(int key)
 {
-    return parent->buttons.get_raw(from_index<mouse_button>(key));
+    return parent->buttons.get_raw(from_index<MouseButton>(key));
 }
 
 
-void impl::relative_mouse_axis_unit::register_axis(axis_type type, [[maybe_unused]]int target, int axis)
+void impl::RelativeMouseAxisUnit::register_axis(AxisType type, [[maybe_unused]]int target, int axis)
 {
     assert(target == 0);
-    if(type == axis_type::general_axis)
+    if(type == AxisType::general_axis)
     {
-        parent->relative_axes.add(from_index<xy_axis>(axis));
+        parent->relative_axes.add(from_index<Axis2>(axis));
     }
-    else if(type == axis_type::wheel)
+    else if(type == AxisType::wheel)
     {
-        parent->wheels.add(from_index<xy_axis>(axis));
+        parent->wheels.add(from_index<Axis2>(axis));
     }
     else
     {
@@ -41,16 +41,16 @@ void impl::relative_mouse_axis_unit::register_axis(axis_type type, [[maybe_unuse
 }
 
 
-float impl::relative_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]int target, int axis, float)
+float impl::RelativeMouseAxisUnit::get_state(AxisType type, [[maybe_unused]]int target, int axis, float)
 {
     assert(target == 0);
-    if(type == axis_type::general_axis)
+    if(type == AxisType::general_axis)
     {
-        return parent->relative_axes.get_raw(from_index<xy_axis>(axis));
+        return parent->relative_axes.get_raw(from_index<Axis2>(axis));
     }
-    else if(type == axis_type::wheel)
+    else if(type == AxisType::wheel)
     {
-        return parent->wheels.get_raw(from_index<xy_axis>(axis));
+        return parent->wheels.get_raw(from_index<Axis2>(axis));
     }
     else
     {
@@ -60,14 +60,14 @@ float impl::relative_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]
 }
 
 
-void impl::absolute_mouse_axis_unit::register_axis(axis_type type, [[maybe_unused]] int target, int axis)
+void impl::AbsoluteMouseAxisUnit::register_axis(AxisType type, [[maybe_unused]] int target, int axis)
 {
     assert(target == 0);
-    if(type == axis_type::general_axis)
+    if(type == AxisType::general_axis)
     {
-        parent->absolute_axes.add(from_index<xy_axis>(axis));
+        parent->absolute_axes.add(from_index<Axis2>(axis));
     }
-    else if(type == axis_type::wheel)
+    else if(type == AxisType::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
         assert(false && "not implemented yet");
@@ -80,14 +80,14 @@ void impl::absolute_mouse_axis_unit::register_axis(axis_type type, [[maybe_unuse
 
 
 // float impl::AbsoluteMouseAxisUnit::GetState(AxisType type, int target, int axis, float dt)
-float impl::absolute_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]int target, int axis, float)
+float impl::AbsoluteMouseAxisUnit::get_state(AxisType type, [[maybe_unused]]int target, int axis, float)
 {
     assert(target == 0);
-    if(type == axis_type::general_axis)
+    if(type == AxisType::general_axis)
     {
-        return parent->absolute_axes.get_raw(from_index<xy_axis>(axis));
+        return parent->absolute_axes.get_raw(from_index<Axis2>(axis));
     }
-    else if(type == axis_type::wheel)
+    else if(type == AxisType::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
         assert(false && "not implemented yet");
@@ -101,7 +101,7 @@ float impl::absolute_mouse_axis_unit::get_state(axis_type type, [[maybe_unused]]
 }
 
 
-mouse_active_unit::mouse_active_unit(input_director* d)
+MouseActiveUnit::MouseActiveUnit(Director* d)
     : director(d)
 {
     assert(director);
@@ -114,55 +114,55 @@ mouse_active_unit::mouse_active_unit(input_director* d)
 }
 
 
-mouse_active_unit::~mouse_active_unit()
+MouseActiveUnit::~MouseActiveUnit()
 {
     director->remove(this);
 }
 
 
-key_unit* mouse_active_unit::get_key_unit()
+KeyUnit* MouseActiveUnit::get_key_unit()
 {
     return &key_unit;
 }
 
-axis_unit* mouse_active_unit::get_relative_axis_unit()
+AxisUnit* MouseActiveUnit::get_relative_axis_unit()
 {
     return &relative_axis_unit;
 }
 
-axis_unit* mouse_active_unit::get_absolute_axis_unit()
+AxisUnit* MouseActiveUnit::get_absolute_axis_unit()
 {
     return &absolute_axis_unit;
 }
 
 
 
-bool mouse_active_unit::is_considered_joystick()
+bool MouseActiveUnit::is_considered_joystick()
 {
     return false;
 }
 
 
-bool mouse_active_unit::is_delete_scheduled()
+bool MouseActiveUnit::is_delete_scheduled()
 {
     return false;
 }
 
 
-void mouse_active_unit::on_axis(const xy_axis& axis, float relative_state, float absolute_state)
+void MouseActiveUnit::on_axis(const Axis2& axis, float relative_state, float absolute_state)
 {
     relative_axes.set_raw(axis, relative_state);
     absolute_axes.set_raw(axis, absolute_state);
 }
 
 
-void mouse_active_unit::on_wheel(const xy_axis& axis, float state)
+void MouseActiveUnit::on_wheel(const Axis2& axis, float state)
 {
     wheels.set_raw(axis, state);
 }
 
 
-void mouse_active_unit::on_button(mouse_button button, float state)
+void MouseActiveUnit::on_button(MouseButton button, float state)
 {
     buttons.set_raw(button, state);
 }

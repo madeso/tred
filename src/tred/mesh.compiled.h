@@ -12,17 +12,17 @@ struct CompiledMesh
 
     int number_of_indices;
 
-    vertex_types debug_shader_types;
+    VertexTypes debug_shader_types;
 
-    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const vertex_types& st);
-
-    void
-    Draw() const;
+    CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st);
 
     void
-    Delete() const;
+    draw() const;
+
+    void
+    cleanup() const;
 };
 
 
 CompiledMesh
-Compile(const mesh& mesh, const compiled_vertex_layout& layout);
+compile(const Mesh& mesh, const CompiledVertexLayout& layout);

@@ -12,23 +12,23 @@ namespace input
 {
 
 
-struct table;
-struct input_action;
+struct Table;
+struct Action;
 
 
-struct input_action_map
+struct ActionMap
 {
-    input_action_map();
-    input_action_map(input_action_map&& m);
-    void operator=(input_action_map&& m);
-    ~input_action_map();
+    ActionMap();
+    ActionMap(ActionMap&& m);
+    void operator=(ActionMap&& m);
+    ~ActionMap();
 
-    void add_action(const std::string& name, std::unique_ptr<input_action>&& action);
+    void add_action(const std::string& name, std::unique_ptr<Action>&& action);
 
-    std::map<std::string, std::unique_ptr<input_action>> actions;
+    std::map<std::string, std::unique_ptr<Action>> actions;
 };
 
 
-result<input_action_map> load_action_map(const input::config::action_map& root);
+Result<ActionMap> load_action_map(const input::config::ActionMap& root);
 
 }  // namespace input

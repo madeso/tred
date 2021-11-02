@@ -9,13 +9,13 @@ namespace input
 {
 
 
-struct input_action
+struct Action
 {
-    input_action(const std::string& name, const std::string& scriptvarname, range range);
+    Action(const std::string& name, const std::string& scriptvarname, Range range);
 
     std::string name;
     std::string scriptvarname;
-    input::range range;
+    input::Range range;
 };
 
 

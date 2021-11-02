@@ -15,61 +15,61 @@ namespace input
 {
 
 
-struct table;
-struct input_director;
+struct Table;
+struct Director;
 
-struct gamecontroller_active_unit;
+struct GamecontrollerActiveUnit;
 
 
 namespace impl
 {
-    struct gamecontroller_key_unit : public key_unit
+    struct GamecontrollerKeyUnit : public KeyUnit
     {
-        gamecontroller_active_unit* parent = nullptr;
+        GamecontrollerActiveUnit* parent = nullptr;
 
         void register_key(int key) override;
         float get_state(int key) override;
     };
 
-    struct gamecontroller_axis_unit : public axis_unit
+    struct GamecontrollerAxisUnit : public AxisUnit
     {
-        gamecontroller_axis_unit(bool is_relative);
+        GamecontrollerAxisUnit(bool is_relative);
 
         bool is_relative;
 
-        gamecontroller_active_unit* parent = nullptr;
+        GamecontrollerActiveUnit* parent = nullptr;
 
-        void register_axis(axis_type type, int target, int axis) override;
-        float get_state(axis_type type, int target, int axis, float dt) override;
+        void register_axis(AxisType type, int target, int axis) override;
+        float get_state(AxisType type, int target, int axis, float dt) override;
     };
 }
 
 
-struct gamecontroller_active_unit : public active_unit
+struct GamecontrollerActiveUnit : public ActiveUnit
 {
-    gamecontroller_active_unit(joystick_id Gamecontroller, input_director* director);
-    ~gamecontroller_active_unit();
+    GamecontrollerActiveUnit(JoystickId j, Director* director);
+    ~GamecontrollerActiveUnit();
 
-    key_unit* get_key_unit() override;
-    axis_unit* get_relative_axis_unit() override;
-    axis_unit* get_absolute_axis_unit() override;
+    KeyUnit* get_key_unit() override;
+    AxisUnit* get_relative_axis_unit() override;
+    AxisUnit* get_absolute_axis_unit() override;
 
     bool is_considered_joystick() override;
     bool is_delete_scheduled() override;
 
-    void on_axis(gamecontroller_axis axis, float state);
-    void on_button(gamecontroller_button button, float state);
+    void on_axis(GamecontrollerAxis axis, float state);
+    void on_button(GamecontrollerButton button, float state);
 
-    joystick_id joystick;
-    input_director* director;
+    JoystickId joystick;
+    Director* director;
     bool scheduled_delete;
 
-    bind_map<gamecontroller_axis> axes;
-    bind_map<gamecontroller_button> buttons;
+    BindMap<GamecontrollerAxis> axes;
+    BindMap<GamecontrollerButton> buttons;
 
-    impl::gamecontroller_key_unit key_unit;
-    impl::gamecontroller_axis_unit relative_axis_unit;
-    impl::gamecontroller_axis_unit absolute_axis_unit;
+    impl::GamecontrollerKeyUnit key_unit;
+    impl::GamecontrollerAxisUnit relative_axis_unit;
+    impl::GamecontrollerAxisUnit absolute_axis_unit;
 };
 
 

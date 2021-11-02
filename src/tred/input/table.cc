@@ -5,7 +5,7 @@ namespace input
 {
 
 
-void table::set(const std::string& name, float value)
+void Table::set(const std::string& name, float value)
 {
     data[name] = value;
 }

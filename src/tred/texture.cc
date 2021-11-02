@@ -7,7 +7,7 @@
 #include "tred/image.h"
 
 
-texture::texture(const loaded_image& i)
+Texture::Texture(const LoadedImage& i)
     : id(i.id)
     , width(i.width)
     , height(i.height)
@@ -16,14 +16,14 @@ texture::texture(const loaded_image& i)
 
 
 void
-texture::cleanup()
+Texture::cleanup()
 {
     // todo(Gustav): implement this
 }
 
 
 void
-bind_texture(const uniform& uniform, const texture& texture)
+bind_texture(const Uniform& uniform, const Texture& texture)
 {
     if(uniform.is_valid() == false) { return; }
     assert(uniform.texture >= 0);

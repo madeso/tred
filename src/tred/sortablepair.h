@@ -2,11 +2,11 @@
 
 
 template<typename F, typename S>
-struct sortable_pair
+struct SortablePair
 {
-    using self = sortable_pair<F, S>;
+    using self = SortablePair<F, S>;
 
-    sortable_pair(F f, S s)
+    SortablePair(F f, S s)
         : first(f)
         , second(s)
     {

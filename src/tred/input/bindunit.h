@@ -9,21 +9,21 @@ namespace input
 {
 
 
-struct key_unit
+struct KeyUnit
 {
-    virtual ~key_unit() = default;
+    virtual ~KeyUnit() = default;
 
     virtual void register_key(int key) = 0;
     virtual float get_state(int key) = 0;
 };
 
 
-struct axis_unit
+struct AxisUnit
 {
-    virtual ~axis_unit() = default;
+    virtual ~AxisUnit() = default;
 
-    virtual void register_axis(axis_type type, int target, int axis) = 0;
-    virtual float get_state(axis_type type, int target, int axis, float dt) = 0;
+    virtual void register_axis(AxisType type, int target, int axis) = 0;
+    virtual float get_state(AxisType type, int target, int axis, float dt) = 0;
 };
 
 

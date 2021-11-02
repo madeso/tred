@@ -9,14 +9,14 @@
 // also heavily inspired by https://halt.software/dead-simple-layouts/
 
 template<typename T>
-struct trect
+struct Rect
 {
     T left;
     T bottom;
     T right;
     T top;
 
-    constexpr trect<T>
+    constexpr Rect<T>
     (
           T l
         , T b
@@ -31,7 +31,7 @@ struct trect
         assert(left <= right && bottom <= top);
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     (
           T width
         , T height
@@ -44,13 +44,13 @@ struct trect
         assert(width >= 0 && height >= 0);
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     zero() const
     {
         return {0, 0, right - left, top - bottom};
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     scale_uniform(T s) const
     {
         return {left * s, bottom * s, right * s, top * s};
@@ -63,14 +63,14 @@ struct trect
             && y >= bottom && y <= top;
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     translate(T dx, T dy) const
     {
         return {left + dx, bottom + dy, right + dx, top + dy};
     }
 
     template<glm::qualifier Q>
-    constexpr trect<T>
+    constexpr Rect<T>
     translate(const glm::vec<2, T, Q>& v) const
     {
         return translate(v.x, v.y);
@@ -124,19 +124,19 @@ struct trect
         return new_width / old_width;
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     set_height(T new_height) const
     {
         return scale_uniform(get_scale_for_height(new_height));
     }
 
-    constexpr static trect<T>
+    constexpr static Rect<T>
     from_xywh(T x, T y, T w, T h)
     {
         return {x, y, x+w, y+h};
     }
 
-    constexpr trect<T>
+    constexpr Rect<T>
     set_bottom_left(T x, T y)
     {
         return zero().translate(x, y);
@@ -145,53 +145,53 @@ struct trect
 
     // These will add a rectangle outside of the input rectangle.
     // Useful for tooltips and other overlay elements.
-    constexpr trect<T> add_left(T a) const
+    constexpr Rect<T> add_left(T a) const
     {
         return {left-a, bottom, right, top};
     }
 
-    constexpr trect<T> add_right(T a) const
+    constexpr Rect<T> add_right(T a) const
     {
         return {left, bottom, right+a, top};
     }
 
-    constexpr trect<T> add_top(T a) const
+    constexpr Rect<T> add_top(T a) const
     {
         return {left, bottom, right, top+a};
     }
 
-    constexpr trect<T> add_bottom(T a) const
+    constexpr Rect<T> add_bottom(T a) const
     {
         return {left, bottom-a, right, top};
     }
 
-    constexpr trect<T> extend(T a) const
+    constexpr Rect<T> extend(T a) const
     {
         return add_left(a).add_right(a).add_top(a).add_bottom(a);
     }
 
-    constexpr trect<T> center_hor(T w) const
+    constexpr Rect<T> center_hor(T w) const
     {
         const auto dx = (get_width() - w)/2;
         const auto x = left+dx;
         return {x,bottom, x+w, top};
     }
 
-    constexpr trect<T> center_vert(T h) const
+    constexpr Rect<T> center_vert(T h) const
     {
         const auto dy = (get_height() - h)/2;
         const auto y = bottom+dy;
         return {left,y, right, y+h};
     }
 
-    constexpr trect<T> cut_to_center(T w, T h) const
+    constexpr Rect<T> cut_to_center(T w, T h) const
     {
         return center_hor(w).center_vert(h);
     }
 };
 
 
-enum class side
+enum class Side
 {
     left,
     right,
@@ -200,15 +200,15 @@ enum class side
 };
 
 template<typename T>
-struct rect_cut
+struct RectCut
 {
-    ::trect<T>* rect;
-    side side;
+    ::Rect<T>* rect;
+    Side side;
 };
 
 template<typename T>
-trect<T>
-cut_left(trect<T>* rect, T a)
+Rect<T>
+cut_left(Rect<T>* rect, T a)
 {
     T old_left = rect->left;
     rect->left = std::min(rect->right, rect->left + a);
@@ -216,8 +216,8 @@ cut_left(trect<T>* rect, T a)
 }
 
 template<typename T>
-trect<T>
-cut_right(trect<T>* rect, T a)
+Rect<T>
+cut_right(Rect<T>* rect, T a)
 {
     T old_right = rect->right;
     rect->right = std::max(rect->left, rect->right - a);
@@ -225,8 +225,8 @@ cut_right(trect<T>* rect, T a)
 }
 
 template<typename T>
-trect<T>
-cut_top(trect<T>* rect, T a)
+Rect<T>
+cut_top(Rect<T>* rect, T a)
 {
     T old_bottom = rect->bottom;
     rect->bottom = std::min(rect->top, rect->bottom + a);
@@ -234,8 +234,8 @@ cut_top(trect<T>* rect, T a)
 }
 
 template<typename T>
-trect<T>
-cut_bottom(trect<T>* rect, T a)
+Rect<T>
+cut_bottom(Rect<T>* rect, T a)
 {
     T old_top = rect->top;
     rect->top = std::max(rect->bottom, rect->top - a);
@@ -243,15 +243,15 @@ cut_bottom(trect<T>* rect, T a)
 }
 
 template<typename T>
-trect<T>
-rectcut_cut(const rect_cut<T>& rectcut, T a)
+Rect<T>
+rectcut_cut(const RectCut<T>& rectcut, T a)
 {
     switch (rectcut.side)
     {
-        case side::left:   return cut_left(rectcut.rect,   a);
-        case side::right:  return cut_right(rectcut.rect,  a);
-        case side::top:    return cut_top(rectcut.rect,    a);
-        case side::bottom: return cut_bottom(rectcut.rect, a);
+        case Side::left:   return cut_left(rectcut.rect,   a);
+        case Side::right:  return cut_right(rectcut.rect,  a);
+        case Side::top:    return cut_top(rectcut.rect,    a);
+        case Side::bottom: return cut_bottom(rectcut.rect, a);
         default:
             assert(false);
             return cut_bottom(rectcut.rect, a);
@@ -273,11 +273,11 @@ rect get_bottom(const trect<T>& rect, T a);
 #endif
 
 
-using rect = trect<float>;
-using recti = trect<int>;
+using Rectf = Rect<float>;
+using Recti = Rect<int>;
 
-constexpr rect
-Cint_to_float(const recti& r)
+constexpr Rectf
+Cint_to_float(const Recti& r)
 {
     return
     {

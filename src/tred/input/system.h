@@ -16,7 +16,7 @@
 
 namespace input::config
 {
-    struct input_system;
+    struct InputSystem;
 }
 
 
@@ -24,8 +24,8 @@ namespace input
 {
 
 
-struct table;
-struct platform;
+struct Table;
+struct Platform;
 
 
 enum class PlayerHandle : u64 {};
@@ -33,36 +33,36 @@ enum class PlayerHandle : u64 {};
 
 struct InputSystemPiml;
 
-struct input_system
+struct InputSystem
 {
-    input_system();
-    input_system(input_system&& is);
-    ~input_system();
+    InputSystem();
+    InputSystem(InputSystem&& is);
+    ~InputSystem();
 
-    void update_table(PlayerHandle player, table* table, float dt) const;
-    void update_player_connections(unit_discovery discovery, platform* platform) const;
+    void update_table(PlayerHandle player, Table* table, float dt) const;
+    void update_player_connections(unit_discovery discovery, Platform* platform) const;
 
     PlayerHandle add_player() const;
     bool is_connected(PlayerHandle player) const;
 
-    void on_keyboard_key(keyboard_key key, bool down);
-    void on_mouse_axis(xy_axis axis, float relative_state, float absolute_state);
-    void on_mouse_wheel(xy_axis axis, float value);
-    void on_mouse_button(mouse_button button, bool down);
+    void on_keyboard_key(KeyboardKey key, bool down);
+    void on_mouse_axis(Axis2 axis, float relative_state, float absolute_state);
+    void on_mouse_wheel(Axis2 axis, float value);
+    void on_mouse_button(MouseButton button, bool down);
 
-    void on_joystick_ball(joystick_id joystick, xy_axis type, int ball, float value);
-    void on_joystick_hat(joystick_id joystick, xy_axis type, int hat, float value);
-    void on_joystick_button(joystick_id joystick, int button, bool down);
-    void on_joystick_axis(joystick_id joystick, int axis, float value);
-    void on_joystick_lost(joystick_id joystick);
+    void on_joystick_ball(JoystickId joystick, Axis2 type, int ball, float value);
+    void on_joystick_hat(JoystickId joystick, Axis2 type, int hat, float value);
+    void on_joystick_button(JoystickId joystick, int button, bool down);
+    void on_joystick_axis(JoystickId joystick, int axis, float value);
+    void on_joystick_lost(JoystickId joystick);
 
-    void on_gamecontroller_button(joystick_id joystick, gamecontroller_button button, float state);
-    void on_gamecontroller_axis(joystick_id joystick, gamecontroller_axis axis, float value);
-    void on_gamecontroller_lost(joystick_id joystick);
+    void on_gamecontroller_button(JoystickId joystick, GamecontrollerButton button, float state);
+    void on_gamecontroller_axis(JoystickId joystick, GamecontrollerAxis axis, float value);
+    void on_gamecontroller_lost(JoystickId joystick);
 
     std::unique_ptr<InputSystemPiml> m;
 };
 
-result<input_system> load(const config::input_system& config);
+Result<InputSystem> load(const config::InputSystem& config);
 
 }

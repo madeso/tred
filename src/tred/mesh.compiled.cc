@@ -9,7 +9,7 @@
 
 
 unsigned int
-CreateBuffer()
+create_buffer()
 {
     unsigned int buffer;
     glGenBuffers(1, &buffer);
@@ -18,7 +18,7 @@ CreateBuffer()
 
 
 unsigned int
-CreateVertexArray()
+create_vertex_array()
 {
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -26,7 +26,7 @@ CreateVertexArray()
 };
 
 
-CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const vertex_types& st)
+CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
         : vbo(a_vbo)
         , vao(a_vao)
         , ebo(a_ebo)
@@ -37,7 +37,7 @@ CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 
 
 void
-CompiledMesh::Draw() const
+CompiledMesh::draw() const
 {
     assert(is_bound_for_shader(debug_shader_types));
     glBindVertexArray(vao);
@@ -47,7 +47,7 @@ CompiledMesh::Draw() const
 
 
 void
-CompiledMesh::Delete() const
+CompiledMesh::cleanup() const
 {
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &vao);
@@ -62,7 +62,7 @@ CompiledMesh::Delete() const
 
 struct BufferData
 {
-    using PerVertex = std::function<void (std::vector<float>*, const vertex&)>;
+    using PerVertex = std::function<void (std::vector<float>*, const Vertex&)>;
 
     int count;
     PerVertex per_vertex;
@@ -77,7 +77,7 @@ struct BufferData
 
 
 CompiledMesh
-Compile(const mesh& mesh, const compiled_vertex_layout& layout)
+compile(const Mesh& mesh, const CompiledVertexLayout& layout)
 {
     using VertexVector = std::vector<float>;
 
@@ -88,24 +88,24 @@ Compile(const mesh& mesh, const compiled_vertex_layout& layout)
     {
         switch(element.type)
         {
-        case vertex_type::position3:
-            data.emplace_back(3, [](VertexVector* vertices, const vertex& vertex)
+        case VertexType::position3:
+            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.position.x);
                 vertices->push_back(vertex.position.y);
                 vertices->push_back(vertex.position.z);
             });
             break;
-        case vertex_type::normal3:
-            data.emplace_back(3, [](VertexVector* vertices, const vertex& vertex)
+        case VertexType::normal3:
+            data.emplace_back(3, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.normal.x);
                 vertices->push_back(vertex.normal.y);
                 vertices->push_back(vertex.normal.z);
             });
             break;
-        case vertex_type::color4:
-            data.emplace_back(4, [](VertexVector* vertices, const vertex& vertex)
+        case VertexType::color4:
+            data.emplace_back(4, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.color.x);
                 vertices->push_back(vertex.color.y);
@@ -113,8 +113,8 @@ Compile(const mesh& mesh, const compiled_vertex_layout& layout)
                 vertices->push_back(vertex.color.w);
             });
             break;
-        case vertex_type::texture2:
-            data.emplace_back(2, [](VertexVector* vertices, const vertex& vertex)
+        case VertexType::texture2:
+            data.emplace_back(2, [](VertexVector* vertices, const Vertex& vertex)
             {
                 vertices->push_back(vertex.texture.x);
                 vertices->push_back(vertex.texture.y);
@@ -145,8 +145,8 @@ Compile(const mesh& mesh, const compiled_vertex_layout& layout)
         d.per_vertex(&vertices, vertex);
     }
 
-    const auto vbo = CreateBuffer();
-    const auto vao = CreateVertexArray();
+    const auto vbo = create_buffer();
+    const auto vao = create_vertex_array();
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -180,7 +180,7 @@ Compile(const mesh& mesh, const compiled_vertex_layout& layout)
     }
 
     // class: use IndexBuffer as it reflects the usage better than element buffer object?
-    const auto ebo = CreateBuffer();
+    const auto ebo = create_buffer();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData
     (

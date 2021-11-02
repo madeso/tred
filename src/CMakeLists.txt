@@ -39,6 +39,7 @@ set(src
     tred/input/unitdef.mouse.cc tred/input/unitdef.mouse.h
     tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
     tred/input/unitsetup.cc tred/input/unitsetup.h
+    tred/input/system.pimpl.cc tred/input/system.pimpl.h
 
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
@@ -46,7 +47,6 @@ set(src
     tred/mesh.default.cc tred/mesh.default.h
     tred/opengl.cc tred/opengl.h
     tred/opengl.debug.cc tred/opengl.debug.h
-    tred/profiler.cc tred/profiler.h
     tred/result.cc tred/result.h
     tred/shader.cc tred/shader.h
     tred/shader.util.cc tred/shader.util.h
