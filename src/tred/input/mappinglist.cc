@@ -8,7 +8,7 @@
 #include "tred/log.h"
 #include "tred/cint.h"
 
-#include "tred/input/Mapping.h"
+#include "tred/input/mapping.h"
 #include "tred/input/unitdef.keyboard.h"
 #include "tred/input/unitdef.joystick.h"
 #include "tred/input/unitdef.mouse.h"

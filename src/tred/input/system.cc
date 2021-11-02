@@ -8,7 +8,7 @@
 #include "tred/input/config.h"
 #include "tred/input/director.h"
 #include "tred/input/player.h"
-#include "tred/input/Mapping.h"
+#include "tred/input/mapping.h"
 #include "tred/input/connectedunits.h"
 #include "tred/input/mappinglist.h"
 #include "tred/input/actionmap.h"

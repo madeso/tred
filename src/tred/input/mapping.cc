@@ -1,4 +1,4 @@
-#include "tred/input/Mapping.h"
+#include "tred/input/mapping.h"
 
 #include <cassert>
 #include <algorithm>
