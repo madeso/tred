@@ -308,8 +308,7 @@ input::GamecontrollerButton to_controller_button(SDL_GameControllerButton b)
         case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return input::GamecontrollerButton::dpad_down;
         case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return input::GamecontrollerButton::dpad_left;
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return input::GamecontrollerButton::dpad_right;
-// todo(Gustav): when were theese introduced? not in 2.0.8 at least but I can't seem to find when atm
-#if SDL_VERSION_ATLEAST(2, 0, 9)
+#if SDL_VERSION_ATLEAST(2, 0, 14)
         case SDL_CONTROLLER_BUTTON_MISC1: return input::GamecontrollerButton::misc1;
         case SDL_CONTROLLER_BUTTON_PADDLE1: return input::GamecontrollerButton::paddle1;
         case SDL_CONTROLLER_BUTTON_PADDLE2: return input::GamecontrollerButton::paddle2;
