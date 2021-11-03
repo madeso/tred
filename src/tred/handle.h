@@ -275,7 +275,7 @@ struct HandleVector
     Pair& get_pair(Handle h)
     {
         const auto i = static_cast<std::size_t>(Functions::get_id(h));
-        const auto v = Functions::get_version(h);
+        [[maybe_unused]] const auto v = Functions::get_version(h);
         assert(data[i].version == v && "invalid handle (use after free)");
         return data[i];
     }

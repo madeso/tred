@@ -1197,7 +1197,7 @@ void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int co
     auto gd = agd;
     gd.play_against_computer = false;
     cur->cursor_state = cross_or_circle::circle;
-    const bool free = gGame->world.is_place_free({cube, col, row});
+    [[maybe_unused]] const bool free = gGame->world.is_place_free({cube, col, row});
     assert(free);
     place_marker(cur, gd, &gGame->world, cube, col, row);
 }
