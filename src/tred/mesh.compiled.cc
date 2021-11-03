@@ -14,7 +14,7 @@ create_buffer()
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     return buffer;
-};
+}
 
 
 unsigned int
@@ -23,7 +23,7 @@ create_vertex_array()
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     return vao;
-};
+}
 
 
 CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
