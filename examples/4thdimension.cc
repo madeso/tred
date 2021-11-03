@@ -1541,6 +1541,7 @@ struct GameWrapper : Game
         case GameState::game:
             game.update(gd, &random, mouse_button, old_mouse_button, dt, mouse, enter_state);
             r = !game.quit;
+            break;
         case GameState::menu:
             menu.update(&gd, mouse, mouse_button, dt);
             break;

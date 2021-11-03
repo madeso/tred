@@ -11,7 +11,7 @@
 #include "glad/glad.h"
 
 // imgui
-#include "imgui.h"
+#include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "tred/undef_windows.h"

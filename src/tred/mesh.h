@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 
 /** A unique combination of position/normal/texturecoord/etc. in a Mesh.

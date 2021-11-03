@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 #include <string>
 #include <memory>

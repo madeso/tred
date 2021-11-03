@@ -58,7 +58,7 @@ struct ColorFlips
     {
         const auto color = [](int c, int s) -> float
         {
-            return ((c >> s) & 0xff) / 255.0f;
+            return static_cast<float>((c >> s) & 0xff) / 255.0f;
         };
 
         for(std::size_t x=0; x<width; x+=1)

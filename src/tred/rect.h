@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 // basic rect
 // also heavily inspired by https://halt.software/dead-simple-layouts/

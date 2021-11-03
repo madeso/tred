@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 #include "tred/vertex_layout.h"
 #include "tred/uniform.h"

@@ -53,7 +53,7 @@ namespace onebit
                 auto index = ::onebit::text_string.find(c);
                 if(index != std::string_view::npos)
                 {
-                    batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[static_cast<std::size_t>(index)], color);
+                    batch->quad(onebit, anim.transform(position_in_string, sprite.translate(x, y)), ::onebit::text[index], color);
                     x += font_spacing;
                     position_in_string += 1;
                 }

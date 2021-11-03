@@ -3,7 +3,7 @@
 #include <string>
 
 #include "tred/rect.h"
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 struct Texture;
 struct SpriteBatch;

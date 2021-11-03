@@ -56,7 +56,7 @@ Result<ActionMap> load_action_map(const input::config::ActionMap& root)
         map.add_action(d.name, std::make_unique<Action>(d.name, d.var, d.range));
     }
 
-    return std::move(map);
+    return map;
 }
 
 

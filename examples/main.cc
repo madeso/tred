@@ -15,18 +15,12 @@
 
 // dependency headers
 #include "glad/glad.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
-DISABLE_WARNING_PUSH
-DISABLE_WARNING_NONSTANDARD_NAMELESS_STRUCT_UNION
-#include "glm/gtc/type_ptr.hpp"
-DISABLE_WARNING_POP
+#include "tred/dependency_glm.h"
 
 #include "tred/undef_windows.h"
 
 // imgui
-#include "imgui.h"
+#include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
@@ -610,9 +604,9 @@ main(int, char**)
     };
     auto spot_light = ::SpotLight{};
 
-    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& camera)
+    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& compiled_camera)
     {
-        const auto view = camera.view;
+        const auto view = compiled_camera.view;
 
         const auto pv = projection * view;
 
@@ -636,7 +630,7 @@ main(int, char**)
         {
             uni_point_lights[i].set_shader(&shader, point_lights[i]);
         }
-        shader.set_vec3(uni_view_position, camera.position);
+        shader.set_vec3(uni_view_position, compiled_camera.position);
 
         for(unsigned int i=0; i<cube_positions.size(); i+=1)
         {

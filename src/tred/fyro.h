@@ -23,10 +23,10 @@
 // dependency headers
 #include "glad/glad.h"
 #include "stb_image.h"
-#include "glm/glm.hpp"
+#include "tred/dependency_glm.h"
 
 // imgui
-#include "imgui.h"
+#include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 

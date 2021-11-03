@@ -10,13 +10,12 @@
 #include "glad/glad.h"
 
 // imgui
-#include "imgui.h"
+#include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "tred/dependency_sdl.h"
+#include "tred/dependency_glm.h"
 #include "tred/log.h"
 #include "tred/opengl.debug.h"
 #include "tred/types.h"
