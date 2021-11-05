@@ -248,30 +248,55 @@ struct Textures
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// how to handle lights
+// how to handle lights?
+
+// open gl shader
+struct ShaderProgram;
 
 // defined by "world"
 //  exoses a 'calculate_light()' function
-struct LightShader {};
+struct LightShaderUniforms {};
+struct LightShader
+{
+    void set_shader_uniforms(ShaderProgram*, LightShaderUniforms* uniforms, Light*);
+    LightShaderUniforms* get_uniforms(ShaderProgram*);
+};
 
 // defined by "script"
 //  exposes a 'calculate_color()' function
-struct MaterialShader {};
+struct MaterialShaderUniforms {};
+struct MaterialShader
+{
+    void set_shader_uniforms(ShaderProgram*, MaterialShaderUniforms* uniforms, MaterialProperties*);
+    MaterialShaderUniforms* get_uniforms(ShaderProgram*);
+};
 
 // defined by "mesh"
 //   exposes position, normal and whatever else for the material and light
-struct TransformShader {};
-
-struct CombinedShader
+struct TransformShaderUniforms {};
+struct TransformShader
 {
+    void set_shader_uniforms(ShaderProgram*, TransformShaderUniforms* uniforms, MeshInstance* mesh);
+    TransformShaderUniforms* get_uniforms(ShaderProgram*);
+};
+
+struct Shader
+{
+    ShaderProgram* program;
+
     LightShader* light_shader;
     MaterialShader* material_shader;
+    TransformShader* transform_shader;
+
+    LightShaderUniforms* light_shader_uniforms;
+    MaterialShaderUniforms* material_shader_uniforms;
+    TransformShaderUniforms transform_shader_uniforms;
 };
 
 struct Look
 {
-    CombinedShader* combined_shader;
-    vector<TextureRef> textures;
+    Shader* shader;
+    MaterialProperties* properties;
 };
 
 struct Material
@@ -281,9 +306,27 @@ struct Material
     map<string, Look> looks;
 };
 
+
+// known shader variables like diffuse and color
+struct ShaderName {string name;};
+
+struct DefinedShaderProperties
+{
+    std::vector<ShaderName> textures;
+};
+
+// assigned shader variable, like diffuse=diffuse.png, color=red;
+struct AssignedShaderProperties
+{
+    vector<TextureRef> textures;
+};
+
+struct MaterialProperties
+{
+    AssignedShaderProperties properties;
+};
 struct Light
 {
-    virtual void SetupShader(CombinedShader* shader) = 0;
 };
 
 struct Renderer
