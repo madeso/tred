@@ -35,12 +35,11 @@ struct Windows
 
     virtual ~Windows() = default;
 
-    void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render);
-    void add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui);
+    virtual void set_render(render_function&& on_render) = 0;
 
     virtual input::Platform* get_input_platform() = 0;
 
-    virtual void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) = 0;
+    virtual void add_window(const std::string& title, const glm::ivec2& size) = 0;
     virtual void render() = 0;
     virtual void pump_events(input::InputSystem* input_system) = 0;
 };

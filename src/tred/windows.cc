@@ -417,33 +417,74 @@ struct SdlPlatform : public input::Platform
 
 namespace
 {
-    void setup_open_gl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+    struct OpenGlSetup
     {
-        setup_opengl_debug();
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK); // remove back faces
+        bool opengl_initialized = false;
 
-        const auto* renderer = glGetString(GL_RENDERER); // get renderer string
-        const auto* version = glGetString(GL_VERSION); // version as a string
-        LOG_INFO("Renderer: {}", renderer);
-        LOG_INFO("Version: {}", version);
+        detail::Window* imgui_owning_window = nullptr;
+        bool imgui_requested = true;
 
-        if(!imgui) { return; }
+        void run_setup(SDL_Window* window, SDL_GLContext glcontext, detail::Window* win)
+        {
+            if(opengl_initialized == false)
+            {
+                setup_opengl_debug();
+                glEnable(GL_DEPTH_TEST);
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_BACK); // remove back faces
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        auto& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+                const auto* renderer = glGetString(GL_RENDERER); // get renderer string
+                const auto* version = glGetString(GL_VERSION); // version as a string
+                LOG_INFO("Renderer: {}", renderer);
+                LOG_INFO("Version: {}", version);
 
-        ImGui::StyleColorsLight();
+                opengl_initialized = true;
+            }
 
-        ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
+            if(imgui_requested && imgui_owning_window == nullptr)
+            {
+                IMGUI_CHECKVERSION();
+                ImGui::CreateContext();
+                auto& io = ImGui::GetIO();
+                io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+                io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-        const char* glsl_version = "#version 130";
-        ImGui_ImplOpenGL3_Init(glsl_version);
-    }
+                ImGui::StyleColorsLight();
+
+                ImGui_ImplSDL2_InitForOpenGL(window, glcontext);
+
+                const char* glsl_version = "#version 130";
+                ImGui_ImplOpenGL3_Init(glsl_version);
+
+                imgui_owning_window = win;
+            }
+        }
+
+        bool is_imgui(detail::Window* win)
+        {
+            return win == imgui_owning_window;
+        }
+
+        bool is_imgui_initialized()
+        {
+            return imgui_owning_window != nullptr;
+        }
+
+        void closing_window(detail::Window* win)
+        {
+            if(win == imgui_owning_window)
+            {
+                ImGui_ImplOpenGL3_Shutdown();
+                ImGui_ImplSDL2_Shutdown();
+                imgui_owning_window = nullptr;
+            }
+        }
+
+        ~OpenGlSetup()
+        {
+            assert(imgui_owning_window == nullptr);
+        }
+    };
 }
 
 
@@ -451,19 +492,21 @@ struct WindowImplementation : public detail::Window
 {
     std::string title;
     glm::ivec2 size;
-    render_function on_render;
-    std::optional<imgui_function> imgui;
 
     SDL_Window* sdl_window;
     SDL_GLContext sdl_glcontext;
 
-    WindowImplementation(const std::string& t, const glm::ivec2& s, render_function&& r, std::optional<imgui_function>&& i)
+    OpenGlSetup* opengl_setup;
+
+    std::optional<render_function> on_render;
+    std::optional<imgui_function> on_imgui;
+
+    WindowImplementation(const std::string& t, const glm::ivec2& s, OpenGlSetup* setup)
         : title(t)
         , size(s)
-        , on_render(r)
-        , imgui(i)
         , sdl_window(nullptr)
         , sdl_glcontext(nullptr)
+        , opengl_setup(setup)
     {
         sdl_window = SDL_CreateWindow
         (
@@ -506,18 +549,14 @@ struct WindowImplementation : public detail::Window
             return;
         }
 
-        setup_open_gl(sdl_window, sdl_glcontext, imgui.has_value());
+        setup->run_setup(sdl_window, sdl_glcontext, this);
     }
 
     ~WindowImplementation() override
     {
         if(sdl_window)
         {
-            if(imgui)
-            {
-                ImGui_ImplOpenGL3_Shutdown();
-                ImGui_ImplSDL2_Shutdown();
-            }
+            opengl_setup->closing_window(this);
 
             SDL_GL_DeleteContext(sdl_glcontext);
             SDL_DestroyWindow(sdl_window);
@@ -528,15 +567,18 @@ struct WindowImplementation : public detail::Window
     {
         if(sdl_window == nullptr) { return; }
 
-        on_render(size);
+        if(on_render)
+        {
+            (*on_render)(size);
+        }
 
-        if(imgui)
+        if(on_imgui && opengl_setup->is_imgui(this))
         {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(sdl_window);
             ImGui::NewFrame();
 
-            (*imgui)();
+            (*on_imgui)();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -555,30 +597,14 @@ struct WindowImplementation : public detail::Window
         if(sdl_window == nullptr) { return 0; }
         return SDL_GetWindowID(sdl_window);
     }
-
-    [[nodiscard]] bool has_imgui() const
-    {
-        return imgui.has_value();
-    }
 };
-
-
-void Windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render)
-{
-    add_window_implementation(title, size, std::move(on_render), std::nullopt);
-}
-
-
-void Windows::add_window(const std::string& title, const glm::ivec2& size, render_function&& on_render, imgui_function&& on_imgui)
-{
-    add_window_implementation(title, size, std::move(on_render), std::move(on_imgui));
-}
 
 
 struct WindowsImplementation : public Windows
 {
     std::map<window_id, std::unique_ptr<WindowImplementation>> windows;
     std::unique_ptr<SdlPlatform> platform;
+    OpenGlSetup opengl_setup;
 
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
@@ -592,10 +618,18 @@ struct WindowsImplementation : public Windows
         SDL_Quit();
     }
 
-    void add_window_implementation(const std::string& title, const glm::ivec2& size, render_function&& on_render, std::optional<imgui_function>&& imgui) override
+    void add_window(const std::string& title, const glm::ivec2& size) override
     {
-        auto window = std::make_unique<WindowImplementation>(title, size, std::move(on_render), std::move(imgui));
+        auto window = std::make_unique<WindowImplementation>(title, size, &opengl_setup);
         windows[window->get_id()] = std::move(window);
+    }
+
+    void set_render(render_function&& on_render) override
+    {
+        // hacky hack
+        // todo(Gustav): add a handle arg so we don't have to assume we want to change the first window
+
+        windows.begin()->second->on_render = on_render;
     }
 
     void render() override
@@ -604,19 +638,6 @@ struct WindowsImplementation : public Windows
         {
             window.second->render();
         }
-    }
-
-    bool has_imgui()
-    {
-        for(auto& window: windows)
-        {
-            if(window.second->has_imgui())
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     input::Platform* get_input_platform() override
@@ -630,7 +651,7 @@ struct WindowsImplementation : public Windows
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0)
         {
-            if(has_imgui())
+            if(opengl_setup.is_imgui_initialized())
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
             }

@@ -499,14 +499,7 @@ main(int, char**)
 
     auto camera = ::Camera{};
 
-    windows->add_window
-    (
-        "TreD", {1280, 720},
-        [&](const glm::ivec2& size)
-        {
-            engine.render(size, camera);
-        }
-    );
+    windows->add_window("TreD", {1280, 720});
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
@@ -603,6 +596,14 @@ main(int, char**)
         glm::vec3{ 0.0f,  0.0f, -3.0f}
     };
     auto spot_light = ::SpotLight{};
+
+    windows->set_render
+    (
+        [&](const glm::ivec2& size)
+        {
+            engine.render(size, camera);
+        }
+    );
 
     engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& compiled_camera)
     {
