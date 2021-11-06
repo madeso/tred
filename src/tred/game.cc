@@ -17,7 +17,7 @@
 #include "tred/dependency_sdl.h"
 #include "tred/dependency_glm.h"
 #include "tred/log.h"
-#include "tred/opengl.debug.h"
+#include "tred/opengl_debug.h"
 #include "tred/types.h"
 #include "tred/image.h"
 #include "tred/viewportdef.h"

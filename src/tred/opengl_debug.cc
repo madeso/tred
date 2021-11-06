@@ -1,4 +1,4 @@
-#include "tred/opengl.debug.h"
+#include "tred/opengl_debug.h"
 
 #include "glad/glad.h"
 

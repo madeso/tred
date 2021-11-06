@@ -47,7 +47,7 @@ set(src
     tred/mesh.compiled.cc tred/mesh.compiled.h
     tred/mesh.default.cc tred/mesh.default.h
     tred/dependency_opengl.cc tred/dependency_opengl.h
-    tred/opengl.debug.cc tred/opengl.debug.h
+    tred/opengl_debug.cc tred/opengl_debug.h
     tred/result.cc tred/result.h
     tred/shader.cc tred/shader.h
     tred/shader.util.cc tred/shader.util.h

@@ -26,7 +26,7 @@
 
 // custom/local headers
 #include "tred/dependency_sdl.h"
-#include "tred/opengl.debug.h"
+#include "tred/opengl_debug.h"
 #include "tred/cint.h"
 #include "tred/mesh.h"
 #include "tred/mesh.default.h"
