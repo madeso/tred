@@ -3,7 +3,7 @@
 #include <functional>
 #include <numeric>
 
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 #include "tred/cint.h"
 #include "tred/shader.util.h"
 

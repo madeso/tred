@@ -1,6 +1,6 @@
 #include "tred/shader.h"
 
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 #include "tred/shader.util.h"
 #include "tred/log.h"
 #include "tred/cint.h"

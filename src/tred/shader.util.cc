@@ -1,6 +1,6 @@
 #include "tred/shader.util.h"
 
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 
 
 namespace

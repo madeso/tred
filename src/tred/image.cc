@@ -2,7 +2,7 @@
 
 #include "stb_image.h"
 
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 #include "tred/log.h"
 #include "tred/cint.h"
 

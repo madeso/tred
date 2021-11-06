@@ -3,7 +3,7 @@
 #include "glad/glad.h"
 
 #include "tred/dependency_sdl.h"
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 #include "tred/log.h"
 
 

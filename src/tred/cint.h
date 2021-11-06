@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 
 
 // include size_t

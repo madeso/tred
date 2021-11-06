@@ -3,7 +3,7 @@
 #include "tred/texture.h"
 #include "tred/image.h"
 #include "tred/shader.h"
-#include "tred/opengl.h"
+#include "tred/dependency_opengl.h"
 #include "tred/game.h"
 
 SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
