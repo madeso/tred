@@ -371,26 +371,6 @@ CompiledCamera compile(const CameraVectors& camera)
 }
 
 
-struct Engine
-{
-    std::function<void (const glm::mat4& projection, const CompiledCamera& camera)> painter_callback;
-
-    void render(const glm::ivec2& size, const Camera& camera) const
-    {
-        glViewport(0, 0, size.x, size.y);
-
-        // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-        const auto aspect_ratio = static_cast<float>(size.x)/static_cast<float>(size.y);
-        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        painter_callback(projection, compile(camera.create_vectors()));
-    }
-};
-
-
 int
 main(int, char**)
 {
@@ -494,8 +474,6 @@ main(int, char**)
     }
 
     auto sdl_input = std::move(*sdl_input_loaded.value);
-
-    Engine engine;
 
     auto camera = ::Camera{};
 
@@ -601,66 +579,71 @@ main(int, char**)
     (
         [&](const glm::ivec2& size)
         {
-            engine.render(size, camera);
-        }
-    );
+            // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+            const auto aspect_ratio = static_cast<float>(size.x)/static_cast<float>(size.y);
+            const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
 
-    engine.painter_callback = [&](const glm::mat4& projection, const CompiledCamera& compiled_camera)
-    {
-        const auto view = compiled_camera.view;
+            glViewport(0, 0, size.x, size.y);
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        const auto pv = projection * view;
+            const auto compiled_camera = compile(camera.create_vectors());
+        
+            const auto view = compiled_camera.view;
 
-        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-        {
-            light_shader.use();
-            light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
+            const auto pv = projection * view;
+
+            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
             {
-                const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
-                light_shader.set_mat(uni_light_transform, pv * model);
+                light_shader.use();
+                light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
+                {
+                    const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
+                    light_shader.set_mat(uni_light_transform, pv * model);
+                }
+                light_mesh.draw();
             }
-            light_mesh.draw();
-        }
 
-        shader.use();
-        shader.set_vec4(uni_color, cube_color);
-        uni_material.set_shader(&shader, material);
-        uni_directional_light.set_shader(&shader, directional_light);
-        uni_spot_light.set_shader(&shader, spot_light);
-        for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-        {
-            uni_point_lights[i].set_shader(&shader, point_lights[i]);
-        }
-        shader.set_vec3(uni_view_position, compiled_camera.position);
-
-        for(unsigned int i=0; i<cube_positions.size(); i+=1)
-        {
-            const auto angle = 20.0f * static_cast<float>(i);
-            const float time = 0;
+            shader.use();
+            shader.set_vec4(uni_color, cube_color);
+            uni_material.set_shader(&shader, material);
+            uni_directional_light.set_shader(&shader, directional_light);
+            uni_spot_light.set_shader(&shader, spot_light);
+            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
             {
-                const auto model = glm::rotate
-                (
-                    glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                    time + glm::radians(angle),
-                    i%2 == 0
-                    ? glm::vec3{1.0f, 0.3f, 0.5f}
-                    : glm::vec3{0.5f, 1.0f, 0.0f}
-                );
+                uni_point_lights[i].set_shader(&shader, point_lights[i]);
+            }
+            shader.set_vec3(uni_view_position, compiled_camera.position);
+
+            for(unsigned int i=0; i<cube_positions.size(); i+=1)
+            {
+                const auto angle = 20.0f * static_cast<float>(i);
+                const float time = 0;
+                {
+                    const auto model = glm::rotate
+                    (
+                        glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                        time + glm::radians(angle),
+                        i%2 == 0
+                        ? glm::vec3{1.0f, 0.3f, 0.5f}
+                        : glm::vec3{0.5f, 1.0f, 0.0f}
+                    );
+                    shader.set_mat(uni_transform, pv * model);
+                    shader.set_mat(uni_model_transform, model);
+                    shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                }
+                mesh.draw();
+            }
+
+            {
+                const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
                 shader.set_mat(uni_transform, pv * model);
                 shader.set_mat(uni_model_transform, model);
                 shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                plane_mesh.draw();
             }
-            mesh.draw();
         }
-
-        {
-            const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-            shader.set_mat(uni_transform, pv * model);
-            shader.set_mat(uni_model_transform, model);
-            shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-            plane_mesh.draw();
-        }
-    };
+    );
 
     auto player = sdl_input.add_player();
     auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
