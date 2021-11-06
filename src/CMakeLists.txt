@@ -42,6 +42,7 @@ set(src
     tred/input/system.pimpl.cc tred/input/system.pimpl.h
 
     tred/render2.cc tred/render2.h
+    tred/layer2.cc tred/layer2.h
     tred/spritebatch.cc tred/spritebatch.h
     tred/log.cc tred/log.h
     tred/mesh.cc tred/mesh.h
