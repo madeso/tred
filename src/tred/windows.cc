@@ -18,7 +18,7 @@
 
 #include "tred/dependency_sdl.h"
 #include "tred/log.h"
-#include "tred/opengl_debug.h"
+#include "tred/opengl_utils.h"
 #include "tred/types.h"
 #include "tred/handle.h"
 
@@ -428,10 +428,8 @@ namespace
         {
             if(opengl_initialized == false)
             {
-                setup_opengl_debug();
-                glEnable(GL_DEPTH_TEST);
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_BACK); // remove back faces
+                opengl_setup();
+                opengl_set3d();
 
                 const auto* renderer = glGetString(GL_RENDERER); // get renderer string
                 const auto* version = glGetString(GL_VERSION); // version as a string

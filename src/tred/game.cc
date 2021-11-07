@@ -18,10 +18,10 @@
 #include "tred/dependency_glm.h"
 #include "tred/log.h"
 #include "tred/opengl_debug.h"
+#include "tred/opengl_utils.h"
 #include "tred/types.h"
 #include "tred/image.h"
 #include "tred/viewportdef.h"
-
 #include "tred/windows.sdl.convert.h"
 
 
@@ -37,12 +37,8 @@ namespace
 {
     void setup_open_gl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
     {
-        setup_opengl_debug();
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glCullFace(GL_BACK); // remove back faces
+        opengl_setup();
+        opengl_set2d();
 
         const auto* renderer = glGetString(GL_RENDERER); // get renderer string
         const auto* version = glGetString(GL_VERSION); // version as a string
