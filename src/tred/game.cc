@@ -19,6 +19,7 @@
 #include "tred/log.h"
 #include "tred/opengl_debug.h"
 #include "tred/opengl_utils.h"
+#include "tred/opengl_state.h"
 #include "tred/types.h"
 #include "tred/image.h"
 #include "tred/viewportdef.h"
@@ -35,10 +36,10 @@ void Game::on_mouse_wheel(int) {}
 
 namespace
 {
-    void setup_open_gl(SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+    void setup_open_gl(OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, bool imgui)
     {
-        opengl_setup();
-        opengl_set2d();
+        opengl_setup(states);
+        opengl_set2d(states);
 
         const auto* renderer = glGetString(GL_RENDERER); // get renderer string
         const auto* version = glGetString(GL_VERSION); // version as a string
@@ -76,7 +77,7 @@ struct Window
     std::shared_ptr<Game> game;
     std::unique_ptr<Render2> render_data;
 
-    Window(const std::string& t, const glm::ivec2& s, bool i)
+    Window(OpenglStates* states, const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
         , size(s)
         , imgui(i)
@@ -124,7 +125,7 @@ struct Window
             return;
         }
 
-        setup_open_gl(sdl_window, sdl_glcontext, imgui);
+        setup_open_gl(states, sdl_window, sdl_glcontext, imgui);
     }
 
     ~Window()
@@ -254,7 +255,8 @@ void pump_events(Window* window)
 
 int setup_and_run(std::function<std::shared_ptr<Game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
 {
-    auto window = ::Window{title, size, call_imgui};
+    OpenglStates states;
+    auto window = ::Window{&states, title, size, call_imgui};
     if(window.sdl_window == nullptr)
     {
         return -1;

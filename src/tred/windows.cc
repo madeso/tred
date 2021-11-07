@@ -19,6 +19,7 @@
 #include "tred/dependency_sdl.h"
 #include "tred/log.h"
 #include "tred/opengl_utils.h"
+#include "tred/opengl_state.h"
 #include "tred/types.h"
 #include "tred/handle.h"
 
@@ -424,12 +425,12 @@ namespace
         detail::Window* imgui_owning_window = nullptr;
         bool imgui_requested = true;
 
-        void run_setup(SDL_Window* window, SDL_GLContext glcontext, detail::Window* win)
+        void run_setup(OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, detail::Window* win)
         {
             if(opengl_initialized == false)
             {
-                opengl_setup();
-                opengl_set3d();
+                opengl_setup(states);
+                opengl_set3d(states);
 
                 const auto* renderer = glGetString(GL_RENDERER); // get renderer string
                 const auto* version = glGetString(GL_VERSION); // version as a string
@@ -499,7 +500,7 @@ struct WindowImplementation : public detail::Window
     std::optional<render_function> on_render;
     std::optional<imgui_function> on_imgui;
 
-    WindowImplementation(const std::string& t, const glm::ivec2& s, OpenGlSetup* setup)
+    WindowImplementation(OpenglStates* states, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup)
         : title(t)
         , size(s)
         , sdl_window(nullptr)
@@ -547,7 +548,7 @@ struct WindowImplementation : public detail::Window
             return;
         }
 
-        setup->run_setup(sdl_window, sdl_glcontext, this);
+        setup->run_setup(states, sdl_window, sdl_glcontext, this);
     }
 
     ~WindowImplementation() override
@@ -603,6 +604,7 @@ struct WindowsImplementation : public Windows
     std::map<window_id, std::unique_ptr<WindowImplementation>> windows;
     std::unique_ptr<SdlPlatform> platform;
     OpenGlSetup opengl_setup;
+    OpenglStates states;
 
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
@@ -618,7 +620,7 @@ struct WindowsImplementation : public Windows
 
     void add_window(const std::string& title, const glm::ivec2& size) override
     {
-        auto window = std::make_unique<WindowImplementation>(title, size, &opengl_setup);
+        auto window = std::make_unique<WindowImplementation>(&states, title, size, &opengl_setup);
         windows[window->get_id()] = std::move(window);
     }
 

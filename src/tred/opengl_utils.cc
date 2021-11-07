@@ -2,30 +2,44 @@
 
 #include "tred/dependency_opengl.h"
 #include "tred/opengl_debug.h"
+#include "tred/opengl_state.h"
 
-
-void opengl_setup()
+void opengl_setup(OpenglStates* state)
 {
     setup_opengl_debug();
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK); // remove back faces
-}
-
-
-void opengl_set2d()
-{
-    glDisable(GL_DEPTH_TEST);
-
-    glEnable(GL_BLEND);
+    apply
+    (
+        state,
+        OpenglStates{}
+            .set_cull_face(true)
+    );
+    
+    glCullFace(GL_BACK);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
-void opengl_set3d()
+void opengl_set2d(OpenglStates* states)
 {
-    glEnable(GL_DEPTH_TEST);
+    apply
+    (
+        states,
+        OpenglStates{}
+            .set_depth_test(false)
+            .set_blending(true)
+    );
+}
 
-    glDisable(GL_BLEND);
+
+void opengl_set3d(OpenglStates* states)
+{
+    apply
+    (
+        states,
+        OpenglStates{}
+            .set_depth_test(true)
+            .set_blending(false)
+    );
 }
 
