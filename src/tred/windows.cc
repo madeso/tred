@@ -22,6 +22,8 @@
 #include "tred/opengl_state.h"
 #include "tred/types.h"
 #include "tred/handle.h"
+#include "tred/render2.h"
+#include "tred/layer2.h"
 
 #include "tred/input/system.h"
 #include "tred/input/platform.h"
@@ -425,6 +427,8 @@ namespace
         detail::Window* imgui_owning_window = nullptr;
         bool imgui_requested = true;
 
+        std::unique_ptr<Render2> render_data;
+
         void run_setup(OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, detail::Window* win)
         {
             if(opengl_initialized == false)
@@ -436,6 +440,8 @@ namespace
                 const auto* version = glGetString(GL_VERSION); // version as a string
                 LOG_INFO("Renderer: {}", renderer);
                 LOG_INFO("Version: {}", version);
+
+                render_data = std::make_unique<Render2>();
 
                 opengl_initialized = true;
             }
@@ -500,12 +506,15 @@ struct WindowImplementation : public detail::Window
     std::optional<render_function> on_render;
     std::optional<imgui_function> on_imgui;
 
-    WindowImplementation(OpenglStates* states, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup)
+    OpenglStates* states;
+
+    WindowImplementation(OpenglStates* st, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup)
         : title(t)
         , size(s)
         , sdl_window(nullptr)
         , sdl_glcontext(nullptr)
         , opengl_setup(setup)
+        , states(st)
     {
         sdl_window = SDL_CreateWindow
         (
@@ -568,7 +577,7 @@ struct WindowImplementation : public detail::Window
 
         if(on_render)
         {
-            (*on_render)(size);
+            (*on_render)({states, opengl_setup->render_data.get(), size});
         }
 
         if(on_imgui && opengl_setup->is_imgui(this))

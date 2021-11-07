@@ -40,7 +40,8 @@
 #include "tred/input/system.h"
 #include "tred/input/config.h"
 #include "tred/input/table.h"
-
+#include "tred/layer2.h"
+#include "tred/spritebatch.h"
 
 // resource headers
 #include "shader_vertex.glsl.h"
@@ -370,6 +371,10 @@ CompiledCamera compile(const CameraVectors& camera)
     return {view, camera.position};
 }
 
+float get_aspect_ratio(const Rectf& r)
+{
+    return r.get_width() / r.get_height();
+}
 
 int
 main(int, char**)
@@ -577,70 +582,80 @@ main(int, char**)
 
     windows->set_render
     (
-        [&](const glm::ivec2& size)
+        [&](const RenderCommand& rc)
         {
-            // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-            const auto aspect_ratio = static_cast<float>(size.x)/static_cast<float>(size.y);
-            const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-
-            glViewport(0, 0, size.x, size.y);
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            const auto compiled_camera = compile(camera.create_vectors());
-        
-            const auto view = compiled_camera.view;
-
-            const auto pv = projection * view;
-
-            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
             {
-                light_shader.use();
-                light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
+                auto l3 = with_layer3(rc, {ViewportStyle::extended, 800.0f, 600.0f});
+
+                const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
+                const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
+
+                // todo(Gustav): move clear to rc
+                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+                const auto compiled_camera = compile(camera.create_vectors());
+            
+                const auto view = compiled_camera.view;
+
+                const auto pv = projection * view;
+
+                for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
                 {
-                    const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
-                    light_shader.set_mat(uni_light_transform, pv * model);
+                    light_shader.use();
+                    light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
+                    {
+                        const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
+                        light_shader.set_mat(uni_light_transform, pv * model);
+                    }
+                    light_mesh.draw();
                 }
-                light_mesh.draw();
-            }
 
-            shader.use();
-            shader.set_vec4(uni_color, cube_color);
-            uni_material.set_shader(&shader, material);
-            uni_directional_light.set_shader(&shader, directional_light);
-            uni_spot_light.set_shader(&shader, spot_light);
-            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-            {
-                uni_point_lights[i].set_shader(&shader, point_lights[i]);
-            }
-            shader.set_vec3(uni_view_position, compiled_camera.position);
-
-            for(unsigned int i=0; i<cube_positions.size(); i+=1)
-            {
-                const auto angle = 20.0f * static_cast<float>(i);
-                const float time = 0;
+                shader.use();
+                shader.set_vec4(uni_color, cube_color);
+                uni_material.set_shader(&shader, material);
+                uni_directional_light.set_shader(&shader, directional_light);
+                uni_spot_light.set_shader(&shader, spot_light);
+                for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
                 {
-                    const auto model = glm::rotate
-                    (
-                        glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                        time + glm::radians(angle),
-                        i%2 == 0
-                        ? glm::vec3{1.0f, 0.3f, 0.5f}
-                        : glm::vec3{0.5f, 1.0f, 0.0f}
-                    );
+                    uni_point_lights[i].set_shader(&shader, point_lights[i]);
+                }
+                shader.set_vec3(uni_view_position, compiled_camera.position);
+
+                for(unsigned int i=0; i<cube_positions.size(); i+=1)
+                {
+                    const auto angle = 20.0f * static_cast<float>(i);
+                    const float time = 0;
+                    {
+                        const auto model = glm::rotate
+                        (
+                            glm::translate(glm::mat4(1.0f), cube_positions[i]),
+                            time + glm::radians(angle),
+                            i%2 == 0
+                            ? glm::vec3{1.0f, 0.3f, 0.5f}
+                            : glm::vec3{0.5f, 1.0f, 0.0f}
+                        );
+                        shader.set_mat(uni_transform, pv * model);
+                        shader.set_mat(uni_model_transform, model);
+                        shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                    }
+                    mesh.draw();
+                }
+
+                {
+                    const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
                     shader.set_mat(uni_transform, pv * model);
                     shader.set_mat(uni_model_transform, model);
                     shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
+                    plane_mesh.draw();
                 }
-                mesh.draw();
             }
 
+            // draw hud (not working yet... destroys floor)
             {
-                const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                shader.set_mat(uni_transform, pv * model);
-                shader.set_mat(uni_model_transform, model);
-                shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-                plane_mesh.draw();
+                auto l2 = with_layer2(rc, {ViewportStyle::extended, 800.0f, 600.0f});
+
+                l2.batch->quad(std::nullopt, Rectf::from_xywh(50.0f, 50.0f, 30.0f, 30.0f), std::nullopt, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             }
         }
     );

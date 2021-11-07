@@ -26,12 +26,12 @@
 #include "tred/windows.sdl.convert.h"
 
 
-void Game::on_render(const RenderCommand2&) {}
+void Game::on_render(const RenderCommand&) {}
 void Game::on_imgui() {}
 bool Game::on_update(float) { return true; }
 void Game::on_key(char, bool) {}
-void Game::on_mouse_position(const Command2&, const glm::ivec2&) {}
-void Game::on_mouse_button(const Command2&, input::MouseButton, bool) {}
+void Game::on_mouse_position(const InputCommand&, const glm::ivec2&) {}
+void Game::on_mouse_button(const InputCommand&, input::MouseButton, bool) {}
 void Game::on_mouse_wheel(int) {}
 
 namespace
@@ -73,16 +73,18 @@ struct Window
 
     SDL_Window* sdl_window;
     SDL_GLContext sdl_glcontext;
+    OpenglStates* states;
 
     std::shared_ptr<Game> game;
     std::unique_ptr<Render2> render_data;
 
-    Window(OpenglStates* states, const std::string& t, const glm::ivec2& s, bool i)
+    Window(OpenglStates* st, const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
         , size(s)
         , imgui(i)
         , sdl_window(nullptr)
         , sdl_glcontext(nullptr)
+        , states(st)
     {
         sdl_window = SDL_CreateWindow
         (
@@ -152,7 +154,7 @@ struct Window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        game->on_render({render_data.get(), size});
+        game->on_render({states, render_data.get(), size});
 
         if(imgui)
         {

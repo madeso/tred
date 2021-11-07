@@ -111,9 +111,9 @@ struct ExampleGame : public Game
     }
 
     void
-    on_render(const RenderCommand2& rc) override
+    on_render(const RenderCommand& rc) override
     {
-        auto r = with_layer(rc, {ViewportStyle::extended, 200.0f, 200.0f, glm::mat4(1.0f)});
+        auto r = with_layer2(rc, {ViewportStyle::extended, 200.0f, 200.0f});
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
@@ -129,7 +129,7 @@ struct ExampleGame : public Game
         r.batch->quad(&letter_g, Rectf{40, 40}.translate(40, 40), {});
     }
 
-    void on_mouse_position(const Command2&, const glm::ivec2& p) override
+    void on_mouse_position(const InputCommand&, const glm::ivec2& p) override
     {
         // todo(Gustav): store world mouse?
         mouse = {p.x, p.y};

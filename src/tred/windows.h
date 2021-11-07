@@ -9,8 +9,9 @@
 
 #include "tred/input/unitdiscovery.h"
 
+struct RenderCommand;
 
-using render_function = std::function<void (const glm::ivec2& size)>;
+using render_function = std::function<void (const RenderCommand&)>;
 using imgui_function = std::function<void ()>;
 using update_function = std::function<bool (float)>;
 

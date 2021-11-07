@@ -266,8 +266,8 @@ struct MinesweeperGame : public Game
 
     LayoutData get_main_layout() const
     {
-        // return {viewport_style::black_bars, 200.0f, 200.0f, glm::mat4(1.0f)};
-        return {ViewportStyle::extended, 200.0f, 200.0f, glm::mat4(1.0f)};
+        // return {viewport_style::black_bars, 200.0f, 200.0f};
+        return {ViewportStyle::extended, 200.0f, 200.0f};
     }
 
     float title_anim = 0.0f;
@@ -279,14 +279,14 @@ struct MinesweeperGame : public Game
     }
 
     void
-    on_render(const RenderCommand2& rc) override
+    on_render(const RenderCommand& rc) override
     {
         const std::string game_title = "minesweeper 42";
 
         constexpr float spacing = 0.2f;
         constexpr float button_size = 15.0f;
         constexpr float wavy_range = 1.5f;
-        auto r = with_layer(rc, get_main_layout());
+        auto r = with_layer2(rc, get_main_layout());
 
         auto game_world = Rectf{200.0f, 200.0f};
 
@@ -317,7 +317,7 @@ struct MinesweeperGame : public Game
         font.simple_text(r.batch, &onebit, black, title_rect.left, title_rect.bottom, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
-    void on_mouse_position(const Command2&, const glm::ivec2& p) override
+    void on_mouse_position(const InputCommand&, const glm::ivec2& p) override
     {
         // todo(gustav): transform to world...
         mouse = {p.x, p.y};
@@ -325,7 +325,7 @@ struct MinesweeperGame : public Game
 
     Rectf game_button = Rectf{15.0f, 15.0f}.translate(100, 160);
 
-    void on_mouse_button(const Command2& c, input::MouseButton button, bool down) override
+    void on_mouse_button(const InputCommand& c, input::MouseButton button, bool down) override
     {
         if(down != false) { return; }
         if(button != input::MouseButton::left) { return; }

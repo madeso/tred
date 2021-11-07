@@ -1503,7 +1503,7 @@ struct GameWrapper : Game
     OldGame game;
     Menu menu;
 
-    void on_mouse_button(const Command2&, input::MouseButton button, bool down) override
+    void on_mouse_button(const InputCommand&, input::MouseButton button, bool down) override
     {
         if (button != input::MouseButton::left) { return; }
 
@@ -1554,12 +1554,12 @@ struct GameWrapper : Game
         return r;
     }
 
-    constexpr static auto layout = LayoutData{ViewportStyle::black_bars, width, height, glm::mat4(1.0f)};
+    constexpr static auto layout = LayoutData{ViewportStyle::black_bars, width, height};
 
     void
-    on_render(const RenderCommand2& rc) override
+    on_render(const RenderCommand& rc) override
     {
-        auto r = with_layer(rc, layout);
+        auto r = with_layer2(rc, layout);
 
         const auto rd = render_data{r.viewport_aabb_in_worldspace, &onebit, r.batch};
 
@@ -1577,7 +1577,7 @@ struct GameWrapper : Game
         }
     }
 
-    void on_mouse_position(const Command2& c, const glm::ivec2& p) override
+    void on_mouse_position(const InputCommand& c, const glm::ivec2& p) override
     {
         mouse = with_layer(c, layout).mouse_to_world({p.x, p.y});
     }

@@ -22,13 +22,13 @@ struct Game
     Game() = default;
     virtual ~Game() = default;
 
-    virtual void on_render(const RenderCommand2& rc);
+    virtual void on_render(const RenderCommand& rc);
     virtual void on_imgui();
     virtual bool on_update(float);
 
     virtual void on_key(char key, bool down);
-    virtual void on_mouse_position(const Command2&, const glm::ivec2& position);
-    virtual void on_mouse_button(const Command2&, input::MouseButton button, bool down);
+    virtual void on_mouse_position(const InputCommand&, const glm::ivec2& position);
+    virtual void on_mouse_button(const InputCommand&, input::MouseButton button, bool down);
     virtual void on_mouse_wheel(int scroll);
 };
 
