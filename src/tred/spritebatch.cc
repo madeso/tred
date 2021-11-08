@@ -131,6 +131,8 @@ void SpriteBatch::submit()
 
     bind_texture(render->texture_uniform, *current_texture);
     glBindVertexArray(va);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vb);
     glBufferSubData
     (
         GL_ARRAY_BUFFER,
