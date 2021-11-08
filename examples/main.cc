@@ -51,6 +51,7 @@
 #include "container_diffuse.png.h"
 #include "container_specular.png.h"
 
+#include "sprites/cards.h"
 
 
 struct Material
@@ -580,10 +581,13 @@ main(int, char**)
     };
     auto spot_light = ::SpotLight{};
 
+    auto cards = Texture{::cards::load_texture()};
+
     windows->set_render
     (
         [&](const RenderCommand& rc)
         {
+            // draw 3d world
             {
                 auto l3 = with_layer3(rc, {ViewportStyle::extended, 800.0f, 600.0f});
 
@@ -651,11 +655,13 @@ main(int, char**)
                 }
             }
 
-            // draw hud (not working yet... destroys floor)
+            // draw hud
             {
                 auto l2 = with_layer2(rc, {ViewportStyle::extended, 800.0f, 600.0f});
 
-                l2.batch->quad(std::nullopt, Rectf::from_xywh(50.0f, 50.0f, 30.0f, 30.0f), std::nullopt, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
+
+                l2.batch->quad(&cards, card_sprite.translate(10, 10), ::cards::hearts[2]);
             }
         }
     );

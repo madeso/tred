@@ -14,7 +14,7 @@ embed(embedded
 add_executable(example WIN32 MACOSX_BUNDLE ${src} ${embedded})
 target_link_libraries(
     example
-    PUBLIC tred
+    PUBLIC tred sprites_cards
     PRIVATE project_options project_warnings
 )
 target_include_directories(example
