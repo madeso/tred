@@ -123,7 +123,9 @@ ShaderProgram::ShaderProgram
     }
     else
     {
-        cleanup();
+        clear_shader_program();
+        glDeleteProgram(shader_program);
+        shader_program = 0;
     }
 }
 
@@ -135,8 +137,7 @@ ShaderProgram::use() const
 }
 
 
-void
-ShaderProgram::cleanup()
+ShaderProgram::~ShaderProgram()
 {
     clear_shader_program();
     glDeleteProgram(shader_program);

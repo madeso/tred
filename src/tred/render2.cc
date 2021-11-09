@@ -60,9 +60,3 @@ Render2::Render2()
     setup_textures(&quad_shader, {&texture_uniform});
 }
 
-
-Render2::~Render2()
-{
-    quad_shader.cleanup();
-}
-

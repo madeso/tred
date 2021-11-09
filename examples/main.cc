@@ -64,7 +64,7 @@ struct Material
 
     float specular_strength = 1.0f;
 
-    explicit Material(const Texture& d, const Texture& s)
+    explicit Material(const LoadedImage& d, const LoadedImage& s)
         : diffuse(d)
         , specular(s)
     {
@@ -550,26 +550,20 @@ main(int, char**)
 
     auto material = ::Material
     {
-        Texture
-        {
-            load_image_from_embedded
-            (
-                CONTAINER_DIFFUSE_PNG,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            )
-        },
-        Texture
-        {
-            load_image_from_embedded
-            (
-                CONTAINER_SPECULAR_PNG,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            )
-        }
+        load_image_from_embedded
+        (
+            CONTAINER_DIFFUSE_PNG,
+            TextureEdge::repeat,
+            TextureRenderStyle::smooth,
+            Transparency::exclude
+        ),
+        load_image_from_embedded
+        (
+            CONTAINER_SPECULAR_PNG,
+            TextureEdge::repeat,
+            TextureRenderStyle::smooth,
+            Transparency::exclude
+        )
     };
     auto directional_light = ::DirectionalLight{};
     auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>

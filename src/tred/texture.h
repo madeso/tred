@@ -11,9 +11,13 @@ struct Texture
     int height;
 
     explicit Texture(const LoadedImage& i);
+    ~Texture();
 
-    void
-    cleanup();
+    Texture(const Texture&) = delete;
+    void operator=(const Texture&) = delete;
+    
+    Texture(Texture&&) = delete;
+    void operator=(Texture&&) = delete;
 };
 
 

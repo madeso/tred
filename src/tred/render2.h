@@ -7,7 +7,6 @@
 struct Render2
 {
     Render2();
-    ~Render2();
 
     VertexLayoutDescription quad_description;
     CompiledVertexLayout quad_layout;

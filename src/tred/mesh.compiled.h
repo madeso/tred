@@ -15,12 +15,16 @@ struct CompiledMesh
     VertexTypes debug_shader_types;
 
     CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st);
+    ~CompiledMesh();
+
+    CompiledMesh(const CompiledMesh&) = delete;
+    void operator=(const CompiledMesh&) = delete;
+
+    CompiledMesh(CompiledMesh&&) = delete;
+    void operator=(CompiledMesh&&) = delete;
 
     void
     draw() const;
-
-    void
-    cleanup() const;
 };
 
 

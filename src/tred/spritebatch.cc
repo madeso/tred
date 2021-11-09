@@ -53,6 +53,20 @@ SpriteBatch::SpriteBatch(ShaderProgram* quad_shader, Render2* r)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_indices * sizeof(u32), indices.data(), GL_STATIC_DRAW);
 }
 
+
+SpriteBatch::~SpriteBatch()
+{
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &ib);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &vb);
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &va);
+}
+
+
 void add_vertex(SpriteBatch* batch, const Vertex2& v)
 {
     batch->data.push_back(v.position.x);

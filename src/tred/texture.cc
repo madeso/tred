@@ -15,10 +15,10 @@ Texture::Texture(const LoadedImage& i)
 }
 
 
-void
-Texture::cleanup()
+Texture::~Texture()
 {
-    // todo(Gustav): implement this
+    glDeleteTextures(1, &id);
+    id = 0;
 }
 
 

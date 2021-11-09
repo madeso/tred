@@ -46,17 +46,16 @@ CompiledMesh::draw() const
 }
 
 
-void
-CompiledMesh::cleanup() const
+CompiledMesh::~CompiledMesh()
 {
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &vao);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &ebo);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &vbo);
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &vao);
 }
 
 

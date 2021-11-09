@@ -35,6 +35,12 @@ struct SpriteBatch
     Texture white_texture;
 
     SpriteBatch(ShaderProgram* shader, Render2* r);
+    ~SpriteBatch();
+
+    SpriteBatch(const SpriteBatch&) = delete;
+    void operator=(const SpriteBatch&) = delete;
+    SpriteBatch(SpriteBatch&&) = delete;
+    void operator=(SpriteBatch&&) = delete;
 
     void quad(std::optional<Texture*> texture, const Vertex2& v0, const Vertex2& v1, const Vertex2& v2, const Vertex2& v3);
     void quad(std::optional<Texture*> texture, const Rectf& scr, const std::optional<Rectf>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));

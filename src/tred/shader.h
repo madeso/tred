@@ -17,11 +17,16 @@ struct ShaderProgram
         const CompiledVertexLayout& layout
     );
 
-    void
-    use() const;
+    ~ShaderProgram();
+
+    ShaderProgram(const ShaderProgram&) = delete;
+    void operator=(const ShaderProgram&) = delete;
+
+    ShaderProgram(ShaderProgram&&) = delete;
+    void operator=(ShaderProgram&&) = delete;
 
     void
-    cleanup();
+    use() const;
 
     Uniform
     get_uniform(const std::string& name) const;
