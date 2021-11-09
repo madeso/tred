@@ -11,7 +11,7 @@ struct Render2
 
     VertexLayoutDescription quad_description;
     CompiledVertexLayout quad_layout;
-    Shader quad_shader;
+    ShaderProgram quad_shader;
     Uniform view_projection_uniform;
     Uniform transform_uniform;
     Uniform texture_uniform;

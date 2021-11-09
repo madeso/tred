@@ -6,7 +6,7 @@
 #include "tred/dependency_opengl.h"
 #include "tred/game.h"
 
-SpriteBatch::SpriteBatch(Shader* quad_shader, Render2* r)
+SpriteBatch::SpriteBatch(ShaderProgram* quad_shader, Render2* r)
     : render(r)
     , white_texture
     (

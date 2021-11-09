@@ -10,7 +10,7 @@
 
 
 struct Texture;
-struct Shader;
+struct ShaderProgram;
 
 struct Render2;
 
@@ -34,7 +34,7 @@ struct SpriteBatch
     Render2* render;
     Texture white_texture;
 
-    SpriteBatch(Shader* shader, Render2* r);
+    SpriteBatch(ShaderProgram* shader, Render2* r);
 
     void quad(std::optional<Texture*> texture, const Vertex2& v0, const Vertex2& v1, const Vertex2& v2, const Vertex2& v3);
     void quad(std::optional<Texture*> texture, const Rectf& scr, const std::optional<Rectf>& texturecoord, const glm::vec4& tint = glm::vec4(1.0f));

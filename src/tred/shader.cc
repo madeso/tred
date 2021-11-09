@@ -86,7 +86,7 @@ verify_shader_attribute_location(unsigned int shader_program, const CompiledVert
 }
 
 
-Shader::Shader
+ShaderProgram::ShaderProgram
 (
     std::string_view vertex_source,
     std::string_view fragment_source,
@@ -129,14 +129,14 @@ Shader::Shader
 
 
 void
-Shader::use() const
+ShaderProgram::use() const
 {
     set_shader_program(shader_program, vertex_types);
 }
 
 
 void
-Shader::cleanup()
+ShaderProgram::cleanup()
 {
     clear_shader_program();
     glDeleteProgram(shader_program);
@@ -145,7 +145,7 @@ Shader::cleanup()
 
 
 Uniform
-Shader::get_uniform(const std::string& name) const
+ShaderProgram::get_uniform(const std::string& name) const
 {
     const auto uni = Uniform{name, glGetUniformLocation(shader_program, name.c_str()), shader_program};
     if(uni.is_valid() == false)
@@ -158,7 +158,7 @@ Shader::get_uniform(const std::string& name) const
 
 // shader neeeds to be bound
 void
-Shader::set_float(const Uniform& uniform, float value) const
+ShaderProgram::set_float(const Uniform& uniform, float value) const
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -169,7 +169,7 @@ Shader::set_float(const Uniform& uniform, float value) const
 }
 
 void
-Shader::set_vec3(const Uniform& uniform, float x, float y, float z)
+ShaderProgram::set_vec3(const Uniform& uniform, float x, float y, float z)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -181,14 +181,14 @@ Shader::set_vec3(const Uniform& uniform, float x, float y, float z)
 
 
 void
-Shader::set_vec3(const Uniform& uniform, const glm::vec3& v)
+ShaderProgram::set_vec3(const Uniform& uniform, const glm::vec3& v)
 {
     set_vec3(uniform, v.x, v.y, v.z);
 }
 
 
 void
-Shader::set_vec4(const Uniform& uniform, float x, float y, float z, float w)
+ShaderProgram::set_vec4(const Uniform& uniform, float x, float y, float z, float w)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -199,14 +199,14 @@ Shader::set_vec4(const Uniform& uniform, float x, float y, float z, float w)
 }
 
 void
-Shader::set_vec4(const Uniform& uniform, const glm::vec4& v)
+ShaderProgram::set_vec4(const Uniform& uniform, const glm::vec4& v)
 {
     set_vec4(uniform, v.x, v.y, v.z, v.w);
 }
 
 
 void
-Shader::set_texture(const Uniform& uniform)
+ShaderProgram::set_texture(const Uniform& uniform)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -218,7 +218,7 @@ Shader::set_texture(const Uniform& uniform)
 
 
 void
-Shader::set_mat(const Uniform& uniform, const glm::mat4& mat)
+ShaderProgram::set_mat(const Uniform& uniform, const glm::mat4& mat)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -230,7 +230,7 @@ Shader::set_mat(const Uniform& uniform, const glm::mat4& mat)
 
 
 void
-Shader::set_mat(const Uniform& uniform, const glm::mat3& mat)
+ShaderProgram::set_mat(const Uniform& uniform, const glm::mat3& mat)
 {
     assert(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
@@ -242,7 +242,7 @@ Shader::set_mat(const Uniform& uniform, const glm::mat3& mat)
 
 
 void
-setup_textures(Shader* shader, std::vector<Uniform*> uniform_list)
+setup_textures(ShaderProgram* shader, std::vector<Uniform*> uniform_list)
 {
     // OpenGL should support atleast 16 textures
     assert(uniform_list.size() <= 16);

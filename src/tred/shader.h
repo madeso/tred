@@ -8,9 +8,9 @@
 #include "tred/uniform.h"
 
 
-struct Shader
+struct ShaderProgram
 {
-    Shader
+    ShaderProgram
     (
         std::string_view vertex_source,
         std::string_view fragment_source,
@@ -58,5 +58,5 @@ struct Shader
 
 
 void
-setup_textures(Shader* shader, std::vector<Uniform*> uniform_list);
+setup_textures(ShaderProgram* shader, std::vector<Uniform*> uniform_list);
 

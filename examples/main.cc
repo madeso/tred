@@ -83,7 +83,7 @@ struct MaterialUniforms
 
     MaterialUniforms
     (
-        Shader* shader,
+        ShaderProgram* shader,
         const std::string& base_name
     )
         : diffuse(shader->get_uniform(base_name + ".diffuse"))
@@ -96,7 +96,7 @@ struct MaterialUniforms
     }
 
     void
-    set_shader(Shader* shader, const Material& material) const
+    set_shader(ShaderProgram* shader, const Material& material) const
     {
         bind_texture(diffuse, material.diffuse);
         bind_texture(specular, material.specular);
@@ -135,7 +135,7 @@ struct DirectionalLightUniforms
 
     DirectionalLightUniforms
     (
-        const Shader& shader,
+        const ShaderProgram& shader,
         const std::string& base_name
     )
     :
@@ -147,7 +147,7 @@ struct DirectionalLightUniforms
     }
 
     void
-    set_shader(Shader* shader, const DirectionalLight& light) const
+    set_shader(ShaderProgram* shader, const DirectionalLight& light) const
     {
         shader->set_vec3(direction, light.GetDirection());
         shader->set_vec3(ambient, light.ambient * light.ambient_strength);
@@ -173,7 +173,7 @@ struct AttenuationUniforms
 
     AttenuationUniforms
     (
-        const Shader& shader,
+        const ShaderProgram& shader,
         const std::string& base_name
     )
     :
@@ -184,7 +184,7 @@ struct AttenuationUniforms
     }
 
     void
-    set_shader(Shader* shader, const Attenuation& att) const
+    set_shader(ShaderProgram* shader, const Attenuation& att) const
     {
         shader->set_float(constant, att.constant);
         shader->set_float(linear, att.linear);
@@ -218,7 +218,7 @@ struct PointLightUniforms
 
     PointLightUniforms
     (
-        const Shader& shader,
+        const ShaderProgram& shader,
         const std::string& base_name
     )
     :
@@ -231,7 +231,7 @@ struct PointLightUniforms
     }
 
     void
-    set_shader(Shader* shader, const PointLight& light) const
+    set_shader(ShaderProgram* shader, const PointLight& light) const
     {
         attenuation.set_shader(shader, light.attenuation);
         shader->set_vec3(position, light.position);
@@ -271,7 +271,7 @@ struct SpotLightUniforms
 
     SpotLightUniforms
     (
-        const Shader& shader,
+        const ShaderProgram& shader,
         const std::string& base_name
     )
     :
@@ -287,7 +287,7 @@ struct SpotLightUniforms
     }
 
     void
-    set_shader(Shader* shader, const SpotLight& light) const
+    set_shader(ShaderProgram* shader, const SpotLight& light) const
     {
         attenuation.set_shader(shader, light.attenuation);
         shader->set_vec3(position, light.position);
@@ -506,7 +506,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = ::Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    auto shader = ::ShaderProgram{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
     const auto uni_color = shader.get_uniform("uColor");
     const auto uni_transform = shader.get_uniform("uTransform");
     const auto uni_model_transform = shader.get_uniform("uModelTransform");
@@ -523,7 +523,7 @@ main(int, char**)
     };
     const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
-    auto light_shader = ::Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    auto light_shader = ::ShaderProgram{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
     const auto uni_light_transform = light_shader.get_uniform("uTransform");
     const auto uni_light_color = light_shader.get_uniform("uColor");
 
@@ -746,7 +746,7 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = Shader{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    auto shader = ShaderProgram{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
     const auto uni_color = shader.GetUniform("uColor");
     const auto uni_transform = shader.GetUniform("uTransform");
     const auto uni_model_transform = shader.GetUniform("uModelTransform");
@@ -763,7 +763,7 @@ main(int, char**)
     };
     const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
-    auto light_shader = Shader{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    auto light_shader = ShaderProgram{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
     const auto uni_light_transform = light_shader.GetUniform("uTransform");
     const auto uni_light_color = light_shader.GetUniform("uColor");
 

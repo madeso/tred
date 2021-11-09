@@ -3,7 +3,7 @@
 #include <string>
 
 
-/** Represents a found shader uniform and created via Shader::GetUniform()
+/** Represents a found shader uniform and created via ShaderProgram::GetUniform()
  */
 struct Uniform
 {
