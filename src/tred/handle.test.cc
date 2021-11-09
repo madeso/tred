@@ -128,9 +128,9 @@ TEST_CASE("handle vector", "[handle]")
     CHECK(v.begin() == v.end());
     CHECK(v.begin().index == v.end().index);
 
-    const auto a = v.create_new_handle();
-    const auto b = v.create_new_handle();
-    const auto c = v.create_new_handle();
+    const auto a = v.add(42);
+    const auto b = v.add(42);
+    const auto c = v.add(42);
 
     CHECK(v.begin().index == 0);
     CHECK(v.end().index == 3);
@@ -148,50 +148,50 @@ TEST_CASE("handle vector", "[handle]")
 
     SECTION("remove start")
     {
-        v.mark_for_reuse(a);
+        v.remove(a);
         REQUIRE(VectorEquals(Extract<int>(v), {2, 3}));
 
-        const auto d = v.create_new_handle();
+        const auto d = v.add(5);
         v[d] = 4;
         CHECK(VectorEquals(Extract<int>(v), {4, 2, 3}));
     }
 
     SECTION("remove middle")
     {
-        v.mark_for_reuse(b);
+        v.remove(b);
         REQUIRE(VectorEquals(Extract<int>(v), {1, 3}));
 
-        const auto d = v.create_new_handle();
+        const auto d = v.add(5);
         v[d] = 4;
         CHECK(VectorEquals(Extract<int>(v), {1, 4, 3}));
     }
 
     SECTION("remove end")
     {
-        v.mark_for_reuse(c);
+        v.remove(c);
         REQUIRE(VectorEquals(Extract<int>(v), {1, 2}));
 
-        const auto d = v.create_new_handle();
+        const auto d = v.add(6);
         v[d] = 4;
         CHECK(VectorEquals(Extract<int>(v), {1, 2, 4}));
     }
 
     SECTION("remove all in order")
     {
-        v.mark_for_reuse(a);
-        v.mark_for_reuse(b);
-        v.mark_for_reuse(c);
+        v.remove(a);
+        v.remove(b);
+        v.remove(c);
         REQUIRE(VectorEquals(Extract<int>(v), {}));
         CHECK(v.free_handles.size() == 3);
         CHECK(v.data.size() == 3);
 
-        const auto d = v.create_new_handle();
+        const auto d = v.add(7);
         v[d] = 4;
 
-        const auto e = v.create_new_handle();
+        const auto e = v.add(8);
         v[e] = 5;
 
-        const auto f = v.create_new_handle();
+        const auto f = v.add(9);
         v[f] = 6;
 
         CHECK(VectorEquals(Extract<int>(v), {6, 5, 4}));
@@ -201,20 +201,20 @@ TEST_CASE("handle vector", "[handle]")
 
     SECTION("remove all in reverse")
     {
-        v.mark_for_reuse(c);
-        v.mark_for_reuse(b);
-        v.mark_for_reuse(a);
+        v.remove(c);
+        v.remove(b);
+        v.remove(a);
         REQUIRE(VectorEquals(Extract<int>(v), {}));
         CHECK(v.free_handles.size() == 3);
         CHECK(v.data.size() == 3);
 
-        const auto d = v.create_new_handle();
+        const auto d = v.add(7);
         v[d] = 4;
 
-        const auto e = v.create_new_handle();
+        const auto e = v.add(8);
         v[e] = 5;
 
-        const auto f = v.create_new_handle();
+        const auto f = v.add(9);
         v[f] = 6;
 
         CHECK(VectorEquals(Extract<int>(v), {4, 5, 6}));

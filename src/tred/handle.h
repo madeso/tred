@@ -3,6 +3,7 @@
 #include <vector>
 #include <type_traits>
 #include <cassert>
+#include <optional>
 
 #include "tred/to_base.h"
 #include "tred/types.h"
@@ -65,19 +66,18 @@ using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
 template<typename TData, typename TVersion, TVersion TEmptyVersion>
 struct HandleVectorPair
 {
-    TData data;
+    std::optional<TData> data;
     TVersion version;
-    bool in_use;
 
     HandleVectorPair()
-        : version(TEmptyVersion)
-        , in_use(false)
+        : data(std::nullopt)
+        , version(TEmptyVersion)
     {
     }
 
-    explicit HandleVectorPair(TVersion v)
-        : version(v)
-        , in_use(true)
+    explicit HandleVectorPair(TData&& d, TVersion v)
+        : data(std::move(d))
+        , version(v)
     {
     }
 };
@@ -114,7 +114,7 @@ struct HandleVectorIterator
 
     void advance_until_current_is_used()
     {
-        while (index < vector->data.size() && vector->data[index].in_use == false)
+        while (index < vector->data.size() && vector->data[index].data.has_value() == false)
         {
             index += 1;
         }
@@ -122,7 +122,7 @@ struct HandleVectorIterator
 
     TData& operator*()
     {
-        return vector->data[index].data;
+        return *vector->data[index].data;
     }
 
     bool operator==(const self& rhs) const
@@ -168,7 +168,7 @@ struct HandleVectorPairIterator
 
     void advance_until_current_is_used()
     {
-        while (index < vector->data.size() && vector->data[index].in_use == false)
+        while (index < vector->data.size() && vector->data[index].data.has_value() == false)
         {
             index += 1;
         }
@@ -177,7 +177,7 @@ struct HandleVectorPairIterator
     std::pair<THandle, TData&> operator*()
     {
         auto& r = vector->data[index];
-        return { TFunctions::compress(static_cast<TId>(index), r.version), r.data };
+        return { TFunctions::compress(static_cast<TId>(index), r.version), *r.data };
     }
 
     bool operator==(const self& rhs) const
@@ -232,30 +232,30 @@ struct HandleVector
     Vector data;
     std::vector<Handle> free_handles;
 
-    Handle create_new_handle()
+    Handle add(ValueType&& val)
     {
         if(free_handles.empty() == false)
         {
             const auto h = *free_handles.rbegin();
             free_handles.pop_back();
-            get_pair(h).in_use = true;
+            get_pair(h).data = std::move(val);
             return h;
         }
         else
         {
             const Version v = FIRST_VERSION;
             const auto index = data.size();
-            data.emplace_back(v);
+            data.emplace_back(std::move(val), v);
             assert(data[index].version == v && "pair constructor failed");
-            assert(data[index].in_use == true && "pair constructor failed");
+            assert(data[index].data.has_value() == true && "pair constructor failed");
             return Functions::compress(static_cast<Id>(index), v);
         }
     }
 
-    void mark_for_reuse(Handle h)
+    void remove(Handle h)
     {
         auto& p = get_pair(h);
-        p.in_use = false;
+        p.data = {};
 
         const auto i = Functions::get_id(h);
 
@@ -282,8 +282,8 @@ struct HandleVector
 
     ValueType& operator[](Handle h)
     {
-        assert(get_pair(h).in_use == true);
-        return get_pair(h).data;
+        assert(get_pair(h).data.has_value() == true);
+        return *get_pair(h).data;
     }
 
     Iterator begin()

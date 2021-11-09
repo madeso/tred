@@ -350,15 +350,24 @@ struct SdlPlatform : public input::Platform
             LOG_WARNING("Tried to add joystick that was already added!");
         }
 
-        const auto id = joysticks.create_new_handle();
+        std::unique_ptr<GamecontrollerData> gamecontroller;
         {
             auto controller = std::make_unique<GamecontrollerData>();
             controller->controller = std::make_unique<sdl::GameController>(device_id);
             if(controller->controller->is_valid())
             {
-                joysticks[id].gamecontroller = std::move(controller);
+                gamecontroller = std::move(controller);
             }
         }
+        const auto id = joysticks.add
+        (
+            {
+                std::move(joystick),
+                std::move(gamecontroller),
+                instance_id,
+                JoystickDetectionState::not_detected
+            }
+        );
         joysticks[id].joystick = std::move(joystick);
         joysticks[id].instance_id = instance_id;
         joysticks[id].in_use = JoystickDetectionState::not_detected;
@@ -394,7 +403,7 @@ struct SdlPlatform : public input::Platform
         joysticks[id].gamecontroller.reset();
         joysticks[id].in_use = JoystickDetectionState::not_detected;
         lost_joysticks->push_back(id);
-        joysticks.mark_for_reuse(id);
+        joysticks.remove(id);
         sdljoystick_to_id.erase(instance_id);
     }
 

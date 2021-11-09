@@ -103,8 +103,7 @@ void InputSystem::update_player_connections(unit_discovery discovery, Platform* 
 
 PlayerHandle InputSystem::add_player() const
 {
-    const auto r = m->players.create_new_handle();
-    m->players[r] = std::make_unique<Player>();
+    const auto r = m->players.add(std::make_unique<Player>());
     return r;
 }
 
