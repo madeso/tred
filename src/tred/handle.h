@@ -26,31 +26,31 @@ struct HandleFunctions
     static constexpr int IdSize = TIdSize;
     static constexpr int VersionSize = TVersionSize;
 
-    using base = typename std::underlying_type<T>::type;
+    using Base = typename std::underlying_type<T>::type;
 
     static_assert
     (
-        std::is_unsigned_v<base> &&
+        std::is_unsigned_v<Base> &&
         std::is_unsigned_v<Id> &&
         std::is_unsigned_v<Version>,
         "types needs to be unsigned"
     );
     static_assert(IdSize > 0 && VersionSize > 0, "invalid size");
-    static_assert(sizeof(base) == IdSize + VersionSize, "sizes doesn't match base size");
+    static_assert(sizeof(Base) == IdSize + VersionSize, "sizes doesn't match base size");
 
-    static constexpr base id_mask = only_f_hex<base>(IdSize);
+    static constexpr Base id_mask = only_f_hex<Base>(IdSize);
     static constexpr int id_shift = VersionSize*4;
-    static constexpr base version_mask = only_f_hex<base>(VersionSize);
+    static constexpr Base version_mask = only_f_hex<Base>(VersionSize);
 
     static constexpr Id get_id(T t)
     {
-        const base b = to_base(t);
+        const Base b = to_base(t);
         return static_cast<Id>((b & (id_mask << id_shift)) >> id_shift);
     }
 
     static constexpr Version get_version(T t)
     {
-        const base b = to_base(t);
+        const Base b = to_base(t);
         return static_cast<Version>(b & version_mask);
     }
 
