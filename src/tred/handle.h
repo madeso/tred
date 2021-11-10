@@ -8,6 +8,24 @@
 #include "tred/to_base.h"
 #include "tred/types.h"
 
+/*
+
+This module implements handles inspired by:
+    https://floooh.github.io/2018/06/17/handles-vs-pointers.html
+    https://seanmiddleditch.github.io/dangers-of-stdshared-ptr/
+
+The theory is that a system only exposes a non-owning handle (uint)/"weak pointer"
+to the outside and functions that operate on such handle.
+
+`HandleFunctions` has functions that splits that typesafe handle into a id
+and version. This is useful for all systems that are using handles.
+
+'HandleVector' is a general container for the internal structure. A generic
+container that is good enough but can easily be thrown out for a more
+optimized thing if needed. 
+
+*/
+
 
 namespace detail
 {
@@ -19,6 +37,15 @@ namespace detail
 }
 
 
+/** Exposes a slot(id) + generation(version) for a handle
+ * @param T the handle type, usually soemthing like `enum class Handle : u64 {};` for typesafety
+ * @param TId the type of the id
+ * @param TVersion the type of the version
+ * @param TIdSize how many bytes of T to use when storing the id
+ * @param TVersionSize how many bytes of T to use when storing the version
+ * 
+ * @see HandleFunctions64
+ */
 template<typename T, typename TId, typename TVersion, int TIdSize=sizeof(TId), int TVersionSize=sizeof(TVersion)>
 struct HandleFunctions
 {
@@ -220,7 +247,11 @@ namespace detail
     };
 }
 
-
+/** Dynamic container. Semi-continous with stable pointers and assertable handles.
+ * @param T the type to contain
+ * @param F the HandleFunction of the handle
+ * @see HandleFunctions
+ */
 template<typename T, typename F>
 struct HandleVector
 {
@@ -271,7 +302,9 @@ struct HandleVector
 
         const auto i = Functions::get_id(h);
 
+        // increase the internal version, this should invalidate all existing handles
         p.version += 1;
+
         if(p.version != Functions::version_mask)
         {
             // if the version is not max reuse it
@@ -279,6 +312,10 @@ struct HandleVector
         }
     }
 
+    /** Remove all objects.
+     * Please not ehat existing handles are invalidated but this can't be checked.
+     * Only call this when all handles are safely removed.
+    */
     void clear()
     {
         data.clear();
