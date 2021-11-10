@@ -10,10 +10,10 @@
 
 TEST_CASE("only f", "[internal]")
 {
-    CHECK(only_f_hex<u32>(0) == 0x0);
-    CHECK(only_f_hex<u32>(1) == 0xF);
-    CHECK(only_f_hex<u32>(2) == 0xFF);
-    CHECK(only_f_hex<u32>(4) == 0xFFFF);
+    CHECK(detail::only_f_hex<u32>(0) == 0x0);
+    CHECK(detail::only_f_hex<u32>(1) == 0xF);
+    CHECK(detail::only_f_hex<u32>(2) == 0xFF);
+    CHECK(detail::only_f_hex<u32>(4) == 0xFFFF);
 }
 
 

@@ -8,11 +8,13 @@
 #include "tred/to_base.h"
 #include "tred/types.h"
 
-
-template<typename T>
-constexpr T only_f_hex(int size)
+namespace detail
 {
-    return size == 0? 0x0 : (only_f_hex<T>(size-1) << 4) | 0xF;
+    template<typename T>
+    constexpr T only_f_hex(int size)
+    {
+        return size == 0? 0x0 : (only_f_hex<T>(size-1) << 4) | 0xF;
+    }
 }
 
 
@@ -38,9 +40,9 @@ struct HandleFunctions
     static_assert(IdSize > 0 && VersionSize > 0, "invalid size");
     static_assert(sizeof(Base) == IdSize + VersionSize, "sizes doesn't match base size");
 
-    static constexpr Base id_mask = only_f_hex<Base>(IdSize);
+    static constexpr Base id_mask = detail::only_f_hex<Base>(IdSize);
     static constexpr int id_shift = VersionSize*4;
-    static constexpr Base version_mask = only_f_hex<Base>(VersionSize);
+    static constexpr Base version_mask = detail::only_f_hex<Base>(VersionSize);
 
     static constexpr Id get_id(T t)
     {
@@ -63,151 +65,155 @@ struct HandleFunctions
 template<typename E>
 using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
 
-template<typename TData, typename TVersion, TVersion TEmptyVersion>
-struct HandleVectorPair
+namespace detail
 {
-    std::optional<TData> data;
-    TVersion version;
-
-    HandleVectorPair()
-        : data(std::nullopt)
-        , version(TEmptyVersion)
+    template<typename TData, typename TVersion, TVersion TEmptyVersion>
+    struct HandleVectorPair
     {
-    }
+        std::optional<TData> data;
+        TVersion version;
 
-    explicit HandleVectorPair(TData&& d, TVersion v)
-        : data(std::move(d))
-        , version(v)
+        HandleVectorPair()
+            : data(std::nullopt)
+            , version(TEmptyVersion)
+        {
+        }
+
+        explicit HandleVectorPair(TData&& d, TVersion v)
+            : data(std::move(d))
+            , version(v)
+        {
+        }
+    };
+
+    template <typename TSelf, typename TData>
+    struct HandleVectorIterator
     {
-    }
-};
+        TSelf* vector;
+        std::size_t index;
 
-template <typename TSelf, typename TData>
-struct HandleVectorIterator
-{
-    TSelf* vector;
-    std::size_t index;
+        using self = HandleVectorIterator<TSelf, TData>;
 
-    using self = HandleVectorIterator<TSelf, TData>;
+        HandleVectorIterator(TSelf* v, std::size_t i)
+            : vector(v)
+            , index(i)
+        {
+            advance_until_current_is_used();
+        }
 
-    HandleVectorIterator(TSelf* v, std::size_t i)
-        : vector(v)
-        , index(i)
-    {
-        advance_until_current_is_used();
-    }
+        HandleVectorIterator operator++()
+        {
+            self r = *this;
+            index += 1;
+            advance_until_current_is_used();
+            return r;
+        }
 
-    HandleVectorIterator operator++()
-    {
-        self r = *this;
-        index += 1;
-        advance_until_current_is_used();
-        return r;
-    }
-
-    HandleVectorIterator& operator++(int)
-    {
-        index += 1;
-        advance_until_current_is_used();
-        return *this;
-    }
-
-    void advance_until_current_is_used()
-    {
-        while (index < vector->data.size() && vector->data[index].data.has_value() == false)
+        HandleVectorIterator& operator++(int)
         {
             index += 1;
+            advance_until_current_is_used();
+            return *this;
         }
-    }
 
-    TData& operator*()
+        void advance_until_current_is_used()
+        {
+            while (index < vector->data.size() && vector->data[index].data.has_value() == false)
+            {
+                index += 1;
+            }
+        }
+
+        TData& operator*()
+        {
+            return *vector->data[index].data;
+        }
+
+        bool operator==(const self& rhs) const
+        {
+            return vector == rhs.vector && index == rhs.index;
+        }
+
+        bool operator!=(const self& rhs) const
+        {
+            return vector != rhs.vector || index != rhs.index;
+        }
+    };
+
+    template<typename TSelf, typename THandle, typename TData, typename TFunctions, typename TId>
+    struct HandleVectorPairIterator
     {
-        return *vector->data[index].data;
-    }
+        TSelf* vector;
+        std::size_t index;
 
-    bool operator==(const self& rhs) const
-    {
-        return vector == rhs.vector && index == rhs.index;
-    }
+        using self = HandleVectorPairIterator<TSelf, THandle, TData, TFunctions, TId>;
 
-    bool operator!=(const self& rhs) const
-    {
-        return vector != rhs.vector || index != rhs.index;
-    }
-};
+        HandleVectorPairIterator(TSelf* v, std::size_t i)
+            : vector(v)
+            , index(i)
+        {
+            advance_until_current_is_used();
+        }
 
-template<typename TSelf, typename THandle, typename TData, typename TFunctions, typename TId>
-struct HandleVectorPairIterator
-{
-    TSelf* vector;
-    std::size_t index;
+        self operator++()
+        {
+            self r = *this;
+            index += 1;
+            advance_until_current_is_used();
+            return r;
+        }
 
-    using self = HandleVectorPairIterator<TSelf, THandle, TData, TFunctions, TId>;
-
-    HandleVectorPairIterator(TSelf* v, std::size_t i)
-        : vector(v)
-        , index(i)
-    {
-        advance_until_current_is_used();
-    }
-
-    self operator++()
-    {
-        self r = *this;
-        index += 1;
-        advance_until_current_is_used();
-        return r;
-    }
-
-    self& operator++(int)
-    {
-        index += 1;
-        advance_until_current_is_used();
-        return *this;
-    }
-
-    void advance_until_current_is_used()
-    {
-        while (index < vector->data.size() && vector->data[index].data.has_value() == false)
+        self& operator++(int)
         {
             index += 1;
+            advance_until_current_is_used();
+            return *this;
         }
-    }
 
-    std::pair<THandle, TData&> operator*()
+        void advance_until_current_is_used()
+        {
+            while (index < vector->data.size() && vector->data[index].data.has_value() == false)
+            {
+                index += 1;
+            }
+        }
+
+        std::pair<THandle, TData&> operator*()
+        {
+            auto& r = vector->data[index];
+            return { TFunctions::compress(static_cast<TId>(index), r.version), *r.data };
+        }
+
+        bool operator==(const self& rhs) const
+        {
+            return vector == rhs.vector && index == rhs.index;
+        }
+
+        bool operator!=(const self& rhs) const
+        {
+            return vector != rhs.vector || index != rhs.index;
+        }
+    };
+
+    template<typename TSelf, typename TPairIterator>
+    struct HandleVectorPairIteratorContainer
     {
-        auto& r = vector->data[index];
-        return { TFunctions::compress(static_cast<TId>(index), r.version), *r.data };
-    }
+        TSelf* self;
 
-    bool operator==(const self& rhs) const
-    {
-        return vector == rhs.vector && index == rhs.index;
-    }
+        explicit HandleVectorPairIteratorContainer(TSelf* s) : self(s) {}
 
-    bool operator!=(const self& rhs) const
-    {
-        return vector != rhs.vector || index != rhs.index;
-    }
-};
+        TPairIterator begin()
+        {
+            return { self, 0 };
+        }
 
-template<typename TSelf, typename TPairIterator>
-struct HandleVectorPairIteratorContainer
-{
-    TSelf* self;
+        TPairIterator end()
+        {
+            return { self, self->data.size() };
+        }
+    };
+}
 
-    explicit HandleVectorPairIteratorContainer(TSelf* s) : self(s) {}
-
-    TPairIterator begin()
-    {
-        return { self, 0 };
-    }
-
-    TPairIterator end()
-    {
-        return { self, self->data.size() };
-    }
-};
 
 template<typename T, typename F>
 struct HandleVector
@@ -222,10 +228,10 @@ struct HandleVector
     constexpr static Version EMPTY_VERSION = 0;
     constexpr static Version FIRST_VERSION = 1;
 
-    using Pair = HandleVectorPair<ValueType, Version, EMPTY_VERSION>;
-    using Iterator = HandleVectorIterator<Self, ValueType>;
-    using PairIterator = HandleVectorPairIterator<Self, Handle, ValueType, Functions, Id>;
-    using PairIteratorContainer = HandleVectorPairIteratorContainer<Self, PairIterator>;
+    using Pair = detail::HandleVectorPair<ValueType, Version, EMPTY_VERSION>;
+    using Iterator = detail::HandleVectorIterator<Self, ValueType>;
+    using PairIterator = detail::HandleVectorPairIterator<Self, Handle, ValueType, Functions, Id>;
+    using PairIteratorContainer = detail::HandleVectorPairIteratorContainer<Self, PairIterator>;
 
     using Vector = std::vector<Pair>;
 
