@@ -92,31 +92,6 @@ std::vector<T> Extract(V& v)
 }
 
 
-template<typename T>
-catchy::FalseString VectorEquals
-(
-    const std::vector<T>& lhs,
-    const std::vector<T>& rhs
-)
-{
-    return catchy::VectorEquals(lhs, rhs,
-        [](const T& t) { return fmt::format("{}", t);},
-        [](const T& l, const T& r) -> catchy::FalseString
-        {
-            if(l != r)
-            {
-                return catchy::FalseString::False(fmt::format("{} != {}", l, r));
-            }
-            else
-            {
-                return catchy::FalseString::True();
-            }
-        }
-    );
-}
-
-
-
 TEST_CASE("handle vector", "[handle]")
 {
     enum class H : u64 {};
@@ -144,36 +119,36 @@ TEST_CASE("handle vector", "[handle]")
     CHECK(v.data.size() == 3);
     CHECK(v.free_handles.size() == 0);
 
-    REQUIRE(VectorEquals(Extract<int>(v), {1, 2, 3}));
+    REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 2, 3}));
 
     SECTION("remove start")
     {
         v.remove(a);
-        REQUIRE(VectorEquals(Extract<int>(v), {2, 3}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {2, 3}));
 
         const auto d = v.add(5);
         v[d] = 4;
-        CHECK(VectorEquals(Extract<int>(v), {4, 2, 3}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {4, 2, 3}));
     }
 
     SECTION("remove middle")
     {
         v.remove(b);
-        REQUIRE(VectorEquals(Extract<int>(v), {1, 3}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 3}));
 
         const auto d = v.add(5);
         v[d] = 4;
-        CHECK(VectorEquals(Extract<int>(v), {1, 4, 3}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {1, 4, 3}));
     }
 
     SECTION("remove end")
     {
         v.remove(c);
-        REQUIRE(VectorEquals(Extract<int>(v), {1, 2}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 2}));
 
         const auto d = v.add(6);
         v[d] = 4;
-        CHECK(VectorEquals(Extract<int>(v), {1, 2, 4}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {1, 2, 4}));
     }
 
     SECTION("remove all in order")
@@ -181,7 +156,7 @@ TEST_CASE("handle vector", "[handle]")
         v.remove(a);
         v.remove(b);
         v.remove(c);
-        REQUIRE(VectorEquals(Extract<int>(v), {}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {}));
         CHECK(v.free_handles.size() == 3);
         CHECK(v.data.size() == 3);
 
@@ -194,7 +169,7 @@ TEST_CASE("handle vector", "[handle]")
         const auto f = v.add(9);
         v[f] = 6;
 
-        CHECK(VectorEquals(Extract<int>(v), {6, 5, 4}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {6, 5, 4}));
         CHECK(v.free_handles.size() == 0);
         CHECK(v.data.size() == 3);
     }
@@ -204,7 +179,7 @@ TEST_CASE("handle vector", "[handle]")
         v.remove(c);
         v.remove(b);
         v.remove(a);
-        REQUIRE(VectorEquals(Extract<int>(v), {}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {}));
         CHECK(v.free_handles.size() == 3);
         CHECK(v.data.size() == 3);
 
@@ -217,7 +192,7 @@ TEST_CASE("handle vector", "[handle]")
         const auto f = v.add(9);
         v[f] = 6;
 
-        CHECK(VectorEquals(Extract<int>(v), {4, 5, 6}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {4, 5, 6}));
         CHECK(v.free_handles.size() == 0);
         CHECK(v.data.size() == 3);
     }
@@ -233,8 +208,8 @@ TEST_CASE("handle vector", "[handle]")
             i.emplace_back(p.second);
         }
 
-        REQUIRE(VectorEquals(Extract<int>(v), {1, 2, 3}));
-        CHECK(VectorEquals(i, {1, 2, 3}));
+        REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 2, 3}));
+        CHECK(catchy::VectorEquals(i, {1, 2, 3}));
         REQUIRE(h.size() == 3);
         CHECK(h[0] == a);
         CHECK(h[1] == b);

@@ -8,6 +8,7 @@
 #include "tred/to_base.h"
 #include "tred/types.h"
 
+
 namespace detail
 {
     template<typename T>
@@ -62,8 +63,10 @@ struct HandleFunctions
     }
 };
 
+
 template<typename E>
 using HandleFunctions64 = HandleFunctions<E, u32, u16, 5, 3>;
+
 
 namespace detail
 {
@@ -85,6 +88,7 @@ namespace detail
         {
         }
     };
+
 
     template <typename TSelf, typename TData>
     struct HandleVectorIterator
@@ -140,6 +144,7 @@ namespace detail
         }
     };
 
+
     template<typename TSelf, typename THandle, typename TData, typename TFunctions, typename TId>
     struct HandleVectorPairIterator
     {
@@ -194,6 +199,7 @@ namespace detail
             return vector != rhs.vector || index != rhs.index;
         }
     };
+
 
     template<typename TSelf, typename TPairIterator>
     struct HandleVectorPairIteratorContainer
