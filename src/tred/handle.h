@@ -319,13 +319,15 @@ struct HandleVector
     void clear()
     {
         data.clear();
+        free_handles.clear();
     }
 
     Pair& get_pair(Handle h)
     {
         const auto i = static_cast<std::size_t>(Functions::get_id(h));
         [[maybe_unused]] const auto v = Functions::get_version(h);
-        assert(data[i].version == v && "invalid handle (use after free)");
+        assert(data[i].version == v && "invalid handle: use after free");
+        assert(i < data.size() && "invalid handle: use after free (clear)");
         return data[i];
     }
 
