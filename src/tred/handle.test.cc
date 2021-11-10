@@ -92,20 +92,22 @@ std::vector<T> Extract(V& v)
 }
 
 
-TEST_CASE("handle vector", "[handle]")
+TEST_CASE("handle vector (white+blackbox)", "[handle]")
 {
     enum class H : u64 {};
     using F = HandleFunctions64<H>;
     HandleVector<int, F> v;
 
+    // validate internal structure/whitebox testing
     CHECK(v.begin().index == 0);
     CHECK(v.end().index == 0);
     CHECK(v.begin() == v.end());
     CHECK(v.begin().index == v.end().index);
 
-    const auto a = v.add(42);
-    const auto b = v.add(42);
+    const auto a = v.add(40);
+    const auto b = v.add(41);
     const auto c = v.add(42);
+    REQUIRE(catchy::VectorEquals(Extract<int>(v), {40, 41, 42}));
 
     CHECK(v.begin().index == 0);
     CHECK(v.end().index == 3);
@@ -126,7 +128,13 @@ TEST_CASE("handle vector", "[handle]")
         v.remove(a);
         REQUIRE(catchy::VectorEquals(Extract<int>(v), {2, 3}));
 
+        CHECK(v.data.size() == 3);
+        REQUIRE(v.free_handles.size() == 1);
+
         const auto d = v.add(5);
+        REQUIRE(v.free_handles.size() == 0);
+        CHECK(catchy::VectorEquals(Extract<int>(v), {5, 2, 3}));
+
         v[d] = 4;
         CHECK(catchy::VectorEquals(Extract<int>(v), {4, 2, 3}));
     }
@@ -136,7 +144,13 @@ TEST_CASE("handle vector", "[handle]")
         v.remove(b);
         REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 3}));
 
+        CHECK(v.data.size() == 3);
+        REQUIRE(v.free_handles.size() == 1);
+
         const auto d = v.add(5);
+        REQUIRE(v.free_handles.size() == 0);
+        CHECK(catchy::VectorEquals(Extract<int>(v), {1, 5, 3}));
+
         v[d] = 4;
         CHECK(catchy::VectorEquals(Extract<int>(v), {1, 4, 3}));
     }
@@ -146,7 +160,13 @@ TEST_CASE("handle vector", "[handle]")
         v.remove(c);
         REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 2}));
 
+        CHECK(v.data.size() == 3);
+        REQUIRE(v.free_handles.size() == 1);
+
         const auto d = v.add(6);
+        REQUIRE(v.free_handles.size() == 0);
+        CHECK(catchy::VectorEquals(Extract<int>(v), {1, 2, 6}));
+
         v[d] = 4;
         CHECK(catchy::VectorEquals(Extract<int>(v), {1, 2, 4}));
     }
@@ -161,12 +181,13 @@ TEST_CASE("handle vector", "[handle]")
         CHECK(v.data.size() == 3);
 
         const auto d = v.add(7);
-        v[d] = 4;
-
         const auto e = v.add(8);
-        v[e] = 5;
-
         const auto f = v.add(9);
+
+        CHECK(catchy::VectorEquals(Extract<int>(v), {9, 8, 7}));
+
+        v[d] = 4;
+        v[e] = 5;
         v[f] = 6;
 
         CHECK(catchy::VectorEquals(Extract<int>(v), {6, 5, 4}));
@@ -184,12 +205,13 @@ TEST_CASE("handle vector", "[handle]")
         CHECK(v.data.size() == 3);
 
         const auto d = v.add(7);
-        v[d] = 4;
-
         const auto e = v.add(8);
-        v[e] = 5;
-
         const auto f = v.add(9);
+
+        CHECK(catchy::VectorEquals(Extract<int>(v), {7, 8, 9}));
+
+        v[d] = 4;
+        v[e] = 5;
         v[f] = 6;
 
         CHECK(catchy::VectorEquals(Extract<int>(v), {4, 5, 6}));
@@ -208,12 +230,9 @@ TEST_CASE("handle vector", "[handle]")
             i.emplace_back(p.second);
         }
 
-        REQUIRE(catchy::VectorEquals(Extract<int>(v), {1, 2, 3}));
+        CHECK(catchy::VectorEquals(Extract<int>(v), {1, 2, 3}));
         CHECK(catchy::VectorEquals(i, {1, 2, 3}));
-        REQUIRE(h.size() == 3);
-        CHECK(h[0] == a);
-        CHECK(h[1] == b);
-        CHECK(h[2] == c);
+        CHECK(catchy::VectorEquals(h, {a, b, c}));
     }
 }
 
