@@ -5,6 +5,7 @@ set(src
     tred/handle.cc tred/handle.h
     tred/image.cc tred/image.h
     tred/array.cc tred/array.h
+    tred/image.types.cc tred/image.types.h
 
     tred/input/action.cc tred/input/action.h
     tred/input/actionmap.cc tred/input/actionmap.h

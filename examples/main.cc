@@ -64,9 +64,9 @@ struct Material
 
     float specular_strength = 1.0f;
 
-    explicit Material(const LoadedImage& d, const LoadedImage& s)
-        : diffuse(d)
-        , specular(s)
+    explicit Material(Texture&& d, Texture&& s)
+        : diffuse(std::move(d))
+        , specular(std::move(s))
     {
     }
 };

@@ -2,31 +2,11 @@
 
 #include "embed/types.h"
 #include "tred/types.h"
-
-enum class TextureEdge
-{
-    clamp, repeat
-};
+#include "tred/image.types.h"
+#include "tred/texture.h"
 
 
-enum class TextureRenderStyle
-{
-    pixel, smooth
-};
-
-
-enum class Transparency
-{
-    include, exclude
-};
-
-struct LoadedImage
-{
-    unsigned int id;
-    int width; int height;
-};
-
-LoadedImage
+Texture
 load_image_from_embedded
 (
     const embedded_binary& image_binary,
@@ -35,16 +15,7 @@ load_image_from_embedded
     Transparency t
 );
 
-LoadedImage
-load_image_from_pixel_buffer
-(
-    void* pixels, int width, int height,
-    TextureEdge te,
-    TextureRenderStyle trs,
-    Transparency t
-);
-
-LoadedImage
+Texture
 load_image_from_color
 (
     u32 pixel,

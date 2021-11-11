@@ -6,7 +6,7 @@
 
 namespace onebit
 {
-    LoadedImage load_texture()
+    Texture load_texture()
     {
         return load_image_from_embedded
         (

@@ -1,10 +1,12 @@
 #include "sprites/cards.h"
 
+#include "tred/image.h"
+
 #include "cards.png.h"
 
 namespace cards
 {
-    LoadedImage load_texture()
+    Texture load_texture()
     {
         return load_image_from_embedded
         (

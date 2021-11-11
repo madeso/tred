@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/image.h"
+#include "tred/texture.h"
 #include "tred/rect.h"
 
 #include <string_view>
@@ -8,7 +8,7 @@
 
 namespace onebit
 {
-    LoadedImage load_texture();
+    Texture load_texture();
 
 	constexpr Recti get(int x, int y) { return Recti::from_xywh(16*x, 16*y, 16, 16); }
 

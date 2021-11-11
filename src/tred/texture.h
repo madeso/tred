@@ -1,8 +1,7 @@
 #pragma once
 
 #include "tred/uniform.h"
-
-struct LoadedImage;
+#include "tred/image.types.h"
 
 struct Texture
 {
@@ -10,17 +9,32 @@ struct Texture
     int width;
     int height;
 
-    explicit Texture(const LoadedImage& i);
+    Texture(); // invalid texture
+    
+    // "internal"
+    Texture
+    (
+        void* pixel_data, int w, int h,
+        TextureEdge te,
+        TextureRenderStyle trs,
+        Transparency t
+    );
+
     ~Texture();
+
 
     Texture(const Texture&) = delete;
     void operator=(const Texture&) = delete;
     
-    Texture(Texture&&) = delete;
-    void operator=(Texture&&) = delete;
+    Texture(Texture&&);
+    void operator=(Texture&&);
+
+    // clears the loaded texture to a invalid texture
+    void unload();
 };
 
 
+// set the texture for the specified uniform
 void
 bind_texture(const Uniform& uniform, const Texture& texture);
 
