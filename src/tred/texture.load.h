@@ -2,7 +2,7 @@
 
 #include "embed/types.h"
 #include "tred/types.h"
-#include "tred/image.types.h"
+#include "tred/texture.types.h"
 #include "tred/texture.h"
 
 

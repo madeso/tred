@@ -4,7 +4,7 @@
 
 #include "tred/dependency_opengl.h"
 #include "tred/cint.h"
-#include "tred/image.h"
+#include "tred/texture.load.h"
 #include "tred/log.h"
 
 

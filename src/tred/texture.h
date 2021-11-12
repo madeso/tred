@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tred/uniform.h"
-#include "tred/image.types.h"
+#include "tred/texture.types.h"
 
 struct Texture
 {

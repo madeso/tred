@@ -41,4 +41,4 @@
 #include "tred/types.h"
 #include "tred/game.h"
 #include "tred/texture.h"
-#include "tred/image.h"
+#include "tred/texture.load.h"

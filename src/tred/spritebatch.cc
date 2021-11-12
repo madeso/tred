@@ -1,7 +1,7 @@
 #include "tred/spritebatch.h"
 
 #include "tred/texture.h"
-#include "tred/image.h"
+#include "tred/texture.load.h"
 #include "tred/shader.h"
 #include "tred/dependency_opengl.h"
 #include "tred/game.h"

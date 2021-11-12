@@ -1,6 +1,6 @@
 #include "sprites/onebit.h"
 
-#include "tred/image.h"
+#include "tred/texture.load.h"
 
 #include "onebit.png.h"
 

@@ -35,7 +35,7 @@
 #include "tred/shader.h"
 #include "tred/log.h"
 #include "tred/mesh.compiled.h"
-#include "tred/image.h"
+#include "tred/texture.load.h"
 #include "tred/windows.h"
 #include "tred/input/system.h"
 #include "tred/input/config.h"

@@ -3,9 +3,9 @@ set(src
 
     tred/cint.cc tred/cint.h
     tred/handle.cc tred/handle.h
-    tred/image.cc tred/image.h
+    tred/texture.load.cc tred/texture.load.h
     tred/array.cc tred/array.h
-    tred/image.types.cc tred/image.types.h
+    tred/texture.types.cc tred/texture.types.h
 
     tred/input/action.cc tred/input/action.h
     tred/input/actionmap.cc tred/input/actionmap.h

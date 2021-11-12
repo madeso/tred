@@ -1,4 +1,4 @@
-#include "tred/image.h"
+#include "tred/texture.load.h"
 
 #include "stb_image.h"
 #include "tred/log.h"

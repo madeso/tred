@@ -21,7 +21,7 @@
 #include "tred/opengl_utils.h"
 #include "tred/opengl_state.h"
 #include "tred/types.h"
-#include "tred/image.h"
+#include "tred/texture.load.h"
 #include "tred/viewportdef.h"
 #include "tred/windows.sdl.convert.h"
 
