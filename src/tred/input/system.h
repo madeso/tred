@@ -45,6 +45,8 @@ struct InputSystem
     PlayerHandle add_player() const;
     bool is_connected(PlayerHandle player) const;
 
+    bool is_mouse_connected() const;
+
     void on_keyboard_key(KeyboardKey key, bool down);
     void on_mouse_axis(Axis2 axis, float relative_state, float absolute_state);
     void on_mouse_wheel(Axis2 axis, float value);

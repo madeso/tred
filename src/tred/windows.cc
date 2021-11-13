@@ -44,10 +44,6 @@ namespace
     // todo(Gustav): remove this
     constexpr bool log_joysticks_at_startup = false;
 
-    // auto enable relative_mouse
-    // default should be true? but it's useful to set it to false to help with debugging
-    constexpr bool relative_mouse = false;
-
     constexpr bool log_joystick_connection_events = true;
 }
 
@@ -737,25 +733,19 @@ std::unique_ptr<Windows> setup()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-
-    // todo(Gustav): need to possible check input if this is required (or enable it later when required)
-    if(relative_mouse)
-    {
-        const auto relative_enabled = SDL_SetRelativeMouseMode(SDL_TRUE) >= 0;
-        if(relative_enabled == false)
-        {
-            LOG_ERROR("Unable to set relative mouse");
-            return nullptr;
-        }
-    }
-
     return std::make_unique<WindowsImplementation>();
 }
 
+enum class MouseState
+{
+    unknown, locked, free
+};
 
 int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, update_function&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
+
+    auto mouse_state = MouseState::unknown;
 
     while(windows->running)
     {
@@ -765,6 +755,20 @@ int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& window
 
         windows->pump_events(input_system);
         input_system->update_player_connections(discovery, windows->get_input_platform());
+
+        const auto new_mouse_state = input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
+
+        if(new_mouse_state != mouse_state)
+        {
+            // todo(Gustav): need to possible check input if this is required (or enable it later when required)
+            const auto sdl_state = new_mouse_state == MouseState::locked ? SDL_TRUE : SDL_FALSE;
+            const auto was_changed = SDL_SetRelativeMouseMode( sdl_state ) >= 0;
+            if(was_changed == false)
+            {
+                LOG_ERROR("Unable to set relative mouse: {}", SDL_GetError());
+            }
+        }
+
         if(false == on_update(dt))
         {
             return 0;

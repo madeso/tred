@@ -115,6 +115,12 @@ bool InputSystem::is_connected(PlayerHandle player) const
 }
 
 
+bool InputSystem::is_mouse_connected() const
+{
+    return m->input_director.mouses.empty() == false;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
