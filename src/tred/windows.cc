@@ -613,12 +613,20 @@ struct WindowImplementation : public detail::Window
 };
 
 
+enum class MouseState
+{
+    unknown, locked, free
+};
+
+
 struct WindowsImplementation : public Windows
 {
     std::map<window_id, std::unique_ptr<WindowImplementation>> windows;
     std::unique_ptr<SdlPlatform> platform;
     OpenGlSetup opengl_setup;
     OpenglStates states;
+
+    MouseState mouse_state = MouseState::unknown;
 
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
@@ -638,12 +646,17 @@ struct WindowsImplementation : public Windows
         windows[window->get_id()] = std::move(window);
     }
 
+    // hacky hack
+    // todo(Gustav): add a handle arg so we don't have to assume we want to change the first window
     void set_render(render_function&& on_render) override
     {
-        // hacky hack
-        // todo(Gustav): add a handle arg so we don't have to assume we want to change the first window
-
         windows.begin()->second->on_render = on_render;
+    }
+
+    // todo(Gustav): add a handle arg so we don't have to assume we want to change the first window
+    void set_imgui(imgui_function&& on_render) override
+    {
+        windows.begin()->second->on_imgui = on_render;
     }
 
     void render() override
@@ -703,6 +716,18 @@ struct WindowsImplementation : public Windows
         }
 
         platform->on_events_completed(input_system);
+
+        const auto new_mouse_state = input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
+        if(new_mouse_state != mouse_state)
+        {
+            // todo(Gustav): need to possible check input if this is required (or enable it later when required)
+            const auto sdl_state = new_mouse_state == MouseState::locked ? SDL_TRUE : SDL_FALSE;
+            const auto was_changed = SDL_SetRelativeMouseMode( sdl_state ) >= 0;
+            if(was_changed == false)
+            {
+                LOG_ERROR("Unable to set relative mouse: {}", SDL_GetError());
+            }
+        }
     }
 };
 
@@ -736,16 +761,10 @@ std::unique_ptr<Windows> setup()
     return std::make_unique<WindowsImplementation>();
 }
 
-enum class MouseState
-{
-    unknown, locked, free
-};
 
 int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, update_function&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
-
-    auto mouse_state = MouseState::unknown;
 
     while(windows->running)
     {
@@ -755,19 +774,6 @@ int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& window
 
         windows->pump_events(input_system);
         input_system->update_player_connections(discovery, windows->get_input_platform());
-
-        const auto new_mouse_state = input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
-
-        if(new_mouse_state != mouse_state)
-        {
-            // todo(Gustav): need to possible check input if this is required (or enable it later when required)
-            const auto sdl_state = new_mouse_state == MouseState::locked ? SDL_TRUE : SDL_FALSE;
-            const auto was_changed = SDL_SetRelativeMouseMode( sdl_state ) >= 0;
-            if(was_changed == false)
-            {
-                LOG_ERROR("Unable to set relative mouse: {}", SDL_GetError());
-            }
-        }
 
         if(false == on_update(dt))
         {
