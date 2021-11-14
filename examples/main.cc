@@ -380,7 +380,8 @@ float get_aspect_ratio(const Rectf& r)
 int
 main(int, char**)
 {
-    // const auto pi = 3.14f;
+    const auto pi = 3.14f;
+
     ///////////////////////////////////////////////////////////////////////////
     // setup
     auto windows = setup();
@@ -577,6 +578,9 @@ main(int, char**)
 
     auto cards = Texture{::cards::load_texture()};
 
+    float time = 0.0f;
+    bool animate = false;
+
     windows->set_render
     (
         [&](const RenderCommand& rc)
@@ -623,7 +627,6 @@ main(int, char**)
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
                 {
                     const auto angle = 20.0f * static_cast<float>(i);
-                    const float time = 0;
                     {
                         const auto model = glm::rotate
                         (
@@ -660,53 +663,6 @@ main(int, char**)
         }
     );
 
-    auto player = sdl_input.add_player();
-    auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
-    {
-        const auto found = table.data.find(std::string{name});
-        if(found == table.data.end()) { return d; }
-        return found->second;
-    };
-
-    return main_loop(input::unit_discovery::find_highest, std::move(windows), &sdl_input, [&](float dt) -> bool
-    {
-        input::Table table;
-        sdl_input.update_table(player, &table, dt);
-
-        if(get(table, quit, 1.0f) > 0.5f)
-        {
-            running = false;
-        }
-
-        const auto v = camera.create_vectors();
-
-        const auto input_inout = get(table, inout);
-        const auto input_leftright = get(table, leftright);
-        const auto input_updown = get(table, updown);
-
-        const auto camera_movement
-            = v.front * input_inout
-            + v.right * input_leftright
-            + v.up * input_updown
-            ;
-
-        constexpr bool input_shift = false; // todo(Gustav): expose toggleables
-        const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
-        camera.position += camera_speed * camera_movement;
-
-        // LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
-        const float sensitivity = 1.0f;
-        camera.yaw += get(table, look_leftright) * sensitivity;
-        camera.pitch += get(table, look_updown) * sensitivity;
-        if(camera.pitch >  89.0f) camera.pitch =  89.0f;
-        if(camera.pitch < -89.0f) camera.pitch = -89.0f;
-
-        // constexpr std::string_view quit = "quit";
-        return running;
-    });
-
-    #if 0
-
     int rendering_mode = 0;
     const auto set_rendering_mode = [&rendering_mode]()
     {
@@ -719,392 +675,15 @@ main(int, char**)
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // shader layout
-    const auto layout = VertexLayoutDescription
-    {
-        {VertexType::Position3, "aPos"},
-        {VertexType::Normal3, "aNormal"},
-        {VertexType::Color4, "aColor"},
-        {VertexType::Texture2, "aTexCoord"}
-    };
-    auto layout_compiler = Compile({layout});
-    const auto compiled_layout = layout_compiler.Compile(layout);
-
-    const auto light_layout = VertexLayoutDescription
-    {
-        {VertexType::Position3, "aPos"}
-    };
-    auto light_compiler = Compile({light_layout});
-    const auto compiled_light_layout = light_compiler.Compile(light_layout);
-
-    ///////////////////////////////////////////////////////////////////////////
-    // shaders
-    auto shader = ShaderProgram{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
-    const auto uni_color = shader.GetUniform("uColor");
-    const auto uni_transform = shader.GetUniform("uTransform");
-    const auto uni_model_transform = shader.GetUniform("uModelTransform");
-    const auto uni_normal_matrix = shader.GetUniform("uNormalMatrix");
-    const auto uni_view_position = shader.GetUniform("uViewPosition");
-    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
-    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
-    {
-        PointLightUniforms{shader, "uPointLights[0]"},
-        PointLightUniforms{shader, "uPointLights[1]"},
-        PointLightUniforms{shader, "uPointLights[2]"},
-        PointLightUniforms{shader, "uPointLights[3]"}
-    };
-    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
-
-    auto light_shader = ShaderProgram{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
-    const auto uni_light_transform = light_shader.GetUniform("uTransform");
-    const auto uni_light_color = light_shader.GetUniform("uColor");
-
-    ///////////////////////////////////////////////////////////////////////////
-    // model
-    const auto mesh = Compile(CreateBoxMesh(1.0f), compiled_layout);
-    const auto light_mesh = Compile(CreateBoxMesh(0.2f), compiled_light_layout);
-    const auto plane_mesh = Compile(CreatePlaneMesh(20.0f, 20.0f), compiled_layout);
-
-    ///////////////////////////////////////////////////////////////////////////
-    // view
-    // const auto projection_ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-    glm::mat4 projection;
-    auto fov = 45.0f;
-
-    const auto update_viewport = [&]()
-    {
-        glViewport(0, 0, width, height);
-        const auto aspect_ratio = static_cast<float>(width)/static_cast<float>(height);
-        projection = glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, 100.0f);
-    };
-
-    update_viewport();
-
-    auto cube_positions = std::vector<glm::vec3>
-    {
-        { 0.0f,  0.0f,  0.0f },
-        { 2.0f,  5.0f, -5.0f},
-        {-1.5f, -2.2f, -2.5f },
-        {-3.8f, -2.0f, -5.3f},
-        { 2.4f, -0.4f, -3.5f },
-        {-1.7f,  3.0f, -7.5f },
-        { 1.3f, -2.0f, -2.5f },
-        { 1.5f,  2.0f, -2.5f },
-        { 1.5f,  0.2f, -1.5f },
-        {-1.3f,  1.0f, -1.5f }
-    };
-    auto cube_color = glm::vec4{1.0f};
-
-    ///////////////////////////////////////////////////////////////////////////
-    // main
-
-    bool running = true;
-    auto last = SDL_GetPerformanceCounter();
-    auto time = 0.0f;
-    bool animate = true;
-
-    auto input_fps = false;
-    const auto set_input_fps = [&input_fps](bool value)
-    {
-        input_fps = value;
-        SDL_SetRelativeMouseMode(input_fps ? SDL_TRUE : SDL_FALSE);
-    };
-    auto input_w = false;
-    auto input_a = false;
-    auto input_s = false;
-    auto input_d = false;
-    auto input_space = false;
-    auto input_ctrl = false;
-    auto input_shift = false;
-
-    auto mouse_left = false;
-    auto mouse_middle = false;
-    auto mouse_right = false;
-
-    auto camera_position = glm::vec3{0.0f, 0.0f,  3.0f};
-    auto camera_pitch = 0.0f;
-    auto camera_yaw = -90.0f;
-
-    auto material = Material
-    {
-        Texture
+    windows->set_imgui
+    (
+        [&]()
         {
-            LoadImageEmbeded
-            (
-                CONTAINER_DIFFUSE_PNG,
-                TextureEdge::Repeat,
-                TextureRenderStyle::Smooth,
-                Transperency::Exclude
-            )
-        },
-        Texture
-        {
-            LoadImageEmbeded
-            (
-                CONTAINER_SPECULAR_PNG,
-                TextureEdge::Repeat,
-                TextureRenderStyle::Smooth,
-                Transperency::Exclude
-            )
-        }
-    };
-    auto directional_light = DirectionalLight{};
-    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
-    {
-        glm::vec3{ 0.7f,  0.2f,  2.0f},
-        glm::vec3{ 2.3f, -3.3f, -4.0f},
-        glm::vec3{-4.0f,  2.0f, -12.0f},
-        glm::vec3{ 0.0f,  0.0f, -3.0f}
-    };
-    auto spot_light = SpotLight{};
-
-    while(running)
-    {
-        PROFILE_FRAME();
-
-        const auto now = SDL_GetPerformanceCounter();
-        const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
-        last = now;
-
-        auto input_mouse = glm::vec2{0, 0};
-
-        SDL_Event e;
-        while(SDL_PollEvent(&e) != 0)
-        {
-            if(!input_fps)
-            {
-                ImGui_ImplSDL2_ProcessEvent(&e);
-            }
-            switch(e.type)
-            {
-            case SDL_WINDOWEVENT:
-                if(e.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    width = e.window.data1;
-                    height = e.window.data2;
-                    update_viewport();
-                }
-                break;
-            case SDL_QUIT:
-                running = false;
-                break;
-            case SDL_MOUSEMOTION:
-                input_mouse.x += static_cast<float>(e.motion.xrel);
-                input_mouse.y += static_cast<float>(e.motion.yrel);
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP: {
-                const bool down = e.type == SDL_MOUSEBUTTONDOWN;
-
-                switch(e.button.button)
-                {
-                    case SDL_BUTTON_LEFT: mouse_left = down; break;
-                    case SDL_BUTTON_MIDDLE: mouse_middle = down; break;
-                    case SDL_BUTTON_RIGHT: mouse_right = down; break;
-                    default:
-                        // ignore other mouse buttons
-                        break;
-                }
-            }
-            break;
-            case SDL_KEYDOWN:
-            case SDL_KEYUP: {
-                const bool down = e.type == SDL_KEYDOWN;
-
-                switch(e.key.keysym.sym)
-                {
-                case SDLK_ESCAPE:
-                    if(!down)
-                    {
-                        if(input_fps)
-                        {
-                            set_input_fps(false);
-                        }
-                        else
-                        {
-                            running = false;
-                        }
-                    }
-                    break;
-                case SDLK_f: if(!down) { set_input_fps(!input_fps); } break;
-                case SDLK_w: input_w = down; break;
-                case SDLK_a: input_a = down; break;
-                case SDLK_s: input_s = down; break;
-                case SDLK_d: input_d = down; break;
-                case SDLK_SPACE: input_space = down; break;
-                case SDLK_LCTRL: case SDLK_RCTRL: input_ctrl = down; break;
-                case SDLK_LSHIFT: case SDLK_RSHIFT: input_shift = down; break;
-                default:
-                    // ignore other keys
-                    break;
-                }
-            }
-            break;
-            default:
-                // ignore other events
-                break;
-            }
-        }
-
-        constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
-        const auto direction = glm::vec3
-        {
-            cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch)),
-            sin(glm::radians(camera_pitch)),
-            sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch))
-        };
-        const auto camera_front = glm::normalize(direction);
-        const auto camera_right = glm::normalize(glm::cross(camera_front, UP));
-        const auto camera_up = glm::normalize(glm::cross(camera_right, camera_front));
-
-        spot_light.position = camera_position;
-        spot_light.direction = camera_front;
-
-        // handle mouse input
-        if(input_fps)
-        {
-            const float sensitivity = 0.1f;
-            camera_yaw   += input_mouse.x * sensitivity;
-            camera_pitch -= input_mouse.y * sensitivity;
-        }
-        else if(io.WantCaptureMouse == false)
-        {
-            const float move_sensitivity = 0.01f;
-            if(mouse_left)
-            {
-                // todo(Gustav): make actually roatate around a center point instead
-                const float sensitivity = 0.1f;
-                camera_yaw   += input_mouse.x * sensitivity;
-                camera_pitch -= input_mouse.y * sensitivity;
-            }
-            else if(mouse_middle)
-            {
-                camera_position +=
-                      camera_right * input_mouse.x * move_sensitivity
-                    - camera_up * input_mouse.y * move_sensitivity;
-            }
-            else if(mouse_right)
-            {
-                camera_position += camera_front * input_mouse.y * move_sensitivity;
-            }
-        }
-
-        if(camera_pitch >  89.0f) camera_pitch =  89.0f;
-        if(camera_pitch < -89.0f) camera_pitch = -89.0f;
-
-        // handle keyboard input
-        if(input_fps)
-        {
-            auto camera_movement = glm::vec3{0.0f, 0.0f, 0.0f};
-            auto camera_movement_requested = false;
-            const auto move_camera = [&](const glm::vec3& m, bool p, bool n)
-            {
-                int d = 0;
-                if(p) d += 1;
-                if(n) d -= 1;
-                if(d != 0)
-                {
-                    camera_movement += m * static_cast<float>(d);
-                    camera_movement_requested = true;
-                }
-            };
-            move_camera(camera_front, input_w, input_s);
-            move_camera(camera_right, input_d, input_a);
-            move_camera(camera_up, input_space, input_ctrl);
-
-            if(camera_movement_requested)
-            {
-                const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
-                camera_position += camera_speed * glm::normalize(camera_movement);
-            }
-        }
-
-        if(animate)
-        {
-            time += dt;
-
-            if(time > 2*pi)
-            {
-                time -= 2* pi;
-            }
-        }
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        {
-            const auto view = glm::lookAt(camera_position, camera_position + camera_front, UP);
-
-            const auto pv = projection * view;
-
-            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-            {
-                light_shader.Use();
-                light_shader.SetVec3(uni_light_color, point_lights[i].diffuse);
-                {
-                    const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
-                    light_shader.SetMat(uni_light_transform, pv * model);
-                }
-                light_mesh.Draw();
-            }
-
-            shader.Use();
-            shader.SetVec4(uni_color, cube_color);
-            uni_material.SetShader(&shader, material);
-            uni_directional_light.SetShader(&shader, directional_light);
-            uni_spot_light.SetShader(&shader, spot_light);
-            for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-            {
-                uni_point_lights[i].SetShader(&shader, point_lights[i]);
-            }
-            shader.SetVec3(uni_view_position, camera_position);
-
-            for(unsigned int i=0; i<cube_positions.size(); i+=1)
-            {
-                const auto angle = 20.0f * static_cast<float>(i);
-                {
-                    const auto model = glm::rotate
-                    (
-                        glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                        time + glm::radians(angle),
-                        i%2 == 0
-                        ? glm::vec3{1.0f, 0.3f, 0.5f}
-                        : glm::vec3{0.5f, 1.0f, 0.0f}
-                    );
-                    shader.SetMat(uni_transform, pv * model);
-                    shader.SetMat(uni_model_transform, model);
-                    shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-                }
-                mesh.Draw();
-            }
-
-            {
-                const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                shader.SetMat(uni_transform, pv * model);
-                shader.SetMat(uni_model_transform, model);
-                shader.SetMat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-                plane_mesh.Draw();
-            }
-        }
-
-        if(input_fps == false)
-        {
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
-            ImGui::NewFrame();
-
-            // ImGui::ShowDemoWindow();
 
             if(ImGui::Begin("Debug"))
             {
                 if(ImGui::Button("Quit")) { running = false; }
                 ImGui::SameLine();
-                if(ImGui::Button("FPS controller"))
-                {
-                    set_input_fps(true);
-                }
                 ImGui::Checkbox("Animate?", &animate);
                 ImGui::SameLine();
                 ImGui::SliderFloat("Time", &time, 0.0f, 2 * pi);
@@ -1112,10 +691,7 @@ main(int, char**)
                 {
                     set_rendering_mode();
                 }
-                if(ImGui::DragFloat("FOV", &fov, 0.1f, 1.0f, 145.0f))
-                {
-                    update_viewport();
-                }
+                ImGui::DragFloat("FOV", &camera.fov, 0.1f, 1.0f, 145.0f);
                 if (ImGui::CollapsingHeader("Lights"))
                 {
                     const auto ui_attenuation = [](Attenuation* a)
@@ -1195,27 +771,62 @@ main(int, char**)
                 }
             }
             ImGui::End();
+        }
+    );
 
-            PrintProfiles();
+    auto player = sdl_input.add_player();
+    auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
+    {
+        const auto found = table.data.find(std::string{name});
+        if(found == table.data.end()) { return d; }
+        return found->second;
+    };
 
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    return main_loop(input::unit_discovery::find_highest, std::move(windows), &sdl_input, [&](float dt) -> bool
+    {
+        input::Table table;
+        sdl_input.update_table(player, &table, dt);
+
+        if(animate)
+        {
+            time += dt;
+
+            if(time > 2*pi)
+            {
+                time -= 2* pi;
+            }
         }
 
-        SDL_GL_SwapWindow(window);
-    }
+        if(get(table, quit, 1.0f) > 0.5f)
+        {
+            running = false;
+        }
 
-    mesh.Delete();
-    shader.Delete();
+        const auto v = camera.create_vectors();
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
+        const auto input_inout = get(table, inout);
+        const auto input_leftright = get(table, leftright);
+        const auto input_updown = get(table, updown);
 
-    SDL_GL_DeleteContext(glcontext);
-    SDL_DestroyWindow(window);
+        const auto camera_movement
+            = v.front * input_inout
+            + v.right * input_leftright
+            + v.up * input_updown
+            ;
 
-    SDL_Quit();
-    return 0;
-    #endif
+        constexpr bool input_shift = false; // todo(Gustav): expose toggleables
+        const auto camera_speed = 3 * dt * (input_shift ? 2.0f : 1.0f);
+        camera.position += camera_speed * camera_movement;
+
+        // LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
+        const float sensitivity = 1.0f;
+        camera.yaw += get(table, look_leftright) * sensitivity;
+        camera.pitch += get(table, look_updown) * sensitivity;
+        if(camera.pitch >  89.0f) camera.pitch =  89.0f;
+        if(camera.pitch < -89.0f) camera.pitch = -89.0f;
+
+        // constexpr std::string_view quit = "quit";
+        return running;
+    });
 }
 

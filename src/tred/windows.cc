@@ -7,7 +7,6 @@
 #include <set>
 #include <cassert>
 
-
 #include "glad/glad.h"
 
 // imgui
@@ -45,6 +44,8 @@ namespace
     constexpr bool log_joysticks_at_startup = false;
 
     constexpr bool log_joystick_connection_events = true;
+
+    constexpr SDL_KeyCode imgui_toggle_key = SDLK_F1;
 }
 
 
@@ -109,7 +110,7 @@ struct SdlPlatform : public input::Platform
         system->on_mouse_axis(input::Axis2::y, dy, last_mouse_y);
     }
 
-    void on_event(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<glm::ivec2 (u32)> window_size)
+    void on_event(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<std::optional<glm::ivec2> (u32)> window_size)
     {
         std::optional<input::JoystickId> detected_controller;
         auto should_handle_joystick = [this, &detected_controller](input::JoystickId id) -> bool
@@ -215,18 +216,25 @@ struct SdlPlatform : public input::Platform
                 {
                     const auto size = window_size(event.motion.windowID);
 
-                    auto pos_to_abs = [](int p, int s) -> float
+                    if(size)
                     {
-                        // normalize to [0 1] range
-                        const auto r = static_cast<float>(p)/static_cast<float>(s);
+                        auto pos_to_abs = [](int p, int s) -> float
+                        {
+                            // normalize to [0 1] range
+                            const auto r = static_cast<float>(p)/static_cast<float>(s);
 
-                        // scale to to [-1 +1] range
-                        return (r - 0.5f) * 2.0f;
-                    };
-                    last_mouse_x = pos_to_abs(event.motion.x, size.x);
-                    last_mouse_y = pos_to_abs(event.motion.y, size.y);
-                    on_mouse_relative_axis(system, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel));
-                    mouse_motion_this_frame = true;
+                            // scale to to [-1 +1] range
+                            return (r - 0.5f) * 2.0f;
+                        };
+                        last_mouse_x = pos_to_abs(event.motion.x, size->x);
+                        last_mouse_y = pos_to_abs(event.motion.y, size->y);
+                        on_mouse_relative_axis(system, static_cast<float>(event.motion.xrel), static_cast<float>(-event.motion.yrel));
+                        mouse_motion_this_frame = true;
+                    }
+                    else
+                    {
+                        LOG_INFO("ignored invalid window");
+                    }
                 }
                 break;
 
@@ -627,6 +635,7 @@ struct WindowsImplementation : public Windows
     OpenglStates states;
 
     MouseState mouse_state = MouseState::unknown;
+    bool imgui_state = false;
 
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
@@ -659,10 +668,16 @@ struct WindowsImplementation : public Windows
         windows.begin()->second->on_imgui = on_render;
     }
 
+    bool has_any_imgui() const
+    {
+        return windows.begin()->second->on_imgui.has_value();
+    }
+
     void render() override
     {
         for(auto& window: windows)
         {
+            // todo(Gustav): send imgui state to rendering
             window.second->render();
         }
     }
@@ -676,14 +691,89 @@ struct WindowsImplementation : public Windows
     {
         std::vector<input::JoystickId> lost_joysticks;
         SDL_Event e;
+        const auto has_imgui = has_any_imgui();
+
+        if(has_imgui)
+        {
+            ImGuiIO& io = ImGui::GetIO();
+
+            // const int last_flags = io.ConfigFlags;
+
+            io.ConfigFlags = io.ConfigFlags &
+            ~(
+                ImGuiConfigFlags_NavEnableKeyboard
+                | ImGuiConfigFlags_NavEnableGamepad
+                | ImGuiConfigFlags_NoMouseCursorChange
+                | ImGuiConfigFlags_NavNoCaptureKeyboard
+                | ImGuiConfigFlags_NoMouse
+            );
+
+            const int new_flags =
+                imgui_state
+                ? ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad
+                : ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NavNoCaptureKeyboard
+                ;
+            io.ConfigFlags = io.ConfigFlags | new_flags;
+
+            /*
+            if(last_flags != io.ConfigFlags)
+            {
+                LOG_INFO("config flags changed from {} to {}", last_flags, io.ConfigFlags);
+            }
+            */
+        }
+
         while(SDL_PollEvent(&e) != 0)
         {
-            if(opengl_setup.is_imgui_initialized())
+            if(imgui_state)
             {
-                ImGui_ImplSDL2_ProcessEvent(&e);
+                if(opengl_setup.is_imgui_initialized())
+                {
+                    ImGui_ImplSDL2_ProcessEvent(&e);
+                }
             }
 
-            platform->on_event(&lost_joysticks, input_system, e, [&](u32 id) {return windows[id]->size;});
+            if
+            (
+                has_imgui
+                &&
+                // capture both up and down key
+                (e.type == SDL_KEYUP || e.type == SDL_KEYDOWN)
+                &&
+                e.key.keysym.sym == imgui_toggle_key
+            )
+            {
+                const auto down = e.type == SDL_KEYDOWN;
+                if(!down)
+                {
+                    imgui_state = !imgui_state;
+                }
+            }
+            else if(has_imgui && imgui_state)
+            {
+                // block all events to platform if in imgui state
+            }
+            else
+            {
+                platform->on_event
+                (
+                    &lost_joysticks,
+                    input_system,
+                    e,
+                    [&](u32 id) -> std::optional<glm::ivec2>
+                    {
+                        const auto found = windows.find(id);
+                        if(found == windows.end())
+                        {
+                            return std::nullopt;
+                        }
+                        else
+                        {
+                            return found->second->size;
+                        }
+                    }
+                );
+            }
 
             switch(e.type)
             {
@@ -717,7 +807,7 @@ struct WindowsImplementation : public Windows
 
         platform->on_events_completed(input_system);
 
-        const auto new_mouse_state = input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
+        const auto new_mouse_state = imgui_state == false && input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
         if(new_mouse_state != mouse_state)
         {
             // todo(Gustav): need to possible check input if this is required (or enable it later when required)

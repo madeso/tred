@@ -37,6 +37,7 @@ struct Windows
     virtual ~Windows() = default;
 
     virtual void set_render(render_function&& on_render) = 0;
+    virtual void set_imgui(imgui_function&& on_render) = 0;
 
     virtual input::Platform* get_input_platform() = 0;
 
