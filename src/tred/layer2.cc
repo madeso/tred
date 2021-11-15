@@ -83,11 +83,28 @@ ViewportDef create_viewport(const LayoutData& ld, const glm::ivec2& size)
     }
 }
 
+void
+RenderCommand::clear(const glm::vec3& color, const LayoutData& ld) const
+{
+    if(ld.style == ViewportStyle::extended)
+    {
+        glClearColor(color.r, color.g, color.b, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    else
+    {
+        auto l = with_layer2(*this, ld);
+        l.batch->quad({}, l.viewport_aabb_in_worldspace, {}, glm::vec4{color, 1.0f});
+    }
+}
+
+
 RenderLayer2 with_layer2(const RenderCommand& rc, const LayoutData& ld)
 {
     const auto vp = create_viewport(ld, rc.size);
     return create_layer2(rc, vp);
 }
+
 
 RenderLayer3 with_layer3(const RenderCommand& rc, const LayoutData& ld)
 {

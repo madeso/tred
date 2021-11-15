@@ -580,6 +580,8 @@ main(int, char**)
 
     float time = 0.0f;
     bool animate = false;
+    bool use_blackbars = true;
+    bool use_custom_hud = false;
 
     windows->set_render
     (
@@ -587,15 +589,30 @@ main(int, char**)
         [&](const RenderCommand& rc)
         {
             // draw 3d world
+            // clear screen
+            const auto layout = LayoutData
             {
-                auto l3 = with_layer3(rc, {ViewportStyle::extended, 800.0f, 600.0f});
+                use_blackbars ? ViewportStyle::black_bars : ViewportStyle::extended,
+                800.0f, 600.0f
+            };
+            
+            // clear to black
+            if(use_blackbars)
+            {
+                rc.clear(glm::vec3{0.0f}, {ViewportStyle::extended, 800.0f, 600.0f});
+            }
+
+            // clear background
+            rc.clear({0.2f, 0.3f, 0.3f}, layout);
+
+            {
+                auto l3 = with_layer3(rc, layout);
 
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
                 const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
 
                 // todo(Gustav): move clear to rc
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
                 const auto compiled_camera = compile(camera.create_vectors());
             
@@ -655,7 +672,7 @@ main(int, char**)
 
             // draw hud
             {
-                auto l2 = with_layer2(rc, {ViewportStyle::extended, 800.0f, 600.0f});
+                auto l2 = with_layer2(rc, use_custom_hud ? layout : LayoutData{ViewportStyle::extended, 800.0f, 600.0f});
 
                 constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
 
@@ -688,6 +705,11 @@ main(int, char**)
                 ImGui::Checkbox("Animate?", &animate);
                 ImGui::SameLine();
                 ImGui::SliderFloat("Time", &time, 0.0f, 2 * pi);
+                
+                ImGui::Checkbox("Black bars?", &use_blackbars);
+                ImGui::SameLine();
+                ImGui::Checkbox("Custom hud?", &use_custom_hud);
+
                 if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
                 {
                     set_rendering_mode();

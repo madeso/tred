@@ -51,6 +51,7 @@ struct RenderCommand
     glm::ivec2 size;
 
     // tood(Gustav): add clear to color function
+    void clear(const glm::vec3& color, const LayoutData& ld) const;
 };
 
 // todo(Gustav): pass camera to with_ functions
