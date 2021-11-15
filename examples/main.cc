@@ -488,15 +488,15 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto layout = VertexLayoutDescription
+    const auto mesh_layout = VertexLayoutDescription
     {
         {VertexType::position3, "aPos"},
         {VertexType::normal3, "aNormal"},
         {VertexType::color4, "aColor"},
         {VertexType::texture2, "aTexCoord"}
     };
-    auto layout_compiler = compile({layout});
-    const auto compiled_layout = layout_compiler.compile(layout);
+    auto layout_compiler = compile({mesh_layout});
+    const auto compiled_layout = layout_compiler.compile(mesh_layout);
 
     const auto light_layout = VertexLayoutDescription
     {
