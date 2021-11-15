@@ -7,6 +7,7 @@
 #include <functional>
 #include <optional>
 
+#include "tred/types.h"
 #include "tred/input/unitdiscovery.h"
 
 struct RenderCommand;
@@ -30,18 +31,20 @@ struct InputSystem;
 struct Platform;
 }
 
+enum WindowHandle : u64 {};
+
 struct Windows
 {
     bool running = true;
 
     virtual ~Windows() = default;
 
-    virtual void set_render(render_function&& on_render) = 0;
+    virtual void set_render(WindowHandle window, render_function&& on_render) = 0;
     virtual void set_imgui(imgui_function&& on_render) = 0;
 
     virtual input::Platform* get_input_platform() = 0;
 
-    virtual void add_window(const std::string& title, const glm::ivec2& size) = 0;
+    virtual WindowHandle add_window(const std::string& title, const glm::ivec2& size) = 0;
     virtual void render() = 0;
     virtual void pump_events(input::InputSystem* input_system) = 0;
 };

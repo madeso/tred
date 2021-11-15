@@ -27,6 +27,8 @@
 #include "tred/input/system.h"
 #include "tred/input/platform.h"
 
+#include "tred/handle.h"
+
 #include "tred/windows.sdl.convert.h"
 #include "tred/windows.sdl.joystick.h"
 
@@ -599,6 +601,12 @@ struct WindowImplementation : public detail::Window
         }
     }
 
+    WindowImplementation(const WindowImplementation&) = delete;
+    void operator=(const WindowImplementation&) = delete;
+
+    WindowImplementation(WindowImplementation&&) = delete;
+    void operator=(WindowImplementation&&) = delete;
+
     void render() override
     {
         if(sdl_window == nullptr) { return; }
@@ -644,7 +652,8 @@ enum class MouseState
 
 struct WindowsImplementation : public Windows
 {
-    std::map<window_id, std::unique_ptr<WindowImplementation>> windows;
+    HandleVector<std::unique_ptr<WindowImplementation>, HandleFunctions64<WindowHandle>> windows;
+    std::map<window_id, WindowHandle> window_id_to_handle;
     std::unique_ptr<SdlPlatform> platform;
     ImguiState imgui_state;
     OpenGlSetup opengl_setup;
@@ -665,18 +674,17 @@ struct WindowsImplementation : public Windows
         SDL_Quit();
     }
 
-    void add_window(const std::string& title, const glm::ivec2& size) override
+    WindowHandle add_window(const std::string& title, const glm::ivec2& size) override
     {
         const auto is_main = true;
-        auto window = std::make_unique<WindowImplementation>(&states, title, size, &opengl_setup, &imgui_state, is_main);
-        windows[window->get_id()] = std::move(window);
+        auto window = windows.add(std::make_unique<WindowImplementation>(&states, title, size, &opengl_setup, &imgui_state, is_main));
+        window_id_to_handle[windows[window]->get_id()] = window;
+        return window;
     }
 
-    // hacky hack
-    // todo(Gustav): add a handle arg so we don't have to assume we want to change the first window
-    void set_render(render_function&& on_render) override
+    void set_render(WindowHandle window, render_function&& on_render) override
     {
-        windows.begin()->second->on_render = on_render;
+        windows[window]->on_render = on_render;
     }
 
     void set_imgui(imgui_function&& on_render) override
@@ -693,7 +701,7 @@ struct WindowsImplementation : public Windows
     {
         for(auto& window: windows)
         {
-            window.second->render();
+            window->render();
         }
     }
 
@@ -777,14 +785,14 @@ struct WindowsImplementation : public Windows
                     e,
                     [&](u32 id) -> std::optional<glm::ivec2>
                     {
-                        const auto found = windows.find(id);
-                        if(found == windows.end())
+                        const auto found = window_id_to_handle.find(id);
+                        if(found == window_id_to_handle.end())
                         {
                             return std::nullopt;
                         }
                         else
                         {
-                            return found->second->size;
+                            return windows[found->second]->size;
                         }
                     }
                 );
@@ -795,10 +803,10 @@ struct WindowsImplementation : public Windows
             case SDL_WINDOWEVENT:
                 if(e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
-                    auto found = windows.find(e.window.windowID);
-                    if(found != windows.end())
+                    auto found = window_id_to_handle.find(e.window.windowID);
+                    if(found != window_id_to_handle.end())
                     {
-                        found->second->on_resized({e.window.data1, e.window.data2});
+                        windows[found->second]->on_resized({e.window.data1, e.window.data2});
                     }
                     else
                     {

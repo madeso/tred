@@ -484,7 +484,7 @@ main(int, char**)
 
     auto camera = ::Camera{};
 
-    windows->add_window("TreD", {1280, 720});
+    auto game_window = windows->add_window("TreD", {1280, 720});
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
@@ -583,6 +583,7 @@ main(int, char**)
 
     windows->set_render
     (
+        game_window,
         [&](const RenderCommand& rc)
         {
             // draw 3d world
