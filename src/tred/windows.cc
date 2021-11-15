@@ -47,7 +47,7 @@ namespace
 
     constexpr bool log_joystick_connection_events = true;
 
-    constexpr SDL_KeyCode imgui_toggle_key = SDLK_F1;
+    constexpr SDL_Keycode imgui_toggle_key = SDLK_F1;
 }
 
 
