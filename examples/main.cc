@@ -672,7 +672,7 @@ main(int, char**)
 
             // draw hud
             {
-                auto l2 = with_layer2(rc, use_custom_hud ? layout : LayoutData{ViewportStyle::extended, 800.0f, 600.0f});
+                auto l2 = with_layer2(rc, use_custom_hud ? LayoutData{ViewportStyle::extended, 800.0f, 600.0f} : layout);
 
                 constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
 
