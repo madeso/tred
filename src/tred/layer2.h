@@ -31,11 +31,19 @@ struct RenderLayer3 : Layer
 
 enum class ViewportStyle { black_bars, extended};
 
+
 struct LayoutData
 {
     ViewportStyle style;
     float requested_width;
     float requested_height;
+};
+
+struct LerpData
+{
+    LayoutData lhs;
+    LayoutData rhs;
+    float t;
 };
 
 
@@ -52,6 +60,7 @@ struct RenderCommand
 
     // tood(Gustav): add clear to color function
     void clear(const glm::vec3& color, const LayoutData& ld) const;
+    void clear(const glm::vec3& color, const LerpData& ld) const;
 };
 
 // todo(Gustav): pass camera to with_ functions
@@ -59,5 +68,8 @@ struct RenderCommand
 
 RenderLayer2 with_layer2(const RenderCommand& rc, const LayoutData& ld);
 RenderLayer3 with_layer3(const RenderCommand& rc, const LayoutData& ld);
-
 Layer with_layer(const InputCommand& rc, const LayoutData& ld);
+
+RenderLayer2 with_layer2(const RenderCommand& rc, const LerpData& ld);
+RenderLayer3 with_layer3(const RenderCommand& rc, const LerpData& ld);
+Layer with_layer(const InputCommand& rc, const LerpData& ld);

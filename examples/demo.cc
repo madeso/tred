@@ -113,7 +113,7 @@ struct ExampleGame : public Game
     void
     on_render(const RenderCommand& rc) override
     {
-        auto r = with_layer2(rc, {ViewportStyle::extended, 200.0f, 200.0f});
+        auto r = with_layer2(rc, LayoutData{ViewportStyle::extended, 200.0f, 200.0f});
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 

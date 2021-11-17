@@ -580,8 +580,8 @@ main(int, char**)
 
     float time = 0.0f;
     bool animate = false;
-    bool use_blackbars = true;
     bool use_custom_hud = false;
+    float hud_lerp = 1.0f; // 1= black bars, 0=no black bars
 
     windows->set_render
     (
@@ -590,16 +590,17 @@ main(int, char**)
         {
             // draw 3d world
             // clear screen
-            const auto layout = LayoutData
+            const auto layout = LerpData
             {
-                use_blackbars ? ViewportStyle::black_bars : ViewportStyle::extended,
-                800.0f, 600.0f
+                {ViewportStyle::extended, 800.0f, 600.0f},
+                {ViewportStyle::black_bars, 800.0f, 600.0f},
+                hud_lerp
             };
             
             // clear to black
-            if(use_blackbars)
+            if(hud_lerp > 0.0f)
             {
-                rc.clear(glm::vec3{0.0f}, {ViewportStyle::extended, 800.0f, 600.0f});
+                rc.clear(glm::vec3{0.0f}, LayoutData{ViewportStyle::extended, 800.0f, 600.0f});
             }
 
             // clear background
@@ -672,7 +673,10 @@ main(int, char**)
 
             // draw hud
             {
-                auto l2 = with_layer2(rc, use_custom_hud ? LayoutData{ViewportStyle::extended, 800.0f, 600.0f} : layout);
+                auto l2 = use_custom_hud
+                    ? with_layer2(rc, LayoutData{ViewportStyle::extended, 800.0f, 600.0f})
+                    : with_layer2(rc, layout)
+                    ;
 
                 constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
 
@@ -706,7 +710,7 @@ main(int, char**)
                 ImGui::SameLine();
                 ImGui::SliderFloat("Time", &time, 0.0f, 2 * pi);
                 
-                ImGui::Checkbox("Black bars?", &use_blackbars);
+                ImGui::SliderFloat("Black bars?", &hud_lerp, 0.0f, 1.0f);
                 ImGui::SameLine();
                 ImGui::Checkbox("Custom hud?", &use_custom_hud);
 

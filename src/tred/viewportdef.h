@@ -40,3 +40,13 @@ struct ViewportDef
 
     ViewportDef(const Recti& screen, float w, float h);
 };
+
+
+[[nodiscard]]
+ViewportDef
+lerp
+(
+    const ViewportDef& lhs,
+    float t,
+    const ViewportDef& rhs
+);
