@@ -433,6 +433,8 @@ struct SdlPlatform : public input::Platform
     }
 };
 
+struct WindowImplementation;
+
 namespace
 {
     struct ImguiState
@@ -461,8 +463,14 @@ namespace
         ImguiState* imgui;
         bool opengl_initialized = false;
         std::unique_ptr<Render2> render_data;
+        
+        SDL_GLContext sdl_glcontext;
+        WindowImplementation* active_window = nullptr;
+        ImGuiContext* imgui_context = nullptr;
 
-        explicit OpenGlSetup(ImguiState* i) : imgui(i)
+        explicit OpenGlSetup(ImguiState* i)
+            : imgui(i)
+            , sdl_glcontext(nullptr)
         {
         }
 
@@ -488,7 +496,7 @@ namespace
                 assert(imgui->owning_window == nullptr);
 
                 IMGUI_CHECKVERSION();
-                ImGui::CreateContext();
+                imgui_context = ImGui::CreateContext();
                 auto& io = ImGui::GetIO();
                 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
                 io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -528,7 +536,6 @@ struct WindowImplementation : public detail::Window
     glm::ivec2 size;
 
     SDL_Window* sdl_window;
-    SDL_GLContext sdl_glcontext;
 
     OpenGlSetup* opengl_setup;
 
@@ -537,15 +544,18 @@ struct WindowImplementation : public detail::Window
 
     OpenglStates* states;
 
-    WindowImplementation(OpenglStates* st, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup, ImguiState* ist, bool is_main)
+    bool is_main;
+
+    WindowImplementation(OpenglStates* st, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup, ImguiState* ist, bool im)
         : title(t)
         , size(s)
         , sdl_window(nullptr)
-        , sdl_glcontext(nullptr)
         , opengl_setup(setup)
         , imgui_state(ist)
         , states(st)
+        , is_main(im)
     {
+        LOG_INFO("Creating window {}", title);
         sdl_window = SDL_CreateWindow
         (
             t.c_str(),
@@ -562,32 +572,35 @@ struct WindowImplementation : public detail::Window
             return;
         }
 
-        sdl_glcontext = SDL_GL_CreateContext(sdl_window);
-
-        if(sdl_glcontext == nullptr)
+        if(opengl_setup->sdl_glcontext == nullptr)
         {
-            LOG_ERROR("Could not create window: {}", SDL_GetError());
+            opengl_setup->sdl_glcontext = SDL_GL_CreateContext(sdl_window);
 
-            SDL_DestroyWindow(sdl_window);
-            sdl_window = nullptr;
+            if(opengl_setup->sdl_glcontext == nullptr)
+            {
+                LOG_ERROR("Could not create window: {}", SDL_GetError());
 
-            return;
+                SDL_DestroyWindow(sdl_window);
+                sdl_window = nullptr;
+
+                return;
+            }
+
+            if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
+            {
+                LOG_ERROR("Failed to initialize OpenGL context");
+
+                SDL_GL_DeleteContext(opengl_setup->sdl_glcontext);
+                opengl_setup->sdl_glcontext = nullptr;
+
+                SDL_DestroyWindow(sdl_window);
+                sdl_window = nullptr;
+
+                return;
+            }
+
+            setup->run_setup(states, sdl_window, opengl_setup->sdl_glcontext, this, is_main);
         }
-
-        if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
-        {
-            LOG_ERROR("Failed to initialize OpenGL context");
-
-            SDL_GL_DeleteContext(sdl_glcontext);
-            sdl_glcontext = nullptr;
-
-            SDL_DestroyWindow(sdl_window);
-            sdl_window = nullptr;
-
-            return;
-        }
-
-        setup->run_setup(states, sdl_window, sdl_glcontext, this, is_main);
     }
 
     ~WindowImplementation() override
@@ -596,7 +609,11 @@ struct WindowImplementation : public detail::Window
         {
             opengl_setup->closing_window(this);
 
-            SDL_GL_DeleteContext(sdl_glcontext);
+            if(is_main)
+            {
+                SDL_GL_DeleteContext(opengl_setup->sdl_glcontext);
+                opengl_setup->sdl_glcontext = nullptr;
+            }
             SDL_DestroyWindow(sdl_window);
         }
     }
@@ -607,9 +624,33 @@ struct WindowImplementation : public detail::Window
     WindowImplementation(WindowImplementation&&) = delete;
     void operator=(WindowImplementation&&) = delete;
 
+    void activate_this_window()
+    {
+        if(this == opengl_setup->active_window) { return; }
+        
+        opengl_setup->active_window = this;
+
+        const auto error = SDL_GL_MakeCurrent
+        (
+            sdl_window,
+            opengl_setup->sdl_glcontext
+        );
+
+        // todo(Gustav): log error or do some error handling?
+        assert(error == 0);
+
+        if(imgui_state->on_imgui && imgui_state->is_imgui(this))
+        {
+            assert(opengl_setup->imgui_context);
+            ImGui::SetCurrentContext(opengl_setup->imgui_context);
+        }
+    }
+
     void render() override
     {
         if(sdl_window == nullptr) { return; }
+
+        activate_this_window();
 
         if(on_render)
         {
@@ -661,6 +702,8 @@ struct WindowsImplementation : public Windows
 
     MouseState mouse_state = MouseState::unknown;
 
+    std::optional<WindowHandle> main_window;
+
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
         , opengl_setup(&imgui_state)
@@ -676,9 +719,20 @@ struct WindowsImplementation : public Windows
 
     WindowHandle add_window(const std::string& title, const glm::ivec2& size) override
     {
-        const auto is_main = true;
+        const auto is_main = window_id_to_handle.empty() == true;
         auto window = windows.add(std::make_unique<WindowImplementation>(&states, title, size, &opengl_setup, &imgui_state, is_main));
         window_id_to_handle[windows[window]->get_id()] = window;
+
+        if(is_main)
+        {
+            main_window = window;
+        }
+        else
+        {
+            // activate main window
+            (*windows[*main_window]).activate_this_window();
+        }
+
         return window;
     }
 
@@ -703,6 +757,8 @@ struct WindowsImplementation : public Windows
         {
             window->render();
         }
+
+        (*windows.begin())->activate_this_window();
     }
 
     input::Platform* get_input_platform() override

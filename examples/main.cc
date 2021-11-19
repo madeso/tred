@@ -485,6 +485,7 @@ main(int, char**)
     auto camera = ::Camera{};
 
     auto game_window = windows->add_window("TreD", {1280, 720});
+    auto debug_window = windows->add_window("debug", {800, 600});
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
@@ -681,6 +682,23 @@ main(int, char**)
                 constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
 
                 l2.batch->quad(&cards, card_sprite.translate(10, 10), ::cards::hearts[2]);
+            }
+        }
+    );
+
+    windows->set_render
+    (
+        debug_window,
+        [&](const RenderCommand& rc)
+        {
+            const auto debug_layout = LayoutData{ViewportStyle::extended, 800.0f, 600.0f};
+            rc.clear({0.1f, 0.1f, 0.7f}, debug_layout);
+            {
+                auto l2 = with_layer2(rc, debug_layout);
+
+                constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
+                l2.batch->quad(&cards, card_sprite.translate(10, 10), ::cards::hearts[1]);
+                l2.batch->quad(&cards, card_sprite.translate(30, 10), ::cards::hearts[2]);
             }
         }
     );
