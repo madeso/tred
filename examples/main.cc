@@ -377,6 +377,22 @@ float get_aspect_ratio(const Rectf& r)
     return r.get_width() / r.get_height();
 }
 
+float from01(float lower, float value, float upper)
+{
+    return value * (upper - lower) + lower;
+}
+
+float to01(float lower, float value, float upper)
+{
+    return (value - lower) / (upper - lower);
+}
+
+float remap(float ol, float ou, float f, float nl, float nu)
+{
+    const auto a = to01(ol, f, ou);
+    return from01(nl, a, nu);
+}
+
 int
 main(int, char**)
 {
@@ -533,7 +549,8 @@ main(int, char**)
     // model
     const auto mesh = compile(create_box_mesh(1.0f), compiled_layout);
     const auto light_mesh = compile(create_box_mesh(0.2f), compiled_light_layout);
-    const auto plane_mesh = compile(create_plane_mesh(20.0f, 20.0f), compiled_layout);
+    constexpr float plane_size = 20.0f;
+    const auto plane_mesh = compile(create_plane_mesh(plane_size, plane_size), compiled_layout);
 
     auto cube_positions = std::vector<glm::vec3>
     {
@@ -696,9 +713,25 @@ main(int, char**)
             {
                 auto l2 = with_layer2(rc, debug_layout);
 
-                constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
-                l2.batch->quad(&cards, card_sprite.translate(10, 10), ::cards::hearts[1]);
-                l2.batch->quad(&cards, card_sprite.translate(30, 10), ::cards::hearts[2]);
+
+                auto tr = [](const glm::vec3& pos) -> Rectf
+                {
+                    constexpr float half_size = plane_size / 2.0f;
+                    constexpr auto card_sprite = Cint_to_float(::cards::back).zero().set_height(90);
+                    return card_sprite.translate
+                    (
+                        remap(-half_size, half_size, pos.x, 0.0f, 800.0f-card_sprite.get_width()),
+                        remap(-half_size, half_size, pos.z, 0.0f, 600.0f-card_sprite.get_height())
+                    );
+                };
+
+                std::size_t i = 0;
+                for(const auto p: cube_positions)
+                {
+                    l2.batch->quad(&cards, tr(p), ::cards::hearts[i]);
+                    i = (i+1) % ::cards::hearts.size();
+                }
+                l2.batch->quad(&cards, tr(camera.position), ::cards::back);
             }
         }
     );
