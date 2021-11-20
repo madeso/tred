@@ -465,7 +465,7 @@ namespace
         std::unique_ptr<Render2> render_data;
         
         SDL_GLContext sdl_glcontext;
-        WindowImplementation* active_window = nullptr;
+        WindowImplementation* active_window = nullptr; // sdl current active window
         ImGuiContext* imgui_context = nullptr;
 
         explicit OpenGlSetup(ImguiState* i)
@@ -699,10 +699,7 @@ struct WindowsImplementation : public Windows
     ImguiState imgui_state;
     OpenGlSetup opengl_setup;
     OpenglStates states;
-
     MouseState mouse_state = MouseState::unknown;
-
-    std::optional<WindowHandle> main_window;
 
     explicit WindowsImplementation()
         : platform(std::make_unique<SdlPlatform>())
@@ -717,20 +714,29 @@ struct WindowsImplementation : public Windows
         SDL_Quit();
     }
 
+    WindowImplementation* find_main_window_or_null()
+    {
+        for(auto& window: windows)
+        {
+            if(window->is_main)
+            {
+                return window.get();
+            }
+        }
+
+        return nullptr;
+    }
+
     WindowHandle add_window(const std::string& title, const glm::ivec2& size) override
     {
-        const auto is_main = window_id_to_handle.empty() == true;
+        WindowImplementation* main_window = find_main_window_or_null();
+        const auto is_main = main_window == nullptr;
         auto window = windows.add(std::make_unique<WindowImplementation>(&states, title, size, &opengl_setup, &imgui_state, is_main));
         window_id_to_handle[windows[window]->get_id()] = window;
 
-        if(is_main)
+        if(is_main == false)
         {
-            main_window = window;
-        }
-        else
-        {
-            // activate main window
-            (*windows[*main_window]).activate_this_window();
+            main_window->activate_this_window();
         }
 
         return window;
