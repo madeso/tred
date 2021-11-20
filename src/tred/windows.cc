@@ -630,7 +630,7 @@ struct WindowImplementation : public detail::Window
         
         opengl_setup->active_window = this;
 
-        const auto error = SDL_GL_MakeCurrent
+        [[maybe_unused]] const auto error = SDL_GL_MakeCurrent
         (
             sdl_window,
             opengl_setup->sdl_glcontext

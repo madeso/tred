@@ -393,6 +393,9 @@ float remap(float ol, float ou, float f, float nl, float nu)
     return from01(nl, a, nu);
 }
 
+
+constexpr float plane_size = 20.0f;
+
 int
 main(int, char**)
 {
@@ -549,7 +552,6 @@ main(int, char**)
     // model
     const auto mesh = compile(create_box_mesh(1.0f), compiled_layout);
     const auto light_mesh = compile(create_box_mesh(0.2f), compiled_light_layout);
-    constexpr float plane_size = 20.0f;
     const auto plane_mesh = compile(create_plane_mesh(plane_size, plane_size), compiled_layout);
 
     auto cube_positions = std::vector<glm::vec3>
