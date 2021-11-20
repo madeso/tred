@@ -863,17 +863,40 @@ struct WindowsImplementation : public Windows
             switch(e.type)
             {
             case SDL_WINDOWEVENT:
-                if(e.window.event == SDL_WINDOWEVENT_RESIZED)
+                switch(e.window.event)
                 {
-                    auto found = window_id_to_handle.find(e.window.windowID);
-                    if(found != window_id_to_handle.end())
+                    case SDL_WINDOWEVENT_RESIZED:
+                        {
+                            auto found = window_id_to_handle.find(e.window.windowID);
+                            if(found != window_id_to_handle.end())
+                            {
+                                windows[found->second]->on_resized({e.window.data1, e.window.data2});
+                            }
+                            else
+                            {
+                                LOG_INFO("Recieved resize for non-existant window: {}", e.window.windowID);
+                            }
+                        }
+                        break;
+                    case SDL_WINDOWEVENT_CLOSE:
                     {
-                        windows[found->second]->on_resized({e.window.data1, e.window.data2});
-                    }
-                    else
-                    {
-                        LOG_INFO("Recieved resize for non-existant window: {}", e.window.windowID);
-                    }
+                            auto found = window_id_to_handle.find(e.window.windowID);
+                            if(found != window_id_to_handle.end())
+                            {
+                                if(windows[found->second]->is_main)
+                                {
+                                    LOG_INFO("Closing main => closing app");
+                                    running = false;
+                                }
+                                else
+                                {
+                                    LOG_INFO("Closing secondary => app is still running...");
+                                    windows.remove(found->second);
+                                    window_id_to_handle.erase(found);
+                                }
+                            }
+                        }
+                        break;
                 }
                 break;
             case SDL_QUIT:
