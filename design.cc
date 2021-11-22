@@ -60,38 +60,6 @@ struct Capsule2
 
 
 
-// render things
-struct render3
-{
-};
-
-struct render2
-{
-    void quad();
-};
-
-struct Layout {float width; float height;};
-
-struct RenderCommand
-{
-    render2 begin_2d(Layout, optional<Camera2>);
-    render3 begin_3d(Layout, Camera3);
-};
-
-void render(RenderCommand rc)
-{
-    World3 w;
-    Camera3 c3;
-    {
-        auto r3 = rc.begin_3d({800, 600}, c3);
-        w.render(r3);
-    }
-    {
-        auto r2 = rc.begin_2d({800, 600}, {});
-        r2.quad();
-    }
-}
-
 // engine things
 
 struct Mesh {};
