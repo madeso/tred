@@ -9,22 +9,17 @@
 #include <map>
 #include <set>
 
-#include "tred/compiler_warning.h"
-
 #include <fmt/core.h>
 
-// dependency headers
 #include "glad/glad.h"
 #include "tred/dependency_glm.h"
 
 #include "tred/undef_windows.h"
 
-// imgui
 #include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
-// custom/local headers
 #include "tred/dependency_sdl.h"
 #include "tred/opengl_debug.h"
 #include "tred/cint.h"
@@ -42,6 +37,7 @@
 #include "tred/input/table.h"
 #include "tred/layer2.h"
 #include "tred/spritebatch.h"
+
 
 // resource headers
 #include "shader_vertex.glsl.h"
@@ -64,7 +60,7 @@ struct Material
 
     float specular_strength = 1.0f;
 
-    explicit Material(Texture&& d, Texture&& s)
+    Material(Texture&& d, Texture&& s)
         : diffuse(std::move(d))
         , specular(std::move(s))
     {
@@ -873,7 +869,7 @@ main(int, char**)
 
             if(time > 2*pi)
             {
-                time -= 2* pi;
+                time -= 2*pi;
             }
         }
 
@@ -905,7 +901,6 @@ main(int, char**)
         if(camera.pitch >  89.0f) camera.pitch =  89.0f;
         if(camera.pitch < -89.0f) camera.pitch = -89.0f;
 
-        // constexpr std::string_view quit = "quit";
         return running;
     });
 }
