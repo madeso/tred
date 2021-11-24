@@ -18,7 +18,7 @@ CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, 
 }
 
 
-CompiledVertexLayout::CompiledVertexLayout(const compiled_vertex_layout_list& e, const VertexTypes& t)
+CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
     : elements(e)
     , types(t)
 {
@@ -44,7 +44,7 @@ CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& 
 CompiledVertexLayout
 CompiledVertexTypeList::compile(const VertexLayoutDescription& elements) const
 {
-    CompiledVertexLayout::compiled_vertex_layout_list list;
+    CompiledVertexLayout::CompiledVertexLayoutList list;
 
     for(const auto& e: elements)
     {

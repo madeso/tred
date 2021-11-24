@@ -40,11 +40,11 @@ using VertexTypes = std::vector<VertexType>;
 /** A list of CompiledVertexElement */
 struct CompiledVertexLayout
 {
-    using compiled_vertex_layout_list = std::vector<CompiledVertexElement>;
+    using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
 
-    CompiledVertexLayout(const compiled_vertex_layout_list& e, const VertexTypes& t);
+    CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t);
 
-    compiled_vertex_layout_list elements;
+    CompiledVertexLayoutList elements;
     VertexTypes types;
 };
 
