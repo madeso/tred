@@ -107,9 +107,19 @@ TEST_CASE("vl test", "[vertex_layout]")
         {VertexType::texture2, "aTexCoord"}
     };
 
+    const auto layout_shader_depth = VertexLayoutDescription
+    {
+        {VertexType::position3, "aPos"}
+    };
+
     SECTION("simple")
     {
-        auto layout_compiler = compile({layout_shader_material});
+        auto layout_compiler = compile
+        (
+            {
+                layout_shader_material
+            }
+        );
         const auto compiled_layout = layout_compiler.compile(layout_shader_material);
 
         const auto same_elements = CheckEquals
@@ -134,5 +144,68 @@ TEST_CASE("vl test", "[vertex_layout]")
         );
         CHECK(same_elements);
         CHECK(same_types);
+    }
+
+    SECTION("simple + depth")
+    {
+        auto layout_compiler = compile
+        (
+            {
+                layout_shader_material,
+                layout_shader_depth
+            }
+        );
+        const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
+        const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
+
+
+        SECTION("check simple")
+        {
+            const auto same_elements = CheckEquals
+            (
+                compiled_layout_material.elements,
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                }
+            );
+            const auto same_types = CheckEquals
+            (
+                compiled_layout_material.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            );
+            CHECK(same_elements);
+            CHECK(same_types);
+        }
+
+        SECTION("check depth")
+        {
+            const auto same_elements = CheckEquals
+            (
+                compiled_layout_depth.elements,
+                {
+                    {VertexType::position3, "aPos", 0}
+                }
+            );
+            const auto same_types = CheckEquals
+            (
+                compiled_layout_depth.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            );
+            CHECK(same_elements);
+            CHECK(same_types);
+        }
     }
 }
