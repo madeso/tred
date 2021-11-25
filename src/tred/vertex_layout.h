@@ -30,6 +30,7 @@ struct CompiledVertexElement
     std::string name;
     int index;
 
+    CompiledVertexElement(const VertexType& t, const std::string& n, int i);
     CompiledVertexElement(const VertexElementDescription& d, int i);
 };
 

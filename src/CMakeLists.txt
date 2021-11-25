@@ -86,6 +86,7 @@ source_group("" FILES ${src})
 
 set(src_test
     tred/handle.test.cc
+    tred/vertex_layout.test.cc
     tred/input/system.test.cc
     tred/input/mapping.detection.test.cc
     ../external/catch/main.cc

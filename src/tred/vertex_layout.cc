@@ -10,6 +10,14 @@ VertexElementDescription::VertexElementDescription(VertexType t, const std::stri
 }
 
 
+CompiledVertexElement::CompiledVertexElement(const VertexType& t, const std::string& n, int i)
+    : type(t)
+    , name(n)
+    , index(i)
+{
+}
+
+
 CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, int i)
     : type(d.type)
     , name(d.name)
