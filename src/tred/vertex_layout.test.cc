@@ -97,7 +97,7 @@ namespace
 }
 
 
-TEST_CASE("vl test", "[vertex_layout]")
+TEST_CASE("vertex_layout_test", "[vertex_layout]")
 {
     const auto layout_shader_material = VertexLayoutDescription
     {
@@ -110,6 +110,14 @@ TEST_CASE("vl test", "[vertex_layout]")
     const auto layout_shader_depth = VertexLayoutDescription
     {
         {VertexType::position3, "aPos"}
+    };
+
+    const auto layout_shader_different = VertexLayoutDescription
+    {
+        {VertexType::color4, "aColor"},
+        {VertexType::texture2, "aTexCoord"},
+        {VertexType::position3, "aPos"},
+        {VertexType::normal3, "aNormal"}
     };
 
     SECTION("simple")
@@ -146,7 +154,7 @@ TEST_CASE("vl test", "[vertex_layout]")
         CHECK(same_types);
     }
 
-    SECTION("simple + depth")
+    SECTION("material + depth")
     {
         auto layout_compiler = compile
         (
@@ -158,8 +166,7 @@ TEST_CASE("vl test", "[vertex_layout]")
         const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
         const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
 
-
-        SECTION("check simple")
+        SECTION("check material")
         {
             const auto same_elements = CheckEquals
             (
@@ -208,4 +215,72 @@ TEST_CASE("vl test", "[vertex_layout]")
             CHECK(same_types);
         }
     }
+    
+    SECTION("material + different")
+    {
+        auto layout_compiler = compile
+        (
+            {
+                layout_shader_different,
+                layout_shader_material
+            }
+        );
+        const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
+        const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
+
+        SECTION("check material")
+        {
+            const auto same_elements = CheckEquals
+            (
+                compiled_layout_material.elements,
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                }
+            );
+            const auto same_types = CheckEquals
+            (
+                compiled_layout_material.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            );
+            CHECK(same_elements);
+            CHECK(same_types);
+        }
+
+        SECTION("check different")
+        {
+            const auto same_elements = CheckEquals
+            (
+                compiled_layout_different.elements,
+                {
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3},
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1}
+                }
+            );
+            const auto same_types = CheckEquals
+            (
+                compiled_layout_different.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            );
+            CHECK(same_elements);
+            CHECK(same_types);
+        }
+    }
 }
+
+// todo(Gustav): is the data correct when we compile more than one material
+// todo(Gustav): get data that isn't for shader from the compiler to the mesh
