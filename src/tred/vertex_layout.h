@@ -67,7 +67,7 @@ struct CompiledMeshVertexLayout
     CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
 
     CompiledVertexLayoutNoNameList elements;
-    VertexTypes types;
+    VertexTypes debug_types;
 };
 
 

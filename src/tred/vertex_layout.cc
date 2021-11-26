@@ -42,7 +42,7 @@ CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, co
 
 CompiledMeshVertexLayout::CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
     : elements(e)
-    , types(t)
+    , debug_types(t)
 {
 }
 

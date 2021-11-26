@@ -189,6 +189,6 @@ compile(const Mesh& mesh, const CompiledMeshVertexLayout& layout)
         GL_STATIC_DRAW
     );
 
-    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.types};
+    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.debug_types};
 }
 
