@@ -2,6 +2,7 @@
 
 
 Render2::Render2()
+    // todo(Gustav): move quad_description and quad_layout to a seperate setup
     : quad_description
     (
         {
@@ -58,5 +59,7 @@ Render2::Render2()
     , batch(&quad_shader, this)
 {
     setup_textures(&quad_shader, {&texture_uniform});
+
+    // todo(Gustav): verify mesh layout with SpriteBatch
 }
 

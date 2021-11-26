@@ -76,7 +76,7 @@ struct BufferData
 
 
 CompiledMesh
-compile(const Mesh& mesh, const CompiledVertexLayout& layout)
+compile(const Mesh& mesh, const CompiledMeshVertexLayout& layout)
 {
     using VertexVector = std::vector<float>;
 

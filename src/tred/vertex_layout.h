@@ -35,10 +35,20 @@ struct CompiledVertexElement
 };
 
 
+struct CompiledVertexElementNoName
+{
+    VertexType type;
+    int index;
+
+    CompiledVertexElementNoName(const VertexType& t, int i);
+};
+
+
 using VertexLayoutDescription = std::vector<VertexElementDescription>;
 using VertexTypes = std::vector<VertexType>;
 
-/** A list of CompiledVertexElement */
+
+/** A list of CompiledVertexElement (for shader) */
 struct CompiledVertexLayout
 {
     using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
@@ -49,6 +59,18 @@ struct CompiledVertexLayout
     VertexTypes types;
 };
 
+/** A list of CompiledVertexElement (for mesh) */
+struct CompiledMeshVertexLayout
+{
+    using CompiledVertexLayoutNoNameList = std::vector<CompiledVertexElementNoName>;
+
+    CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
+
+    CompiledVertexLayoutNoNameList elements;
+    VertexTypes types;
+};
+
+
 /** A list of things we need to extract from the Mesh when compiling */
 struct VertexTypeList
 {
@@ -58,6 +80,7 @@ struct VertexTypeList
     std::set<VertexType> indices;
 };
 
+
 /** A mapping of the vertex type (position...) to the actual shader id */
 struct CompiledVertexTypeList
 {
@@ -65,6 +88,9 @@ struct CompiledVertexTypeList
 
     [[nodiscard]] CompiledVertexLayout
     compile(const VertexLayoutDescription& elements) const;
+
+    [[nodiscard]] CompiledMeshVertexLayout
+    compile_mesh_layout() const;
 
     std::map<VertexType, int> indices;
     VertexTypes types;

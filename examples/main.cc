@@ -504,22 +504,24 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto mesh_layout = VertexLayoutDescription
+    const auto material_shader_layout = VertexLayoutDescription
     {
         {VertexType::position3, "aPos"},
         {VertexType::normal3, "aNormal"},
         {VertexType::color4, "aColor"},
         {VertexType::texture2, "aTexCoord"}
     };
-    auto layout_compiler = compile({mesh_layout});
-    const auto compiled_layout = layout_compiler.compile(mesh_layout);
+    auto material_layout_compiler = compile({material_shader_layout});
+    const auto material_mesh_layout = material_layout_compiler.compile_mesh_layout();
+    const auto compiled_layout = material_layout_compiler.compile(material_shader_layout);
 
-    const auto light_layout = VertexLayoutDescription
+    const auto light_shader_layout = VertexLayoutDescription
     {
         {VertexType::position3, "aPos"}
     };
-    auto light_compiler = compile({light_layout});
-    const auto compiled_light_layout = light_compiler.compile(light_layout);
+    auto light_compiler = compile({light_shader_layout});
+    const auto light_mesh_layout = light_compiler.compile_mesh_layout();
+    const auto compiled_light_layout = light_compiler.compile(light_shader_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
@@ -546,9 +548,9 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = compile(create_box_mesh(1.0f), compiled_layout);
-    const auto light_mesh = compile(create_box_mesh(0.2f), compiled_light_layout);
-    const auto plane_mesh = compile(create_plane_mesh(plane_size, plane_size), compiled_layout);
+    const auto mesh = compile(create_box_mesh(1.0f), material_mesh_layout);
+    const auto light_mesh = compile(create_box_mesh(0.2f), light_mesh_layout);
+    const auto plane_mesh = compile(create_plane_mesh(plane_size, plane_size), material_mesh_layout);
 
     auto cube_positions = std::vector<glm::vec3>
     {

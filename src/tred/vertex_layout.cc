@@ -26,7 +26,21 @@ CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, 
 }
 
 
+CompiledVertexElementNoName::CompiledVertexElementNoName(const VertexType& t, int i)
+    : type(t)
+    , index(i)
+{
+}
+
+
 CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
+    : elements(e)
+    , types(t)
+{
+}
+
+
+CompiledMeshVertexLayout::CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
     : elements(e)
     , types(t)
 {
@@ -60,6 +74,20 @@ CompiledVertexTypeList::compile(const VertexLayoutDescription& elements) const
         assert(found != indices.end() && "layout wasn't added to the compilation list");
 
         list.push_back({e, found->second});
+    }
+
+    return {list, types};
+}
+
+
+[[nodiscard]] CompiledMeshVertexLayout
+CompiledVertexTypeList::compile_mesh_layout() const
+{
+    CompiledMeshVertexLayout::CompiledVertexLayoutNoNameList list;
+
+    for(const auto& e: indices)
+    {
+        list.push_back({e.first, e.second});
     }
 
     return {list, types};
