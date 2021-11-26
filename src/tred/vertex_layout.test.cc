@@ -130,28 +130,32 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         const auto compiled_layout = layout_compiler.compile(layout_shader_material);
 
-        const auto same_elements = CheckEquals
+        CHECK
         (
-            compiled_layout.elements,
-            {
-                {VertexType::position3, "aPos", 0},
-                {VertexType::normal3, "aNormal", 1},
-                {VertexType::color4, "aColor", 2},
-                {VertexType::texture2, "aTexCoord", 3}
-            }
+            CheckEquals
+            (
+                compiled_layout.elements,
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                }
+            )
         );
-        const auto same_types = CheckEquals
+        CHECK
         (
-            compiled_layout.types,
-            {
-                VertexType::position3,
-                VertexType::normal3,
-                VertexType::color4,
-                VertexType::texture2
-            }
+            CheckEquals
+            (
+                compiled_layout.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
         );
-        CHECK(same_elements);
-        CHECK(same_types);
     }
 
     SECTION("material + depth")
@@ -166,9 +170,9 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
         const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
 
-        SECTION("check material")
-        {
-            const auto same_elements = CheckEquals
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_material.elements,
                 {
@@ -177,8 +181,12 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     {VertexType::color4, "aColor", 2},
                     {VertexType::texture2, "aTexCoord", 3}
                 }
-            );
-            const auto same_types = CheckEquals
+            )
+        );
+        
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_material.types,
                 {
@@ -187,21 +195,23 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     VertexType::color4,
                     VertexType::texture2
                 }
-            );
-            CHECK(same_elements);
-            CHECK(same_types);
-        }
+            )
+        );
 
-        SECTION("check depth")
-        {
-            const auto same_elements = CheckEquals
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_depth.elements,
                 {
                     {VertexType::position3, "aPos", 0}
                 }
-            );
-            const auto same_types = CheckEquals
+            )
+        );
+
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_depth.types,
                 {
@@ -210,10 +220,8 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     VertexType::color4,
                     VertexType::texture2
                 }
-            );
-            CHECK(same_elements);
-            CHECK(same_types);
-        }
+            )
+        );
     }
     
     SECTION("material + different")
@@ -227,10 +235,10 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
         const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
-
-        SECTION("check material")
-        {
-            const auto same_elements = CheckEquals
+        
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_material.elements,
                 {
@@ -239,8 +247,11 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     {VertexType::color4, "aColor", 2},
                     {VertexType::texture2, "aTexCoord", 3}
                 }
-            );
-            const auto same_types = CheckEquals
+            )
+        );
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_material.types,
                 {
@@ -249,14 +260,12 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     VertexType::color4,
                     VertexType::texture2
                 }
-            );
-            CHECK(same_elements);
-            CHECK(same_types);
-        }
-
-        SECTION("check different")
-        {
-            const auto same_elements = CheckEquals
+            )
+        );
+        
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_different.elements,
                 {
@@ -265,8 +274,11 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     {VertexType::position3, "aPos", 0},
                     {VertexType::normal3, "aNormal", 1}
                 }
-            );
-            const auto same_types = CheckEquals
+            )
+        );
+        CHECK
+        (
+            CheckEquals
             (
                 compiled_layout_different.types,
                 {
@@ -275,10 +287,8 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                     VertexType::color4,
                     VertexType::texture2
                 }
-            );
-            CHECK(same_elements);
-            CHECK(same_types);
-        }
+            )
+        );
     }
 }
 
