@@ -36,7 +36,7 @@ namespace
     }
 
     catchy::FalseString
-    CheckEquals(const std::vector<CompiledVertexElement> lhs, const std::vector<CompiledVertexElement>& rhs)
+    is_equal(const std::vector<CompiledVertexElement> lhs, const std::vector<CompiledVertexElement>& rhs)
     {
         return catchy::VectorEquals
         (
@@ -69,7 +69,7 @@ namespace
     }
 
     catchy::FalseString
-    CheckEquals(const std::vector<VertexType> lhs, const std::vector<VertexType>& rhs)
+    is_equal(const std::vector<VertexType> lhs, const std::vector<VertexType>& rhs)
     {
         return catchy::VectorEquals
         (
@@ -132,7 +132,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
 
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout.elements,
                 {
@@ -145,7 +145,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout.types,
                 {
@@ -172,7 +172,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
 
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_material.elements,
                 {
@@ -186,7 +186,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_material.types,
                 {
@@ -200,7 +200,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
 
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_depth.elements,
                 {
@@ -211,7 +211,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
 
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_depth.types,
                 {
@@ -238,7 +238,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_material.elements,
                 {
@@ -251,7 +251,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_material.types,
                 {
@@ -265,7 +265,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_different.elements,
                 {
@@ -278,7 +278,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         CHECK
         (
-            CheckEquals
+            is_equal
             (
                 compiled_layout_different.types,
                 {
