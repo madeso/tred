@@ -154,7 +154,73 @@ namespace
 }
 
 
-TEST_CASE("vertex_layout_test", "[vertex_layout]")
+TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
+{
+    const auto layout_shader_material = VertexLayoutDescription
+    {
+        {VertexType::position3, "aPos"},
+        {VertexType::normal3, "aNormal"},
+        {VertexType::color4, "aColor"},
+        {VertexType::texture2, "aTexCoord"}
+    };
+    
+    auto layout_compiler = compile
+    (
+        {
+            layout_shader_material
+        }
+    );
+
+    const auto compiled_layout = layout_compiler.compile(layout_shader_material);
+    const auto mesh_layout = layout_compiler.compile_mesh_layout();
+
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout,
+            {
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+
+    CHECK
+    (
+        is_equal
+        (
+            mesh_layout,
+            {
+                {
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+}
+
+
+TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
 {
     const auto layout_shader_material = VertexLayoutDescription
     {
@@ -169,6 +235,92 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         {VertexType::position3, "aPos"}
     };
 
+    auto layout_compiler = compile
+    (
+        {
+            layout_shader_material,
+            layout_shader_depth
+        }
+    );
+    const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
+    const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
+    const auto mesh_layout = layout_compiler.compile_mesh_layout();
+
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout_material,
+            {
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout_depth,
+            {
+                {
+                    {VertexType::position3, "aPos", 0}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+
+    CHECK
+    (
+        is_equal
+        (
+            mesh_layout,
+            {
+                {
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+}
+
+
+TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
+{
+    const auto layout_shader_material = VertexLayoutDescription
+    {
+        {VertexType::position3, "aPos"},
+        {VertexType::normal3, "aNormal"},
+        {VertexType::color4, "aColor"},
+        {VertexType::texture2, "aTexCoord"}
+    };
+
     const auto layout_shader_different = VertexLayoutDescription
     {
         {VertexType::color4, "aColor"},
@@ -177,292 +329,156 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         {VertexType::normal3, "aNormal"}
     };
 
-    SECTION("simple")
-    {
-        auto layout_compiler = compile
-        (
-            {
-                layout_shader_material
-            }
-        );
-
-        const auto compiled_layout = layout_compiler.compile(layout_shader_material);
-        const auto mesh_layout = layout_compiler.compile_mesh_layout();
-
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout,
-                {
-                    {
-                        {VertexType::position3, "aPos", 0},
-                        {VertexType::normal3, "aNormal", 1},
-                        {VertexType::color4, "aColor", 2},
-                        {VertexType::texture2, "aTexCoord", 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout,
-                {
-                    {
-                        {VertexType::position3, 0},
-                        {VertexType::normal3, 1},
-                        {VertexType::color4, 2},
-                        {VertexType::texture2, 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-    }
-
-    SECTION("material + depth")
-    {
-        auto layout_compiler = compile
-        (
-            {
-                layout_shader_material,
-                layout_shader_depth
-            }
-        );
-        const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
-        const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
-        const auto mesh_layout = layout_compiler.compile_mesh_layout();
-
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_material,
-                {
-                    {
-                        {VertexType::position3, "aPos", 0},
-                        {VertexType::normal3, "aNormal", 1},
-                        {VertexType::color4, "aColor", 2},
-                        {VertexType::texture2, "aTexCoord", 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_depth,
-                {
-                    {
-                        {VertexType::position3, "aPos", 0}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout,
-                {
-                    {
-                        {VertexType::position3, 0},
-                        {VertexType::normal3, 1},
-                        {VertexType::color4, 2},
-                        {VertexType::texture2, 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-    }
-    
-    SECTION("material + different")
-    {
-        auto layout_compiler = compile
-        (
-            {
-                layout_shader_different,
-                layout_shader_material
-            }
-        );
-        const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
-        const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
-        const auto mesh_layout = layout_compiler.compile_mesh_layout();
-        
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_material,
-                {
-                    {
-                        {VertexType::position3, "aPos", 0},
-                        {VertexType::normal3, "aNormal", 1},
-                        {VertexType::color4, "aColor", 2},
-                        {VertexType::texture2, "aTexCoord", 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-        
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_different,
-                {
-                    {
-                        {VertexType::color4, "aColor", 2},
-                        {VertexType::texture2, "aTexCoord", 3},
-                        {VertexType::position3, "aPos", 0},
-                        {VertexType::normal3, "aNormal", 1}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout,
-                {
-                    {
-                        {VertexType::position3, 0},
-                        {VertexType::normal3, 1},
-                        {VertexType::color4, 2},
-                        {VertexType::texture2, 3}
-                    },
-                    {
-                        VertexType::position3,
-                        VertexType::normal3,
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
-    }
-    
-    SECTION("crazy")
-    {
-        const auto layout_shader_a = VertexLayoutDescription
+    auto layout_compiler = compile
+    (
         {
-            {VertexType::color4, "rgb"}
-        };
-
-        const auto layout_shader_b = VertexLayoutDescription
-        {
-            {VertexType::texture2, "uv"}
-        };
-        auto layout_compiler = compile
+            layout_shader_different,
+            layout_shader_material
+        }
+    );
+    const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
+    const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
+    const auto mesh_layout = layout_compiler.compile_mesh_layout();
+    
+    CHECK
+    (
+        is_equal
         (
+            compiled_layout_material,
             {
-                layout_shader_a,
-                layout_shader_b
+                {
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1},
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
             }
-        );
-        const auto compiled_layout_a = layout_compiler.compile(layout_shader_a);
-        const auto compiled_layout_b = layout_compiler.compile(layout_shader_b);
-        const auto mesh_layout = layout_compiler.compile_mesh_layout();
-        
-        CHECK
+        )
+    );
+    
+    CHECK
+    (
+        is_equal
         (
-            is_equal
-            (
-                compiled_layout_a,
+            compiled_layout_different,
+            {
                 {
-                    {
-                        {VertexType::color4, "rgb", 0}
-                    },
-                    {
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
+                    {VertexType::color4, "aColor", 2},
+                    {VertexType::texture2, "aTexCoord", 3},
+                    {VertexType::position3, "aPos", 0},
+                    {VertexType::normal3, "aNormal", 1}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
                 }
-            )
-        );
-        
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_b,
-                {                
-                    {
-                        {VertexType::texture2, "uv", 1}
-                    },
-                    {
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
-                }
-            )
-        );
+            }
+        )
+    );
 
-        CHECK
+    CHECK
+    (
+        is_equal
         (
-            is_equal
-            (
-                mesh_layout,
+            mesh_layout,
+            {
                 {
-                    {
-                        {VertexType::color4, 0},
-                        {VertexType::texture2, 1}
-                    },
-                    {
-                        VertexType::color4,
-                        VertexType::texture2
-                    }
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
                 }
-            )
-        );
-    }
+            }
+        )
+    );
+}
+
+
+TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
+{
+    const auto layout_shader_a = VertexLayoutDescription
+    {
+        {VertexType::color4, "rgb"}
+    };
+
+    const auto layout_shader_b = VertexLayoutDescription
+    {
+        {VertexType::texture2, "uv"}
+    };
+    auto layout_compiler = compile
+    (
+        {
+            layout_shader_a,
+            layout_shader_b
+        }
+    );
+    const auto compiled_layout_a = layout_compiler.compile(layout_shader_a);
+    const auto compiled_layout_b = layout_compiler.compile(layout_shader_b);
+    const auto mesh_layout = layout_compiler.compile_mesh_layout();
+    
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout_a,
+            {
+                {
+                    {VertexType::color4, "rgb", 0}
+                },
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+    
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout_b,
+            {                
+                {
+                    {VertexType::texture2, "uv", 1}
+                },
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+
+    CHECK
+    (
+        is_equal
+        (
+            mesh_layout,
+            {
+                {
+                    {VertexType::color4, 0},
+                    {VertexType::texture2, 1}
+                },
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
 }
