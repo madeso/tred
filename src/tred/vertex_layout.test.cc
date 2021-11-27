@@ -417,6 +417,97 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
             )
         );
     }
+    
+    SECTION("crazy")
+    {
+        const auto layout_shader_a = VertexLayoutDescription
+        {
+            {VertexType::color4, "rgb"}
+        };
+
+        const auto layout_shader_b = VertexLayoutDescription
+        {
+            {VertexType::texture2, "uv"}
+        };
+        auto layout_compiler = compile
+        (
+            {
+                layout_shader_a,
+                layout_shader_b
+            }
+        );
+        const auto compiled_layout_a = layout_compiler.compile(layout_shader_a);
+        const auto compiled_layout_b = layout_compiler.compile(layout_shader_b);
+        const auto mesh_layout = layout_compiler.compile_mesh_layout();
+        
+        CHECK
+        (
+            is_equal
+            (
+                compiled_layout_a.elements,
+                {
+                    {VertexType::color4, "rgb", 0}
+                }
+            )
+        );
+        CHECK
+        (
+            is_equal
+            (
+                compiled_layout_a.types,
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
+        
+        CHECK
+        (
+            is_equal
+            (
+                compiled_layout_b.elements,
+                {
+                    {VertexType::texture2, "uv", 1}
+                }
+            )
+        );
+        CHECK
+        (
+            is_equal
+            (
+                compiled_layout_b.types,
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.elements,
+                {
+                    {VertexType::color4, 0},
+                    {VertexType::texture2, 1}
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.debug_types,
+                {
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
+    }
 }
 
 // todo(Gustav): is the data correct when we compile more than one material
