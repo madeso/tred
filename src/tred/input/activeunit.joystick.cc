@@ -44,7 +44,7 @@ void impl::JoystickAxisUnit::register_axis(AxisType type, int target, int axis)
         parent->balls.add({target, from_index<Axis2>(axis)});
         break;
     default:
-        ASSERT(false && "invalid type");
+        DIE("invalid type");
     }
 }
 
@@ -61,7 +61,7 @@ float impl::JoystickAxisUnit::get_state(AxisType type, int target, int axis, flo
     case AxisType::ball:
         return parent->balls.get_raw({target, from_index<Axis2>(axis)}) * dt;
     default:
-        ASSERT(false && "invalid type");
+        DIE("invalid type");
         return 0.0f;
     }
 }

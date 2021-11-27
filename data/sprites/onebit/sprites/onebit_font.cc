@@ -60,7 +60,7 @@ namespace onebit
                 else
                 {
                     fmt::print("Invalid character {}\n", c);
-                    ASSERT(false && "invalid character");
+                    DIE("invalid character");
                 }
             }
         }

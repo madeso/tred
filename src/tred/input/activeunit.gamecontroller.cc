@@ -38,7 +38,7 @@ void impl::GamecontrollerAxisUnit::register_axis(AxisType type, [[maybe_unused]]
         parent->axes.add(from_index<GamecontrollerAxis>(axis));
         break;
     default:
-        ASSERT(false && "invalid type");
+        DIE("invalid type");
     }
 }
 
@@ -51,7 +51,7 @@ float impl::GamecontrollerAxisUnit::get_state(AxisType type, [[maybe_unused]] in
         ASSERT(target == 0);
         return smooth_axis(parent->axes.get_raw(from_index<GamecontrollerAxis>(axis))) * dt;
     default:
-        ASSERT(false && "invalid type");
+        DIE("invalid type");
         return 0.0f;
     }
 }

@@ -36,7 +36,7 @@ void impl::RelativeMouseAxisUnit::register_axis(AxisType type, [[maybe_unused]]i
     }
     else
     {
-        ASSERT(false && "invalid mouse axis");
+        DIE("invalid mouse axis");
     }
 }
 
@@ -54,7 +54,7 @@ float impl::RelativeMouseAxisUnit::get_state(AxisType type, [[maybe_unused]]int 
     }
     else
     {
-        ASSERT(false && "invalid mouse axis");
+        DIE("invalid mouse axis");
         return 0.0f;
     }
 }
@@ -70,11 +70,11 @@ void impl::AbsoluteMouseAxisUnit::register_axis(AxisType type, [[maybe_unused]] 
     else if(type == AxisType::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
-        ASSERT(false && "not implemented yet");
+        DIE("not implemented yet");
     }
     else
     {
-        ASSERT(false && "invalid mouse axis");
+        DIE("invalid mouse axis");
     }
 }
 
@@ -90,12 +90,12 @@ float impl::AbsoluteMouseAxisUnit::get_state(AxisType type, [[maybe_unused]]int 
     else if(type == AxisType::wheel)
     {
         // todo(Gustav): implement absolute mouse wheel
-        ASSERT(false && "not implemented yet");
+        DIE("not implemented yet");
         return 0.0f;
     }
     else
     {
-        ASSERT(false && "invalid mouse axis");
+        DIE("invalid mouse axis");
         return 0.0f;
     }
 }

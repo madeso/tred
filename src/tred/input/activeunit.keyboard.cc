@@ -49,14 +49,14 @@ KeyUnit* KeyboardActiveUnit::get_key_unit()
 
 AxisUnit* KeyboardActiveUnit::get_relative_axis_unit()
 {
-    ASSERT(false && "invalid call");
+    DIE("invalid call");
     return nullptr;
 }
 
 
 AxisUnit* KeyboardActiveUnit::get_absolute_axis_unit()
 {
-    ASSERT(false && "invalid call");
+    DIE("invalid call");
     return nullptr;
 }
 

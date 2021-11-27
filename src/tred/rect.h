@@ -253,7 +253,7 @@ rectcut_cut(const RectCut<T>& rectcut, T a)
         case Side::top:    return cut_top(rectcut.rect,    a);
         case Side::bottom: return cut_bottom(rectcut.rect, a);
         default:
-            ASSERT(false);
+            DIE("invalid rectcut side");
             return cut_bottom(rectcut.rect, a);
     }
 }

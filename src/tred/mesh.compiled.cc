@@ -121,7 +121,7 @@ compile(const Mesh& mesh, const CompiledMeshVertexLayout& layout)
             });
             break;
         default:
-            ASSERT(false && "unhandled buffer type");
+            DIE("Invalid buffer type");
             break;
         }
     }

@@ -33,9 +33,6 @@
 #include "tred/windows.sdl.joystick.h"
 
 
-#define DIE(x) ASSERT(false && x);
-
-
 using window_id = Uint32;
 
 
@@ -131,7 +128,7 @@ struct SdlPlatform : public input::Platform
                 }
                 return true;
             default:
-                DIE("Unhandled case");
+                DIE("Invalid joystick detection case");
                 return false;
             }
         };

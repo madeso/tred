@@ -211,7 +211,7 @@ std::optional<std::string> load(Mapping* config, const input::config::Mapping& r
         }
         else
         {
-            ASSERT(false && "Unhandled unit type");
+            DIE("Invalid unit type");
         }
     }
 
@@ -242,7 +242,7 @@ std::optional<std::string> load(Mapping* config, const input::config::Mapping& r
         }
         else
         {
-            ASSERT(false && "Unhandled bind type");
+            DIE("Invalid bind type");
         }
 
         #undef ADD_OR_RETURN_DEF

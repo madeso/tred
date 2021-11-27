@@ -111,7 +111,7 @@ on_opengl_error
         type_to_string(type),
         severity_to_string(severity)
     );
-    // ASSERT(false);
+    // DIE("OpenGL error");
 }
 
 

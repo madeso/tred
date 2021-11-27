@@ -1546,7 +1546,7 @@ struct GameWrapper : Game
             menu.update(&gd, mouse, mouse_button, dt);
             break;
         default:
-            ASSERT(false);
+            DIE("invalid gamestate");
             break;
         }
 
@@ -1572,7 +1572,7 @@ struct GameWrapper : Game
             menu.render(rd);
             break;
         default:
-            ASSERT(false);
+            DIE("invalid render state");
             break;
         }
     }

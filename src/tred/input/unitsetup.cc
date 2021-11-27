@@ -23,7 +23,7 @@ JoystickId UnitSetup::get_joystick(int index) const
         }
     }
 
-    ASSERT(false && "invalid index");
+    DIE("invalid index");
     return static_cast<JoystickId>(0);
 }
 

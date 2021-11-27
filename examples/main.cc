@@ -744,7 +744,7 @@ main(int, char**)
             case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
             case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
             case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
-            default: ASSERT(false && "invalid rendering_mode"); break;
+            default: DIE("invalid rendering_mode"); break;
         }
     };
 
