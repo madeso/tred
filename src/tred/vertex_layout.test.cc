@@ -484,10 +484,6 @@ TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
 }
 
 
-// todo(Gustav): add tests for assert
-
-// should and will assert
-#if 0
 TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
 {
     const auto layout_shader_material = VertexLayoutDescription
@@ -509,6 +505,15 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
     );
 
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
+    
+    REQUIRE_THROWS_WITH
+    (
+        layout_compiler.compile(layout_shader_error),
+           Catch::Contains("Assertion failed")
+        && Catch::Contains( "layout wasn't added to the compilation list" )
+    );
+
+    const auto compiled_layout = layout_compiler.compile(layout_shader_material);
 
     CHECK
     (
@@ -517,8 +522,7 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
             compiled_layout,
             {
                 {
-                    {VertexType::position3, "pos", 0},
-                    {VertexType::normal3, "norm", -1}
+                    {VertexType::position3, "pos", 0}
                 },
                 {
                     VertexType::position3
@@ -543,4 +547,3 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
         )
     );
 }
-#endif
