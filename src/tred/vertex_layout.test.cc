@@ -35,6 +35,13 @@ namespace
             ;
     }
 
+    bool is_equal(const CompiledVertexElementNoName& lhs, const CompiledVertexElementNoName& rhs)
+    {
+        return lhs.type == rhs.type
+            && lhs.index == rhs.index
+            ;
+    }
+
     catchy::FalseString
     is_equal(const std::vector<CompiledVertexElement> lhs, const std::vector<CompiledVertexElement>& rhs)
     {
@@ -60,6 +67,38 @@ namespace
                             "{}!={} {}!={} ({}!={})",
                             a.type, b.type,
                             a.name, b.name,
+                            a.index, b.index
+                       )
+                    );
+                }
+            }
+        );
+    }
+
+    catchy::FalseString
+    is_equal(const std::vector<CompiledVertexElementNoName> lhs, const std::vector<CompiledVertexElementNoName>& rhs)
+    {
+        return catchy::VectorEquals
+        (
+            lhs, rhs,
+            [](const CompiledVertexElementNoName& f) -> std::string
+            {
+                return fmt::format("{} ({})", f.type, f.index);
+            },
+            [](const CompiledVertexElementNoName& a, const CompiledVertexElementNoName& b) -> catchy::FalseString
+            {
+                if(is_equal(a, b))
+                {
+                    return catchy::FalseString::True();
+                }
+                else
+                {
+                    return catchy::FalseString::False
+                    (
+                        fmt::format
+                        (
+                            "{}!={} ({}!={})",
+                            a.type, b.type,
                             a.index, b.index
                        )
                     );
@@ -128,7 +167,9 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                 layout_shader_material
             }
         );
+
         const auto compiled_layout = layout_compiler.compile(layout_shader_material);
+        const auto mesh_layout = layout_compiler.compile_mesh_layout();
 
         CHECK
         (
@@ -156,6 +197,34 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                 }
             )
         );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.elements,
+                {
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.debug_types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
     }
 
     SECTION("material + depth")
@@ -169,6 +238,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
         const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
+        const auto mesh_layout = layout_compiler.compile_mesh_layout();
 
         CHECK
         (
@@ -222,6 +292,34 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
                 }
             )
         );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.elements,
+                {
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.debug_types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
     }
     
     SECTION("material + different")
@@ -235,6 +333,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         );
         const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
         const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
+        const auto mesh_layout = layout_compiler.compile_mesh_layout();
         
         CHECK
         (
@@ -281,6 +380,34 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
             is_equal
             (
                 compiled_layout_different.types,
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.elements,
+                {
+                    {VertexType::position3, 0},
+                    {VertexType::normal3, 1},
+                    {VertexType::color4, 2},
+                    {VertexType::texture2, 3}
+                }
+            )
+        );
+
+        CHECK
+        (
+            is_equal
+            (
+                mesh_layout.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
