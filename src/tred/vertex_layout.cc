@@ -35,7 +35,7 @@ CompiledVertexElementNoName::CompiledVertexElementNoName(const VertexType& t, in
 
 CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
     : elements(e)
-    , types(t)
+    , debug_types(t)
 {
 }
 

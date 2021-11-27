@@ -58,7 +58,7 @@ struct ShaderProgram
 
 
     unsigned int shader_program;
-    VertexTypes vertex_types;
+    VertexTypes debug_vertex_types;
 };
 
 

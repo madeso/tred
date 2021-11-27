@@ -93,7 +93,7 @@ ShaderProgram::ShaderProgram
     const CompiledVertexLayout& layout
 )
     : shader_program(glCreateProgram())
-    , vertex_types(layout.types)
+    , debug_vertex_types(layout.debug_types)
 {
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     upload_shader_source(vertex_shader, vertex_source);
@@ -133,7 +133,7 @@ ShaderProgram::ShaderProgram
 void
 ShaderProgram::use() const
 {
-    set_shader_program(shader_program, vertex_types);
+    set_shader_program(shader_program, debug_vertex_types);
 }
 
 

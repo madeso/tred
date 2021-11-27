@@ -56,7 +56,7 @@ struct CompiledVertexLayout
     CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t);
 
     CompiledVertexLayoutList elements;
-    VertexTypes types;
+    VertexTypes debug_types;
 };
 
 /** A list of CompiledVertexElement (for mesh) */

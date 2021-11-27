@@ -188,7 +188,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout.types,
+                compiled_layout.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
@@ -258,7 +258,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_material.types,
+                compiled_layout_material.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
@@ -283,7 +283,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_depth.types,
+                compiled_layout_depth.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
@@ -352,7 +352,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_material.types,
+                compiled_layout_material.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
@@ -379,7 +379,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_different.types,
+                compiled_layout_different.debug_types,
                 {
                     VertexType::position3,
                     VertexType::normal3,
@@ -454,7 +454,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_a.types,
+                compiled_layout_a.debug_types,
                 {
                     VertexType::color4,
                     VertexType::texture2
@@ -476,7 +476,7 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_b.types,
+                compiled_layout_b.debug_types,
                 {
                     VertexType::color4,
                     VertexType::texture2
