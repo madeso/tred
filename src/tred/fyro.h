@@ -10,7 +10,7 @@
 // standard headers
 #include <string>
 #include <string_view>
-#include <cassert>
+#include "tred/assert.h"
 #include <vector>
 #include <numeric>
 #include <functional>

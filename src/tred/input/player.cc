@@ -1,6 +1,6 @@
 #include "tred/input/player.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/connectedunits.h"
 
@@ -15,7 +15,7 @@ Player::~Player() = default;
 
 void Player::update_table(Table* table, float dt) const
 {
-    assert(table);
+    ASSERT(table);
     if(units)
     {
         units->update_table(table, dt);

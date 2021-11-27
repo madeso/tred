@@ -1,5 +1,6 @@
 #include "tred/shader.h"
 
+#include "tred/assert.h"
 #include "tred/dependency_opengl.h"
 #include "tred/shader.util.h"
 #include "tred/log.h"
@@ -161,22 +162,22 @@ ShaderProgram::get_uniform(const std::string& name) const
 void
 ShaderProgram::set_float(const Uniform& uniform, float value) const
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture == -1 && "uniform is a texture not a float");
+    ASSERT(uniform.texture == -1 && "uniform is a texture not a float");
     glUniform1f(uniform.location, value);
 }
 
 void
 ShaderProgram::set_vec3(const Uniform& uniform, float x, float y, float z)
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture == -1 && "uniform is a texture not a vec3");
+    ASSERT(uniform.texture == -1 && "uniform is a texture not a vec3");
     glUniform3f(uniform.location, x, y, z);
 }
 
@@ -191,11 +192,11 @@ ShaderProgram::set_vec3(const Uniform& uniform, const glm::vec3& v)
 void
 ShaderProgram::set_vec4(const Uniform& uniform, float x, float y, float z, float w)
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture == -1 && "uniform is a texture not a vec4");
+    ASSERT(uniform.texture == -1 && "uniform is a texture not a vec4");
     glUniform4f(uniform.location, x, y, z, w);
 }
 
@@ -209,11 +210,11 @@ ShaderProgram::set_vec4(const Uniform& uniform, const glm::vec4& v)
 void
 ShaderProgram::set_texture(const Uniform& uniform)
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture >= 0 && "uniform needs to be a texture");
+    ASSERT(uniform.texture >= 0 && "uniform needs to be a texture");
     glUniform1i(uniform.location, uniform.texture);
 }
 
@@ -221,11 +222,11 @@ ShaderProgram::set_texture(const Uniform& uniform)
 void
 ShaderProgram::set_mat(const Uniform& uniform, const glm::mat4& mat)
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture == -1 && "uniform is a texture not a matrix4");
+    ASSERT(uniform.texture == -1 && "uniform is a texture not a matrix4");
     glUniformMatrix4fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
@@ -233,11 +234,11 @@ ShaderProgram::set_mat(const Uniform& uniform, const glm::mat4& mat)
 void
 ShaderProgram::set_mat(const Uniform& uniform, const glm::mat3& mat)
 {
-    assert(is_shader_bound(shader_program));
+    ASSERT(is_shader_bound(shader_program));
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.debug_shader_program == shader_program);
+    ASSERT(uniform.debug_shader_program == shader_program);
 
-    assert(uniform.texture == -1 && "uniform is a texture not a matrix3");
+    ASSERT(uniform.texture == -1 && "uniform is a texture not a matrix3");
     glUniformMatrix3fv(uniform.location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
@@ -246,7 +247,7 @@ void
 setup_textures(ShaderProgram* shader, std::vector<Uniform*> uniform_list)
 {
     // OpenGL should support atleast 16 textures
-    assert(uniform_list.size() <= 16);
+    ASSERT(uniform_list.size() <= 16);
 
     shader->use();
 

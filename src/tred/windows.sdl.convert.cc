@@ -1,6 +1,6 @@
 #include "tred/windows.sdl.convert.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 
 namespace sdl
@@ -21,7 +21,7 @@ glm::ivec2 get_hat_values(Uint8 hat)
         case SDL_HAT_DOWN: return glm::ivec2(0, -1);
         case SDL_HAT_RIGHTDOWN: return glm::ivec2(1, -1);
         default:
-            assert(false && "Invalid hat value");
+            ASSERT(false && "Invalid hat value");
             return glm::ivec2(0, 0);
     }
 }
@@ -267,7 +267,7 @@ input::KeyboardKey to_keyboard_key(SDL_Keysym key)
         case SDLK_EJECT: return input::KeyboardKey::eject;
         case SDLK_SLEEP: return input::KeyboardKey::sleep;
         default:
-            assert(false && key.sym && "Invalid keyboard button");
+            ASSERT(false && key.sym && "Invalid keyboard button");
             return input::KeyboardKey::invalid;
     }
 }
@@ -283,7 +283,7 @@ input::MouseButton to_mouse_button(Uint8 mb)
         case SDL_BUTTON_X1: return input::MouseButton::x1;
         case SDL_BUTTON_X2: return input::MouseButton::x2;
         default:
-            assert(false && mb && "Invalid mouse button");
+            ASSERT(false && mb && "Invalid mouse button");
             return input::MouseButton::invalid;
     }
 }

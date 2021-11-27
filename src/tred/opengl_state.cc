@@ -1,6 +1,6 @@
 #include "tred/opengl_state.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "dependency_opengl.h"
 
@@ -18,7 +18,7 @@ void apply_generic_state(std::optional<T>* current_state, std::optional<T> new_s
         return;
     }
 
-    assert(new_state.has_value());
+    ASSERT(new_state.has_value());
 
     change_function(*new_state);
     *current_state = new_state;

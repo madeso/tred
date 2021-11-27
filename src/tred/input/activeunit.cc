@@ -1,6 +1,6 @@
 #include "tred/input/activeunit.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/action.h"
 

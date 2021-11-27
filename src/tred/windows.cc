@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include <set>
-#include <cassert>
+#include "tred/assert.h"
 
 #include "glad/glad.h"
 
@@ -33,7 +33,7 @@
 #include "tred/windows.sdl.joystick.h"
 
 
-#define DIE(x) assert(false && x);
+#define DIE(x) ASSERT(false && x);
 
 
 using window_id = Uint32;
@@ -493,7 +493,7 @@ namespace
 
             if(is_main && imgui->imgui_requested)
             {
-                assert(imgui->owning_window == nullptr);
+                ASSERT(imgui->owning_window == nullptr);
 
                 IMGUI_CHECKVERSION();
                 imgui_context = ImGui::CreateContext();
@@ -524,7 +524,7 @@ namespace
 
         ~OpenGlSetup()
         {
-            assert(imgui->owning_window == nullptr);
+            ASSERT(imgui->owning_window == nullptr);
         }
     };
 }
@@ -637,11 +637,11 @@ struct WindowImplementation : public detail::Window
         );
 
         // todo(Gustav): log error or do some error handling?
-        assert(error == 0);
+        ASSERT(error == 0);
 
         if(imgui_state->on_imgui && imgui_state->is_imgui(this))
         {
-            assert(opengl_setup->imgui_context);
+            ASSERT(opengl_setup->imgui_context);
             ImGui::SetCurrentContext(opengl_setup->imgui_context);
         }
     }

@@ -1198,7 +1198,7 @@ void ComputerPlaceMarker(cursor* cur, const game_settings& agd, int cube, int co
     gd.play_against_computer = false;
     cur->cursor_state = cross_or_circle::circle;
     [[maybe_unused]] const bool free = gGame->world.is_place_free({cube, col, row});
-    assert(free);
+    ASSERT(free);
     place_marker(cur, gd, &gGame->world, cube, col, row);
 }
 
@@ -1419,7 +1419,7 @@ void ExecuteComputerMoveTest(cursor* cur, const game_settings& gd, Random* rand)
     }
 
     // this would indicate that there is nowhere to place and that is handled elsewhere
-    assert(!placements.empty());
+    ASSERT(!placements.empty());
 
     vector<Index> bestPlacements;
     const int bestValue = placements.rbegin()->factor;
@@ -1546,7 +1546,7 @@ struct GameWrapper : Game
             menu.update(&gd, mouse, mouse_button, dt);
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
 
@@ -1572,7 +1572,7 @@ struct GameWrapper : Game
             menu.render(rd);
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
     }

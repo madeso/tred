@@ -1,6 +1,6 @@
 #include "tred/input/mapping.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <algorithm>
 
 #include "tred/input/unitdef.h"
@@ -29,14 +29,14 @@ Mapping::~Mapping()
 
 void Mapping::add(std::unique_ptr<UnitDef>&& unit)
 {
-    assert(unit);
+    ASSERT(unit);
     units.push_back(std::move(unit));
 }
 
 
 void Mapping::add(std::unique_ptr<BindDefinition>&& bind)
 {
-    assert(bind);
+    ASSERT(bind);
     binds.push_back(std::move(bind));
 }
 
@@ -68,20 +68,20 @@ bool Mapping::can_detect(Director* director, unit_discovery discovery, UnitSetup
 
 std::unique_ptr<ConnectedUnits> Mapping::connect(Director* director, const UnitSetup& setup)
 {
-    assert(director);
+    ASSERT(director);
     auto connected = std::make_unique<ConnectedUnits>();
 
     for (auto& def: units)
     {
         auto unit = def->create(director, setup);
-        assert(unit);
+        ASSERT(unit);
         connected->add(std::move(unit));
     }
 
     for(auto& bind: binds)
     {
         auto created_bind = bind->create(connected.get());
-        assert(created_bind);
+        ASSERT(created_bind);
         connected->add(std::move(created_bind));
     }
 

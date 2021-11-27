@@ -1,6 +1,6 @@
 #include "tred/input/activeunit.keyboard.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/director.h"
 #include "tred/input/action.h"
@@ -27,7 +27,7 @@ float impl::KeyboardKeyUnit::get_state(int key)
 KeyboardActiveUnit::KeyboardActiveUnit(Director* d)
     : director(d)
 {
-    assert(director);
+    ASSERT(director);
 
     key_unit.parent = this;
 
@@ -49,14 +49,14 @@ KeyUnit* KeyboardActiveUnit::get_key_unit()
 
 AxisUnit* KeyboardActiveUnit::get_relative_axis_unit()
 {
-    assert(false && "invalid call");
+    ASSERT(false && "invalid call");
     return nullptr;
 }
 
 
 AxisUnit* KeyboardActiveUnit::get_absolute_axis_unit()
 {
-    assert(false && "invalid call");
+    ASSERT(false && "invalid call");
     return nullptr;
 }
 

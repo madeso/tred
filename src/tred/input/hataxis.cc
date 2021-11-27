@@ -1,6 +1,6 @@
 #include "tred/input/hataxis.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 
 namespace input

@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <type_traits>
-#include <cassert>
+#include "tred/assert.h"
 #include <optional>
 
 #include "tred/to_base.h"
@@ -289,8 +289,8 @@ struct HandleVector
             const Version v = FIRST_VERSION;
             const auto index = data.size();
             data.emplace_back(std::move(val), v);
-            assert(data[index].version == v && "pair constructor failed");
-            assert(data[index].data.has_value() == true && "pair constructor failed");
+            ASSERT(data[index].version == v && "pair constructor failed");
+            ASSERT(data[index].data.has_value() == true && "pair constructor failed");
             return Functions::compress(static_cast<Id>(index), v);
         }
     }
@@ -326,14 +326,14 @@ struct HandleVector
     {
         const auto i = static_cast<std::size_t>(Functions::get_id(h));
         [[maybe_unused]] const auto v = Functions::get_version(h);
-        assert(data[i].version == v && "invalid handle: use after free");
-        assert(i < data.size() && "invalid handle: use after free (clear)");
+        ASSERT(data[i].version == v && "invalid handle: use after free");
+        ASSERT(i < data.size() && "invalid handle: use after free (clear)");
         return data[i];
     }
 
     ValueType& operator[](Handle h)
     {
-        assert(get_pair(h).data.has_value() == true);
+        ASSERT(get_pair(h).data.has_value() == true);
         return *get_pair(h).data;
     }
 

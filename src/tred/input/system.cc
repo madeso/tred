@@ -1,6 +1,6 @@
 #include "tred/input/system.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <fstream>
 
 #include "fmt/format.h"

@@ -1,6 +1,6 @@
 #include "tred/texture.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/dependency_opengl.h"
 #include "tred/cint.h"
@@ -131,7 +131,7 @@ void
 bind_texture(const Uniform& uniform, const Texture& texture)
 {
     if(uniform.is_valid() == false) { return; }
-    assert(uniform.texture >= 0);
+    ASSERT(uniform.texture >= 0);
 
     glActiveTexture(Cint_to_glenum(GL_TEXTURE0 + uniform.texture));
     glBindTexture(GL_TEXTURE_2D, texture.id);

@@ -1,6 +1,6 @@
 #include "tred/input/mappinglist.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <stdexcept>
 #include <fstream>
 #include "fmt/format.h"
@@ -45,7 +45,7 @@ MappingList::~MappingList()
 
 void MappingList::add(const std::string& name, std::unique_ptr<Mapping>&& config)
 {
-    assert(config);
+    ASSERT(config);
     configs.insert(std::make_pair(name, std::move(config)));
 }
 
@@ -185,7 +185,7 @@ BindDefResult create_two_key_bind_def(Mapping* config, const ActionMap& map, con
 
 std::optional<std::string> load(Mapping* config, const input::config::Mapping& root, const ActionMap& map)
 {
-    assert(config);
+    ASSERT(config);
 
     int joystick_id = 0;
 
@@ -211,7 +211,7 @@ std::optional<std::string> load(Mapping* config, const input::config::Mapping& r
         }
         else
         {
-            assert(false && "Unhandled unit type");
+            ASSERT(false && "Unhandled unit type");
         }
     }
 
@@ -242,7 +242,7 @@ std::optional<std::string> load(Mapping* config, const input::config::Mapping& r
         }
         else
         {
-            assert(false && "Unhandled bind type");
+            ASSERT(false && "Unhandled bind type");
         }
 
         #undef ADD_OR_RETURN_DEF

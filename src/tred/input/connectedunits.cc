@@ -1,6 +1,6 @@
 #include "tred/input/connectedunits.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <string>
 #include <algorithm>
 
@@ -26,23 +26,23 @@ ConnectedUnits::~ConnectedUnits()
 
 void ConnectedUnits::add(std::unique_ptr<ActiveUnit>&& unit)
 {
-    assert(unit);
+    ASSERT(unit);
     units.push_back(std::move(unit));
 }
 
 
 void ConnectedUnits::add(std::unique_ptr<ActiveBind>&& bind)
 {
-    assert(bind);
+    ASSERT(bind);
     binds.push_back(std::move(bind));
 }
 
 
 void ConnectedUnits::update_table(Table* table, float dt)
 {
-    assert(table);
+    ASSERT(table);
 
-    assert(units.size() > 0);
+    ASSERT(units.size() > 0);
 
     for(auto& bind: binds)
     {

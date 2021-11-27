@@ -1,6 +1,6 @@
 #include "tred/input/director.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <algorithm>
 
 #include "tred/input/activeunit.keyboard.h"
@@ -15,14 +15,14 @@ namespace input
 
 void Director::add(KeyboardActiveUnit* kb)
 {
-    assert(kb);
+    ASSERT(kb);
     keyboards.push_back(kb);
 }
 
 
 void Director::remove(KeyboardActiveUnit* kb)
 {
-    assert(kb);
+    ASSERT(kb);
     auto res = std::find(keyboards.begin(), keyboards.end(), kb);
     if (res != keyboards.end())
     {
@@ -33,14 +33,14 @@ void Director::remove(KeyboardActiveUnit* kb)
 
 void Director::add(MouseActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     mouses.push_back(au);
 }
 
 
 void Director::remove(MouseActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     auto res = std::find(mouses.begin(), mouses.end(), au);
     if (res != mouses.end())
     {
@@ -51,28 +51,28 @@ void Director::remove(MouseActiveUnit* au)
 
 void Director::add(JoystickActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     joysticks.insert({au->joystick, au});
 }
 
 
 void Director::remove(JoystickActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     joysticks.erase(au->joystick);
 }
 
 
 void Director::add(GamecontrollerActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     gamecontrollers.insert({au->joystick, au});
 }
 
 
 void Director::remove(GamecontrollerActiveUnit* au)
 {
-    assert(au);
+    ASSERT(au);
     gamecontrollers.erase(au->joystick);
 }
 

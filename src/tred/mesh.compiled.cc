@@ -3,6 +3,7 @@
 #include <functional>
 #include <numeric>
 
+#include "tred/assert.h"
 #include "tred/dependency_opengl.h"
 #include "tred/cint.h"
 #include "tred/shader.util.h"
@@ -39,7 +40,7 @@ CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 void
 CompiledMesh::draw() const
 {
-    assert(is_bound_for_shader(debug_shader_types));
+    ASSERT(is_bound_for_shader(debug_shader_types));
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
@@ -120,7 +121,7 @@ compile(const Mesh& mesh, const CompiledMeshVertexLayout& layout)
             });
             break;
         default:
-            assert(false && "unhandled buffer type");
+            ASSERT(false && "unhandled buffer type");
             break;
         }
     }

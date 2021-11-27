@@ -1,5 +1,5 @@
 #include "tred/input/action.h"
-#include <cassert>
+#include "tred/assert.h"
 
 
 namespace input

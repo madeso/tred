@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include <set>
-#include <cassert>
+#include "tred/assert.h"
 #include <iostream>
 
 #include "glad/glad.h"

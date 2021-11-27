@@ -1,6 +1,6 @@
 #include "tred/input/unitdef.joystick.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <string>
 #include "fmt/format.h"
 
@@ -90,7 +90,7 @@ bool JoystickUnitDef::can_detect(Director* director, unit_discovery, UnitSetup* 
 
 std::unique_ptr<ActiveUnit> JoystickUnitDef::create(Director* director, const UnitSetup& setup)
 {
-    assert(director);
+    ASSERT(director);
 
     return std::make_unique<JoystickActiveUnit>(setup.get_joystick(index), director);
 }

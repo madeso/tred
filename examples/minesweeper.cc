@@ -138,8 +138,8 @@ struct Minesweeper
 
     std::size_t get_index(int x, int y) const
     {
-        assert(x >= 0 && x<width);
-        assert(y >= 0 && y<height);
+        ASSERT(x >= 0 && x<width);
+        ASSERT(y >= 0 && y<height);
         return Cint_to_sizet(x + y * width);
     }
 

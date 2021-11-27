@@ -1,6 +1,6 @@
 #include "tred/input/unitsetup.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 
 namespace input
@@ -23,7 +23,7 @@ JoystickId UnitSetup::get_joystick(int index) const
         }
     }
 
-    assert(false && "invalid index");
+    ASSERT(false && "invalid index");
     return static_cast<JoystickId>(0);
 }
 

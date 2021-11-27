@@ -1,8 +1,8 @@
 #include "tred/viewportdef.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <algorithm>
-#define ASSERTX(X,...) assert(X)
+#define ASSERTX(X,...) ASSERT(X)
 
 
 ViewportDef

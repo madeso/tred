@@ -1,5 +1,5 @@
 #include "tred/input/actionmap.h"
-#include <cassert>
+#include "tred/assert.h"
 #include <stdexcept>
 #include <fstream>
 #include "fmt/format.h"
@@ -37,7 +37,7 @@ ActionMap::~ActionMap()
 
 void ActionMap::add_action(const std::string& name, std::unique_ptr<Action>&& action)
 {
-    assert(action);
+    ASSERT(action);
     actions.insert(std::make_pair(name, std::move(action)));
 }
 

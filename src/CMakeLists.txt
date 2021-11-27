@@ -1,6 +1,8 @@
 set(src
     tred/dependency_sdl.cc tred/dependency_sdl.h
 
+    tred/assert.cc tred/assert.h
+
     tred/cint.cc tred/cint.h
     tred/handle.cc tred/handle.h
     tred/texture.load.cc tred/texture.load.h

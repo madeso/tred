@@ -1,5 +1,6 @@
 #include "tred/mesh.h"
 
+#include "tred/assert.h"
 
 Vertex::Vertex
 (
@@ -20,5 +21,5 @@ Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tr
     : vertices(verts)
     , triangles(tris)
 {
-    assert(triangles.size() % 3 == 0);
+    ASSERT(triangles.size() % 3 == 0);
 }

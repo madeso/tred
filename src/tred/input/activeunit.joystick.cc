@@ -1,5 +1,5 @@
 #include "tred/input/activeunit.joystick.h"
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/director.h"
 #include "tred/input/action.h"
@@ -34,7 +34,7 @@ void impl::JoystickAxisUnit::register_axis(AxisType type, int target, int axis)
     switch(type)
     {
     case AxisType::general_axis:
-        assert(target == 0);
+        ASSERT(target == 0);
         parent->axes.add(axis);
         break;
     case AxisType::hat:
@@ -44,7 +44,7 @@ void impl::JoystickAxisUnit::register_axis(AxisType type, int target, int axis)
         parent->balls.add({target, from_index<Axis2>(axis)});
         break;
     default:
-        assert(false && "invalid type");
+        ASSERT(false && "invalid type");
     }
 }
 
@@ -54,14 +54,14 @@ float impl::JoystickAxisUnit::get_state(AxisType type, int target, int axis, flo
     switch(type)
     {
     case AxisType::general_axis:
-        assert(target == 0);
+        ASSERT(target == 0);
         return smooth_axis(parent->axes.get_raw(axis)) * dt;
     case AxisType::hat:
         return parent->hats.get_raw({target, from_index<Axis2>(axis)}) * dt;
     case AxisType::ball:
         return parent->balls.get_raw({target, from_index<Axis2>(axis)}) * dt;
     default:
-        assert(false && "invalid type");
+        ASSERT(false && "invalid type");
         return 0.0f;
     }
 }
@@ -74,7 +74,7 @@ JoystickActiveUnit::JoystickActiveUnit(JoystickId j, Director* d)
     , relative_axis_unit(true)
     , absolute_axis_unit(false)
 {
-    assert(director);
+    ASSERT(director);
     director->add(this);
 
     key_unit.parent = this;

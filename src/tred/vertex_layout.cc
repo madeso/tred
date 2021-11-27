@@ -1,6 +1,6 @@
 #include "tred/vertex_layout.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 
 VertexElementDescription::VertexElementDescription(VertexType t, const std::string& n)
@@ -71,7 +71,7 @@ CompiledVertexTypeList::compile(const VertexLayoutDescription& elements) const
     for(const auto& e: elements)
     {
         const auto found = indices.find(e.type);
-        assert(found != indices.end() && "layout wasn't added to the compilation list");
+        ASSERT(found != indices.end() && "layout wasn't added to the compilation list");
 
         list.push_back({e, found->second});
     }

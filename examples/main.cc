@@ -1,7 +1,7 @@
 // standard headers
 #include <string>
 #include <string_view>
-#include <cassert>
+#include "tred/assert.h"
 #include <vector>
 #include <numeric>
 #include <functional>
@@ -744,7 +744,7 @@ main(int, char**)
             case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
             case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
             case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
-            default: assert(false && "invalid rendering_mode"); break;
+            default: ASSERT(false && "invalid rendering_mode"); break;
         }
     };
 

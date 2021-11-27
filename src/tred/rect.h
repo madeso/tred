@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/dependency_glm.h"
 
@@ -28,7 +28,7 @@ struct Rect
         , right(r)
         , top(t)
     {
-        assert(left <= right && bottom <= top);
+        ASSERT(left <= right && bottom <= top);
     }
 
     constexpr Rect<T>
@@ -41,7 +41,7 @@ struct Rect
         , right(width)
         , top(height)
     {
-        assert(width >= 0 && height >= 0);
+        ASSERT(width >= 0 && height >= 0);
     }
 
     constexpr Rect<T>
@@ -253,7 +253,7 @@ rectcut_cut(const RectCut<T>& rectcut, T a)
         case Side::top:    return cut_top(rectcut.rect,    a);
         case Side::bottom: return cut_bottom(rectcut.rect, a);
         default:
-            assert(false);
+            ASSERT(false);
             return cut_bottom(rectcut.rect, a);
     }
 }

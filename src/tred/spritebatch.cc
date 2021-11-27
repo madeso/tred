@@ -46,7 +46,7 @@ SpriteBatch::SpriteBatch(ShaderProgram* quad_shader, Render2* r)
         indices.emplace_back(base + 2); indices.emplace_back(base + 3); indices.emplace_back(base + 0);
     }
 
-    assert(max_indices == indices.size());
+    ASSERT(max_indices == indices.size());
 
     glGenBuffers(1, &ib);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);

@@ -1,5 +1,5 @@
 #include "tred/input/activeunit.gamecontroller.h"
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/director.h"
 #include "tred/input/action.h"
@@ -34,11 +34,11 @@ void impl::GamecontrollerAxisUnit::register_axis(AxisType type, [[maybe_unused]]
     switch(type)
     {
     case AxisType::general_axis:
-        assert(target == 0);
+        ASSERT(target == 0);
         parent->axes.add(from_index<GamecontrollerAxis>(axis));
         break;
     default:
-        assert(false && "invalid type");
+        ASSERT(false && "invalid type");
     }
 }
 
@@ -48,10 +48,10 @@ float impl::GamecontrollerAxisUnit::get_state(AxisType type, [[maybe_unused]] in
     switch(type)
     {
     case AxisType::general_axis:
-        assert(target == 0);
+        ASSERT(target == 0);
         return smooth_axis(parent->axes.get_raw(from_index<GamecontrollerAxis>(axis))) * dt;
     default:
-        assert(false && "invalid type");
+        ASSERT(false && "invalid type");
         return 0.0f;
     }
 }
@@ -64,7 +64,7 @@ GamecontrollerActiveUnit::GamecontrollerActiveUnit(JoystickId j, Director* d)
     , relative_axis_unit(true)
     , absolute_axis_unit(false)
 {
-    assert(director);
+    ASSERT(director);
     director->add(this);
 
     key_unit.parent = this;

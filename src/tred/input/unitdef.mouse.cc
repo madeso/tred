@@ -1,6 +1,6 @@
 #include "tred/input/unitdef.mouse.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <string>
 #include "fmt/format.h"
 
@@ -77,7 +77,7 @@ bool MouseUnitDef::can_detect(Director* director, unit_discovery discovery, Unit
 
 std::unique_ptr<ActiveUnit> MouseUnitDef::create(Director* director, const UnitSetup&)
 {
-    assert(director);
+    ASSERT(director);
 
     return std::make_unique<MouseActiveUnit>(director);
 }

@@ -1,6 +1,6 @@
 #include "unitdef.gamecontroller.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <string>
 #include "fmt/format.h"
 
@@ -83,7 +83,7 @@ bool GamecontrollerUnitDef::can_detect(Director* director, unit_discovery, UnitS
 
 std::unique_ptr<ActiveUnit> GamecontrollerUnitDef::create(Director* director, const UnitSetup& setup)
 {
-    assert(director);
+    ASSERT(director);
     return std::make_unique<GamecontrollerActiveUnit>(setup.get_joystick(index), director);
 }
 

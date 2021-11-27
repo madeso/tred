@@ -1,6 +1,6 @@
 #include "tred/input/bind.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/input/table.h"
 #include "tred/input/activeunit.h"
@@ -116,7 +116,7 @@ KeyBindDefinition::KeyBindDefinition(const std::string& v, int u, int k)
 std::unique_ptr<ActiveBind> KeyBindDefinition::create(ConnectedUnits* units)
 {
     auto* active_unit = units->get_unit(unit);
-    assert(active_unit);
+    ASSERT(active_unit);
     return std::make_unique<KeyActiveBind>(var, key, active_unit->get_key_unit());
 }
 
@@ -136,7 +136,7 @@ RelativeAxisBindDefinition::RelativeAxisBindDefinition(const std::string& v, int
 std::unique_ptr<ActiveBind> RelativeAxisBindDefinition::create(ConnectedUnits* units)
 {
     auto* active_unit = units->get_unit(unit);
-    assert(active_unit);
+    ASSERT(active_unit);
 
     return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->get_relative_axis_unit(), false, is_inverted, sensitivity);
 }
@@ -157,7 +157,7 @@ AbsoluteAxisBindDefinition::AbsoluteAxisBindDefinition(const std::string& v, int
 std::unique_ptr<ActiveBind> AbsoluteAxisBindDefinition::create(ConnectedUnits* units)
 {
     auto* active_unit = units->get_unit(unit);
-    assert(active_unit);
+    ASSERT(active_unit);
     return std::make_unique<AxisActiveBind>(var, type, target, axis, active_unit->get_absolute_axis_unit(), true, is_inverted, sensitivity);
 }
 
@@ -174,7 +174,7 @@ RelativeTwoKeyBindDefinition::RelativeTwoKeyBindDefinition(const std::string& v,
 std::unique_ptr<ActiveBind> RelativeTwoKeyBindDefinition::create(ConnectedUnits* units)
 {
     auto* active_unit = units->get_unit(unit);
-    assert(active_unit);
+    ASSERT(active_unit);
     return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->get_key_unit(), false);
 }
 
@@ -191,7 +191,7 @@ AbsoluteTwoKeyBindDefinition::AbsoluteTwoKeyBindDefinition(const std::string& v,
 std::unique_ptr<ActiveBind> AbsoluteTwoKeyBindDefinition::create(ConnectedUnits* units)
 {
     auto* active_unit = units->get_unit(unit);
-    assert(active_unit);
+    ASSERT(active_unit);
     return std::make_unique<TwoKeyActiveBind>(var, positive, negative, active_unit->get_key_unit(), true);
 }
 

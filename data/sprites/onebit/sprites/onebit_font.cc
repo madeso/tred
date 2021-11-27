@@ -1,6 +1,6 @@
 #include "sprites/onebit_font.h"
 
-#include <cassert>
+#include "tred/assert.h"
 
 #include "tred/texture.h"
 #include "tred/game.h"
@@ -60,7 +60,7 @@ namespace onebit
                 else
                 {
                     fmt::print("Invalid character {}\n", c);
-                    assert(false && "invalid character");
+                    ASSERT(false && "invalid character");
                 }
             }
         }

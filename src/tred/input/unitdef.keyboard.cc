@@ -1,6 +1,6 @@
 #include "tred/input/unitdef.keyboard.h"
 
-#include <cassert>
+#include "tred/assert.h"
 #include <stdexcept>
 #include <string>
 #include "fmt/format.h"
@@ -61,7 +61,7 @@ bool KeyboardUnitDef::can_detect(Director* director, unit_discovery discovery, U
 
 std::unique_ptr<ActiveUnit> KeyboardUnitDef::create(Director* director, const UnitSetup&)
 {
-    assert(director);
+    ASSERT(director);
 
     return std::make_unique<KeyboardActiveUnit>(director);
 }
