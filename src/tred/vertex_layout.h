@@ -43,7 +43,7 @@ struct CompiledVertexElementNoName
     CompiledVertexElementNoName(const VertexType& t, int i);
 };
 
-
+/** Describes all vertex inputs a shader requires */
 using VertexLayoutDescription = std::vector<VertexElementDescription>;
 using VertexTypes = std::vector<VertexType>;
 
@@ -59,7 +59,7 @@ struct CompiledVertexLayout
     VertexTypes debug_types;
 };
 
-/** A list of CompiledVertexElement (for mesh) */
+/** A list of CompiledVertexLayoutNoNameList (for mesh) */
 struct CompiledMeshVertexLayout
 {
     using CompiledVertexLayoutNoNameList = std::vector<CompiledVertexElementNoName>;
@@ -68,16 +68,6 @@ struct CompiledMeshVertexLayout
 
     CompiledVertexLayoutNoNameList elements;
     VertexTypes debug_types;
-};
-
-
-/** A list of things we need to extract from the Mesh when compiling */
-struct VertexTypeList
-{
-    void
-    add(const VertexLayoutDescription& elements);
-
-    std::set<VertexType> indices;
 };
 
 
@@ -93,12 +83,8 @@ struct CompiledVertexTypeList
     compile_mesh_layout() const;
 
     std::map<VertexType, int> indices;
-    VertexTypes types;
+    VertexTypes debug_types;
 };
-
-
-CompiledVertexTypeList
-compile(const VertexTypeList& list);
 
 
 CompiledVertexTypeList

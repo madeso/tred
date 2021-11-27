@@ -47,19 +47,25 @@ CompiledMeshVertexLayout::CompiledMeshVertexLayout(const CompiledVertexLayoutNoN
 }
 
 
-void
-VertexTypeList::add(const VertexLayoutDescription& elements)
+/** A list of things we need to extract from the Mesh when compiling */
+struct VertexTypeList
 {
-    for(const auto& e: elements)
+    void
+    add(const VertexLayoutDescription& elements)
     {
-        indices.insert(e.type);
+        for(const auto& e: elements)
+        {
+            indices.insert(e.type);
+        }
     }
-}
+
+    std::set<VertexType> indices;
+};
 
 
 CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const ::VertexTypes& v)
     : indices(i)
-    , types(v)
+    , debug_types(v)
 {
 }
 
@@ -76,7 +82,7 @@ CompiledVertexTypeList::compile(const VertexLayoutDescription& elements) const
         list.push_back({e, found->second});
     }
 
-    return {list, types};
+    return {list, debug_types};
 }
 
 
@@ -90,7 +96,7 @@ CompiledVertexTypeList::compile_mesh_layout() const
         list.push_back({e.first, e.second});
     }
 
-    return {list, types};
+    return {list, debug_types};
 }
 
 
