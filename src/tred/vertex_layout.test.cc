@@ -491,10 +491,17 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
         {VertexType::position3, "pos"}
     };
 
-    const auto layout_shader_error = VertexLayoutDescription
+    const auto not_requested_property = GENERATE
+    (
+        VertexType::position2,
+        VertexType::normal3,
+        VertexType::color4,
+        VertexType::texture2
+    );
+
+    const auto layout_shader_not_requested = VertexLayoutDescription
     {
-        {VertexType::position3, "pos"},
-        {VertexType::normal3, "norm"},
+        {not_requested_property, "not_requested_prop"}
     };
     
     auto layout_compiler = compile
@@ -506,9 +513,11 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
 
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
     
+    
+    // not requested variables should assert
     REQUIRE_THROWS_WITH
     (
-        layout_compiler.compile(layout_shader_error),
+        layout_compiler.compile(layout_shader_not_requested),
            Catch::Contains("Assertion failed")
         && Catch::Contains( "layout wasn't added to the compilation list" )
     );
