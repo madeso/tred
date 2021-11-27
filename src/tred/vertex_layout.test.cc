@@ -133,6 +133,24 @@ namespace
             }
         );
     }
+
+    catchy::FalseString
+    is_equal(const CompiledVertexLayout& lhs, const CompiledVertexLayout& rhs)
+    {
+        const auto same_elements = is_equal(lhs.elements, rhs.elements);
+        const auto same_debug_types = is_equal(lhs.debug_types, rhs.debug_types);
+
+        return catchy::FalseString::Combine(same_elements, same_debug_types);
+    }
+
+    catchy::FalseString
+    is_equal(const CompiledMeshVertexLayout& lhs, const CompiledMeshVertexLayout& rhs)
+    {
+        const auto same_elements = is_equal(lhs.elements, rhs.elements);
+        const auto same_debug_types = is_equal(lhs.debug_types, rhs.debug_types);
+
+        return catchy::FalseString::Combine(same_elements, same_debug_types);
+    }
 }
 
 
@@ -175,25 +193,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout.elements,
+                compiled_layout,
                 {
-                    {VertexType::position3, "aPos", 0},
-                    {VertexType::normal3, "aNormal", 1},
-                    {VertexType::color4, "aColor", 2},
-                    {VertexType::texture2, "aTexCoord", 3}
-                }
-            )
-        );
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, "aPos", 0},
+                        {VertexType::normal3, "aNormal", 1},
+                        {VertexType::color4, "aColor", 2},
+                        {VertexType::texture2, "aTexCoord", 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -202,26 +215,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                mesh_layout.elements,
+                mesh_layout,
                 {
-                    {VertexType::position3, 0},
-                    {VertexType::normal3, 1},
-                    {VertexType::color4, 2},
-                    {VertexType::texture2, 3}
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, 0},
+                        {VertexType::normal3, 1},
+                        {VertexType::color4, 2},
+                        {VertexType::texture2, 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -244,26 +251,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_material.elements,
+                compiled_layout_material,
                 {
-                    {VertexType::position3, "aPos", 0},
-                    {VertexType::normal3, "aNormal", 1},
-                    {VertexType::color4, "aColor", 2},
-                    {VertexType::texture2, "aTexCoord", 3}
-                }
-            )
-        );
-        
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_material.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, "aPos", 0},
+                        {VertexType::normal3, "aNormal", 1},
+                        {VertexType::color4, "aColor", 2},
+                        {VertexType::texture2, "aTexCoord", 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -272,9 +273,17 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_depth.elements,
+                compiled_layout_depth,
                 {
-                    {VertexType::position3, "aPos", 0}
+                    {
+                        {VertexType::position3, "aPos", 0}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -283,40 +292,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_depth.debug_types,
+                mesh_layout,
                 {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout.elements,
-                {
-                    {VertexType::position3, 0},
-                    {VertexType::normal3, 1},
-                    {VertexType::color4, 2},
-                    {VertexType::texture2, 3}
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, 0},
+                        {VertexType::normal3, 1},
+                        {VertexType::color4, 2},
+                        {VertexType::texture2, 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -339,25 +328,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_material.elements,
+                compiled_layout_material,
                 {
-                    {VertexType::position3, "aPos", 0},
-                    {VertexType::normal3, "aNormal", 1},
-                    {VertexType::color4, "aColor", 2},
-                    {VertexType::texture2, "aTexCoord", 3}
-                }
-            )
-        );
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_material.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, "aPos", 0},
+                        {VertexType::normal3, "aNormal", 1},
+                        {VertexType::color4, "aColor", 2},
+                        {VertexType::texture2, "aTexCoord", 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -366,25 +350,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_different.elements,
+                compiled_layout_different,
                 {
-                    {VertexType::color4, "aColor", 2},
-                    {VertexType::texture2, "aTexCoord", 3},
-                    {VertexType::position3, "aPos", 0},
-                    {VertexType::normal3, "aNormal", 1}
-                }
-            )
-        );
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_different.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::color4, "aColor", 2},
+                        {VertexType::texture2, "aTexCoord", 3},
+                        {VertexType::position3, "aPos", 0},
+                        {VertexType::normal3, "aNormal", 1}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -393,26 +372,20 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                mesh_layout.elements,
+                mesh_layout,
                 {
-                    {VertexType::position3, 0},
-                    {VertexType::normal3, 1},
-                    {VertexType::color4, 2},
-                    {VertexType::texture2, 3}
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout.debug_types,
-                {
-                    VertexType::position3,
-                    VertexType::normal3,
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::position3, 0},
+                        {VertexType::normal3, 1},
+                        {VertexType::color4, 2},
+                        {VertexType::texture2, 3}
+                    },
+                    {
+                        VertexType::position3,
+                        VertexType::normal3,
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -444,20 +417,15 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_a.elements,
+                compiled_layout_a,
                 {
-                    {VertexType::color4, "rgb", 0}
-                }
-            )
-        );
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_a.debug_types,
-                {
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::color4, "rgb", 0}
+                    },
+                    {
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -466,20 +434,15 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                compiled_layout_b.elements,
-                {
-                    {VertexType::texture2, "uv", 1}
-                }
-            )
-        );
-        CHECK
-        (
-            is_equal
-            (
-                compiled_layout_b.debug_types,
-                {
-                    VertexType::color4,
-                    VertexType::texture2
+                compiled_layout_b,
+                {                
+                    {
+                        {VertexType::texture2, "uv", 1}
+                    },
+                    {
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
@@ -488,27 +451,18 @@ TEST_CASE("vertex_layout_test", "[vertex_layout]")
         (
             is_equal
             (
-                mesh_layout.elements,
+                mesh_layout,
                 {
-                    {VertexType::color4, 0},
-                    {VertexType::texture2, 1}
-                }
-            )
-        );
-
-        CHECK
-        (
-            is_equal
-            (
-                mesh_layout.debug_types,
-                {
-                    VertexType::color4,
-                    VertexType::texture2
+                    {
+                        {VertexType::color4, 0},
+                        {VertexType::texture2, 1}
+                    },
+                    {
+                        VertexType::color4,
+                        VertexType::texture2
+                    }
                 }
             )
         );
     }
 }
-
-// todo(Gustav): is the data correct when we compile more than one material
-// todo(Gustav): get data that isn't for shader from the compiler to the mesh
