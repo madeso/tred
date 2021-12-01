@@ -65,7 +65,7 @@ out vec4 FragColor;
 
 uniform Material uMaterial;
 
-#define NUMBER_OF_POINT_LIGHTS 4
+#define NUMBER_OF_POINT_LIGHTS {{NUMBER_OF_POINT_LIGHTS}}
 uniform DirectionalLight uDirectionalLight;
 uniform PointLight uPointLights[NUMBER_OF_POINT_LIGHTS];
 uniform SpotLight uSpotLight;

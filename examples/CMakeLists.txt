@@ -14,7 +14,7 @@ embed(embedded
 add_executable(example WIN32 MACOSX_BUNDLE ${src} ${embedded})
 target_link_libraries(
     example
-    PUBLIC tred sprites_cards
+    PUBLIC tred sprites_cards mustache
     PRIVATE project_options project_warnings
 )
 target_include_directories(example
@@ -24,6 +24,8 @@ target_include_directories(example
 
 source_group("" FILES ${src})
 source_group("generated" FILES ${generated})
+
+
 
 embed(demo_letter
     AS_BINARY
@@ -39,6 +41,7 @@ target_include_directories(demo
     PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
 )
+
 
 
 add_executable(minesweeper WIN32 MACOSX_BUNDLE minesweeper.cc)

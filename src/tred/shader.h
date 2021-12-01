@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 
 #include "tred/dependency_glm.h"
@@ -10,6 +11,12 @@
 
 struct ShaderProgram
 {
+    ShaderProgram
+    (
+        const std::string& vertex_source,
+        const std::string& fragment_source,
+        const CompiledVertexLayout& layout
+    );
     ShaderProgram
     (
         std::string_view vertex_source,

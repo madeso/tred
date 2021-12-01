@@ -1,5 +1,7 @@
 #include "tred/render2.h"
 
+using namespace std::literals;
+
 
 Render2::Render2()
     // todo(Gustav): move quad_description and quad_layout to a seperate setup
@@ -35,7 +37,7 @@ Render2::Render2()
                 varying_uv = uv;
                 gl_Position = view_projection * transform * vec4(position, 1.0);
             }
-        )glsl",
+        )glsl"sv,
         R"glsl(
             #version 450 core
 
@@ -50,7 +52,7 @@ Render2::Render2()
             {
                 color = texture(uniform_texture, varying_uv) * varying_color;
             }
-        )glsl",
+        )glsl"sv,
         quad_layout
     )
     , view_projection_uniform(quad_shader.get_uniform("view_projection"))

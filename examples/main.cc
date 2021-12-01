@@ -20,6 +20,9 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
+#include "mustache/mustache.hpp"
+
+
 #include "tred/dependency_sdl.h"
 #include "tred/opengl_debug.h"
 #include "tred/cint.h"
@@ -392,6 +395,23 @@ float remap(float ol, float ou, float f, float nl, float nu)
 
 constexpr float plane_size = 20.0f;
 
+
+using ShaderCompilerProperties = std::map<std::string, std::string>;
+
+std::string
+generate(std::string_view str, const ShaderCompilerProperties& properties)
+{
+    auto input = kainjow::mustache::mustache{std::string{str.begin(), str.end()}};
+    input.set_custom_escape([](const std::string& s) { return s; });
+    auto data = kainjow::mustache::data{};
+    for(const auto& kv: properties)
+    {
+        data[kv.first] = kv.second;
+    }
+    return input.render(data);
+}
+
+
 int
 main(int, char**)
 {
@@ -525,7 +545,16 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
-    auto shader = ::ShaderProgram{SHADER_VERTEX_GLSL, SHADER_FRAGMENT_GLSL, compiled_layout};
+    const auto shader_options = ShaderCompilerProperties
+    {
+        {"NUMBER_OF_POINT_LIGHTS", std::to_string(NUMBER_OF_POINT_LIGHTS)}
+    };
+    auto shader = ::ShaderProgram
+    {
+        generate(SHADER_VERTEX_GLSL, shader_options),
+        generate(SHADER_FRAGMENT_GLSL, shader_options),
+        compiled_layout
+    };
     const auto uni_color = shader.get_uniform("uColor");
     const auto uni_transform = shader.get_uniform("uTransform");
     const auto uni_model_transform = shader.get_uniform("uModelTransform");

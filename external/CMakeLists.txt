@@ -84,3 +84,12 @@ target_include_directories(glm
     INTERFACE
         glm
 )
+
+
+###################################################################################################
+# mustache
+add_library(mustache INTERFACE)
+target_include_directories(mustache
+    INTERFACE
+        mustache
+)

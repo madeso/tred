@@ -87,14 +87,14 @@ verify_shader_attribute_location(unsigned int shader_program, const CompiledVert
 }
 
 
-ShaderProgram::ShaderProgram
+template<typename T>
+void load_shader_source
 (
-    std::string_view vertex_source,
-    std::string_view fragment_source,
+    ShaderProgram* self,
+    const T& vertex_source,
+    const T& fragment_source,
     const CompiledVertexLayout& layout
 )
-    : shader_program(glCreateProgram())
-    , debug_vertex_types(layout.debug_types)
 {
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     upload_shader_source(vertex_shader, vertex_source);
@@ -106,11 +106,11 @@ ShaderProgram::ShaderProgram
     glCompileShader(fragment_shader);
     const auto fragment_ok = check_shader_compilation_error("fragment", fragment_shader);
 
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    bind_shader_attribute_location(shader_program, layout);
-    glLinkProgram(shader_program);
-    const auto link_ok = check_shader_link_error(shader_program);
+    glAttachShader(self->shader_program, vertex_shader);
+    glAttachShader(self->shader_program, fragment_shader);
+    bind_shader_attribute_location(self->shader_program, layout);
+    glLinkProgram(self->shader_program);
+    const auto link_ok = check_shader_link_error(self->shader_program);
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
@@ -120,14 +120,39 @@ ShaderProgram::ShaderProgram
     if(vertex_ok && fragment_ok && link_ok)
     {
         // nop
-        verify_shader_attribute_location(shader_program, layout);
+        verify_shader_attribute_location(self->shader_program, layout);
     }
     else
     {
         clear_shader_program();
-        glDeleteProgram(shader_program);
-        shader_program = 0;
+        glDeleteProgram(self->shader_program);
+        self->shader_program = 0;
     }
+}
+
+
+ShaderProgram::ShaderProgram
+(
+    const std::string& vertex_source,
+    const std::string& fragment_source,
+    const CompiledVertexLayout& layout
+)
+    : shader_program(glCreateProgram())
+    , debug_vertex_types(layout.debug_types)
+{
+    load_shader_source(this, vertex_source, fragment_source, layout);
+}
+
+ShaderProgram::ShaderProgram
+(
+    std::string_view vertex_source,
+    std::string_view fragment_source,
+    const CompiledVertexLayout& layout
+)
+    : shader_program(glCreateProgram())
+    , debug_vertex_types(layout.debug_types)
+{
+    load_shader_source(this, vertex_source, fragment_source, layout);
 }
 
 
