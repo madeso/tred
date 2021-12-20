@@ -5,6 +5,8 @@
 #include <type_traits>
 
 
+// todo(Gustav): replace with to_underlying in cpp23
+// https://en.cppreference.com/w/cpp/utility/to_underlying
 template<typename E>
 constexpr typename std::underlying_type<E>::type to_base(E e) noexcept
 {
