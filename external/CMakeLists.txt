@@ -8,7 +8,7 @@ add_library(glad STATIC
     glad/src/glad.c
     glad/include/glad/glad.h
 )
-target_include_directories(glad
+target_include_directories(glad SYSTEM
     PUBLIC
         glad/include
 )
@@ -28,7 +28,7 @@ add_library(imgui STATIC
     imgui/examples/imgui_impl_sdl.cpp
     imgui/examples/imgui_impl_opengl3.cpp
 )
-target_include_directories(imgui
+target_include_directories(imgui SYSTEM
     PUBLIC
         imgui/
         imgui/examples/
@@ -48,7 +48,7 @@ target_compile_definitions(imgui
 ###################################################################################################
 # imgui binary_to_compressed
 add_library(imgui_binary_to_compressed INTERFACE)
-target_include_directories(imgui_binary_to_compressed
+target_include_directories(imgui_binary_to_compressed SYSTEM
     INTERFACE
         imgui-1.78/misc/fonts/
 )
@@ -58,7 +58,7 @@ target_include_directories(imgui_binary_to_compressed
 # SDL2
 find_package(SDL2 REQUIRED)
 add_library(sdl2 INTERFACE)
-target_include_directories(sdl2
+target_include_directories(sdl2 SYSTEM
     INTERFACE
         ${SDL2_INCLUDE_DIR}
 )
@@ -80,7 +80,7 @@ target_link_libraries(opengl INTERFACE OpenGL::GL)
 ###################################################################################################
 # glm
 add_library(glm INTERFACE)
-target_include_directories(glm
+target_include_directories(glm SYSTEM
     INTERFACE
         glm
 )
@@ -89,7 +89,7 @@ target_include_directories(glm
 ###################################################################################################
 # mustache
 add_library(mustache INTERFACE)
-target_include_directories(mustache
+target_include_directories(mustache SYSTEM
     INTERFACE
         mustache
 )
