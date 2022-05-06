@@ -30,9 +30,9 @@ Fixed setup
 */
 
 // std things
-struct string {};
+struct string { string(const char* const); };
 template<typename T> using unique_ptr = T*;
-template <typename T> struct vector {};
+template <typename T> struct vector {T& operator[](int); const T& operator[](int) const; void push_back(const T&); int size() const;};
 template <typename T> struct optional {};
 template <typename K, typename V> struct map {};
 template <typename L, typename R> struct pair {};
@@ -449,4 +449,184 @@ int main()
             world->PlaceActor(actor, vec3f{});
         }
     );
+}
+
+namespace test
+{
+    struct HashedString { string s; int hash; HashedString(const string&); };
+
+    using TextureId = int;
+
+    using MaterialPropertyName = HashedString;
+
+    struct PropertyValue
+    {
+        int index_in_material_vector;
+        PropertyValue(float);
+        PropertyValue(const vec3f&);
+        PropertyValue(const string&);
+    };
+
+    struct Material
+    {
+        // material shader: default, unlit etc.
+        string shader_name;
+
+        explicit Material(const string&);
+
+        // shader defines valid names
+        // name - value map
+        map<MaterialPropertyName, PropertyValue> properties;
+
+        Material& set(const MaterialPropertyName&, const PropertyValue& );
+    };
+
+    template<typename T>
+    struct AssignedProperty
+    {
+        int index_in_material_vector; // used to find actual attribute in shader
+        T value;
+    };
+
+    template<typename T>
+    using ListOfProperties = vector<AssignedProperty<T>>;
+
+    enum class MaterialPropertyType { Float, Vec3f, Texture };
+
+    // shader property gl=4 is a vec3
+    struct CompiledMaterialPropertyAdress
+    {
+        MaterialPropertyType type;
+        int gl_handle;
+    };
+
+    struct CompiledMaterialShader
+    {
+        bool include_blended_transperency;
+        map<MaterialPropertyName, CompiledMaterialPropertyAdress> materials;
+        // diffuse is at 4 and is a vec3
+
+        string provide_shader_source() const;
+    };
+
+    struct CompiledLightShader
+    {
+        string provide_shader_source() const;
+    };
+
+    struct CompiledShader
+    {
+        CompiledMaterialShader* material;
+        CompiledLightShader* light;
+    };
+
+    struct CompiledMaterial
+    {
+        CompiledShader* shader;
+
+        // vector of assigned materaials to uniform list
+        ListOfProperties<float> properties_float;
+        ListOfProperties<vec3f> properties_vec3;
+        ListOfProperties<TextureId> properties_texture;
+    };
+
+    CompiledMaterial* compile_material(const Material& src)
+    {
+        // find material by name src.name
+        // get lightning combinations from world
+        // generate needed shader permutations
+
+        return nullptr;
+    }
+
+    struct VertexData { /**/ };
+
+    struct Mesh
+    {
+        Material material;
+        VertexData vertices;
+    };
+
+    Mesh create_box_mesh_with_material(const Material&);
+    // Mesh create_plane_mesh_with_material(const Material&);
+
+    struct CompiledMesh
+    {
+        CompiledMaterial* material;
+        int mesh_data;
+    };
+
+    int vertices_to_gl(const VertexData&);
+
+    CompiledMesh compile_mesh(const Mesh& mesh)
+    {
+        return
+        {
+            compile_material(mesh.material),
+            vertices_to_gl(mesh.vertices)
+        };
+    }
+
+    using Actor = int;
+
+    struct World
+    {
+        virtual Actor add_actor(const CompiledMesh& m) = 0;
+        virtual void set_transform(Actor);// set position + rotation
+        void render();
+    };
+
+    unique_ptr<World> create_world();
+
+    void test()
+    {
+        const auto box_mesh = compile_mesh
+        (
+            create_box_mesh_with_material
+            (
+                Material{"default"}
+                    .set("diffuse", "diffuse.png")
+                    .set("normal", "normal.png")
+            )
+        );
+        const auto light_mesh = compile_mesh
+        (
+            create_box_mesh_with_material
+            (
+                Material{"unlit"}
+                    .set("color", vec3f{})
+            )
+        );
+        const auto plane_mesh = CompiledMesh{};
+
+        auto world = create_world();
+        
+        world->add_actor(plane_mesh);
+
+        auto plane = world->add_actor(plane_mesh);
+
+        vector<Actor> boxes;
+
+        for(int i=0; i<10; i+=1)
+        {
+            boxes.push_back(world->add_actor(box_mesh));
+            world->add_actor(light_mesh);
+        }
+
+        // update/render loop
+        for(int i=0; i<10; i+=1)
+        {
+            world->set_transform(boxes[i]);
+        }
+        world->render();
+    }
+
+
+    // also called GemetricPrimitive
+    struct RenderPacket
+    {
+        CompiledMesh* mesh;
+        CompiledMaterial* material;
+    };
+
 }
