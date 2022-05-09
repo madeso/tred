@@ -23,7 +23,14 @@ struct VertexElementDescription
     VertexElementDescription(VertexType t, const std::string& n);
 };
 
-/** A realized VertexElementDescription */
+
+
+/** Describes all vertex inputs a shader requires like `[vec3 position, vec3 normal, vec2 uv]`*/
+using VertexLayoutDescription = std::vector<VertexElementDescription>;
+
+
+
+/** A realized VertexElementDescription like `vec3 position` at gl shader position 3 */
 struct CompiledVertexElement
 {
     VertexType type;
@@ -35,6 +42,7 @@ struct CompiledVertexElement
 };
 
 
+/** A realized VertexElementDescription without name like `vec3` at gl shader position 3 */
 struct CompiledVertexElementNoName
 {
     VertexType type;
@@ -43,8 +51,7 @@ struct CompiledVertexElementNoName
     CompiledVertexElementNoName(const VertexType& t, int i);
 };
 
-/** Describes all vertex inputs a shader requires */
-using VertexLayoutDescription = std::vector<VertexElementDescription>;
+
 using VertexTypes = std::vector<VertexType>;
 
 
