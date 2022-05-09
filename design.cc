@@ -451,6 +451,18 @@ int main()
     );
 }
 
+
+
+/* allow visual styles: xray, heat, highlight
+
+Mesh: List of layers
+MeshLayer: list of parts, bitmask of visual styles
+MeshPart: triangles + single material
+
+*/
+
+
+
 namespace test
 {
     struct HashedString { string s; int hash; HashedString(const string&); };
