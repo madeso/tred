@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <optional>
 
 
 /** Vertex source type, position, normal etc. */
@@ -12,6 +13,8 @@ enum class VertexType
     position2, position3, normal3, color4, texture2
     // change to include other textcoords and custom types that are created from scripts
 };
+
+std::optional<VertexType> parse_vertex_type(const std::string& name);
 
 
 /** A not-yet-realised binding to a shader variable like 'vec3 position' */

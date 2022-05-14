@@ -3,6 +3,20 @@
 #include "tred/assert.h"
 
 
+std::optional<VertexType> parse_vertex_type(const std::string& name)
+{
+    #define NAME(x) if(name == #x) { return VertexType::x; }
+
+    NAME(position2)
+    else NAME(position3)
+    else NAME(normal3)
+    else NAME(color4)
+    else NAME(texture2)
+    else return {};
+    #undef NAME
+}
+
+
 VertexElementDescription::VertexElementDescription(VertexType t, const std::string& n)
     : type(t)
     , name(n)

@@ -37,7 +37,7 @@ log_warning(const S& format, Args&&... args) {
     #define LOG_INFO(format, ...) LogInfo(FMT_STRING(format), ##__VA_ARGS__)
     #define LOG_ERROR(format, ...) LogError(FMT_STRING(format), ##__VA_ARGS__)
 #else
-    #define LOG_INFO(...) log_info(__VA_ARGS__)
-    #define LOG_ERROR(...) log_error(__VA_ARGS__)
-    #define LOG_WARNING(...) log_warning(__VA_ARGS__)
+    #define LOG_INFO(...) ::log_info(__VA_ARGS__)
+    #define LOG_ERROR(...) ::log_error(__VA_ARGS__)
+    #define LOG_WARNING(...) ::log_warning(__VA_ARGS__)
 #endif

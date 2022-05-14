@@ -57,6 +57,7 @@ set(src
     tred/opengl_debug.cc tred/opengl_debug.h
     tred/result.cc tred/result.h
     tred/shader.cc tred/shader.h
+    tred/shader.source.cc tred/shader.source.h
     tred/shader.util.cc tred/shader.util.h
     tred/sortablepair.cc tred/sortablepair.h
     tred/texture.cc tred/texture.h
@@ -88,9 +89,10 @@ source_group("" FILES ${src})
 
 set(src_test
     tred/handle.test.cc
-    tred/vertex_layout.test.cc
-    tred/input/system.test.cc
     tred/input/mapping.detection.test.cc
+    tred/input/system.test.cc
+    tred/shader.source.test.cc
+    tred/vertex_layout.test.cc
     ../external/catch/main.cc
 )
 add_executable(test ${src_test})
