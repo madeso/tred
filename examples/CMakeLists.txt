@@ -4,8 +4,8 @@ set(src
 
 embed(embedded
     AS_TEXT
-        ../data/shader_vertex.glsl ../data/shader_fragment.glsl
-        ../data/light_vertex.glsl ../data/light_fragment.glsl
+        ../data/shader_material.glsl
+        ../data/shader_light.glsl
     AS_BINARY
         ../data/container_diffuse.png
         ../data/container_specular.png

@@ -40,13 +40,12 @@
 #include "tred/input/table.h"
 #include "tred/layer2.h"
 #include "tred/spritebatch.h"
+#include "tred/shader.source.h"
 
 
 // resource headers
-#include "shader_vertex.glsl.h"
-#include "shader_fragment.glsl.h"
-#include "light_vertex.glsl.h"
-#include "light_fragment.glsl.h"
+#include "shader_light.glsl.h"
+#include "shader_material.glsl.h"
 #include "container_diffuse.png.h"
 #include "container_specular.png.h"
 
@@ -412,6 +411,29 @@ generate(std::string_view str, const ShaderCompilerProperties& properties)
 }
 
 
+void log_shader_error(const std::string& file, const shader::ShaderResult& res)
+{
+    for(const auto& e: res.log)
+    {
+        switch(e.type)
+        {
+        case shader::ShaderMessageType::info:
+            LOG_INFO("{}({}): {}", file, e.line, e.message);
+            break;
+        case shader::ShaderMessageType::warning:
+            LOG_WARNING("{}({}): {}", file, e.line, e.message);
+            break;
+        case shader::ShaderMessageType::error:
+            LOG_ERROR("{}({}): {}", file, e.line, e.message);
+            break;
+        default:
+            LOG_ERROR("INVALID LOG ENTRY {}({}): {}", file, e.line, e.message);
+            break;
+        }
+    }
+}
+
+
 int
 main(int, char**)
 {
@@ -524,21 +546,23 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // shader layout
-    const auto material_shader_layout = VertexLayoutDescription
-    {
-        {VertexType::position3, "aPos"},
-        {VertexType::normal3, "aNormal"},
-        {VertexType::color4, "aColor"},
-        {VertexType::texture2, "aTexCoord"}
-    };
+    const auto material_shader_source_result = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
+    log_shader_error("shader_material", material_shader_source_result);
+    if(material_shader_source_result.source.has_value() == false) { return -1;}
+    const auto material_shader_source = *material_shader_source_result.source;
+
+    const auto material_shader_layout = material_shader_source.layout;
+
     auto material_layout_compiler = compile({material_shader_layout});
     const auto material_mesh_layout = material_layout_compiler.compile_mesh_layout();
     const auto compiled_layout = material_layout_compiler.compile(material_shader_layout);
 
-    const auto light_shader_layout = VertexLayoutDescription
-    {
-        {VertexType::position3, "aPos"}
-    };
+    const auto light_shader_source_result = shader::parse_shader_source(SHADER_LIGHT_GLSL);
+    log_shader_error("shader_light", light_shader_source_result);
+    if(light_shader_source_result.source.has_value() == false) { return -1;}
+    const auto light_shader_source = *light_shader_source_result.source;
+
+    const auto light_shader_layout = light_shader_source.layout;
     auto light_compiler = compile({light_shader_layout});
     const auto light_mesh_layout = light_compiler.compile_mesh_layout();
     const auto compiled_light_layout = light_compiler.compile(light_shader_layout);
@@ -551,8 +575,8 @@ main(int, char**)
     };
     auto shader = ::ShaderProgram
     {
-        generate(SHADER_VERTEX_GLSL, shader_options),
-        generate(SHADER_FRAGMENT_GLSL, shader_options),
+        generate(material_shader_source.vertex, shader_options),
+        generate(material_shader_source.fragment, shader_options),
         compiled_layout
     };
     const auto uni_color = shader.get_uniform("uColor");
@@ -571,7 +595,7 @@ main(int, char**)
     };
     const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
 
-    auto light_shader = ::ShaderProgram{LIGHT_VERTEX_GLSL, LIGHT_FRAGMENT_GLSL, compiled_light_layout};
+    auto light_shader = ::ShaderProgram{light_shader_source.vertex, light_shader_source.fragment, compiled_light_layout};
     const auto uni_light_transform = light_shader.get_uniform("uTransform");
     const auto uni_light_color = light_shader.get_uniform("uColor");
 
