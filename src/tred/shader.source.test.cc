@@ -67,7 +67,7 @@ TEST_CASE("shadersource-pixel-fragment", "[shadersource]")
 {
     const auto result = parse_shader_source
     (
-        "position3 pos;\n"
+        "attribute position3 pos;\n"
         "#shader vertex\n"
         "#version 24\n"
         "hello vertex\n"

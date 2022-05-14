@@ -3,6 +3,8 @@
 #include <sstream>
 #include <optional>
 
+#include "fmt/format.h"
+
 
 namespace shader
 {
@@ -179,6 +181,24 @@ namespace
     }
 
 
+    bool expect_keyword(Parser* parser, const std::string& expected, ShaderLog* log)
+    {
+        const auto read = read_ident(parser);
+        if(read.has_value() == false)
+        {
+            return false;
+        }
+
+        if(*read != expected)
+        {
+            log_error(log, parser->line, fmt::format("Expeced keyword {} but found {}", expected, *read));
+            return false;
+        }
+
+        return true;
+    }
+
+
     // std::optional<VertexLayoutDescription> parse_layout(const std::string& source, ShaderLog* log)
     std::optional<VertexLayoutDescription> parse_layout(std::string_view source, ShaderLog* log)
     {
@@ -191,6 +211,16 @@ namespace
 
         while(parser.has_more())
         {
+            eat_whitespace(&parser);
+
+            if(false == expect_keyword(&parser, "attribute", log))
+            {
+                ok = false;
+                log_error(log, parser.line, "Expected attribute keyword");
+                error_recovery(&parser, log);
+                continue;
+            }
+
             eat_whitespace(&parser);
             const auto type_name = read_ident(&parser);
             if(type_name.has_value() == false)
