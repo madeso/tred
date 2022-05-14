@@ -142,12 +142,44 @@ namespace
         while(p->has_more())
         {
             char c = p->peek();
-            if(is_whitespace(c) == false)
+            if(is_whitespace(c))
             {
-                return;
+                p->read();
+                continue;
             }
 
-            p->read();
+            if(c == '/' && p->peek(1) == '/')
+            {
+                // skip to newline
+                eat_all_including(p, '\n');
+                continue;
+            }
+
+            if(c == '/' && p->peek(1) == '*')
+            {
+                // skip start
+                p->read();
+                p->read();
+
+                // skip until */
+                bool keep_reading = true;
+                while(keep_reading && p->has_more())
+                {
+                    if(p->peek(0) == '*' && p->peek(1)=='/')
+                    {
+                        p->read();
+                        p->read();
+                        keep_reading = false;
+                    }
+                    else
+                    {
+                        p->read();
+                    }
+                }
+                continue;
+            }
+
+            return;
         }
     }
 
