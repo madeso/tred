@@ -364,7 +364,7 @@ struct CompiledCamera
 };
 
 
-CompiledCamera compile(const CameraVectors& camera)
+CompiledCamera compile_camera(const CameraVectors& camera)
 {
     const auto view = glm::lookAt(camera.position, camera.position + camera.front, UP);
     return {view, camera.position};
@@ -553,9 +553,9 @@ main(int, char**)
 
     const auto material_shader_layout = material_shader_source.layout;
 
-    auto material_layout_compiler = compile({material_shader_layout});
+    auto material_layout_compiler = compile_attribute_layouts({material_shader_layout});
     const auto material_mesh_layout = material_layout_compiler.compile_mesh_layout();
-    const auto compiled_layout = material_layout_compiler.compile(material_shader_layout);
+    const auto compiled_layout = material_layout_compiler.compile_shader_layout(material_shader_layout);
 
     const auto light_shader_source_result = shader::parse_shader_source(SHADER_LIGHT_GLSL);
     log_shader_error("shader_light", light_shader_source_result);
@@ -563,9 +563,9 @@ main(int, char**)
     const auto light_shader_source = *light_shader_source_result.source;
 
     const auto light_shader_layout = light_shader_source.layout;
-    auto light_compiler = compile({light_shader_layout});
+    auto light_compiler = compile_attribute_layouts({light_shader_layout});
     const auto light_mesh_layout = light_compiler.compile_mesh_layout();
-    const auto compiled_light_layout = light_compiler.compile(light_shader_layout);
+    const auto compiled_light_layout = light_compiler.compile_shader_layout(light_shader_layout);
 
     ///////////////////////////////////////////////////////////////////////////
     // shaders
@@ -601,9 +601,9 @@ main(int, char**)
 
     ///////////////////////////////////////////////////////////////////////////
     // model
-    const auto mesh = compile(create_box_mesh(1.0f), material_mesh_layout);
-    const auto light_mesh = compile(create_box_mesh(0.2f), light_mesh_layout);
-    const auto plane_mesh = compile(create_plane_mesh(plane_size, plane_size), material_mesh_layout);
+    const auto mesh = compile_mesh(create_box_mesh(1.0f), material_mesh_layout);
+    const auto light_mesh = compile_mesh(create_box_mesh(0.2f), light_mesh_layout);
+    const auto plane_mesh = compile_mesh(create_plane_mesh(plane_size, plane_size), material_mesh_layout);
 
     auto cube_positions = std::vector<glm::vec3>
     {
@@ -686,7 +686,7 @@ main(int, char**)
                 // todo(Gustav): move clear to rc
                 glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-                const auto compiled_camera = compile(camera.create_vectors());
+                const auto compiled_camera = compile_camera(camera.create_vectors());
             
                 const auto view = compiled_camera.view;
 

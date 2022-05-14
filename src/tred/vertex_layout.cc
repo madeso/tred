@@ -84,7 +84,7 @@ CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& 
 }
 
 CompiledVertexLayout
-CompiledVertexTypeList::compile(const VertexLayoutDescription& elements) const
+CompiledVertexTypeList::compile_shader_layout(const VertexLayoutDescription& elements) const
 {
     CompiledVertexLayout::CompiledVertexLayoutList list;
 
@@ -122,7 +122,7 @@ ShaderAttributeSize(const VertexType&)
 
 
 CompiledVertexTypeList
-compile(const VertexTypeList& list)
+compile_vertex_type_list(const VertexTypeList& list)
 {
     std::map<VertexType, int> indices;
 
@@ -138,7 +138,7 @@ compile(const VertexTypeList& list)
 
 
 CompiledVertexTypeList
-compile(const std::vector<VertexLayoutDescription>& descriptions)
+compile_attribute_layouts(const std::vector<VertexLayoutDescription>& descriptions)
 {
     VertexTypeList list;
 
@@ -147,6 +147,6 @@ compile(const std::vector<VertexLayoutDescription>& descriptions)
         list.add(d);
     }
 
-    return compile(list);
+    return compile_vertex_type_list(list);
 }
 

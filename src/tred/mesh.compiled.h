@@ -29,4 +29,4 @@ struct CompiledMesh
 
 
 CompiledMesh
-compile(const Mesh& mesh, const CompiledMeshVertexLayout& layout);
+compile_mesh(const Mesh& mesh, const CompiledMeshVertexLayout& layout);

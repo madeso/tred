@@ -164,14 +164,14 @@ TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
         {VertexType::texture2, "aTexCoord"}
     };
     
-    auto layout_compiler = compile
+    auto layout_compiler = compile_attribute_layouts
     (
         {
             layout_shader_material
         }
     );
 
-    const auto compiled_layout = layout_compiler.compile(layout_shader_material);
+    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
 
     CHECK
@@ -235,15 +235,15 @@ TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
         {VertexType::position3, "aPos"}
     };
 
-    auto layout_compiler = compile
+    auto layout_compiler = compile_attribute_layouts
     (
         {
             layout_shader_material,
             layout_shader_depth
         }
     );
-    const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
-    const auto compiled_layout_depth = layout_compiler.compile(layout_shader_depth);
+    const auto compiled_layout_material = layout_compiler.compile_shader_layout(layout_shader_material);
+    const auto compiled_layout_depth = layout_compiler.compile_shader_layout(layout_shader_depth);
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
 
     CHECK
@@ -329,15 +329,15 @@ TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
         {VertexType::normal3, "aNormal"}
     };
 
-    auto layout_compiler = compile
+    auto layout_compiler = compile_attribute_layouts
     (
         {
             layout_shader_different,
             layout_shader_material
         }
     );
-    const auto compiled_layout_material = layout_compiler.compile(layout_shader_material);
-    const auto compiled_layout_different = layout_compiler.compile(layout_shader_different);
+    const auto compiled_layout_material = layout_compiler.compile_shader_layout(layout_shader_material);
+    const auto compiled_layout_different = layout_compiler.compile_shader_layout(layout_shader_different);
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
     
     CHECK
@@ -419,15 +419,15 @@ TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
     {
         {VertexType::texture2, "uv"}
     };
-    auto layout_compiler = compile
+    auto layout_compiler = compile_attribute_layouts
     (
         {
             layout_shader_a,
             layout_shader_b
         }
     );
-    const auto compiled_layout_a = layout_compiler.compile(layout_shader_a);
-    const auto compiled_layout_b = layout_compiler.compile(layout_shader_b);
+    const auto compiled_layout_a = layout_compiler.compile_shader_layout(layout_shader_a);
+    const auto compiled_layout_b = layout_compiler.compile_shader_layout(layout_shader_b);
     const auto mesh_layout = layout_compiler.compile_mesh_layout();
     
     CHECK
@@ -504,7 +504,7 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
         {not_requested_property, "not_requested_prop"}
     };
     
-    auto layout_compiler = compile
+    auto layout_compiler = compile_attribute_layouts
     (
         {
             layout_shader_material
@@ -517,12 +517,12 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
     // not requested variables should assert
     REQUIRE_THROWS_WITH
     (
-        layout_compiler.compile(layout_shader_not_requested),
+        layout_compiler.compile_shader_layout(layout_shader_not_requested),
            Catch::Contains("Assertion failed")
         && Catch::Contains( "layout wasn't added to the compilation list" )
     );
 
-    const auto compiled_layout = layout_compiler.compile(layout_shader_material);
+    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
 
     CHECK
     (

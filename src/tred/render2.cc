@@ -15,7 +15,7 @@ Render2::Render2()
     )
     , quad_layout
     (
-        compile({quad_description}).compile(quad_description)
+        compile_attribute_layouts({quad_description}).compile_shader_layout(quad_description)
     )
     , quad_shader
     (

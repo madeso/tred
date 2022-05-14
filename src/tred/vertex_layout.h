@@ -87,7 +87,7 @@ struct CompiledVertexTypeList
     CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v);
 
     [[nodiscard]] CompiledVertexLayout
-    compile(const VertexLayoutDescription& elements) const;
+    compile_shader_layout(const VertexLayoutDescription& elements) const;
 
     [[nodiscard]] CompiledMeshVertexLayout
     compile_mesh_layout() const;
@@ -98,5 +98,5 @@ struct CompiledVertexTypeList
 
 
 CompiledVertexTypeList
-compile(const std::vector<VertexLayoutDescription>& descriptions);
+compile_attribute_layouts(const std::vector<VertexLayoutDescription>& descriptions);
 
