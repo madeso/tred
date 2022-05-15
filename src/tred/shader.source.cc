@@ -231,15 +231,15 @@ namespace
     }
 
 
-    // std::optional<VertexLayoutDescription> parse_layout(const std::string& source, ShaderLog* log)
-    std::optional<VertexLayoutDescription> parse_layout(std::string_view source, ShaderLog* log)
+    // std::optional<ShaderVertexAttributes> parse_layout(const std::string& source, ShaderLog* log)
+    std::optional<ShaderVertexAttributes> parse_layout(std::string_view source, ShaderLog* log)
     {
         auto parser = Parser{source};
         eat_whitespace(&parser);
 
         bool ok = true;
 
-        VertexLayoutDescription r;
+        ShaderVertexAttributes r;
 
         while(parser.has_more())
         {

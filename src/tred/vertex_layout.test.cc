@@ -135,7 +135,7 @@ namespace
     }
 
     catchy::FalseString
-    is_equal(const CompiledVertexLayout& lhs, const CompiledVertexLayout& rhs)
+    is_equal(const CompiledShaderVertexAttributes& lhs, const CompiledShaderVertexAttributes& rhs)
     {
         const auto same_elements = is_equal(lhs.elements, rhs.elements);
         const auto same_debug_types = is_equal(lhs.debug_types, rhs.debug_types);
@@ -144,7 +144,7 @@ namespace
     }
 
     catchy::FalseString
-    is_equal(const CompiledMeshVertexLayout& lhs, const CompiledMeshVertexLayout& rhs)
+    is_equal(const CompiledMeshVertexAttributes& lhs, const CompiledMeshVertexAttributes& rhs)
     {
         const auto same_elements = is_equal(lhs.elements, rhs.elements);
         const auto same_debug_types = is_equal(lhs.debug_types, rhs.debug_types);
@@ -156,7 +156,7 @@ namespace
 
 TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
 {
-    const auto layout_shader_material = VertexLayoutDescription
+    const auto layout_shader_material = ShaderVertexAttributes
     {
         {VertexType::position3, "aPos"},
         {VertexType::normal3, "aNormal"},
@@ -222,7 +222,7 @@ TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
 
 TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
 {
-    const auto layout_shader_material = VertexLayoutDescription
+    const auto layout_shader_material = ShaderVertexAttributes
     {
         {VertexType::position3, "aPos"},
         {VertexType::normal3, "aNormal"},
@@ -230,7 +230,7 @@ TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
         {VertexType::texture2, "aTexCoord"}
     };
 
-    const auto layout_shader_depth = VertexLayoutDescription
+    const auto layout_shader_depth = ShaderVertexAttributes
     {
         {VertexType::position3, "aPos"}
     };
@@ -313,7 +313,7 @@ TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
 
 TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
 {
-    const auto layout_shader_material = VertexLayoutDescription
+    const auto layout_shader_material = ShaderVertexAttributes
     {
         {VertexType::position3, "aPos"},
         {VertexType::normal3, "aNormal"},
@@ -321,7 +321,7 @@ TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
         {VertexType::texture2, "aTexCoord"}
     };
 
-    const auto layout_shader_different = VertexLayoutDescription
+    const auto layout_shader_different = ShaderVertexAttributes
     {
         {VertexType::color4, "aColor"},
         {VertexType::texture2, "aTexCoord"},
@@ -410,12 +410,12 @@ TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
 
 TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
 {
-    const auto layout_shader_a = VertexLayoutDescription
+    const auto layout_shader_a = ShaderVertexAttributes
     {
         {VertexType::color4, "rgb"}
     };
 
-    const auto layout_shader_b = VertexLayoutDescription
+    const auto layout_shader_b = ShaderVertexAttributes
     {
         {VertexType::texture2, "uv"}
     };
@@ -486,7 +486,7 @@ TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
 
 TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
 {
-    const auto layout_shader_material = VertexLayoutDescription
+    const auto layout_shader_material = ShaderVertexAttributes
     {
         {VertexType::position3, "pos"}
     };
@@ -499,7 +499,7 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
         VertexType::texture2
     );
 
-    const auto layout_shader_not_requested = VertexLayoutDescription
+    const auto layout_shader_not_requested = ShaderVertexAttributes
     {
         {not_requested_property, "not_requested_prop"}
     };

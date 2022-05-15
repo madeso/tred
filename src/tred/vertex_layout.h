@@ -29,7 +29,7 @@ struct VertexElementDescription
 
 
 /** Describes all vertex inputs a shader requires like `[vec3 position, vec3 normal, vec2 uv]`*/
-using VertexLayoutDescription = std::vector<VertexElementDescription>;
+using ShaderVertexAttributes = std::vector<VertexElementDescription>;
 
 
 
@@ -59,37 +59,37 @@ using VertexTypes = std::vector<VertexType>;
 
 
 /** A list of CompiledVertexElement (for shader) */
-struct CompiledVertexLayout
+struct CompiledShaderVertexAttributes
 {
     using CompiledVertexLayoutList = std::vector<CompiledVertexElement>;
 
-    CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t);
+    CompiledShaderVertexAttributes(const CompiledVertexLayoutList& e, const VertexTypes& t);
 
     CompiledVertexLayoutList elements;
     VertexTypes debug_types;
 };
 
 /** A list of CompiledVertexLayoutNoNameList (for mesh) */
-struct CompiledMeshVertexLayout
+struct CompiledMeshVertexAttributes
 {
     using CompiledVertexLayoutNoNameList = std::vector<CompiledVertexElementNoName>;
 
-    CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
+    CompiledMeshVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
 
     CompiledVertexLayoutNoNameList elements;
     VertexTypes debug_types;
 };
 
 
-/** A mapping of the vertex type (position...) to the actual shader id */
+/** A mapping of the vertex type (position...) to the actual shader id (for more than one shader) */
 struct CompiledVertexTypeList
 {
     CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v);
 
-    [[nodiscard]] CompiledVertexLayout
-    compile_shader_layout(const VertexLayoutDescription& elements) const;
+    [[nodiscard]] CompiledShaderVertexAttributes
+    compile_shader_layout(const ShaderVertexAttributes& elements) const;
 
-    [[nodiscard]] CompiledMeshVertexLayout
+    [[nodiscard]] CompiledMeshVertexAttributes
     compile_mesh_layout() const;
 
     std::map<VertexType, int> indices;
@@ -98,5 +98,5 @@ struct CompiledVertexTypeList
 
 
 CompiledVertexTypeList
-compile_attribute_layouts(const std::vector<VertexLayoutDescription>& descriptions);
+compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions);
 

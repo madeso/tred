@@ -47,14 +47,14 @@ CompiledVertexElementNoName::CompiledVertexElementNoName(const VertexType& t, in
 }
 
 
-CompiledVertexLayout::CompiledVertexLayout(const CompiledVertexLayoutList& e, const VertexTypes& t)
+CompiledShaderVertexAttributes::CompiledShaderVertexAttributes(const CompiledVertexLayoutList& e, const VertexTypes& t)
     : elements(e)
     , debug_types(t)
 {
 }
 
 
-CompiledMeshVertexLayout::CompiledMeshVertexLayout(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
+CompiledMeshVertexAttributes::CompiledMeshVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
     : elements(e)
     , debug_types(t)
 {
@@ -65,7 +65,7 @@ CompiledMeshVertexLayout::CompiledMeshVertexLayout(const CompiledVertexLayoutNoN
 struct VertexTypeList
 {
     void
-    add(const VertexLayoutDescription& elements)
+    add(const ShaderVertexAttributes& elements)
     {
         for(const auto& e: elements)
         {
@@ -83,10 +83,10 @@ CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& 
 {
 }
 
-CompiledVertexLayout
-CompiledVertexTypeList::compile_shader_layout(const VertexLayoutDescription& elements) const
+CompiledShaderVertexAttributes
+CompiledVertexTypeList::compile_shader_layout(const ShaderVertexAttributes& elements) const
 {
-    CompiledVertexLayout::CompiledVertexLayoutList list;
+    CompiledShaderVertexAttributes::CompiledVertexLayoutList list;
 
     for(const auto& e: elements)
     {
@@ -100,10 +100,10 @@ CompiledVertexTypeList::compile_shader_layout(const VertexLayoutDescription& ele
 }
 
 
-[[nodiscard]] CompiledMeshVertexLayout
+[[nodiscard]] CompiledMeshVertexAttributes
 CompiledVertexTypeList::compile_mesh_layout() const
 {
-    CompiledMeshVertexLayout::CompiledVertexLayoutNoNameList list;
+    CompiledMeshVertexAttributes::CompiledVertexLayoutNoNameList list;
 
     for(const auto& e: indices)
     {
@@ -138,7 +138,7 @@ compile_vertex_type_list(const VertexTypeList& list)
 
 
 CompiledVertexTypeList
-compile_attribute_layouts(const std::vector<VertexLayoutDescription>& descriptions)
+compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions)
 {
     VertexTypeList list;
 

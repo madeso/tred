@@ -8,8 +8,8 @@ struct Render2
 {
     Render2();
 
-    VertexLayoutDescription quad_description;
-    CompiledVertexLayout quad_layout;
+    ShaderVertexAttributes quad_description;
+    CompiledShaderVertexAttributes quad_layout;
     ShaderProgram quad_shader;
     Uniform view_projection_uniform;
     Uniform transform_uniform;

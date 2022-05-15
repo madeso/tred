@@ -23,7 +23,7 @@ struct ShaderMessage
 
 struct ShaderSource
 {
-    VertexLayoutDescription layout;
+    ShaderVertexAttributes layout;
     std::string vertex;
     std::string fragment;
 };

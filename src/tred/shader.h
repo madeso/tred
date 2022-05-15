@@ -15,13 +15,13 @@ struct ShaderProgram
     (
         const std::string& vertex_source,
         const std::string& fragment_source,
-        const CompiledVertexLayout& layout
+        const CompiledShaderVertexAttributes& layout
     );
     ShaderProgram
     (
         std::string_view vertex_source,
         std::string_view fragment_source,
-        const CompiledVertexLayout& layout
+        const CompiledShaderVertexAttributes& layout
     );
 
     ~ShaderProgram();

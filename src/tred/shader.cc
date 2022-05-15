@@ -53,7 +53,7 @@ upload_shader_source(unsigned int shader, std::string_view source)
 
 
 void
-bind_shader_attribute_location(unsigned int shader_program, const CompiledVertexLayout& layout)
+bind_shader_attribute_location(unsigned int shader_program, const CompiledShaderVertexAttributes& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -63,7 +63,7 @@ bind_shader_attribute_location(unsigned int shader_program, const CompiledVertex
 
 
 void
-verify_shader_attribute_location(unsigned int shader_program, const CompiledVertexLayout& layout)
+verify_shader_attribute_location(unsigned int shader_program, const CompiledShaderVertexAttributes& layout)
 {
     for(const auto& b: layout.elements)
     {
@@ -93,7 +93,7 @@ void load_shader_source
     ShaderProgram* self,
     const T& vertex_source,
     const T& fragment_source,
-    const CompiledVertexLayout& layout
+    const CompiledShaderVertexAttributes& layout
 )
 {
     const auto vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -135,7 +135,7 @@ ShaderProgram::ShaderProgram
 (
     const std::string& vertex_source,
     const std::string& fragment_source,
-    const CompiledVertexLayout& layout
+    const CompiledShaderVertexAttributes& layout
 )
     : shader_program(glCreateProgram())
     , debug_vertex_types(layout.debug_types)
@@ -147,7 +147,7 @@ ShaderProgram::ShaderProgram
 (
     std::string_view vertex_source,
     std::string_view fragment_source,
-    const CompiledVertexLayout& layout
+    const CompiledShaderVertexAttributes& layout
 )
     : shader_program(glCreateProgram())
     , debug_vertex_types(layout.debug_types)
