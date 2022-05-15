@@ -90,7 +90,7 @@ struct CompiledVertexTypeList
     compile_shader_layout(const ShaderVertexAttributes& elements) const;
 
     [[nodiscard]] CompiledMeshVertexAttributes
-    compile_mesh_layout() const;
+    get_mesh_layout() const;
 
     std::map<VertexType, int> indices;
     VertexTypes debug_types;

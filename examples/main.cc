@@ -554,7 +554,7 @@ main(int, char**)
     const auto material_shader_layout = material_shader_source.layout;
 
     auto material_layout_compiler = compile_attribute_layouts({material_shader_layout});
-    const auto material_mesh_layout = material_layout_compiler.compile_mesh_layout();
+    const auto material_mesh_layout = material_layout_compiler.get_mesh_layout();
     const auto compiled_layout = material_layout_compiler.compile_shader_layout(material_shader_layout);
 
     const auto light_shader_source_result = shader::parse_shader_source(SHADER_LIGHT_GLSL);
@@ -564,7 +564,7 @@ main(int, char**)
 
     const auto light_shader_layout = light_shader_source.layout;
     auto light_compiler = compile_attribute_layouts({light_shader_layout});
-    const auto light_mesh_layout = light_compiler.compile_mesh_layout();
+    const auto light_mesh_layout = light_compiler.get_mesh_layout();
     const auto compiled_light_layout = light_compiler.compile_shader_layout(light_shader_layout);
 
     ///////////////////////////////////////////////////////////////////////////

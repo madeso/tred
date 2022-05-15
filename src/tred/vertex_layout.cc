@@ -101,7 +101,7 @@ CompiledVertexTypeList::compile_shader_layout(const ShaderVertexAttributes& elem
 
 
 [[nodiscard]] CompiledMeshVertexAttributes
-CompiledVertexTypeList::compile_mesh_layout() const
+CompiledVertexTypeList::get_mesh_layout() const
 {
     CompiledMeshVertexAttributes::CompiledVertexLayoutNoNameList list;
 
