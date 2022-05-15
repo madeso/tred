@@ -61,9 +61,26 @@ CompiledMeshVertexAttributes::CompiledMeshVertexAttributes(const CompiledVertexL
 }
 
 
+std::vector<VertexType>
+CompiledMeshVertexAttributes::get_base_layout() const
+{
+    std::vector<VertexType> r;
+    for(const auto& e: elements)
+    {
+        r.emplace_back(e.type);
+    }
+    return r;
+}
+
+
 /** A list of things we need to extract from the Mesh when compiling */
 struct VertexTypeList
 {
+    VertexTypeList(const std::vector<VertexType>& a_base_layout)
+        : base_layout(a_base_layout)
+    {
+    }
+
     void
     add(const ShaderVertexAttributes& elements)
     {
@@ -73,6 +90,7 @@ struct VertexTypeList
         }
     }
 
+    std::vector<VertexType> base_layout;
     std::set<VertexType> indices;
 };
 
@@ -127,9 +145,22 @@ compile_vertex_type_list(const VertexTypeList& list)
     std::map<VertexType, int> indices;
 
     int next_index = 0;
+
+    for(const auto type: list.base_layout)
+    {
+        indices.insert({type, next_index});
+        next_index += ShaderAttributeSize(type);
+    }
+
     for(const auto type: list.indices)
     {
-        indices[type] = next_index;
+        // already in base layout, don't add again
+        if(indices.find(type) != indices.end())
+        {
+            continue;
+        }
+
+        indices.insert({type, next_index});
         next_index += ShaderAttributeSize(type);
     }
 
@@ -138,9 +169,9 @@ compile_vertex_type_list(const VertexTypeList& list)
 
 
 CompiledVertexTypeList
-compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions)
+compile_attribute_layouts(const std::vector<VertexType>& base_layout, const std::vector<ShaderVertexAttributes>& descriptions)
 {
-    VertexTypeList list;
+    auto list = VertexTypeList{base_layout};
 
     for(const auto& d: descriptions)
     {
@@ -148,5 +179,12 @@ compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& description
     }
 
     return compile_vertex_type_list(list);
+}
+
+
+CompiledVertexTypeList
+compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions)
+{
+    return compile_attribute_layouts({}, descriptions);
 }
 

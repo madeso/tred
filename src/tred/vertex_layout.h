@@ -76,6 +76,9 @@ struct CompiledMeshVertexAttributes
 
     CompiledMeshVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
 
+    std::vector<VertexType>
+    get_base_layout() const;
+
     CompiledVertexLayoutNoNameList elements;
     VertexTypes debug_types;
 };
@@ -96,6 +99,9 @@ struct CompiledVertexTypeList
     VertexTypes debug_types;
 };
 
+
+CompiledVertexTypeList
+compile_attribute_layouts(const std::vector<VertexType>& base_layout, const std::vector<ShaderVertexAttributes>& descriptions);
 
 CompiledVertexTypeList
 compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions);

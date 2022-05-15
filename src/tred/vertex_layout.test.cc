@@ -220,6 +220,77 @@ TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
 }
 
 
+
+
+TEST_CASE("vertex_layout_test_with_custom_layput", "[vertex_layout]")
+{
+    const auto layout_shader_material = ShaderVertexAttributes
+    {
+        {VertexType::position3, "aPos"},
+        {VertexType::normal3, "aNormal"},
+        {VertexType::color4, "aColor"},
+        {VertexType::texture2, "aTexCoord"}
+    };
+    
+    auto layout_compiler = compile_attribute_layouts
+    (
+        {
+            VertexType::color4, VertexType::texture2
+        },
+        {
+            layout_shader_material
+        }
+    );
+
+    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
+    const auto mesh_layout = layout_compiler.get_mesh_layout();
+
+    CHECK
+    (
+        is_equal
+        (
+            compiled_layout,
+            {
+                {
+                    {VertexType::position3, "aPos", 2},
+                    {VertexType::normal3, "aNormal", 3},
+                    {VertexType::color4, "aColor", 0},
+                    {VertexType::texture2, "aTexCoord", 1}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+
+    CHECK
+    (
+        is_equal
+        (
+            mesh_layout,
+            {
+                {
+                    {VertexType::position3, 2},
+                    {VertexType::normal3, 3},
+                    {VertexType::color4, 0},
+                    {VertexType::texture2, 1}
+                },
+                {
+                    VertexType::position3,
+                    VertexType::normal3,
+                    VertexType::color4,
+                    VertexType::texture2
+                }
+            }
+        )
+    );
+}
+
+
 TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
 {
     const auto layout_shader_material = ShaderVertexAttributes
