@@ -70,11 +70,11 @@ struct CompiledShaderVertexAttributes
 };
 
 /** A list of CompiledVertexLayoutNoNameList (for mesh) */
-struct CompiledMeshVertexAttributes
+struct CompiledGeomVertexAttributes
 {
     using CompiledVertexLayoutNoNameList = std::vector<CompiledVertexElementNoName>;
 
-    CompiledMeshVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
+    CompiledGeomVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t);
 
     std::vector<VertexType>
     get_base_layout() const;
@@ -92,7 +92,7 @@ struct CompiledVertexTypeList
     [[nodiscard]] CompiledShaderVertexAttributes
     compile_shader_layout(const ShaderVertexAttributes& elements) const;
 
-    [[nodiscard]] CompiledMeshVertexAttributes
+    [[nodiscard]] CompiledGeomVertexAttributes
     get_mesh_layout() const;
 
     std::map<VertexType, int> indices;

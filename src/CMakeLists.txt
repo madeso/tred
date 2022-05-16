@@ -48,9 +48,9 @@ set(src
     tred/layer2.cc tred/layer2.h
     tred/spritebatch.cc tred/spritebatch.h
     tred/log.cc tred/log.h
-    tred/mesh.cc tred/mesh.h
-    tred/mesh.compiled.cc tred/mesh.compiled.h
-    tred/mesh.default.cc tred/mesh.default.h
+    tred/geom.cc tred/geom.h
+    tred/geom.compiled.cc tred/geom.compiled.h
+    tred/geom.default.cc tred/geom.default.h
     tred/dependency_opengl.cc tred/dependency_opengl.h
     tred/opengl_utils.cc tred/opengl_utils.h
     tred/opengl_state.cc tred/opengl_state.h

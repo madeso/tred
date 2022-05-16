@@ -144,7 +144,7 @@ namespace
     }
 
     catchy::FalseString
-    is_equal(const CompiledMeshVertexAttributes& lhs, const CompiledMeshVertexAttributes& rhs)
+    is_equal(const CompiledGeomVertexAttributes& lhs, const CompiledGeomVertexAttributes& rhs)
     {
         const auto same_elements = is_equal(lhs.elements, rhs.elements);
         const auto same_debug_types = is_equal(lhs.debug_types, rhs.debug_types);

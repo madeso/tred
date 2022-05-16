@@ -5,7 +5,7 @@
 #include "tred/dependency_glm.h"
 
 
-/** A unique combination of position/normal/texturecoord/etc. in a Mesh.
+/** A unique combination of position/normal/texturecoord/etc. in a Geom.
  */
 struct Vertex
 {
@@ -27,11 +27,11 @@ struct Vertex
 using Triangle = glm::ivec3;
 
 
-struct Mesh
+struct Geom
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> triangles; // %3 == 0
 
-    Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris);
+    Geom(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris);
 };
 

@@ -1,7 +1,7 @@
-#include "tred/mesh.default.h"
+#include "tred/geom.default.h"
 
 
-Mesh
+Geom
 create_plane_mesh()
 {
     // todo(Gustav): remove
@@ -21,7 +21,7 @@ create_plane_mesh()
 }
 
 
-Mesh
+Geom
 create_plane_mesh(float size, float uv)
 {
     // todo(Gustav): optimize vertices
@@ -45,7 +45,7 @@ create_plane_mesh(float size, float uv)
 }
 
 
-Mesh
+Geom
 create_box_mesh(float size)
 {
     const auto h = size / 2.0f;

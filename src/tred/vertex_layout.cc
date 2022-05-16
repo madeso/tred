@@ -54,7 +54,7 @@ CompiledShaderVertexAttributes::CompiledShaderVertexAttributes(const CompiledVer
 }
 
 
-CompiledMeshVertexAttributes::CompiledMeshVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
+CompiledGeomVertexAttributes::CompiledGeomVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
     : elements(e)
     , debug_types(t)
 {
@@ -62,7 +62,7 @@ CompiledMeshVertexAttributes::CompiledMeshVertexAttributes(const CompiledVertexL
 
 
 std::vector<VertexType>
-CompiledMeshVertexAttributes::get_base_layout() const
+CompiledGeomVertexAttributes::get_base_layout() const
 {
     std::vector<VertexType> r;
     for(const auto& e: elements)
@@ -73,7 +73,7 @@ CompiledMeshVertexAttributes::get_base_layout() const
 }
 
 
-/** A list of things we need to extract from the Mesh when compiling */
+/** A list of things we need to extract from the Geom when compiling */
 struct VertexTypeList
 {
     VertexTypeList(const std::vector<VertexType>& a_base_layout)
@@ -118,10 +118,10 @@ CompiledVertexTypeList::compile_shader_layout(const ShaderVertexAttributes& elem
 }
 
 
-[[nodiscard]] CompiledMeshVertexAttributes
+[[nodiscard]] CompiledGeomVertexAttributes
 CompiledVertexTypeList::get_mesh_layout() const
 {
-    CompiledMeshVertexAttributes::CompiledVertexLayoutNoNameList list;
+    CompiledGeomVertexAttributes::CompiledVertexLayoutNoNameList list;
 
     for(const auto& e: indices)
     {

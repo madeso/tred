@@ -1,14 +1,14 @@
-#include "tred/mesh.h"
+#include "tred/geom.h"
 
 
-Mesh
+Geom
 create_plane_mesh();
 
 
-Mesh
+Geom
 create_plane_mesh(float size, float uv);
 
 
-Mesh
+Geom
 create_box_mesh(float size);
 

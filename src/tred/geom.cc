@@ -1,4 +1,4 @@
-#include "tred/mesh.h"
+#include "tred/geom.h"
 
 #include "tred/assert.h"
 
@@ -17,7 +17,7 @@ Vertex::Vertex
 }
 
 
-Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris)
+Geom::Geom(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris)
     : vertices(verts)
     , triangles(tris)
 {

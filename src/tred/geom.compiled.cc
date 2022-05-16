@@ -1,4 +1,4 @@
-#include "tred/mesh.compiled.h"
+#include "tred/geom.compiled.h"
 
 #include <functional>
 #include <numeric>
@@ -27,7 +27,7 @@ create_vertex_array()
 }
 
 
-CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
+CompiledGeom::CompiledGeom(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st)
         : vbo(a_vbo)
         , vao(a_vao)
         , ebo(a_ebo)
@@ -38,7 +38,7 @@ CompiledMesh::CompiledMesh(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 
 
 void
-CompiledMesh::draw() const
+CompiledGeom::draw() const
 {
     ASSERT(is_bound_for_shader(debug_shader_types));
     glBindVertexArray(vao);
@@ -47,7 +47,7 @@ CompiledMesh::draw() const
 }
 
 
-CompiledMesh::~CompiledMesh()
+CompiledGeom::~CompiledGeom()
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &ebo);
@@ -76,8 +76,8 @@ struct BufferData
 };
 
 
-CompiledMesh
-compile_mesh(const Mesh& mesh, const CompiledMeshVertexAttributes& layout)
+CompiledGeom
+compile_mesh(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
 {
     using VertexVector = std::vector<float>;
 
@@ -190,6 +190,6 @@ compile_mesh(const Mesh& mesh, const CompiledMeshVertexAttributes& layout)
         GL_STATIC_DRAW
     );
 
-    return CompiledMesh{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.debug_types};
+    return CompiledGeom{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.debug_types};
 }
 
