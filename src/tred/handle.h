@@ -353,3 +353,6 @@ struct HandleVector
     }
 };
 
+
+template<typename Type, typename Id>
+using HandleVector64 = HandleVector<Type, HandleFunctions64<Id>>;
