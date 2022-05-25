@@ -1039,7 +1039,7 @@ CompiledMaterialShaderId load_compiled_material_shader(Engine* engine, const Vfs
     }
 
     // todo(Gustav): load default shader?
-    LOG_ERROR("Unable to load texture {}", path);
+    LOG_ERROR("Unable to load shader {}", path);
     DIE("unable to load shader");
     return static_cast<CompiledMaterialShaderId>(0);
 }
