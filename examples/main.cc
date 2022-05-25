@@ -552,8 +552,10 @@ template<typename T> UniformIndexAnd<T> make_uniform_and(int index, T val)
     return UniformIndexAnd<T>{index, val};
 }
 
-struct MaterialShaderSource : shader::ShaderSource
+struct MaterialShaderSource
 {
+    // todo(Gustav): merge material shader source with cutstom frontmatter parsing so both shader and material shader can use the same frontmatter as base
+    shader::ShaderSource source;
     bool apply_lightning;
 
     // todo(Gustav): specify sort order
@@ -561,6 +563,15 @@ struct MaterialShaderSource : shader::ShaderSource
     // todo(Gustav): stencil test/write action
 
     std::vector<MaterialSourceProperty> properties;
+
+    MaterialShaderSource(const shader::ShaderSource& src, bool al)
+        : source(src)
+        , apply_lightning(al)
+    {
+    }
+
+    static MaterialShaderSource create_with_lights(const shader::ShaderSource& src) { return {src, true}; }
+    static MaterialShaderSource create_unlit(const shader::ShaderSource& src) { return {src, false}; }
 
     // default values
     // example: this material exposes "diffuse" and unless specified it is white
@@ -815,9 +826,9 @@ std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache
     if(!loaded_shader_source) { return std::nullopt; }
     const MaterialShaderSource& shader_source = std::move(*loaded_shader_source);
 
-    auto layout_compiler = get_compile_attribute_layouts(engine, shader_source.layout);
+    auto layout_compiler = get_compile_attribute_layouts(engine, shader_source.source.layout);
     const auto mesh_layout = layout_compiler.get_mesh_layout();
-    const auto compiled_layout = layout_compiler.compile_shader_layout(shader_source.layout);
+    const auto compiled_layout = layout_compiler.compile_shader_layout(shader_source.source.layout);
 
     auto compile_defines = ShaderCompilerProperties{};
     if(shader_source.apply_lightning)
@@ -828,8 +839,8 @@ std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache
     auto ret = CompiledMaterialShader
     {
         {
-            generate(shader_source.vertex, compile_defines),
-            generate(shader_source.fragment, compile_defines),
+            generate(shader_source.source.vertex, compile_defines),
+            generate(shader_source.source.fragment, compile_defines),
             compiled_layout
         },
         mesh_layout,
@@ -1136,10 +1147,39 @@ struct RenderList
 #endif
 
 
+constexpr auto diffuse_color = HashedStringView{"Diffuse color"};
+constexpr auto diffuse_texture = HashedStringView{"Diffuse texture"};
+constexpr auto specular_texture = HashedStringView{"Specular texture"};
+constexpr auto shininess_prop = HashedStringView{"Shininess"};
+constexpr auto specular_strength_prop = HashedStringView{"Specular strength"};
+
+
 struct FixedFileVfs : rendering::Vfs
 {
-    std::optional<rendering::MaterialShaderSource> load_material_shader_source(const std::string&) const override
+    std::optional<rendering::MaterialShaderSource> load_material_shader_source(const std::string& path) const override
     {
+        if(path == "default.glsl")
+        {
+            const auto src = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
+            log_shader_error(path, src);
+            if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
+            return rendering::MaterialShaderSource::create_with_lights(*src.source)
+                .with_texture(diffuse_texture, "uMaterial.diffuse", "white.png")
+                .with_texture(specular_texture, "uMaterial.specular", "no-specular.png")
+                .with_vec3(diffuse_color, "uMaterial.tint", glm::vec3{1.0f, 0.0f, 0.0f})
+                .with_float(shininess_prop, "uMaterial.shininess", 32.0f)
+                .with_float(specular_strength_prop, "uMaterial.specular_strength", 1.0f)
+                ;
+        }
+        if(path == "unlit.glsl")
+        {
+            const auto src = shader::parse_shader_source(SHADER_LIGHT_GLSL);
+            log_shader_error(path, src);
+            if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
+            return rendering::MaterialShaderSource::create_unlit(*src.source)
+                .with_vec3(diffuse_color, "uColor", glm::vec3{1.0f, 0.0f, 0.0f})
+                ;
+        }
         return std::nullopt;
     }
 
@@ -1304,8 +1344,6 @@ main(int, char**)
     auto spot_light = ::SpotLight{};
 
 #if USE_RENDERING == 1
-    constexpr auto diffuse_texture = HashedStringView{"Diffuse texture"};
-    constexpr auto specular_texture = HashedStringView{"Specular texture"};
     auto vfs = FixedFileVfs{};
     auto engine = rendering::Engine{&vfs, {NUMBER_OF_POINT_LIGHTS, 1}};
 
