@@ -1349,22 +1349,22 @@ main(int, char**)
 
     const auto crate_mesh = engine.add_mesh
     ({
-        rendering::Material{"default"}
-            .with_texture(diffuse_texture, "crate_diffuse.png")
-            .with_texture(specular_texture, "crate_specular.png")
+        rendering::Material{"default.glsl"}
+            .with_texture(diffuse_texture, "container_diffuse.png")
+            .with_texture(specular_texture, "container_specular.png")
             ,
         create_box_mesh(1.0f)
     });
     const auto light_mesh = engine.add_mesh
     ({
-        rendering::Material{"unlit"},
+        rendering::Material{"unlit.glsl"},
         create_box_mesh(0.2f)
     });
     const auto plane_mesh = engine.add_mesh
     ({
-        rendering::Material{"default"}
-            .with_texture(diffuse_texture, "crate_diffuse.png")
-            .with_texture(specular_texture, "crate_specular.png")
+        rendering::Material{"default.glsl"}
+            .with_texture(diffuse_texture, "container_diffuse.png")
+            .with_texture(specular_texture, "container_specular.png")
             ,
         create_plane_mesh(plane_size, plane_size)
     });
