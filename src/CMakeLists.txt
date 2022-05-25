@@ -67,6 +67,8 @@ set(src
     tred/windows.cc tred/windows.h
     tred/windows.sdl.joystick.cc tred/windows.sdl.joystick.h
     tred/windows.sdl.convert.cc tred/windows.sdl.convert.h
+    tred/hash.cc tred/hash.h
+    tred/hash.string.cc tred/hash.string.h
 
     tred/fyro.h
     tred/game.cc tred/game.h

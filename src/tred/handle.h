@@ -267,6 +267,7 @@ struct HandleVector
 
     using Pair = detail::HandleVectorPair<ValueType, Version, EMPTY_VERSION>;
     using Iterator = detail::HandleVectorIterator<Self, ValueType>;
+    using ConstIterator = detail::HandleVectorIterator<const Self, const ValueType>;
     using PairIterator = detail::HandleVectorPairIterator<Self, Handle, ValueType, Functions, Id>;
     using PairIteratorContainer = detail::HandleVectorPairIteratorContainer<Self, PairIterator>;
 
@@ -331,7 +332,22 @@ struct HandleVector
         return data[i];
     }
 
+    const Pair& get_pair(Handle h) const
+    {
+        const auto i = static_cast<std::size_t>(Functions::get_id(h));
+        [[maybe_unused]] const auto v = Functions::get_version(h);
+        ASSERT(data[i].version == v && "invalid handle: use after free");
+        ASSERT(i < data.size() && "invalid handle: use after free (clear)");
+        return data[i];
+    }
+
     ValueType& operator[](Handle h)
+    {
+        ASSERT(get_pair(h).data.has_value() == true);
+        return *get_pair(h).data;
+    }
+
+    const ValueType& operator[](Handle h) const
     {
         ASSERT(get_pair(h).data.has_value() == true);
         return *get_pair(h).data;
@@ -343,6 +359,16 @@ struct HandleVector
     }
 
     Iterator end()
+    {
+        return {this, data.size()};
+    }
+
+    ConstIterator begin() const
+    {
+        return {this, 0};
+    }
+
+    ConstIterator end() const
     {
         return {this, data.size()};
     }

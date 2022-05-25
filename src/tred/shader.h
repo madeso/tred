@@ -29,8 +29,10 @@ struct ShaderProgram
     ShaderProgram(const ShaderProgram&) = delete;
     void operator=(const ShaderProgram&) = delete;
 
-    ShaderProgram(ShaderProgram&&) = delete;
-    void operator=(ShaderProgram&&) = delete;
+    ShaderProgram(ShaderProgram&&);
+    void operator=(ShaderProgram&&);
+
+    void clear();
 
     void
     use() const;
@@ -43,25 +45,25 @@ struct ShaderProgram
     set_float(const Uniform& uniform, float value) const;
 
     void
-    set_vec3(const Uniform& uniform, float x, float y, float z);
+    set_vec3(const Uniform& uniform, float x, float y, float z) const;
 
     void
-    set_vec3(const Uniform& uniform, const glm::vec3& v);
+    set_vec3(const Uniform& uniform, const glm::vec3& v) const;
 
     void
-    set_vec4(const Uniform& uniform, float x, float y, float z, float w);
+    set_vec4(const Uniform& uniform, float x, float y, float z, float w) const;
 
     void
-    set_vec4(const Uniform& uniform, const glm::vec4& v);
+    set_vec4(const Uniform& uniform, const glm::vec4& v) const;
 
     void
-    set_texture(const Uniform& uniform);
+    set_texture(const Uniform& uniform) const;
 
     void
-    set_mat(const Uniform& uniform, const glm::mat4& mat);
+    set_mat(const Uniform& uniform, const glm::mat4& mat) const;
 
     void
-    set_mat(const Uniform& uniform, const glm::mat3& mat);
+    set_mat(const Uniform& uniform, const glm::mat3& mat) const;
 
 
     unsigned int shader_program;

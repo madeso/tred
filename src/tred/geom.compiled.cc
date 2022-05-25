@@ -37,6 +37,63 @@ CompiledGeom::CompiledGeom(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 }
 
 
+CompiledGeom::CompiledGeom(CompiledGeom&& rhs)
+    : vbo(rhs.vbo)
+    , vao(rhs.vao)
+    , ebo(rhs.ebo)
+    , number_of_indices(rhs.number_of_indices)
+    , debug_shader_types(rhs.debug_shader_types)
+{
+    rhs.vbo = 0;
+    rhs.vao = 0;
+    rhs.ebo = 0;
+    rhs.number_of_indices = 0;
+    rhs.debug_shader_types = {};
+}
+
+
+void
+CompiledGeom::operator=(CompiledGeom&& rhs)
+{
+    clear();
+
+    vbo = rhs.vbo;
+    vao = rhs.vao;
+    ebo = rhs.ebo;
+    number_of_indices = rhs.number_of_indices;
+    debug_shader_types = rhs.debug_shader_types;
+
+    rhs.vbo = 0;
+    rhs.vao = 0;
+    rhs.ebo = 0;
+    rhs.number_of_indices = 0;
+    rhs.debug_shader_types = {};
+}
+
+
+CompiledGeom::~CompiledGeom()
+{
+    clear();
+}
+
+
+void
+CompiledGeom::clear()
+{
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &ebo);
+    ebo = 0;
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &vbo);
+    vbo = 0;
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &vao);
+    vao = 0;
+}
+
+
 void
 CompiledGeom::draw() const
 {
@@ -44,19 +101,6 @@ CompiledGeom::draw() const
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-}
-
-
-CompiledGeom::~CompiledGeom()
-{
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &ebo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &vbo);
-
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &vao);
 }
 
 
@@ -77,7 +121,7 @@ struct BufferData
 
 
 CompiledGeom
-compile_mesh(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
+compile_geom(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
 {
     using VertexVector = std::vector<float>;
 
