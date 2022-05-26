@@ -54,8 +54,6 @@
 #include "sprites/cards.h"
 
 
-#define USE_RENDERING 1
-
 
 struct Material
 {
@@ -518,7 +516,7 @@ void log_shader_error(const std::string& file, const shader::ShaderResult& res)
     }
 }
 
-#if USE_RENDERING == 1
+
 namespace rendering
 {
 
@@ -1273,7 +1271,6 @@ struct FixedFileVfs : rendering::Vfs
     }
 };
 
-#endif
 
 
 int
@@ -1410,7 +1407,6 @@ main(int, char**)
     };
     auto spot_light = ::SpotLight{};
 
-#if USE_RENDERING == 1
     auto vfs = FixedFileVfs{};
     auto engine = rendering::Engine{&vfs, {NUMBER_OF_POINT_LIGHTS, 1}};
 
@@ -1435,88 +1431,6 @@ main(int, char**)
             ,
         create_plane_mesh(plane_size, plane_size)
     });
-#else
-    ///////////////////////////////////////////////////////////////////////////
-    // shader layout
-    const auto material_shader_source_result = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
-    log_shader_error("shader_material", material_shader_source_result);
-    if(material_shader_source_result.source.has_value() == false) { return -1;}
-    const auto material_shader_source = *material_shader_source_result.source;
-
-    const auto material_shader_layout = material_shader_source.layout;
-
-    auto material_layout_compiler = compile_attribute_layouts({material_shader_layout});
-    const auto material_mesh_layout = material_layout_compiler.get_mesh_layout();
-    const auto compiled_layout = material_layout_compiler.compile_shader_layout(material_shader_layout);
-
-    const auto light_shader_source_result = shader::parse_shader_source(SHADER_LIGHT_GLSL);
-    log_shader_error("shader_light", light_shader_source_result);
-    if(light_shader_source_result.source.has_value() == false) { return -1;}
-    const auto light_shader_source = *light_shader_source_result.source;
-
-    const auto light_shader_layout = light_shader_source.layout;
-    auto light_compiler = compile_attribute_layouts({light_shader_layout});
-    const auto light_mesh_layout = light_compiler.get_mesh_layout();
-    const auto compiled_light_layout = light_compiler.compile_shader_layout(light_shader_layout);
-
-    ///////////////////////////////////////////////////////////////////////////
-    // shaders
-    const auto shader_options = ShaderCompilerProperties
-    {
-        {"NUMBER_OF_POINT_LIGHTS", std::to_string(NUMBER_OF_POINT_LIGHTS)}
-    };
-    auto shader = ::ShaderProgram
-    {
-        generate(material_shader_source.vertex, shader_options),
-        generate(material_shader_source.fragment, shader_options),
-        compiled_layout
-    };
-    const auto uni_color = shader.get_uniform("uColor");
-    const auto uni_transform = shader.get_uniform("uTransform");
-    const auto uni_model_transform = shader.get_uniform("uModelTransform");
-    const auto uni_normal_matrix = shader.get_uniform("uNormalMatrix");
-    const auto uni_view_position = shader.get_uniform("uViewPosition");
-    const auto uni_material = MaterialUniforms{&shader, "uMaterial"};
-    const auto uni_directional_light = DirectionalLightUniforms{shader, "uDirectionalLight"};
-    const auto uni_point_lights = std::array<PointLightUniforms, NUMBER_OF_POINT_LIGHTS>
-    {
-        PointLightUniforms{shader, "uPointLights[0]"},
-        PointLightUniforms{shader, "uPointLights[1]"},
-        PointLightUniforms{shader, "uPointLights[2]"},
-        PointLightUniforms{shader, "uPointLights[3]"}
-    };
-    const auto uni_spot_light = SpotLightUniforms{shader, "uSpotLight"};
-
-    auto light_shader = ::ShaderProgram{light_shader_source.vertex, light_shader_source.fragment, compiled_light_layout};
-    const auto uni_light_transform = light_shader.get_uniform("uTransform");
-    const auto uni_light_color = light_shader.get_uniform("uColor");
-
-    ///////////////////////////////////////////////////////////////////////////
-    // model
-    const auto mesh = compile_geom(create_box_mesh(1.0f), material_mesh_layout);
-    const auto light_mesh = compile_geom(create_box_mesh(0.2f), light_mesh_layout);
-    const auto plane_mesh = compile_geom(create_plane_mesh(plane_size, plane_size), material_mesh_layout);
-
-    auto cube_color = glm::vec4{1.0f};
-
-    auto material = ::Material
-    {
-        load_image_from_embedded
-        (
-            CONTAINER_DIFFUSE_PNG,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
-        ),
-        load_image_from_embedded
-        (
-            CONTAINER_SPECULAR_PNG,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
-        )
-    };
-#endif
 
     auto cards = Texture{::cards::load_texture()};
 
@@ -1563,7 +1477,6 @@ main(int, char**)
 
                 const auto pv = projection * view;
 
-#if USE_RENDERING == 1
                 engine.begin_render();
 
                 engine.render_directional_light(directional_light);
@@ -1599,56 +1512,6 @@ main(int, char**)
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
                     engine.render_mesh(plane_mesh, {compiled_camera.position, pv, model});
                 }
-#else
-                for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-                {
-                    light_shader.use();
-                    light_shader.set_vec3(uni_light_color, point_lights[i].diffuse);
-                    {
-                        const auto model = glm::translate(glm::mat4(1.0f), point_lights[i].position);
-                        light_shader.set_mat(uni_light_transform, pv * model);
-                    }
-                    light_mesh.draw();
-                }
-
-                shader.use();
-                shader.set_vec4(uni_color, cube_color);
-                uni_material.set_shader(&shader, material);
-                uni_directional_light.set_shader(shader, directional_light);
-                uni_spot_light.set_shader(shader, spot_light);
-                for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
-                {
-                    uni_point_lights[i].set_shader(shader, point_lights[i]);
-                }
-                shader.set_vec3(uni_view_position, compiled_camera.position);
-
-                for(unsigned int i=0; i<cube_positions.size(); i+=1)
-                {
-                    const auto angle = 20.0f * static_cast<float>(i);
-                    {
-                        const auto model = glm::rotate
-                        (
-                            glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                            time + glm::radians(angle),
-                            i%2 == 0
-                            ? glm::vec3{1.0f, 0.3f, 0.5f}
-                            : glm::vec3{0.5f, 1.0f, 0.0f}
-                        );
-                        shader.set_mat(uni_transform, pv * model);
-                        shader.set_mat(uni_model_transform, model);
-                        shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-                    }
-                    mesh.draw();
-                }
-
-                {
-                    const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    shader.set_mat(uni_transform, pv * model);
-                    shader.set_mat(uni_model_transform, model);
-                    shader.set_mat(uni_normal_matrix, glm::mat3(glm::transpose(glm::inverse(model))));
-                    plane_mesh.draw();
-                }
-#endif
             }
 
             // draw hud
@@ -1798,12 +1661,13 @@ main(int, char**)
 
                 if (ImGui::CollapsingHeader("Cubes"))
                 {
-#if USE_RENDERING == 0
+                    // todo(Gustav): introduce again
+                    #if 0
                     ImGui::ColorEdit4("Cube colors", glm::value_ptr(cube_color));
                     ImGui::ColorEdit3("Tint color", glm::value_ptr(material.tint));
                     ImGui::DragFloat("Specular strength", &material.specular_strength, 0.01f);
                     ImGui::DragFloat("Shininess", &material.shininess, 1.0f, 2.0f, 256.0f);
-#endif
+                    #endif
                     for(auto& cube: cube_positions)
                     {
                         ImGui::PushID(&cube);
