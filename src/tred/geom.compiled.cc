@@ -80,17 +80,27 @@ CompiledGeom::~CompiledGeom()
 void
 CompiledGeom::clear()
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &ebo);
-    ebo = 0;
+    // todo(Gustav): figure out why we segfault if we unbind outside if...
+    if(ebo != 0)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &ebo);
+        ebo = 0;
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &vbo);
-    vbo = 0;
+    if(vbo != 0)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &vbo);
+        vbo = 0;
+    }
 
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &vao);
-    vao = 0;
+    if(vao != 0)
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &vao);
+        vao = 0;
+    }
 }
 
 
