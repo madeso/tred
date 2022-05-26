@@ -54,7 +54,7 @@
 #include "sprites/cards.h"
 
 
-#define USE_RENDERING 1 
+#define USE_RENDERING 1
 
 
 struct Material
@@ -1187,7 +1187,6 @@ struct RenderList
 #endif
 
 } // namespace rendering
-#endif
 
 
 constexpr auto diffuse_color = HashedStringView{"Diffuse color"};
@@ -1273,6 +1272,9 @@ struct FixedFileVfs : rendering::Vfs
         return std::nullopt;
     }
 };
+
+#endif
+
 
 int
 main(int, char**)
