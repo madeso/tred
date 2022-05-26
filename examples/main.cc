@@ -110,15 +110,45 @@ struct MaterialUniforms
     }
 };
 
+constexpr auto white3 = glm::vec3{1.0f, 1.0f, 1.0f};
+constexpr auto black3 = glm::vec3{0.0f, 0.0f, 0.0f};
 
 struct DirectionalLight
 {
+    // todo(Gustav): remove this?
     glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
 
-    float ambient_strength = 0.1f;
-    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
+    float ambient_strength;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    DirectionalLight()
+        : ambient_strength(0.1f)
+        , ambient(white3)
+        , diffuse(white3)
+        , specular(white3)
+    {
+    }
+
+    DirectionalLight
+    (
+        float as,
+        const glm::vec3& a,
+        const glm::vec3& d,
+        const glm::vec3& s
+    )
+        : ambient_strength(as)
+        , ambient(a)
+        , diffuse(d)
+        , specular(s)
+    {
+    }
+
+    static DirectionalLight create_no_light()
+    {
+        return DirectionalLight{0.0f, black3, black3, black3};
+    }
 
     // todo(Gustav): make a property instead, function only here for demo purposes
     glm::vec3
@@ -628,7 +658,7 @@ struct Material
 
 struct LightData
 {
-    DirectionalLight directional_light;
+    std::optional<DirectionalLight> directional_light;
     std::vector<PointLight> pointlights;
     std::vector<SpotLight> spotlights;
 };
@@ -686,7 +716,7 @@ struct LightUniforms
 
     [[nodiscard]] LightStatus set_shader(const ShaderProgram& prog, const LightData& data) const
     {
-        direction_light.set_shader(prog, data.directional_light);
+        direction_light.set_shader(prog, data.directional_light.value_or(DirectionalLight::create_no_light()));
         const auto applied_pointlights = apply_data(prog, data.pointlights, pointlights);
         const auto applied_spotlights =  apply_data(prog, data.spotlights, spotlights);
         return
@@ -1112,6 +1142,7 @@ struct Engine
     */
 };
 
+// todo(Gustav): refactor to get lp as a argument isntead of engine?
 const LightParams& get_light_params(const Engine& engine)
 {
     return engine.lp;
