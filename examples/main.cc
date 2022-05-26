@@ -1209,7 +1209,7 @@ struct FixedFileVfs : rendering::Vfs
             return rendering::MaterialShaderSource::create_with_lights(*src.source)
                 .with_texture(diffuse_texture, "uMaterial.diffuse", "white.png")
                 .with_texture(specular_texture, "uMaterial.specular", "no-specular.png")
-                .with_vec3(diffuse_color, "uColor", white3)
+                .with_vec4(diffuse_color, "uColor", glm::vec4{white3, 1.0f})
                 .with_vec3(tint_prop, "uMaterial.tint", white3)
                 .with_float(shininess_prop, "uMaterial.shininess", 32.0f)
                 .with_float(specular_strength_prop, "uMaterial.specular_strength", 1.0f)
