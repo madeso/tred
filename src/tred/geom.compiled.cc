@@ -194,9 +194,11 @@ compile_geom(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
     auto vertices = VertexVector{};
     vertices.reserve(mesh.vertices.size() * floats_per_vertex);
     for(const auto& vertex: mesh.vertices)
-    for(const auto& d: data)
     {
-        d.per_vertex(&vertices, vertex);
+        for(const auto& d: data)
+        {
+            d.per_vertex(&vertices, vertex);
+        }
     }
 
     const auto vbo = create_buffer();
@@ -233,7 +235,7 @@ compile_geom(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
         offset += Cint_to_sizet(d.count) * sizeof(float);
     }
 
-    // class: use IndexBuffer as it reflects the usage better than element buffer object?
+    // todo(Gustav): use IndexBuffer as it reflects the usage better than element buffer object?
     const auto ebo = create_buffer();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData
