@@ -1113,8 +1113,15 @@ struct Engine
     // todo(Gustav): move lights and rendering to a renderlist
     void begin_render()
     {
+        lights.directional_light.reset();
         lights.pointlights.clear();
         lights.spotlights.clear();
+    }
+
+    void render_directional_light(const DirectionalLight& d)
+    {
+        ASSERT(lights.directional_light.has_value() == false);
+        lights.directional_light = d;
     }
 
     void render_pointlight(const PointLight& p)
@@ -1188,6 +1195,7 @@ constexpr auto diffuse_texture = HashedStringView{"Diffuse texture"};
 constexpr auto specular_texture = HashedStringView{"Specular texture"};
 constexpr auto shininess_prop = HashedStringView{"Shininess"};
 constexpr auto specular_strength_prop = HashedStringView{"Specular strength"};
+constexpr auto tint_prop = HashedStringView{"Tint color"};
 
 
 struct FixedFileVfs : rendering::Vfs
@@ -1202,7 +1210,8 @@ struct FixedFileVfs : rendering::Vfs
             return rendering::MaterialShaderSource::create_with_lights(*src.source)
                 .with_texture(diffuse_texture, "uMaterial.diffuse", "white.png")
                 .with_texture(specular_texture, "uMaterial.specular", "no-specular.png")
-                .with_vec3(diffuse_color, "uMaterial.tint", glm::vec3{1.0f, 0.0f, 0.0f})
+                .with_vec3(diffuse_color, "uColor", white3)
+                .with_vec3(tint_prop, "uMaterial.tint", white3)
                 .with_float(shininess_prop, "uMaterial.shininess", 32.0f)
                 .with_float(specular_strength_prop, "uMaterial.specular_strength", 1.0f)
                 ;
@@ -1553,8 +1562,14 @@ main(int, char**)
                 const auto pv = projection * view;
 
 #if USE_RENDERING == 1
-                // todo(Gustav): set light data
-                // refactor to use immediate mode
+                engine.begin_render();
+
+                engine.render_directional_light(directional_light);
+                engine.render_spotlight(spot_light);
+                for(const auto& pl: point_lights)
+                {
+                    engine.render_pointlight(pl);
+                }
 
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
                 {
