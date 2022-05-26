@@ -1205,6 +1205,26 @@ struct FixedFileVfs : rendering::Vfs
                 Transparency::exclude
             );
         }
+        if(path == "white.png")
+        {
+            return load_image_from_color
+            (
+                0xFFFFFFFF,
+                TextureEdge::repeat,
+                TextureRenderStyle::smooth,
+                Transparency::exclude
+            );
+        }
+        if(path == "no-specular.png")
+        {
+            return load_image_from_color
+            (
+                0x000000FF,
+                TextureEdge::repeat,
+                TextureRenderStyle::smooth,
+                Transparency::exclude
+            );
+        }
         return std::nullopt;
     }
 };
