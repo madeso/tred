@@ -493,8 +493,6 @@ namespace rendering
 {
 
 
-enum class PointLightId : u64 {};
-enum class SpotLightId : u64 {};
 enum class TextureId : u64 {};
 enum class CompiledMaterialShaderId : u64 {};
 
@@ -631,13 +629,13 @@ struct Material
 struct LightData
 {
     DirectionalLight directional_light;
-    HandleVector64<PointLight, PointLightId> pointlights;
-    HandleVector64<SpotLight, SpotLightId> spotlights;
+    std::vector<PointLight> pointlights;
+    std::vector<SpotLight> spotlights;
 };
 
 // returns false if there were too many lights in the scene
-template<typename TUniform, typename TData, typename TId>
-[[nodiscard]] bool apply_data(const ShaderProgram& shader, const HandleVector64<TData, TId>& src, const std::vector<TUniform>& dst)
+template<typename TUniform, typename TData>
+[[nodiscard]] bool apply_data(const ShaderProgram& shader, const std::vector<TData>& src, const std::vector<TUniform>& dst)
 {
     std::size_t index = 0;
 
@@ -1076,20 +1074,27 @@ struct Engine
     LightData lights;
     HandleVector64<CompiledMesh, MeshId> meshes;
 
-    PointLightId add_point_light(const glm::vec3& p)
-    {
-        return lights.pointlights.add(PointLight{p});
-    }
-
-    void remove_point_light(PointLightId point)
-    {
-        lights.pointlights.remove(point);
-    }
-
     MeshId add_mesh(const Mesh& mesh)
     {
         auto m = compile_mesh(this, &cache, *vfs, mesh);
         return meshes.add(std::move(m));
+    }
+
+    // todo(Gustav): move lights and rendering to a renderlist
+    void begin_render()
+    {
+        lights.pointlights.clear();
+        lights.spotlights.clear();
+    }
+
+    void render_pointlight(const PointLight& p)
+    {
+        lights.pointlights.emplace_back(p);
+    }
+
+    void render_spotlight(const SpotLight& s)
+    {
+        lights.spotlights.emplace_back(s);
     }
     
     void render_mesh(MeshId mesh_id, const CommonData& data)
