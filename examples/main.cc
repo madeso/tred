@@ -1109,8 +1109,20 @@ struct Engine
     }
 
     // todo(Gustav): move lights and rendering to a renderlist
-    void begin_render()
+    glm::vec3 camera_position;
+    glm::mat4 projection_view;
+
+    void begin_render_perspective(float aspect_ratio, const Camera& camera)
     {
+        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
+        const auto compiled_camera = compile_camera(camera.create_vectors());
+        const auto view = compiled_camera.view;
+        const auto pv = projection * view;
+
+        camera_position = compiled_camera.position;
+        projection_view = pv;
+
+        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         lights.directional_light.reset();
         lights.pointlights.clear();
         lights.spotlights.clear();
@@ -1132,10 +1144,10 @@ struct Engine
         lights.spotlights.emplace_back(s);
     }
     
-    void render_mesh(MeshId mesh_id, const CommonData& data)
+    void render_mesh(MeshId mesh_id, const glm::mat4& model)
     {
         // todo(Gustav): how to handle render status? pass as a argument instead of a return as we cannot handle any of errors it returns
-        (void)meshes[mesh_id].render(cache, data, lights);
+        (void)meshes[mesh_id].render(cache, {camera_position, projection_view, model}, lights);
     }
 
     /*
@@ -1464,20 +1476,9 @@ main(int, char**)
 
             {
                 auto l3 = with_layer3(rc, layout);
-
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
 
-                // todo(Gustav): move clear to rc
-                glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-                const auto compiled_camera = compile_camera(camera.create_vectors());
-            
-                const auto view = compiled_camera.view;
-
-                const auto pv = projection * view;
-
-                engine.begin_render();
+                engine.begin_render_perspective(aspect_ratio, camera);
 
                 engine.render_directional_light(directional_light);
                 engine.render_spotlight(spot_light);
@@ -1497,7 +1498,7 @@ main(int, char**)
                         ? glm::vec3{1.0f, 0.3f, 0.5f}
                         : glm::vec3{0.5f, 1.0f, 0.0f}
                     );
-                    engine.render_mesh(crate_mesh, {compiled_camera.position, pv, model});
+                    engine.render_mesh(crate_mesh, model);
                 }
 
                 // draw lights
@@ -1505,12 +1506,12 @@ main(int, char**)
                 {
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.position);
-                    engine.render_mesh(light_mesh, {compiled_camera.position, pv, model});
+                    engine.render_mesh(light_mesh, model);
                 }
                 
                 {
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    engine.render_mesh(plane_mesh, {compiled_camera.position, pv, model});
+                    engine.render_mesh(plane_mesh, model);
                 }
             }
 
