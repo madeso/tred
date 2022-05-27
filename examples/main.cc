@@ -54,60 +54,6 @@
 #include "sprites/cards.h"
 
 
-
-struct Material
-{
-    Texture diffuse;
-    Texture specular;
-
-    glm::vec3 tint = glm::vec3{1.0f, 1.0f, 1.0f};
-    float shininess = 32.0f;
-
-    float specular_strength = 1.0f;
-
-    Material(Texture&& d, Texture&& s)
-        : diffuse(std::move(d))
-        , specular(std::move(s))
-    {
-    }
-};
-
-
-struct MaterialUniforms
-{
-    Uniform diffuse;
-    Uniform specular;
-
-    Uniform tint;
-    Uniform shininess;
-    Uniform specular_strength;
-
-    MaterialUniforms
-    (
-        ShaderProgram* shader,
-        const std::string& base_name
-    )
-        : diffuse(shader->get_uniform(base_name + ".diffuse"))
-        , specular(shader->get_uniform(base_name + ".specular"))
-        , tint(shader->get_uniform(base_name + ".tint"))
-        , shininess(shader->get_uniform(base_name + ".shininess"))
-        , specular_strength(shader->get_uniform(base_name + ".specular_strength" ))
-    {
-        setup_textures(shader, {&diffuse, &specular});
-    }
-
-    void
-    set_shader(ShaderProgram* shader, const Material& material) const
-    {
-        bind_texture(diffuse, material.diffuse);
-        bind_texture(specular, material.specular);
-
-        shader->set_vec3(tint, material.tint);
-        shader->set_float(specular_strength, material.specular_strength);
-        shader->set_float(shininess, material.shininess);
-    }
-};
-
 constexpr auto white3 = glm::vec3{1.0f, 1.0f, 1.0f};
 constexpr auto black3 = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -394,14 +340,6 @@ struct CameraVectors
     glm::vec3 right;
     glm::vec3 up;
     glm::vec3 position;
-
-    CameraVectors(const glm::vec3& f, const glm::vec3& r, const glm::vec3& u, const glm::vec3& p)
-        : front(f)
-        , right(r)
-        , up(u)
-        , position(p)
-    {
-    }
 };
 
 
