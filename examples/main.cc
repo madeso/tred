@@ -1139,44 +1139,69 @@ struct Engine
     
     
     RenderList render;
+};
 
-    void render_begin_perspective(float aspect_ratio, const Camera& camera)
-    {
-        render.begin_perspective(aspect_ratio, camera);
-    }
 
-    void render_end()
-    {
-        render.end();
+struct ScopedRenderer
+{
+    Engine* engine;
 
-        // todo(Gustav): move to a better place?
-        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        for(const auto& c: render.commands)
-        {
-            meshes[c.mesh_id].render(cache, {render.camera_position, render.projection_view, c.model}, render.lights, &render.light_status);
-        }
-    }
+    ScopedRenderer() = default;
+    
+    ScopedRenderer(const ScopedRenderer&) = delete;
+    ScopedRenderer(ScopedRenderer&&) = delete;
+    void operator=(const ScopedRenderer&) = delete;
+    void operator=(ScopedRenderer&&) = delete;
 
     void render_directional_light(const DirectionalLight& d)
     {
-        render.add_directional_light(d);
+        engine->render.add_directional_light(d);
     }
 
     void render_point_light(const PointLight& p)
     {
-        render.add_point_light(p);
+        engine->render.add_point_light(p);
     }
 
     void render_spot_light(const SpotLight& s)
     {
-        render.add_spot_light(s);
+        engine->render.add_spot_light(s);
     }
     
     void render_mesh(MeshId mesh_id, const glm::mat4& model)
     {
-        render.add_mesh(mesh_id, model);
+        engine->render.add_mesh(mesh_id, model);
+    }
+
+    ~ScopedRenderer()
+    {
+        engine->render.end();
+
+        // todo(Gustav): move to a better place?
+        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        for(const auto& c: engine->render.commands)
+        {
+            engine->meshes[c.mesh_id].render
+            (
+                engine->cache,
+                {
+                    engine->render.camera_position,
+                    engine->render.projection_view,
+                    c.model
+                },
+                engine->render.lights,
+                &engine->render.light_status
+            );
+        }
     }
 };
+
+ScopedRenderer render_perspective(Engine* engine, float aspect_ratio, const Camera& camera)
+{
+    engine->render.begin_perspective(aspect_ratio, camera);
+    return {engine};
+}
+
 
 // todo(Gustav): refactor to get lp as a argument isntead of engine?
 const LightParams& get_light_params(const Engine& engine)
@@ -1473,10 +1498,9 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
+                auto renderer = rendering::render_perspective(&engine, aspect_ratio, camera);
 
-                engine.render_begin_perspective(aspect_ratio, camera);
-
-                // draw flying crates
+                // render flying crates
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
                 {
                     const auto angle = 20.0f * static_cast<float>(i);
@@ -1488,28 +1512,26 @@ main(int, char**)
                         ? glm::vec3{1.0f, 0.3f, 0.5f}
                         : glm::vec3{0.5f, 1.0f, 0.0f}
                     );
-                    engine.render_mesh(crate_mesh, model);
+                    renderer.render_mesh(crate_mesh, model);
                 }
 
-                // draw lights
-                engine.render_directional_light(directional_light);
-                engine.render_spot_light(spot_light);
+                // render lights
+                renderer.render_directional_light(directional_light);
+                renderer.render_spot_light(spot_light);
                 for(const auto& pl: point_lights)
                 {
-                    engine.render_point_light(pl);
+                    renderer.render_point_light(pl);
 
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.position);
-                    engine.render_mesh(light_mesh, model);
+                    renderer.render_mesh(light_mesh, model);
                 }
                 
-                // draw ground
+                // render ground
                 {
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    engine.render_mesh(plane_mesh, model);
+                    renderer.render_mesh(plane_mesh, model);
                 }
-
-                engine.render_end();
             }
 
             // draw hud
