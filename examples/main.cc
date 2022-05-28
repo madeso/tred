@@ -601,13 +601,13 @@ struct LightData
 
 // returns false if there were too many lights in the scene
 template<typename TUniform, typename TData>
-[[nodiscard]] bool apply_data(const ShaderProgram& shader, const std::vector<TData>& src, const std::vector<TUniform>& dst)
+void apply_data(const ShaderProgram& shader, const std::vector<TData>& src, const std::vector<TUniform>& dst, bool* applied)
 {
     std::size_t index = 0;
 
     for(const TData& data: src)
     {
-        if(index>= dst.size()) { return false; }
+        if(index>= dst.size()) { *applied = false; return; }
         dst[index].turn_on_light(shader, data);
         index += 1;
     }
@@ -616,8 +616,6 @@ template<typename TUniform, typename TData>
     {
         dst[index].turn_off_light(shader);
     }
-
-    return true;
 }
 
 struct LightStatus
@@ -650,16 +648,11 @@ struct LightUniforms
         spotlights.emplace_back(SpotLightUniforms{shader, "uSpotLight"});
     }
 
-    [[nodiscard]] LightStatus set_shader(const ShaderProgram& prog, const LightData& data) const
+    void set_shader(const ShaderProgram& prog, const LightData& data, LightStatus* ls) const
     {
         direction_light.set_shader(prog, data.directional_light.value_or(DirectionalLight::create_no_light()));
-        const auto applied_pointlights = apply_data(prog, data.pointlights, pointlights);
-        const auto applied_spotlights =  apply_data(prog, data.spotlights, spotlights);
-        return
-        {
-            applied_pointlights,
-            applied_spotlights
-        };
+        apply_data(prog, data.pointlights, pointlights, &ls->applied_pointlights);
+        apply_data(prog, data.spotlights, spotlights, &ls->applied_spotlights);
     }
 };
 
@@ -768,13 +761,15 @@ struct CompiledMaterialShader
     std::unordered_map<HashedString, PropertyIndex> name_to_array;
     CompiledProperties default_values;
 
-    LightStatus use(const CompiledProperties& props, const Cache& cache, const CommonData& data, const LightData& light_data) const
+    void use(const CompiledProperties& props, const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls) const
     {
         program.use();
         common.set_shader(program, data);
-        const LightStatus light_status = light ? light->set_shader(program, light_data) : LightStatus::create_no_error();
+        if(light)
+        {
+            light->set_shader(program, light_data, ls);
+        }
         props.set_shader(program, cache, uniforms);
-        return light_status;
     }
 };
 
@@ -878,10 +873,10 @@ struct CompiledMaterial
     // override prop (hashedstring + prop)
     // clear prop (hashedstring)
 
-    LightStatus use(const Cache& cache, const CommonData& data, const LightData& light_data) const
+    void use(const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls) const
     {
         const auto& shader_data = get_compiled_material_shader(cache, shader);
-        return shader_data.use(properties, cache, data, light_data);
+        return shader_data.use(properties, cache, data, light_data, ls);
     }
 };
 
@@ -930,11 +925,10 @@ struct CompiledMesh
     CompiledMaterial material;
     CompiledGeom geom;
 
-    LightStatus render(const Cache& cache, const CommonData& data, const LightData& light_data)
+    void render(const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls)
     {
-        const auto ls = material.use(cache, data, light_data);
+        material.use(cache, data, light_data, ls);
         geom.draw();
-        return ls;
     }
 };
 
@@ -1049,6 +1043,7 @@ struct Engine
     // todo(Gustav): move lights and rendering to a renderlist
     glm::vec3 camera_position;
     glm::mat4 projection_view;
+    LightStatus light_status;
 
     void begin_render_perspective(float aspect_ratio, const Camera& camera)
     {
@@ -1061,6 +1056,8 @@ struct Engine
         projection_view = pv;
 
         glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        light_status = LightStatus::create_no_error();
         lights.directional_light.reset();
         lights.pointlights.clear();
         lights.spotlights.clear();
@@ -1085,7 +1082,7 @@ struct Engine
     void render_mesh(MeshId mesh_id, const glm::mat4& model)
     {
         // todo(Gustav): how to handle render status? pass as a argument instead of a return as we cannot handle any of errors it returns
-        (void)meshes[mesh_id].render(cache, {camera_position, projection_view, model}, lights);
+        (void)meshes[mesh_id].render(cache, {camera_position, projection_view, model}, lights, &light_status);
     }
 
     /*
