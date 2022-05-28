@@ -131,6 +131,16 @@ struct DirectionalLightUniforms
         shader.set_vec3(diffuse, light.diffuse);
         shader.set_vec3(specular, light.specular);
     }
+
+    void turn_on_light(const ShaderProgram& shader, const DirectionalLight& light) const
+    {
+        set_shader(shader, light);
+    }
+
+    void turn_off_light(const ShaderProgram& shader) const
+    {
+        set_shader(shader, DirectionalLight::create_no_light());
+    }
 };
 
 
@@ -329,6 +339,8 @@ struct SpotLightUniforms
 
 
 constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
+constexpr unsigned int NUMBER_OF_SPOT_LIGHTS = 1;
+constexpr unsigned int NUMBER_OF_DIRECTIONAL_LIGHTS = 1;
 
 
 constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -493,8 +505,9 @@ bool operator<(const PropertyIndex& lhs, const PropertyIndex& rhs)
 
 struct LightParams
 {
-    int number_of_pointlights;
-    int number_of_spotlights;
+    int number_of_directional_lights;
+    int number_of_point_lights;
+    int number_of_spot_lights;
 };
 
 struct MaterialSourceProperty
@@ -594,9 +607,16 @@ struct Material
 
 struct LightData
 {
-    std::optional<DirectionalLight> directional_light;
-    std::vector<PointLight> pointlights;
-    std::vector<SpotLight> spotlights;
+    std::vector<DirectionalLight> directional_lights;
+    std::vector<PointLight> point_lights;
+    std::vector<SpotLight> spot_lights;
+
+    void clear()
+    {
+        directional_lights.clear();
+        point_lights.clear();
+        spot_lights.clear();
+    }
 };
 
 // returns false if there were too many lights in the scene
@@ -620,39 +640,42 @@ void apply_data(const ShaderProgram& shader, const std::vector<TData>& src, cons
 
 struct LightStatus
 {
-    bool applied_pointlights;
-    bool applied_spotlights;
+    bool applied_directional_lights;
+    bool applied_point_lights;
+    bool applied_spot_lights;
 
     static LightStatus create_no_error()
     {
-        return {true, true};
+        return {true, true, true};
     }
 };
 
 struct LightUniforms
 {
-    DirectionalLightUniforms direction_light;
-    std::vector<PointLightUniforms> pointlights;
-    std::vector<SpotLightUniforms> spotlights;
+    std::vector<DirectionalLightUniforms> directional_lights;
+    std::vector<PointLightUniforms> point_lights;
+    std::vector<SpotLightUniforms> spot_lights;
 
     LightUniforms(const ShaderProgram& shader, const LightParams& lp)
-        : direction_light(shader, "uDirectionalLight")
     {
-        assert(lp.number_of_spotlights == 1);
+        assert(lp.number_of_directional_lights == 1);
+        directional_lights.emplace_back(DirectionalLightUniforms(shader, "uDirectionalLight"));
 
-        for(int pointlight_index=0; pointlight_index<lp.number_of_pointlights; pointlight_index += 1)
+        assert(lp.number_of_spot_lights == 1);
+        spot_lights.emplace_back(SpotLightUniforms{shader, "uSpotLight"});
+
+        for(int point_light_index=0; point_light_index<lp.number_of_point_lights; point_light_index += 1)
         {
-            const auto uniform_name = fmt::format("uPointLights[{}]", pointlight_index);
-            pointlights.emplace_back(PointLightUniforms{shader, uniform_name});
+            const auto uniform_name = fmt::format("uPointLights[{}]", point_light_index);
+            point_lights.emplace_back(PointLightUniforms{shader, uniform_name});
         }
-        spotlights.emplace_back(SpotLightUniforms{shader, "uSpotLight"});
     }
 
     void set_shader(const ShaderProgram& prog, const LightData& data, LightStatus* ls) const
     {
-        direction_light.set_shader(prog, data.directional_light.value_or(DirectionalLight::create_no_light()));
-        apply_data(prog, data.pointlights, pointlights, &ls->applied_pointlights);
-        apply_data(prog, data.spotlights, spotlights, &ls->applied_spotlights);
+        apply_data(prog, data.directional_lights, directional_lights, &ls->applied_directional_lights);
+        apply_data(prog, data.point_lights, point_lights, &ls->applied_point_lights);
+        apply_data(prog, data.spot_lights, spot_lights, &ls->applied_spot_lights);
     }
 };
 
@@ -792,8 +815,9 @@ std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache
     auto compile_defines = ShaderCompilerProperties{};
     if(shader_source.apply_lightning)
     {
-        compile_defines.insert({"NUMBER_OF_POINT_LIGHTS", std::to_string(lp.number_of_pointlights)});
-        compile_defines.insert({"NUMBER_OF_SPOT_LIGHTS", std::to_string(lp.number_of_spotlights)});
+        compile_defines.insert({"NUMBER_OF_DIRECTIONAL_LIGHTS", std::to_string(lp.number_of_directional_lights)});
+        compile_defines.insert({"NUMBER_OF_POINT_LIGHTS", std::to_string(lp.number_of_point_lights)});
+        compile_defines.insert({"NUMBER_OF_SPOT_LIGHTS", std::to_string(lp.number_of_spot_lights)});
     }
     auto ret = CompiledMaterialShader
     {
@@ -1020,6 +1044,80 @@ const CompiledMaterialShader& get_compiled_material_shader(const Cache& cache, C
 
 enum class MeshId : u64 {};
 
+
+struct RenderCommand
+{
+    MeshId mesh_id;
+    glm::mat4 model;
+};
+
+// bool operator<(const RenderCommand& lhs, const RenderCommand& rhs) { return lhs.id < rhs.id; }
+
+// also called render queue but as a non-native speaker I hate typing queue
+struct RenderList
+{
+    // todo(Gustav): sort commands!
+    // std::priority_queue<RenderCommand> commands;
+    // todo(Gustav): test perf with a std::multiset or a std::vector (sorted in render)
+    std::vector<RenderCommand> commands;
+
+    LightData lights;
+    glm::vec3 camera_position;
+    glm::mat4 projection_view;
+    LightStatus light_status;
+
+    bool is_rendering = false;
+
+    void begin_perspective(float aspect_ratio, const Camera& camera)
+    {
+        ASSERT(is_rendering == false);
+        is_rendering = true;
+
+        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
+        const auto compiled_camera = compile_camera(camera.create_vectors());
+        const auto view = compiled_camera.view;
+        const auto pv = projection * view;
+
+        camera_position = compiled_camera.position;
+        projection_view = pv;
+
+        light_status = LightStatus::create_no_error();
+        commands.clear();
+        lights.clear();
+    }
+
+    void add_directional_light(const DirectionalLight& d)
+    {
+        ASSERT(is_rendering);
+        lights.directional_lights.emplace_back(d);
+    }
+
+    void add_point_light(const PointLight& p)
+    {
+        ASSERT(is_rendering);
+        lights.point_lights.emplace_back(p);
+    }
+
+    void add_spot_light(const SpotLight& s)
+    {
+        ASSERT(is_rendering);
+        lights.spot_lights.emplace_back(s);
+    }
+
+    void add_mesh(MeshId mesh_id, const glm::mat4& model)
+    {
+        ASSERT(is_rendering);
+        commands.emplace_back(RenderCommand{mesh_id, model});
+    }
+
+    void end()
+    {
+        ASSERT(is_rendering);
+        is_rendering = false;
+    }
+};
+
+
 struct Engine
 {
     Engine(Vfs* a_vfs, const LightParams& alp)
@@ -1031,7 +1129,6 @@ struct Engine
     Vfs* vfs;
     LightParams lp;
     Cache cache;
-    LightData lights;
     HandleVector64<CompiledMesh, MeshId> meshes;
 
     MeshId add_mesh(const Mesh& mesh)
@@ -1039,59 +1136,46 @@ struct Engine
         auto m = compile_mesh(this, &cache, *vfs, mesh);
         return meshes.add(std::move(m));
     }
+    
+    
+    RenderList render;
 
-    // todo(Gustav): move lights and rendering to a renderlist
-    glm::vec3 camera_position;
-    glm::mat4 projection_view;
-    LightStatus light_status;
-
-    void begin_render_perspective(float aspect_ratio, const Camera& camera)
+    void render_begin_perspective(float aspect_ratio, const Camera& camera)
     {
-        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-        const auto compiled_camera = compile_camera(camera.create_vectors());
-        const auto view = compiled_camera.view;
-        const auto pv = projection * view;
+        render.begin_perspective(aspect_ratio, camera);
+    }
 
-        camera_position = compiled_camera.position;
-        projection_view = pv;
+    void render_end()
+    {
+        render.end();
 
+        // todo(Gustav): move to a better place?
         glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        light_status = LightStatus::create_no_error();
-        lights.directional_light.reset();
-        lights.pointlights.clear();
-        lights.spotlights.clear();
+        for(const auto& c: render.commands)
+        {
+            meshes[c.mesh_id].render(cache, {render.camera_position, render.projection_view, c.model}, render.lights, &render.light_status);
+        }
     }
 
     void render_directional_light(const DirectionalLight& d)
     {
-        ASSERT(lights.directional_light.has_value() == false);
-        lights.directional_light = d;
+        render.add_directional_light(d);
     }
 
-    void render_pointlight(const PointLight& p)
+    void render_point_light(const PointLight& p)
     {
-        lights.pointlights.emplace_back(p);
+        render.add_point_light(p);
     }
 
-    void render_spotlight(const SpotLight& s)
+    void render_spot_light(const SpotLight& s)
     {
-        lights.spotlights.emplace_back(s);
+        render.add_spot_light(s);
     }
     
     void render_mesh(MeshId mesh_id, const glm::mat4& model)
     {
-        // todo(Gustav): how to handle render status? pass as a argument instead of a return as we cannot handle any of errors it returns
-        (void)meshes[mesh_id].render(cache, {camera_position, projection_view, model}, lights, &light_status);
+        render.add_mesh(mesh_id, model);
     }
-
-    /*
-    void update_point_light_position(PointLightId point, const glm::vec3& position);
-
-    SpotLightId add_spot_light();
-    void remove_spot_light(SpotLightId spot);
-    void update_spot_light();
-    */
 };
 
 // todo(Gustav): refactor to get lp as a argument isntead of engine?
@@ -1099,37 +1183,6 @@ const LightParams& get_light_params(const Engine& engine)
 {
     return engine.lp;
 }
-
-#if 0
-using RenderId = std::uint64_t;
-
-struct RenderCommand
-{
-    RenderId id;
-};
-
-bool operator<(const RenderCommand& lhs, const RenderCommand& rhs) { return lhs.id < rhs.id; }
-
-// also called render queue but as a non-native speaker I hate typing queue
-struct RenderList
-{
-    std::priority_queue<RenderCommand> commands;
-
-    // todo(Gustav): test perf with a std::multiset or a std::vector (sorted in render)
-
-    void begin()
-    {
-    }
-
-    void add()
-    {
-    }
-
-    void render()
-    {
-    }
-};
-#endif
 
 } // namespace rendering
 
@@ -1355,7 +1408,15 @@ main(int, char**)
     auto spot_light = ::SpotLight{};
 
     auto vfs = FixedFileVfs{};
-    auto engine = rendering::Engine{&vfs, {NUMBER_OF_POINT_LIGHTS, 1}};
+    auto engine = rendering::Engine
+    {
+        &vfs,
+        {
+            NUMBER_OF_DIRECTIONAL_LIGHTS,
+            NUMBER_OF_POINT_LIGHTS,
+            NUMBER_OF_SPOT_LIGHTS
+        }
+    };
 
     const auto crate_mesh = engine.add_mesh
     ({
@@ -1413,15 +1474,9 @@ main(int, char**)
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
 
-                engine.begin_render_perspective(aspect_ratio, camera);
+                engine.render_begin_perspective(aspect_ratio, camera);
 
-                engine.render_directional_light(directional_light);
-                engine.render_spotlight(spot_light);
-                for(const auto& pl: point_lights)
-                {
-                    engine.render_pointlight(pl);
-                }
-
+                // draw flying crates
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
                 {
                     const auto angle = 20.0f * static_cast<float>(i);
@@ -1437,17 +1492,24 @@ main(int, char**)
                 }
 
                 // draw lights
+                engine.render_directional_light(directional_light);
+                engine.render_spot_light(spot_light);
                 for(const auto& pl: point_lights)
                 {
+                    engine.render_point_light(pl);
+
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.position);
                     engine.render_mesh(light_mesh, model);
                 }
                 
+                // draw ground
                 {
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
                     engine.render_mesh(plane_mesh, model);
                 }
+
+                engine.render_end();
             }
 
             // draw hud
