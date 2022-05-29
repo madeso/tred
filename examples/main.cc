@@ -893,9 +893,21 @@ struct CompiledMaterial
     CompiledMaterialShaderId shader;
     CompiledProperties properties;
 
-    // todo(Gustav): add util functions
-    // override prop (hashedstring + prop)
-    // clear prop (hashedstring)
+    // todo(Gustav): add util functions (that also take index) and clear prop (hashedstring+index)
+
+    #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
+    void set_##FUNC_NAME##_by_lookup(const Cache& cache, const HashedString& name, const TYPE& v)\
+    {\
+        const auto& cms = get_compiled_material_shader(cache, shader);\
+        const auto found = cms.name_to_array.find(name);\
+        ASSERT(found != cms.name_to_array.end());\
+        properties.set_##FUNC_NAME(found->second, v);\
+    }
+    ADD_OP(float, floats, float, PropertyType::float_type)
+    ADD_OP(vec3, vec3s, glm::vec3, PropertyType::vec3_type)
+    ADD_OP(vec4, vec4s, glm::vec4, PropertyType::vec4_type)
+    ADD_OP(texture, textures, TextureId, PropertyType::texture_type)
+    #undef ADD_OP
 
     void use(const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls) const
     {
@@ -1155,6 +1167,18 @@ struct Engine
         auto compiled = compile_mesh(this, &cache, *vfs, mesh);
         return {geoms.add(std::move(compiled.geom)), materials.add(std::move(compiled.material))};
     }
+
+
+    MaterialId duplicate_material(MaterialId id)
+    {
+        CompiledMaterial copy = materials[id];
+        return materials.add(std::move(copy));
+    }
+
+    CompiledMaterial& get_material_ref(MaterialId id)
+    {
+        return materials[id];
+    }
     
     
     RenderList render;
@@ -1318,6 +1342,12 @@ struct FixedFileVfs : rendering::Vfs
 };
 
 
+struct PointLightAndMaterial
+{
+    PointLight light;
+    rendering::MaterialId material;
+};
+
 
 int
 main(int, char**)
@@ -1443,16 +1473,6 @@ main(int, char**)
         {-1.3f,  1.0f, -1.5f }
     };
 
-    auto directional_light = ::DirectionalLight{};
-    auto point_lights = std::array<PointLight, NUMBER_OF_POINT_LIGHTS>
-    {
-        glm::vec3{ 0.7f,  0.2f,  2.0f},
-        glm::vec3{ 2.3f, -3.3f, -4.0f},
-        glm::vec3{-4.0f,  2.0f, -12.0f},
-        glm::vec3{ 0.0f,  0.0f, -3.0f}
-    };
-    auto spot_light = ::SpotLight{};
-
     auto vfs = FixedFileVfs{};
     auto engine = rendering::Engine
     {
@@ -1485,6 +1505,26 @@ main(int, char**)
             ,
         create_plane_mesh(plane_size, plane_size)
     });
+
+    auto spot_light = ::SpotLight{};
+    auto directional_light = ::DirectionalLight{};
+    auto point_lights = std::array<PointLightAndMaterial, NUMBER_OF_POINT_LIGHTS>
+    {
+        PointLightAndMaterial{glm::vec3{ 0.7f,  0.2f,  2.0f}, light.material},
+        PointLightAndMaterial{glm::vec3{ 2.3f, -3.3f, -4.0f}, engine.duplicate_material(light.material)},
+        PointLightAndMaterial{glm::vec3{-4.0f,  2.0f, -12.0f}, engine.duplicate_material(light.material)},
+        PointLightAndMaterial{glm::vec3{ 0.0f,  0.0f, -3.0f}, engine.duplicate_material(light.material)}
+    };
+    auto match_diffuse_color_for_point_light = [&](PointLightAndMaterial& pl)
+    {
+        // todo(Gustav): move function to engine?
+        auto& material = engine.get_material_ref(pl.material);
+        material.set_vec3_by_lookup(engine.cache, diffuse_color, pl.light.diffuse);
+    };
+    for(auto& pl: point_lights)
+    {
+        match_diffuse_color_for_point_light(pl);
+    }
 
     auto cards = Texture{::cards::load_texture()};
 
@@ -1541,11 +1581,11 @@ main(int, char**)
                 renderer.render_spot_light(spot_light);
                 for(const auto& pl: point_lights)
                 {
-                    renderer.render_point_light(pl);
+                    renderer.render_point_light(pl.light);
 
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
-                    const auto model = glm::translate(glm::mat4(1.0f), pl.position);
-                    renderer.render_mesh(light.geom, light.material, model);
+                    const auto model = glm::translate(glm::mat4(1.0f), pl.light.position);
+                    renderer.render_mesh(light.geom, pl.material, model);
                 }
                 
                 // render ground
@@ -1638,43 +1678,49 @@ main(int, char**)
                 ImGui::DragFloat("FOV", &camera.fov, 0.1f, 1.0f, 145.0f);
                 if (ImGui::CollapsingHeader("Lights"))
                 {
-                    const auto ui_attenuation = [](Attenuation* a)
+                    const auto ui_attenuation = [](Attenuation* a) -> bool
                     {
-                        ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f);
-                        ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f);
-                        ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f);
+                        bool changed = false;
+                        changed = ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f) || changed;
+                        changed = ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f) || changed;
+                        changed = ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f) || changed;
+                        return changed;
                     };
 
-                    const auto ui_directional = [](DirectionalLight* light)
+                    const auto ui_directional = [](DirectionalLight* light) -> bool
                     {
-                        ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f);
-                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
-                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
-                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
-                        ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f);
+                        bool changed = false;
+                        changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
+                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+                        changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
+                        return changed;
                     };
 
-                    const auto ui_point = [&ui_attenuation](PointLight* light)
+                    const auto ui_point = [&ui_attenuation](PointLight* light) -> bool
                     {
-                        ui_attenuation(&light->attenuation);
-                        ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f);
-                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
-                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
-                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
-                        ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f);
+                        bool changed = false;
+                        changed = ui_attenuation(&light->attenuation) || changed;
+                        changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
+                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+                        changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
+                        return changed;
                     };
 
-                    const auto ui_spot = [&ui_attenuation](SpotLight* light)
+                    const auto ui_spot = [&ui_attenuation](SpotLight* light) -> bool
                     {
-                        ui_attenuation(&light->attenuation);
-
-                        ImGui::DragFloat("Ambient strength", &light->ambient_strength, 0.01f);
-                        ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient));
-                        ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse));
-                        ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular));
-
-                        ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f);
-                        ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f);
+                        bool changed = false;
+                        changed = ui_attenuation(&light->attenuation) || changed;
+                        changed = ImGui::DragFloat("Ambient strength", &light->ambient_strength, 0.01f) || changed;
+                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+                        changed = ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f) || changed;
+                        changed = ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f) || changed;
+                        return changed;
                     };
 
                     if(ImGui::CollapsingHeader("Directional"))
@@ -1694,7 +1740,10 @@ main(int, char**)
                         for(unsigned int i=0; i<NUMBER_OF_POINT_LIGHTS; i+=1)
                         {
                             ImGui::PushID(static_cast<int>(i));
-                            ui_point(&point_lights[i]);
+                            if(ui_point(&point_lights[i].light))
+                            {
+                                match_diffuse_color_for_point_light(point_lights[i]);
+                            }
                             ImGui::PopID();
                         }
                     }
