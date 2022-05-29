@@ -944,16 +944,25 @@ CompiledMaterial compile_material(Engine* engine, Cache* cache, const Vfs& vfs, 
     return {shader_id, properties};
 }
 
+
+void render_geom_with_material
+(
+    const CompiledGeom& geom,
+    const CompiledMaterial& material,
+    const Cache& cache,
+    const CommonData& data,
+    const LightData& light_data,
+    LightStatus* ls
+)
+{
+    material.use(cache, data, light_data, ls);
+    geom.draw();
+}
+
 struct CompiledMesh
 {
-    CompiledMaterial material;
     CompiledGeom geom;
-
-    void render(const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls)
-    {
-        material.use(cache, data, light_data, ls);
-        geom.draw();
-    }
+    CompiledMaterial material;
 };
 
 CompiledMesh compile_mesh(Engine* engine, Cache* cache, const Vfs& vfs, const Mesh& mesh)
@@ -962,7 +971,7 @@ CompiledMesh compile_mesh(Engine* engine, Cache* cache, const Vfs& vfs, const Me
     const auto& shader = get_compiled_material_shader(*cache, material.shader);
     auto geom = compile_geom(mesh.geom, shader.mesh_layout);
 
-    return {material, std::move(geom)};
+    return {std::move(geom), material};
 }
 
 
@@ -1042,12 +1051,14 @@ const CompiledMaterialShader& get_compiled_material_shader(const Cache& cache, C
     return cache.shaders[id];
 }
 
-enum class MeshId : u64 {};
+enum class GeomId : u64 {};
+enum class MaterialId : u64 {};
 
 
 struct RenderCommand
 {
-    MeshId mesh_id;
+    GeomId geom_id;
+    MaterialId material_id;
     glm::mat4 model;
 };
 
@@ -1104,10 +1115,10 @@ struct RenderList
         lights.spot_lights.emplace_back(s);
     }
 
-    void add_mesh(MeshId mesh_id, const glm::mat4& model)
+    void add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
     {
         ASSERT(is_rendering);
-        commands.emplace_back(RenderCommand{mesh_id, model});
+        commands.emplace_back(RenderCommand{geom_id, material_id, model});
     }
 
     void end()
@@ -1117,6 +1128,12 @@ struct RenderList
     }
 };
 
+
+struct AddedMesh
+{
+    GeomId geom;
+    MaterialId material;
+};
 
 struct Engine
 {
@@ -1129,12 +1146,14 @@ struct Engine
     Vfs* vfs;
     LightParams lp;
     Cache cache;
-    HandleVector64<CompiledMesh, MeshId> meshes;
+    
+    HandleVector64<CompiledGeom, GeomId> geoms;
+    HandleVector64<CompiledMaterial, MaterialId> materials;
 
-    MeshId add_mesh(const Mesh& mesh)
+    AddedMesh add_mesh(const Mesh& mesh)
     {
-        auto m = compile_mesh(this, &cache, *vfs, mesh);
-        return meshes.add(std::move(m));
+        auto compiled = compile_mesh(this, &cache, *vfs, mesh);
+        return {geoms.add(std::move(compiled.geom)), materials.add(std::move(compiled.material))};
     }
     
     
@@ -1168,9 +1187,9 @@ struct ScopedRenderer
         engine->render.add_spot_light(s);
     }
     
-    void render_mesh(MeshId mesh_id, const glm::mat4& model)
+    void render_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
     {
-        engine->render.add_mesh(mesh_id, model);
+        engine->render.add_mesh(geom_id, material_id, model);
     }
 
     ~ScopedRenderer()
@@ -1181,8 +1200,10 @@ struct ScopedRenderer
         glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         for(const auto& c: engine->render.commands)
         {
-            engine->meshes[c.mesh_id].render
+            render_geom_with_material
             (
+                engine->geoms[c.geom_id],
+                engine->materials[c.material_id],
                 engine->cache,
                 {
                     engine->render.camera_position,
@@ -1443,7 +1464,7 @@ main(int, char**)
         }
     };
 
-    const auto crate_mesh = engine.add_mesh
+    const auto crate = engine.add_mesh
     ({
         rendering::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
@@ -1451,12 +1472,12 @@ main(int, char**)
             ,
         create_box_mesh(1.0f)
     });
-    const auto light_mesh = engine.add_mesh
+    const auto light = engine.add_mesh
     ({
         rendering::Material{"unlit.glsl"},
         create_box_mesh(0.2f)
     });
-    const auto plane_mesh = engine.add_mesh
+    const auto plane = engine.add_mesh
     ({
         rendering::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
@@ -1512,7 +1533,7 @@ main(int, char**)
                         ? glm::vec3{1.0f, 0.3f, 0.5f}
                         : glm::vec3{0.5f, 1.0f, 0.0f}
                     );
-                    renderer.render_mesh(crate_mesh, model);
+                    renderer.render_mesh(crate.geom, crate.material, model);
                 }
 
                 // render lights
@@ -1524,13 +1545,13 @@ main(int, char**)
 
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.position);
-                    renderer.render_mesh(light_mesh, model);
+                    renderer.render_mesh(light.geom, light.material, model);
                 }
                 
                 // render ground
                 {
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    renderer.render_mesh(plane_mesh, model);
+                    renderer.render_mesh(plane.geom, plane.material, model);
                 }
             }
 
