@@ -1,4 +1,13 @@
-#
+# Input System
+
+## issues/good things
+
+* hard to set up bindable ui/complex setup -> simplify binding to archetypes?
+* how do different control types work? on foot, car, aeroplane, player needs to send type
+* need ability to toggle mouse capture: esc/~/tab
+
+* once it's running the api works great
+
 
 ## types
 
