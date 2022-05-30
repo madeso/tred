@@ -90,7 +90,7 @@ struct SdlPlatform : public input::Platform
     float last_mouse_x = 0.0f;
     float last_mouse_y = 0.0f;
 
-    void on_events_completed(input::InputSystem* system)
+    void on_events_completed(input::InputSystemBase* system)
     {
         if(mouse_motion_this_frame == false && mouse_motion_last_frame == true)
         {
@@ -103,13 +103,13 @@ struct SdlPlatform : public input::Platform
     }
 
 
-    void on_mouse_relative_axis(input::InputSystem* system, float dx, float dy)
+    void on_mouse_relative_axis(input::InputSystemBase* system, float dx, float dy)
     {
         system->on_mouse_axis(input::Axis2::x, dx, last_mouse_x);
         system->on_mouse_axis(input::Axis2::y, dy, last_mouse_y);
     }
 
-    void on_event(std::vector<input::JoystickId>* lost_joysticks, input::InputSystem* system, const SDL_Event& event, std::function<std::optional<glm::ivec2> (u32)> window_size)
+    void on_event(std::vector<input::JoystickId>* lost_joysticks, input::InputSystemBase* system, const SDL_Event& event, std::function<std::optional<glm::ivec2> (u32)> window_size)
     {
         std::optional<input::JoystickId> detected_controller;
         auto should_handle_joystick = [this, &detected_controller](input::JoystickId id) -> bool
@@ -271,7 +271,7 @@ struct SdlPlatform : public input::Platform
         }
     }
 
-    void send_events_for_game_controller(input::InputSystem* system, input::JoystickId detected_controller)
+    void send_events_for_game_controller(input::InputSystemBase* system, input::JoystickId detected_controller)
     {
         GamecontrollerData* controller = joysticks[detected_controller].gamecontroller.get();
         const auto new_state = sdl::GamecontrollerState::get_state(controller->controller.get());
@@ -383,7 +383,7 @@ struct SdlPlatform : public input::Platform
 
     }
 
-    void remove_joystick_from_instance(input::InputSystem* system, std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
+    void remove_joystick_from_instance(input::InputSystemBase* system, std::vector<input::JoystickId>* lost_joysticks, SDL_JoystickID instance_id)
     {
         if(log_joystick_connection_events)
         {
@@ -769,7 +769,7 @@ struct WindowsImplementation : public Windows
         return platform.get();
     }
 
-    void pump_events(input::InputSystem* input_system) override
+    void pump_events(input::InputSystemBase* input_system) override
     {
         std::vector<input::JoystickId> lost_joysticks;
         SDL_Event e;
@@ -957,7 +957,7 @@ std::unique_ptr<Windows> setup()
 }
 
 
-int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* input_system, update_function&& on_update)
+int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystemBase* input_system, update_function&& on_update)
 {
     auto last = SDL_GetPerformanceCounter();
 

@@ -27,7 +27,7 @@ struct Window
 
 namespace input
 {
-struct InputSystem;
+struct InputSystemBase;
 struct Platform;
 }
 
@@ -46,10 +46,10 @@ struct Windows
 
     virtual WindowHandle add_window(const std::string& title, const glm::ivec2& size) = 0;
     virtual void render() = 0;
-    virtual void pump_events(input::InputSystem* input_system) = 0;
+    virtual void pump_events(input::InputSystemBase* input_system) = 0;
 };
 
 
 std::unique_ptr<Windows> setup();
 
-int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystem* sdl_input, update_function&& on_update);
+int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystemBase* sdl_input, update_function&& on_update);
