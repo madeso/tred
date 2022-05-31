@@ -43,8 +43,6 @@ namespace
     constexpr bool log_joysticks_at_startup = false;
 
     constexpr bool log_joystick_connection_events = true;
-
-    constexpr SDL_Keycode imgui_toggle_key = SDLK_F1;
 }
 
 
@@ -439,7 +437,6 @@ namespace
         bool imgui_requested = true;
 
         std::optional<imgui_function> on_imgui;
-        bool enabled = false;
         detail::Window* owning_window = nullptr;
 
 
@@ -775,6 +772,8 @@ struct WindowsImplementation : public Windows
         SDL_Event e;
         const auto has_imgui = has_any_imgui();
 
+        const bool imgui_really_enabled = input_system->is_mouse_connected() == false;
+
         if(has_imgui)
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -791,7 +790,7 @@ struct WindowsImplementation : public Windows
             );
 
             const int new_flags =
-                imgui_state.enabled
+                imgui_really_enabled
                 ? ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad
                 : ImGuiConfigFlags_NoMouseCursorChange | ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NavNoCaptureKeyboard
                 ;
@@ -807,7 +806,7 @@ struct WindowsImplementation : public Windows
 
         while(SDL_PollEvent(&e) != 0)
         {
-            if(imgui_state.enabled)
+            if(imgui_really_enabled)
             {
                 if(imgui_state.is_imgui_initialized())
                 {
@@ -817,45 +816,45 @@ struct WindowsImplementation : public Windows
 
             if
             (
-                has_imgui
-                &&
-                // capture both up and down key
-                (e.type == SDL_KEYUP || e.type == SDL_KEYDOWN)
-                &&
-                e.key.keysym.sym == imgui_toggle_key
+                has_imgui && imgui_really_enabled
             )
             {
-                const auto down = e.type == SDL_KEYDOWN;
-                if(!down)
+                auto& io = ImGui::GetIO();
+                if(io.WantCaptureKeyboard)
                 {
-                    imgui_state.enabled = !imgui_state.enabled;
+                    if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
+                    {
+                        continue;
+                    }
+                }
+
+                if(io.WantCaptureMouse)
+                {
+                    if(e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEBUTTONUP)
+                    {
+                        continue;
+                    }
                 }
             }
-            else if(has_imgui && imgui_state.enabled)
-            {
-                // block all events to platform if in imgui state
-            }
-            else
-            {
-                platform->on_event
-                (
-                    &lost_joysticks,
-                    input_system,
-                    e,
-                    [&](u32 id) -> std::optional<glm::ivec2>
+            
+            platform->on_event
+            (
+                &lost_joysticks,
+                input_system,
+                e,
+                [&](u32 id) -> std::optional<glm::ivec2>
+                {
+                    const auto found = window_id_to_handle.find(id);
+                    if(found == window_id_to_handle.end())
                     {
-                        const auto found = window_id_to_handle.find(id);
-                        if(found == window_id_to_handle.end())
-                        {
-                            return std::nullopt;
-                        }
-                        else
-                        {
-                            return windows[found->second]->size;
-                        }
+                        return std::nullopt;
                     }
-                );
-            }
+                    else
+                    {
+                        return windows[found->second]->size;
+                    }
+                }
+            );
 
             switch(e.type)
             {
@@ -912,7 +911,7 @@ struct WindowsImplementation : public Windows
 
         platform->on_events_completed(input_system);
 
-        const auto new_mouse_state = imgui_state.enabled == false && input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
+        const auto new_mouse_state = input_system->is_mouse_connected() ? MouseState::locked : MouseState::free;
         if(new_mouse_state != mouse_state)
         {
             // todo(Gustav): need to possible check input if this is required (or enable it later when required)
