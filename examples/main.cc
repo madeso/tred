@@ -53,6 +53,7 @@
 
 #include "sprites/cards.h"
 
+#define OLD_INPUT 0
 
 constexpr auto white3 = glm::vec3{1.0f, 1.0f, 1.0f};
 constexpr auto black3 = glm::vec3{0.0f, 0.0f, 0.0f};
@@ -1348,6 +1349,136 @@ struct PointLightAndMaterial
     rendering::MaterialId material;
 };
 
+#if OLD_INPUT == 0
+
+float two_button_input(bool p, bool n)
+{
+    if(p && n) { return 0.0f;}
+    if(p) { return 1.0f; }
+    if(n) { return -1.0f; }
+    return 0.0f;
+}
+
+struct DemoInput : input::InputSystemBase
+{
+    // if imgui is enabled, we shouldn't capture mouse if imgui is currently using it
+    explicit DemoInput(bool imgui_is_enabled) : imgui_enabled(imgui_is_enabled) {}
+    bool imgui_enabled;
+
+    // "internal" state
+    bool is_mouse_captured = false;
+
+    // input
+    bool move_left = false;
+    bool move_right = false;
+    bool move_up = false;
+    bool move_down = false;
+    bool move_fwd = false;
+    bool move_back = false;
+    bool should_quit = false;
+    float mouse_dx = 0.0f;
+    float mouse_dy = 0.0f;
+
+    float get_inout() const { return two_button_input(move_fwd, move_back); }
+    float get_leftright() const { return two_button_input(move_right, move_left); }
+    float get_updown() const { return two_button_input(move_up, move_down); }
+
+    static constexpr float sensitivity = 0.1f;
+    float get_look_leftright() const { return mouse_dx * sensitivity; }
+    float get_look_updown() const { return mouse_dy * sensitivity; }
+
+    void update_player_connections(input::unit_discovery, input::Platform*) const override
+    {
+        // there is always one connection
+    }
+
+    bool is_mouse_connected() const override
+    {
+        return is_mouse_captured;
+    }
+
+    void on_keyboard_key(input::KeyboardKey key, bool down) override
+    {
+        if(is_mouse_captured == false)
+        {
+            if(down == false && key == input::KeyboardKey::escape)
+            {
+                should_quit = true;
+            }
+
+            // mouse is not captured - don't do fps controller
+            move_left = false;
+            move_right = false;
+            move_up = false;
+            move_down = false;
+            move_fwd = false;
+            move_back = false;
+            return;
+        }
+        
+        switch(key)
+        {
+        case input::KeyboardKey::a: move_left = down; break;
+        case input::KeyboardKey::d: move_right = down; break;
+        case input::KeyboardKey::w: move_fwd = down; break;
+        case input::KeyboardKey::s: move_back = down; break;
+        case input::KeyboardKey::space: move_up = down; break;
+        case input::KeyboardKey::ctrl_left: move_down = down; break;
+        default: break;
+        }
+
+        if(down == false && key == input::KeyboardKey::escape)
+        {
+            is_mouse_captured = false;
+        }
+    }
+
+    void on_mouse_axis(input::Axis2 axis, float relative_state, float /*absolute_state*/) override
+    {
+        if(is_mouse_captured == false )
+        {
+            mouse_dx = 0.0f;
+            mouse_dy = 0.0f;
+            return;
+        }
+
+        switch(axis)
+        {
+            case input::Axis2::x: mouse_dx = relative_state; break;
+            case input::Axis2::y: mouse_dy = relative_state; break;
+            default: break;
+        }
+    }
+
+    void on_mouse_wheel(input::Axis2, float) override
+    {
+        // don't care about mouse wheel
+    }
+
+    void on_mouse_button(input::MouseButton button, bool down) override
+    {
+        if(down) { return; }
+        if(button != input::MouseButton::left) {return;}
+
+        if(imgui_enabled && ImGui::GetIO().WantCaptureMouse)
+        {
+            return;
+        }
+
+        is_mouse_captured = true;
+    }
+
+    // don't care about neither joystick nor gamepad
+    void on_joystick_ball(input::JoystickId, input::Axis2, int, float) override {}
+    void on_joystick_hat(input::JoystickId, input::Axis2, int, float) override {}
+    void on_joystick_button(input::JoystickId, int, bool) override {}
+    void on_joystick_axis(input::JoystickId, int, float) override {}
+    void on_joystick_lost(input::JoystickId) override {}
+    void on_gamecontroller_button(input::JoystickId, input::GamecontrollerButton, float) override {}
+    void on_gamecontroller_axis(input::JoystickId, input::GamecontrollerAxis, float) override {}
+    void on_gamecontroller_lost(input::JoystickId) override {}
+};
+#endif
 
 int
 main(int, char**)
@@ -1366,6 +1497,7 @@ main(int, char**)
 
     bool running = true;
 
+#if OLD_INPUT == 1
     constexpr std::string_view quit = "quit";
     constexpr std::string_view leftright = "leftright";
     constexpr std::string_view inout = "inout";
@@ -1453,6 +1585,9 @@ main(int, char**)
     }
 
     auto sdl_input = std::move(*sdl_input_loaded.value);
+    #endif
+
+    auto sdl_input = DemoInput{true};
 
     auto camera = ::Camera{};
 
@@ -1770,6 +1905,7 @@ main(int, char**)
         }
     );
 
+    #if OLD_INPUT == 1
     auto player = sdl_input.add_player();
     auto get = [](const input::Table& table, std::string_view name, float d=0.0f) -> float
     {
@@ -1777,11 +1913,14 @@ main(int, char**)
         if(found == table.data.end()) { return d; }
         return found->second;
     };
+    #endif
 
     return main_loop(input::unit_discovery::find_highest, std::move(windows), &sdl_input, [&](float dt) -> bool
     {
+        #if OLD_INPUT == 1
         input::Table table;
         sdl_input.update_table(player, &table, dt);
+        #endif
 
         if(animate)
         {
@@ -1793,16 +1932,34 @@ main(int, char**)
             }
         }
 
-        if(get(table, quit, 1.0f) > 0.5f)
+        const bool should_quit
+        #if OLD_INPUT == 1
+        = get(table, quit, 1.0f) > 0.5f
+        #else
+        = sdl_input.should_quit
+        #endif
+        ;
+
+        if(should_quit)
         {
             running = false;
         }
 
         const auto v = camera.create_vectors();
 
+        #if OLD_INPUT == 1
         const auto input_inout = get(table, inout);
         const auto input_leftright = get(table, leftright);
         const auto input_updown = get(table, updown);
+        const auto input_look_leftright = get(table, look_leftright);
+        const auto input_look_updown = get(table, look_updown);
+        #else
+        const auto input_inout = sdl_input.get_inout();
+        const auto input_leftright = sdl_input.get_leftright();
+        const auto input_updown = sdl_input.get_updown();
+        const auto input_look_leftright = sdl_input.get_look_leftright();
+        const auto input_look_updown = sdl_input.get_look_updown();
+        #endif
 
         const auto camera_movement
             = v.front * input_inout
@@ -1816,8 +1973,8 @@ main(int, char**)
 
         // LOG_INFO("mouse: {} {}", get(table, look_leftright), get(table, look_updown));
         const float sensitivity = 1.0f;
-        camera.yaw += get(table, look_leftright) * sensitivity;
-        camera.pitch += get(table, look_updown) * sensitivity;
+        camera.yaw += input_look_leftright * sensitivity;
+        camera.pitch += input_look_updown * sensitivity;
         if(camera.pitch >  89.0f) camera.pitch =  89.0f;
         if(camera.pitch < -89.0f) camera.pitch = -89.0f;
 
