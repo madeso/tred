@@ -1185,10 +1185,15 @@ struct Engine
     RenderList render;
 };
 
+enum class ScopedRendererState
+{
+    adding, complete
+};
 
 struct ScopedRenderer
 {
     Engine* engine;
+    ScopedRendererState render_state = ScopedRendererState::adding;
 
     ScopedRenderer() = default;
     
@@ -1197,31 +1202,37 @@ struct ScopedRenderer
     void operator=(const ScopedRenderer&) = delete;
     void operator=(ScopedRenderer&&) = delete;
 
-    void render_directional_light(const DirectionalLight& d)
+    void add_directional_light(const DirectionalLight& d)
     {
+        ASSERT(render_state == ScopedRendererState::adding);
         engine->render.add_directional_light(d);
     }
 
-    void render_point_light(const PointLight& p)
+    void add_point_light(const PointLight& p)
     {
+        ASSERT(render_state == ScopedRendererState::adding);
         engine->render.add_point_light(p);
     }
 
-    void render_spot_light(const SpotLight& s)
+    void add_spot_light(const SpotLight& s)
     {
+        ASSERT(render_state == ScopedRendererState::adding);
         engine->render.add_spot_light(s);
     }
     
-    void render_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
+    void add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
     {
+        ASSERT(render_state == ScopedRendererState::adding);
         engine->render.add_mesh(geom_id, material_id, model);
     }
 
-    ~ScopedRenderer()
+    void render_all()
     {
+        ASSERT(render_state == ScopedRendererState::adding);
+        render_state = ScopedRendererState::complete;
+
         engine->render.end();
 
-        // todo(Gustav): move to a better place?
         glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         for(const auto& c: engine->render.commands)
         {
@@ -1240,9 +1251,14 @@ struct ScopedRenderer
             );
         }
     }
+
+    ~ScopedRenderer()
+    {
+        ASSERT(render_state == ScopedRendererState::complete);
+    }
 };
 
-ScopedRenderer render_perspective(Engine* engine, float aspect_ratio, const Camera& camera)
+ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera)
 {
     engine->render.begin_perspective(aspect_ratio, camera);
     return {engine};
@@ -1694,7 +1710,7 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                auto renderer = rendering::render_perspective(&engine, aspect_ratio, camera);
+                auto renderer = rendering::create_render_list_for_perspective(&engine, aspect_ratio, camera);
 
                 // render flying crates
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
@@ -1708,26 +1724,28 @@ main(int, char**)
                         ? glm::vec3{1.0f, 0.3f, 0.5f}
                         : glm::vec3{0.5f, 1.0f, 0.0f}
                     );
-                    renderer.render_mesh(crate.geom, crate.material, model);
+                    renderer.add_mesh(crate.geom, crate.material, model);
                 }
 
                 // render lights
-                renderer.render_directional_light(directional_light);
-                renderer.render_spot_light(spot_light);
+                renderer.add_directional_light(directional_light);
+                renderer.add_spot_light(spot_light);
                 for(const auto& pl: point_lights)
                 {
-                    renderer.render_point_light(pl.light);
+                    renderer.add_point_light(pl.light);
 
                     // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.light.position);
-                    renderer.render_mesh(light.geom, pl.material, model);
+                    renderer.add_mesh(light.geom, pl.material, model);
                 }
                 
                 // render ground
                 {
                     const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    renderer.render_mesh(plane.geom, plane.material, model);
+                    renderer.add_mesh(plane.geom, plane.material, model);
                 }
+
+                renderer.render_all();
             }
 
             // draw hud
