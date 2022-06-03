@@ -20,9 +20,18 @@ set_shader_program(unsigned int new_program, const VertexTypes& types)
 
 
 bool
-is_bound_for_shader(const VertexTypes& debug_shader_types)
+is_bound_for_shader(const std::unordered_set<VertexType>&  debug_mesh_shader_types)
 {
-    return debug_shader_types == debug_current_shader_types;
+    for(auto t: debug_current_shader_types)
+    {
+        if(debug_mesh_shader_types.find(t) == debug_mesh_shader_types.end())
+        {
+            // if shader type isn't found in mesh
+            // then error out
+            return false;
+        }
+    }
+    return true;
 }
 
 bool

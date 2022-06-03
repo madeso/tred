@@ -32,7 +32,7 @@ CompiledGeom::CompiledGeom(unsigned int a_vbo, unsigned int a_vao, unsigned int 
         , vao(a_vao)
         , ebo(a_ebo)
         , number_of_indices(count)
-        , debug_shader_types(st)
+        , debug_shader_types(st.begin(), st.end())
 {
 }
 

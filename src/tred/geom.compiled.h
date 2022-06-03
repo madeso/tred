@@ -1,7 +1,10 @@
 #pragma once
 
+#include <unordered_set>
+
 #include "tred/vertex_layout.h"
 #include "tred/geom.h"
+
 
 /** A compiled Geom*/
 struct CompiledGeom
@@ -12,7 +15,7 @@ struct CompiledGeom
 
     int number_of_indices;
 
-    VertexTypes debug_shader_types;
+    std::unordered_set<VertexType> debug_shader_types;
 
     CompiledGeom(unsigned int a_vbo, unsigned int a_vao, unsigned int a_ebo, int count, const VertexTypes& st);
     CompiledGeom(CompiledGeom&& rhs);
