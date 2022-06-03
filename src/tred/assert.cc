@@ -27,6 +27,7 @@ void on_assert_failure(std::string_view function, std::string_view reason, std::
     else
     {
         fmt::print("{}", text);
+        fflush(stdout);
         std::abort();
     }
 }
