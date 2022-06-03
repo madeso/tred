@@ -797,11 +797,7 @@ struct CompiledMaterialShader
     }
 };
 
-CompiledVertexTypeList get_compile_attribute_layouts(Engine*, const ShaderVertexAttributes& layout)
-{
-    // todo(Gustav): add custom/global engine shader layouts here, example: outline shader or optional rimlight
-    return compile_attribute_layouts({layout});
-}
+CompiledVertexTypeList get_compile_attribute_layouts(Engine*, const ShaderVertexAttributes& layout);
 
 std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache* cache, const Vfs& vfs, const std::string& shader_name, const LightParams& lp)
 {
@@ -1089,10 +1085,11 @@ struct RenderList
     glm::vec3 camera_position;
     glm::mat4 projection_view;
     LightStatus light_status;
+    std::optional<MaterialId> global_shader;
 
     bool is_rendering = false;
 
-    void begin_perspective(float aspect_ratio, const Camera& camera)
+    void begin_perspective(float aspect_ratio, const Camera& camera, std::optional<MaterialId> the_global_shader)
     {
         ASSERT(is_rendering == false);
         is_rendering = true;
@@ -1104,6 +1101,7 @@ struct RenderList
 
         camera_position = compiled_camera.position;
         projection_view = pv;
+        global_shader = the_global_shader;
 
         light_status = LightStatus::create_no_error();
         commands.clear();
@@ -1131,7 +1129,7 @@ struct RenderList
     void add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
     {
         ASSERT(is_rendering);
-        commands.emplace_back(RenderCommand{geom_id, material_id, model});
+        commands.emplace_back(RenderCommand{geom_id, global_shader.value_or(material_id), model});
     }
 
     void end()
@@ -1162,13 +1160,24 @@ struct Engine
     
     HandleVector64<CompiledGeom, GeomId> geoms;
     HandleVector64<CompiledMaterial, MaterialId> materials;
+    std::vector<VertexType> global_layout;
+    bool added_meshes = false;
 
     AddedMesh add_mesh(const Mesh& mesh)
     {
+        added_meshes = true;
         auto compiled = compile_mesh(this, &cache, *vfs, mesh);
         return {geoms.add(std::move(compiled.geom)), materials.add(std::move(compiled.material))};
     }
 
+    MaterialId add_global_shader(const Material& path)
+    {
+        ASSERT(added_meshes == false);
+        auto material = compile_material(this, &cache, *vfs, path);
+        const auto& shader = get_compiled_material_shader(cache, material.shader);
+        global_layout = shader.mesh_layout.get_base_layout();
+        return materials.add(std::move(material));
+    }
 
     MaterialId duplicate_material(MaterialId id)
     {
@@ -1184,6 +1193,11 @@ struct Engine
     
     RenderList render;
 };
+
+CompiledVertexTypeList get_compile_attribute_layouts(Engine* engine, const ShaderVertexAttributes& layout)
+{
+    return compile_attribute_layouts(engine->global_layout, {layout});
+}
 
 enum class ScopedRendererState
 {
@@ -1258,9 +1272,9 @@ struct ScopedRenderer
     }
 };
 
-ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera)
+ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader)
 {
-    engine->render.begin_perspective(aspect_ratio, camera);
+    engine->render.begin_perspective(aspect_ratio, camera, global_shader);
     return {engine};
 }
 
@@ -1306,7 +1320,7 @@ struct FixedFileVfs : rendering::Vfs
             log_shader_error(path, src);
             if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
             return rendering::MaterialShaderSource::create_unlit(*src.source)
-                .with_vec3(diffuse_color, "uColor", glm::vec3{1.0f, 0.0f, 0.0f})
+                .with_vec3(diffuse_color, "uColor", glm::vec3{1.0f, 1.0f, 1.0f})
                 ;
         }
         return std::nullopt;
@@ -1635,6 +1649,10 @@ main(int, char**)
         }
     };
 
+    // todo(Gustav): add override shaders so we can render just white polygon/points
+    const auto white_only = engine.add_global_shader(rendering::Material{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
+    bool use_white_only = false;
+
     const auto crate = engine.add_mesh
     ({
         rendering::Material{"default.glsl"}
@@ -1710,7 +1728,7 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                auto renderer = rendering::create_render_list_for_perspective(&engine, aspect_ratio, camera);
+                auto renderer = rendering::create_render_list_for_perspective(&engine, aspect_ratio, camera, use_white_only ? std::make_optional(white_only) : std::nullopt);
 
                 // render flying crates
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
@@ -1796,13 +1814,13 @@ main(int, char**)
     );
 
     int rendering_mode = 0;
-    const auto set_rendering_mode = [&rendering_mode]()
+    const auto set_rendering_mode = [&rendering_mode, &use_white_only]()
     {
         switch(rendering_mode)
         {
-            case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
-            case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
-            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+            case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); use_white_only = false; break;
+            case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); use_white_only = true; break;
+            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); use_white_only = true; break;
             default: DIE("invalid rendering_mode"); break;
         }
     };
