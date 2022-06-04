@@ -11,7 +11,7 @@
 
 #include <fmt/core.h>
 
-#include "glad/glad.h"
+#include "tred/dependency_glad.h"
 #include "tred/dependency_glm.h"
 
 #include "tred/undef_windows.h"

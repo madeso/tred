@@ -1,6 +1,6 @@
 #include "tred/opengl_debug.h"
 
-#include "glad/glad.h"
+#include "tred/dependency_glad.h"
 
 #include "tred/dependency_sdl.h"
 #include "tred/dependency_opengl.h"

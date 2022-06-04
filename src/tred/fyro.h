@@ -21,7 +21,7 @@
 #include <fmt/core.h>
 
 // dependency headers
-#include "glad/glad.h"
+#include "tred/dependency_glad.h"
 #include "stb_image.h"
 #include "tred/dependency_glm.h"
 

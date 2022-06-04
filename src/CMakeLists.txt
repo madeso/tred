@@ -1,5 +1,5 @@
 set(src
-    tred/dependency_sdl.cc tred/dependency_sdl.h
+    tred/dependency_sdl.cc tred/dependency_sdl.h tred/dependency_glad.h
 
     tred/assert.cc tred/assert.h
 

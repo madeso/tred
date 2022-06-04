@@ -1,7 +1,7 @@
 #pragma once
 
 // #include "SDL_opengl.h"
-#include "glad/glad.h"
+#include "tred/dependency_glad.h"
 
 // include size_t
 #include <vector>
