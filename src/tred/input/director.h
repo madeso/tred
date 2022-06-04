@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include <map>
 #include <set>
 
 #include "tred/input/key.h"
@@ -64,8 +63,8 @@ struct Director
 
     std::vector<KeyboardActiveUnit*> keyboards;
     std::vector<MouseActiveUnit*> mouses;
-    std::map<JoystickId, JoystickActiveUnit*> joysticks;
-    std::map<JoystickId, GamecontrollerActiveUnit*> gamecontrollers;
+    std::unordered_map<JoystickId, JoystickActiveUnit*> joysticks;
+    std::unordered_map<JoystickId, GamecontrollerActiveUnit*> gamecontrollers;
 };
 
 }

@@ -1,8 +1,6 @@
 #pragma once
 
 
-#include <map>
-
 #include <memory>
 
 
@@ -128,7 +126,7 @@ struct BindMap
         return found->second;
     }
 
-    std::map<T, float> binds;
+    std::unordered_map<T, float> binds;
 };
 
 
