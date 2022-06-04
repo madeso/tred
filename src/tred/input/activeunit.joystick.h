@@ -34,9 +34,8 @@ namespace impl
     {
         JoystickAxisUnit(bool is_relative);
 
-        bool is_relative;
-
         JoystickActiveUnit* parent;
+        bool is_relative;
 
         void register_axis(AxisType type, int target, int axis) override;
         float get_state(AxisType type, int target, int axis, float dt) override;
