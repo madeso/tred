@@ -3,7 +3,7 @@
 #include "tred/assert.h"
 #include <stdexcept>
 #include <fstream>
-#include "fmt/format.h"
+
 
 #include "tred/log.h"
 #include "tred/cint.h"

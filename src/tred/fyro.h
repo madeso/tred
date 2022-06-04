@@ -8,22 +8,21 @@
 
 
 // standard headers
-#include <string>
-#include <string_view>
+
+
 #include "tred/assert.h"
-#include <vector>
+
 #include <numeric>
 #include <functional>
 #include <array>
 #include <map>
 #include <set>
 
-#include <fmt/core.h>
 
 // dependency headers
 #include "tred/dependency_glad.h"
 #include "stb_image.h"
-#include "tred/dependency_glm.h"
+
 
 // imgui
 #include "tred/dependency_imgui.h"
@@ -42,3 +41,4 @@
 #include "tred/game.h"
 #include "tred/texture.h"
 #include "tred/texture.load.h"
+

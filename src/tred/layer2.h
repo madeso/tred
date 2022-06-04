@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/dependency_glm.h"
+
 #include "tred/rect.h"
 
 struct Render2;

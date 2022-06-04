@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+
 #include <map>
 
 #include "tred/input/axis.h"

@@ -1,4 +1,4 @@
-#include "fmt/format.h"
+
 
 #include "catch.hpp"
 #include "catchy/vectorequals.h"

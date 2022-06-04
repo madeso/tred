@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+
 
 
 /** Represents a found shader uniform and created via ShaderProgram::GetUniform()

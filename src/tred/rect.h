@@ -1,9 +1,8 @@
 #pragma once
 
-#include <algorithm>
 #include "tred/assert.h"
 
-#include "tred/dependency_glm.h"
+
 
 // basic rect
 // also heavily inspired by https://halt.software/dead-simple-layouts/

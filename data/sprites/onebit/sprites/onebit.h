@@ -3,7 +3,7 @@
 #include "tred/texture.h"
 #include "tred/rect.h"
 
-#include <string_view>
+
 #include <array>
 
 namespace onebit

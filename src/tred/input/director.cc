@@ -1,7 +1,7 @@
 #include "tred/input/director.h"
 
 #include "tred/assert.h"
-#include <algorithm>
+
 
 #include "tred/input/activeunit.keyboard.h"
 #include "tred/input/activeunit.mouse.h"

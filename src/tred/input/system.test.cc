@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <functional>
-#include "fmt/format.h"
+
 
 #include "catch.hpp"
 

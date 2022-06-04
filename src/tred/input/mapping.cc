@@ -1,7 +1,7 @@
 #include "tred/input/mapping.h"
 
 #include "tred/assert.h"
-#include <algorithm>
+
 
 #include "tred/input/unitdef.h"
 #include "tred/input/director.h"

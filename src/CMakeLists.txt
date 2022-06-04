@@ -76,6 +76,8 @@ set(src
     tred/viewportdef.cc tred/viewportdef.h
 
     tred/random.cc tred/random.h
+
+    tred/pch.public.h tred/pch.private.h
 )
 
 add_library(tred STATIC ${src})
@@ -85,6 +87,10 @@ target_link_libraries(tred
 )
 target_include_directories(tred
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_precompile_headers(tred
+    PUBLIC tred/pch.public.h
+    PRIVATE tred/pch.private.h
 )
 
 source_group("" FILES ${src})

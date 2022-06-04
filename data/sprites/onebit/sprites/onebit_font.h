@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
+
 
 #include "tred/rect.h"
-#include "tred/dependency_glm.h"
+
 
 struct Texture;
 struct SpriteBatch;

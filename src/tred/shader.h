@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-#include <string_view>
 
-#include "tred/dependency_glm.h"
+
+
+
 
 #include "tred/vertex_layout.h"
 #include "tred/uniform.h"

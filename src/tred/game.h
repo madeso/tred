@@ -1,11 +1,11 @@
 #pragma once
 
-#include "tred/dependency_glm.h"
 
-#include <string>
+
+
 #include <memory>
 #include <functional>
-#include <optional>
+
 
 #include "tred/shader.h"
 #include "tred/vertex_layout.h"

@@ -3,7 +3,7 @@
 #include "tred/assert.h"
 #include <fstream>
 
-#include "fmt/format.h"
+
 
 #include "tred/input/config.h"
 #include "tred/input/director.h"

@@ -7,7 +7,7 @@
 
 #include "sprites/onebit.h"
 
-#include "fmt/format.h"
+
 
 namespace onebit
 {

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
+
 #include <map>
 #include <set>
-#include <string>
-#include <optional>
+
+
 
 
 /** Vertex source type, position, normal etc. */

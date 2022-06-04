@@ -2,7 +2,7 @@
 #include "tred/assert.h"
 #include <stdexcept>
 #include <fstream>
-#include "fmt/format.h"
+
 
 #include "tred/input/config.h"
 #include "tred/input/range.h"

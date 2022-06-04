@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
 
-#include "tred/dependency_glm.h"
+
+
 
 
 /** A unique combination of position/normal/texturecoord/etc. in a Geom.

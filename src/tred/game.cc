@@ -1,8 +1,8 @@
 #include "tred/game.h"
 
 #include <map>
-#include <string_view>
-#include <string>
+
+
 #include <array>
 #include <set>
 #include "tred/assert.h"
@@ -16,7 +16,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include "tred/dependency_sdl.h"
-#include "tred/dependency_glm.h"
+
 #include "tred/log.h"
 #include "tred/opengl_debug.h"
 #include "tred/opengl_utils.h"

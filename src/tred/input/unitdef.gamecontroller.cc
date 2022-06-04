@@ -1,8 +1,8 @@
 #include "unitdef.gamecontroller.h"
 
 #include "tred/assert.h"
-#include <string>
-#include "fmt/format.h"
+
+
 
 #include "tred/log.h"
 #include "tred/input/config.h"

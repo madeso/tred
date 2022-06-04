@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+
 #include "tred/dependency_opengl.h"
 
 // use std::optional and bool?

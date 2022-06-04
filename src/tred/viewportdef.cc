@@ -1,7 +1,7 @@
 #include "tred/viewportdef.h"
 
 #include "tred/assert.h"
-#include <algorithm>
+
 #define ASSERTX(X,...) ASSERT(X)
 
 

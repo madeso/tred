@@ -1,8 +1,5 @@
 #pragma once
 
-#include <fmt/format.h>
-
-
 void
 log_info_implementation(fmt::string_view format, fmt::format_args args);
 

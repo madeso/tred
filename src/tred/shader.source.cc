@@ -1,9 +1,9 @@
 #include "tred/shader.source.h"
 
 #include <sstream>
-#include <optional>
 
-#include "fmt/format.h"
+
+
 
 
 namespace shader
