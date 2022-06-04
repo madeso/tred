@@ -7,7 +7,7 @@
 #include <set>
 #include "tred/assert.h"
 
-#include "tred/dependency_glad.h"
+
 
 // imgui
 #include "tred/dependency_imgui.h"

@@ -8,7 +8,7 @@
 #include "tred/assert.h"
 #include <iostream>
 
-#include "tred/dependency_glad.h"
+
 
 // imgui
 #include "tred/dependency_imgui.h"

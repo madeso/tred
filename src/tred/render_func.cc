@@ -1,6 +1,6 @@
 #include "tred/render_func.h"
 
-#include "tred/dependency_glad.h"
+
 
 
 void clear_stencil_and_depth()
