@@ -11,11 +11,6 @@
 
 #include <fmt/core.h>
 
-#include "tred/dependency_glad.h"
-#include "tred/dependency_glm.h"
-
-#include "tred/undef_windows.h"
-
 #include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
@@ -44,6 +39,7 @@
 #include "tred/handle.h"
 #include "tred/hash.string.h"
 #include "tred/stdutils.h"
+#include "tred/render_func.h"
 
 // resource headers
 #include "shader_light.glsl.h"
@@ -1247,7 +1243,7 @@ struct ScopedRenderer
 
         engine->render.end();
 
-        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        clear_stencil_and_depth();
         for(const auto& c: engine->render.commands)
         {
             render_geom_with_material
@@ -1868,9 +1864,9 @@ main(int, char**)
     {
         switch(rendering_mode)
         {
-            case 0: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); use_white_only = false; break;
-            case 1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); use_white_only = true; break;
-            case 2: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); use_white_only = true; break;
+            case 0: set_poly_mode_to_fill(); use_white_only = false; break;
+            case 1: set_poly_mode_to_line(); use_white_only = true; break;
+            case 2: set_poly_mode_to_point(); use_white_only = true; break;
             default: DIE("invalid rendering_mode"); break;
         }
     };

@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include "tred/dependency_opengl.h"
-
 // use std::optional and bool?
 
 struct OpenglStates

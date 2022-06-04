@@ -20,7 +20,6 @@
 
 
 // dependency headers
-#include "tred/dependency_glad.h"
 #include "stb_image.h"
 
 
@@ -31,7 +30,6 @@
 
 // custom/local headers
 #include "tred/dependency_sdl.h"
-#include "tred/dependency_opengl.h"
 #include "tred/opengl_debug.h"
 #include "tred/cint.h"
 #include "tred/uniform.h"

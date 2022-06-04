@@ -69,6 +69,7 @@ set(src
     tred/windows.sdl.convert.cc tred/windows.sdl.convert.h
     tred/hash.cc tred/hash.h
     tred/hash.string.cc tred/hash.string.h
+    tred/render_func.cc tred/render_func.h
 
     tred/fyro.h
     tred/game.cc tred/game.h
