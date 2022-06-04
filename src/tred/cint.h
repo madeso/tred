@@ -1,11 +1,5 @@
 #pragma once
 
-#include "tred/dependency_opengl.h"
-
-
-// include size_t
-
-
 
 int
 Csizet_to_int(std::size_t t);
