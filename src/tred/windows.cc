@@ -369,9 +369,10 @@ struct SdlPlatform : public input::Platform
                 JoystickDetectionState::not_detected
             }
         );
-        joysticks[id].joystick = std::move(joystick);
-        joysticks[id].instance_id = instance_id;
-        joysticks[id].in_use = JoystickDetectionState::not_detected;
+        // what is this code? remove?
+        // joysticks[id].joystick = std::move(joystick);
+        // joysticks[id].instance_id = instance_id;
+        // joysticks[id].in_use = JoystickDetectionState::not_detected;
 
         // overwrite existing (if any) sdl joystick instance_id with the new id
         sdljoystick_to_id[instance_id] = id;

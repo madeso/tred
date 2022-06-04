@@ -24,7 +24,7 @@ float impl::JoystickKeyUnit::get_state(int key)
 
 
 impl::JoystickAxisUnit::JoystickAxisUnit(bool ir)
-    : is_relative(ir)
+    : parent(nullptr), is_relative(ir)
 {
 }
 
