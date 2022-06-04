@@ -830,7 +830,7 @@ struct WindowsImplementation : public Windows
 
                 if(io.WantCaptureMouse)
                 {
-                    if(e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEBUTTONUP)
+                    if(e.type == SDL_MOUSEBUTTONUP || e.type == SDL_MOUSEBUTTONDOWN)
                     {
                         continue;
                     }
