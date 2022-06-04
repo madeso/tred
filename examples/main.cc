@@ -1510,6 +1510,53 @@ struct DemoInput : input::InputSystemBase
 };
 #endif
 
+
+bool ui_attenuation(Attenuation* a)
+{
+    bool changed = false;
+    changed = ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f) || changed;
+    changed = ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f) || changed;
+    changed = ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f) || changed;
+    return changed;
+};
+
+bool ui_directional(DirectionalLight* light)
+{
+    bool changed = false;
+    changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
+    changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+    changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+    changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+    changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
+    return changed;
+};
+
+bool ui_point(PointLight* light)
+{
+    bool changed = false;
+    changed = ui_attenuation(&light->attenuation) || changed;
+    changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
+    changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+    changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+    changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+    changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
+    return changed;
+};
+
+bool ui_spot(SpotLight* light)
+{
+    bool changed = false;
+    changed = ui_attenuation(&light->attenuation) || changed;
+    changed = ImGui::DragFloat("Ambient strength", &light->ambient_strength, 0.01f) || changed;
+    changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
+    changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
+    changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
+    changed = ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f) || changed;
+    changed = ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f) || changed;
+    return changed;
+};
+
+
 int
 main(int, char**)
 {
@@ -1849,51 +1896,6 @@ main(int, char**)
                 ImGui::DragFloat("FOV", &camera.fov, 0.1f, 1.0f, 145.0f);
                 if (ImGui::CollapsingHeader("Lights"))
                 {
-                    const auto ui_attenuation = [](Attenuation* a) -> bool
-                    {
-                        bool changed = false;
-                        changed = ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f) || changed;
-                        changed = ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f) || changed;
-                        changed = ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f) || changed;
-                        return changed;
-                    };
-
-                    const auto ui_directional = [](DirectionalLight* light) -> bool
-                    {
-                        bool changed = false;
-                        changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
-                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
-                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
-                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
-                        changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
-                        return changed;
-                    };
-
-                    const auto ui_point = [&ui_attenuation](PointLight* light) -> bool
-                    {
-                        bool changed = false;
-                        changed = ui_attenuation(&light->attenuation) || changed;
-                        changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
-                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
-                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
-                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
-                        changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
-                        return changed;
-                    };
-
-                    const auto ui_spot = [&ui_attenuation](SpotLight* light) -> bool
-                    {
-                        bool changed = false;
-                        changed = ui_attenuation(&light->attenuation) || changed;
-                        changed = ImGui::DragFloat("Ambient strength", &light->ambient_strength, 0.01f) || changed;
-                        changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
-                        changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
-                        changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
-                        changed = ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f) || changed;
-                        changed = ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f) || changed;
-                        return changed;
-                    };
-
                     if(ImGui::CollapsingHeader("Directional"))
                     {
                         ImGui::PushID("directional light");
