@@ -1518,7 +1518,8 @@ bool ui_attenuation(Attenuation* a)
     changed = ImGui::DragFloat("Attenuation linear", &a->linear, 0.01f) || changed;
     changed = ImGui::DragFloat("Attenuation quadratic", &a->quadratic, 0.01f) || changed;
     return changed;
-};
+}
+
 
 bool ui_directional(DirectionalLight* light)
 {
@@ -1529,7 +1530,8 @@ bool ui_directional(DirectionalLight* light)
     changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
     changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
     return changed;
-};
+}
+
 
 bool ui_point(PointLight* light)
 {
@@ -1541,7 +1543,8 @@ bool ui_point(PointLight* light)
     changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
     changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
     return changed;
-};
+}
+
 
 bool ui_spot(SpotLight* light)
 {
@@ -1554,7 +1557,7 @@ bool ui_spot(SpotLight* light)
     changed = ImGui::DragFloat("Cutoff", &light->cutoff, 0.1f) || changed;
     changed = ImGui::DragFloat("Outer cutoff", &light->outer_cutoff, 0.1f) || changed;
     return changed;
-};
+}
 
 
 int
