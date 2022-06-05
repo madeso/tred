@@ -123,7 +123,14 @@ struct BindMap
     float get_raw(const T& t) const
     {
         auto found = binds.find(t);
-        return found->second;
+        if(found == binds.end())
+        {
+            return 0.0f;
+        }
+        else
+        {
+            return found->second;
+        }
     }
 
     std::unordered_map<T, float> binds;
