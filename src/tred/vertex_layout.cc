@@ -110,8 +110,10 @@ CompiledVertexTypeList::compile_shader_layout(const ShaderVertexAttributes& elem
     {
         const auto found = indices.find(e.type);
         ASSERT(found != indices.end() && "layout wasn't added to the compilation list");
-
-        list.push_back({e, found->second});
+        if(found != indices.end())
+        {
+            list.push_back({e, found->second});
+        }
     }
 
     return {list, debug_types};
