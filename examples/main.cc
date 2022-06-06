@@ -1789,7 +1789,11 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                auto renderer = rendering::create_render_list_for_perspective(&engine, aspect_ratio, camera, use_white_only ? std::make_optional(white_only) : std::nullopt);
+                auto renderer = rendering::create_render_list_for_perspective
+                (
+                    &engine, aspect_ratio, camera,
+                    use_white_only ? std::make_optional(white_only) : std::nullopt
+                );
 
                 // render flying crates
                 for(unsigned int i=0; i<cube_positions.size(); i+=1)
@@ -1812,8 +1816,6 @@ main(int, char**)
                 for(const auto& pl: point_lights)
                 {
                     renderer.add_point_light(pl.light);
-
-                    // light_shader.set_vec3(uni_light_color, pl.diffuse);
                     const auto model = glm::translate(glm::mat4(1.0f), pl.light.position);
                     renderer.add_mesh(light.geom, pl.material, model);
                 }
