@@ -86,6 +86,9 @@ struct DirectionalLight
     {
     }
 
+    DirectionalLight(const DirectionalLight&) = default;
+    DirectionalLight& operator=(const DirectionalLight&) = default;
+
     static DirectionalLight create_no_light()
     {
         return DirectionalLight{0.0f, black3, black3, black3};
@@ -193,6 +196,8 @@ struct PointLight
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
 
     PointLight(const glm::vec3& p) : position(p) {}
+    PointLight(const PointLight&) = default;
+    PointLight& operator=(const PointLight&) = default;
 };
 
 
@@ -1296,6 +1301,132 @@ const LightParams& get_light_params(const Engine& engine)
     return engine.lp;
 }
 
+
+struct Actor
+{
+    GeomId geom;
+    MaterialId material;
+
+    // todo(Gustav): change to a representation that is easier to update and cull and can easily build a model matrix?
+    // float yaw, pitch, roll; float x, y, z; float scale_uniform;
+    glm::mat4 transform;
+};
+
+enum class ActorId : u64 {};
+enum class DirectionalLightId : u64 {};
+enum class SpotLightId : u64 {};
+enum class PointLightId : u64 {};
+
+struct World
+{
+    World() = default;
+    virtual ~World() = default;
+
+    World(const World&) = delete;
+    World(World&&) = delete;
+    void operator=(const World&) = delete;
+    void operator=(World&&) = delete;
+
+    HandleVector64<Actor, ActorId> actors;
+
+    HandleVector64<DirectionalLight, DirectionalLightId> directional_lights;
+    HandleVector64<SpotLight, SpotLightId> spot_lights;
+    HandleVector64<PointLight, PointLightId> point_lights;
+
+    ActorId add_actor(GeomId geom_id, MaterialId material_id, const glm::mat4& transform)
+    {
+        LOG_INFO("Adding actor {} {}", geom_id, material_id);
+        return actors.add(Actor{geom_id, material_id, transform});
+    }
+
+    void update_actor(ActorId id, const glm::mat4& transform)
+    {
+        actors[id].transform = transform;
+    }
+
+    DirectionalLightId add_directional_light(const DirectionalLight& light)
+    {
+        return directional_lights.add(DirectionalLight{light});
+    }
+
+    void update_directional_light(DirectionalLightId id, const DirectionalLight& light)
+    {
+        directional_lights[id] = light;
+    }
+
+    SpotLightId add_spot_light(const SpotLight& light)
+    {
+        return spot_lights.add(SpotLight{light});
+    }
+
+    void update_spot_light(SpotLightId id, const SpotLight& light)
+    {
+        spot_lights[id] = light;
+    }
+
+    PointLightId add_point_light(const PointLight& light)
+    {
+        return point_lights.add(PointLight{light});
+    }
+
+    void update_point_light(PointLightId id, const PointLight& light)
+    {
+        point_lights[id] = light;
+    }
+
+    void render(ScopedRenderer* renderer)
+    {
+        for(const auto& light: directional_lights) { renderer->add_directional_light(light); }
+        for(const auto& light: spot_lights) { renderer->add_spot_light(light); }
+        for(const auto& light: point_lights) { renderer->add_point_light(light); }
+        for(const auto& act: actors) { renderer->add_mesh(act.geom, act.material, act.transform); }
+    }
+};
+
+bool im_gui(World& world)
+{
+    bool changed = false;
+
+    #if 0
+    if (ImGui::CollapsingHeader("Directional light"))
+    {
+        for(const auto& light: directional_lights) { ImGui::Separator(); }
+    }
+    if (ImGui::CollapsingHeader("Spot lights"))
+    {
+        for(const auto& light: spot_lights) { renderer->add_spot_light(light); }
+    }
+    if (ImGui::CollapsingHeader("Point lights"))
+    {
+        for(const auto& light: point_lights) { renderer->add_point_light(light); }
+    }
+    #endif
+
+    if (ImGui::CollapsingHeader("Actors"))
+    {
+        int id = 0;
+        for(const auto& act: world.actors)
+        {
+            ImGui::PushID(id); id += 1;
+            {
+                const auto s = fmt::format("{} {}", act.geom, act.material);
+                ImGui::Text("%s", s.c_str());
+            }
+            ImGui::SameLine();
+            {
+                glm::vec3 p = act.transform[3];
+                const auto was_changed = ImGui::DragFloat3("Position", glm::value_ptr(p), 0.01f);
+
+                changed = was_changed | changed;
+            }
+            // ImGui::Separator();
+
+            ImGui::PopID();
+        }
+    }
+    return changed;
+}
+
 } // namespace rendering
 
 
@@ -1383,12 +1514,6 @@ struct FixedFileVfs : rendering::Vfs
     }
 };
 
-
-struct PointLightAndMaterial
-{
-    PointLight light;
-    rendering::MaterialId material;
-};
 
 #if OLD_INPUT == 0
 
@@ -1722,11 +1847,15 @@ main(int, char**)
             ,
         create_box_mesh(1.0f)
     });
+    LOG_INFO("Crate is {} {}", crate.geom, crate.material);
+
     const auto light = engine.add_mesh
     ({
         rendering::Material{"unlit.glsl"},
         create_box_mesh(0.2f)
     });
+    LOG_INFO("Light is {} {}", light.geom, light.material);
+
     const auto plane = engine.add_mesh
     ({
         rendering::Material{"default.glsl"}
@@ -1735,15 +1864,48 @@ main(int, char**)
             ,
         create_plane_mesh(plane_size, plane_size)
     });
+    LOG_INFO("Plane is {} {}", plane.geom, plane.material);
+
+    auto get_crate_transform = [&](unsigned int i, float time)
+    {
+        const auto angle = 20.0f * static_cast<float>(i);
+        return glm::rotate
+        (
+            glm::translate(glm::mat4(1.0f), cube_positions[i]),
+            time + glm::radians(angle),
+            i%2 == 0
+            ? glm::vec3{1.0f, 0.3f, 0.5f}
+            : glm::vec3{0.5f, 1.0f, 0.0f}
+        );
+    };
 
     auto spot_light = ::SpotLight{};
     auto directional_light = ::DirectionalLight{};
+
+    struct PointLightAndMaterial
+    {
+        PointLight light;
+        rendering::MaterialId material;
+        rendering::PointLightId light_actor;
+        rendering::ActorId mesh_actor;
+
+        PointLightAndMaterial(const glm::vec3& p, rendering::MaterialId m, rendering::GeomId light_geom, rendering::World* world)
+            : light(p)
+            , material(m)
+            , light_actor(world->add_point_light(light))
+            , mesh_actor(world->add_actor(light_geom, material, glm::translate(glm::mat4(1.0f), light.position)))
+        {
+        }
+    };
+
+    auto world = std::make_unique<rendering::World>();
+
     auto point_lights = std::array<PointLightAndMaterial, NUMBER_OF_POINT_LIGHTS>
     {
-        PointLightAndMaterial{glm::vec3{ 0.7f,  0.2f,  2.0f}, light.material},
-        PointLightAndMaterial{glm::vec3{ 2.3f, -3.3f, -4.0f}, engine.duplicate_material(light.material)},
-        PointLightAndMaterial{glm::vec3{-4.0f,  2.0f, -12.0f}, engine.duplicate_material(light.material)},
-        PointLightAndMaterial{glm::vec3{ 0.0f,  0.0f, -3.0f}, engine.duplicate_material(light.material)}
+        PointLightAndMaterial{glm::vec3{ 0.7f,  0.2f,  2.0f}, light.material, light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{ 2.3f, -3.3f, -4.0f}, engine.duplicate_material(light.material), light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{-4.0f,  2.0f, -12.0f}, engine.duplicate_material(light.material), light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{ 0.0f,  0.0f, -3.0f}, engine.duplicate_material(light.material), light.geom, world.get()}
     };
     auto match_diffuse_color_for_point_light = [&](PointLightAndMaterial& pl)
     {
@@ -1754,6 +1916,31 @@ main(int, char**)
     for(auto& pl: point_lights)
     {
         match_diffuse_color_for_point_light(pl);
+    }
+
+    struct Crate
+    {
+        rendering::ActorId actor;
+        unsigned int id;
+        Crate(rendering::ActorId a, unsigned int i) : actor(a), id(i) {}
+    };
+    std::vector<Crate> crates;
+
+    // add flying crates
+    for(unsigned int i=0; i<cube_positions.size(); i+=1)
+    {
+        auto actor = world->add_actor(crate.geom, crate.material, get_crate_transform(i, 0.0f));
+        crates.emplace_back(actor, i);
+    }
+
+    // add lights
+    const auto directional_light_actor = world->add_directional_light(directional_light);
+    const auto spot_light_actor = world->add_spot_light(spot_light);
+        
+    // add ground
+    {
+        const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
+        world->add_actor(plane.geom, plane.material, model);
     }
 
     auto cards = Texture{::cards::load_texture()};
@@ -1795,36 +1982,21 @@ main(int, char**)
                     use_white_only ? std::make_optional(white_only) : std::nullopt
                 );
 
-                // render flying crates
-                for(unsigned int i=0; i<cube_positions.size(); i+=1)
+                for(auto& crate: crates)
                 {
-                    const auto angle = 20.0f * static_cast<float>(i);
-                    const auto model = glm::rotate
-                    (
-                        glm::translate(glm::mat4(1.0f), cube_positions[i]),
-                        time + glm::radians(angle),
-                        i%2 == 0
-                        ? glm::vec3{1.0f, 0.3f, 0.5f}
-                        : glm::vec3{0.5f, 1.0f, 0.0f}
-                    );
-                    renderer.add_mesh(crate.geom, crate.material, model);
+                    const auto transform = get_crate_transform(crate.id, time);
+                    world->update_actor(crate.actor, transform);
                 }
 
-                // render lights
-                renderer.add_directional_light(directional_light);
-                renderer.add_spot_light(spot_light);
-                for(const auto& pl: point_lights)
+                // todo(Gustav): move theese to when light has changed...
+                world->update_directional_light(directional_light_actor, directional_light);
+                world->update_spot_light(spot_light_actor, spot_light);
+                for(auto& pl: point_lights)
                 {
-                    renderer.add_point_light(pl.light);
-                    const auto model = glm::translate(glm::mat4(1.0f), pl.light.position);
-                    renderer.add_mesh(light.geom, pl.material, model);
+                    world->update_point_light(pl.light_actor, pl.light);
                 }
-                
-                // render ground
-                {
-                    const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-                    renderer.add_mesh(plane.geom, plane.material, model);
-                }
+
+                world->render(&renderer);
 
                 renderer.render_all();
             }
@@ -1910,6 +2082,9 @@ main(int, char**)
                     set_rendering_mode();
                 }
                 ImGui::DragFloat("FOV", &camera.fov, 0.1f, 1.0f, 145.0f);
+
+                rendering::im_gui(*world.get());
+
                 if (ImGui::CollapsingHeader("Lights"))
                 {
                     if(ImGui::CollapsingHeader("Directional"))
