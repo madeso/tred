@@ -84,7 +84,7 @@ Data GetTable(InputSystem* system, PlayerHandle player, float dt = 1.0f)
 }
 
 
-FalseString MapEq(const std::unordered_map<std::string, float>& lhs, const std::unordered_map<std::string, float>& rhs)
+FalseString MapEq(const std::map<std::string, float>& lhs, const std::map<std::string, float>& rhs)
 {
     return catchy::MapEq(lhs, rhs, [](float l, float r) -> FalseString
     {

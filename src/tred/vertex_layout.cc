@@ -95,7 +95,7 @@ struct VertexTypeList
 };
 
 
-CompiledVertexTypeList::CompiledVertexTypeList(const std::unordered_map<VertexType, int>& i, const ::VertexTypes& v)
+CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const ::VertexTypes& v)
     : indices(i)
     , debug_types(v)
 {
@@ -144,7 +144,7 @@ ShaderAttributeSize(const VertexType&)
 CompiledVertexTypeList
 compile_vertex_type_list(const VertexTypeList& list)
 {
-    std::unordered_map<VertexType, int> indices;
+    std::map<VertexType, int> indices;
 
     int next_index = 0;
 

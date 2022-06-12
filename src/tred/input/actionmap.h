@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <memory>
 
 
@@ -23,7 +25,7 @@ struct ActionMap
 
     void add_action(const std::string& name, std::unique_ptr<Action>&& action);
 
-    std::unordered_map<std::string, std::unique_ptr<Action>> actions;
+    std::map<std::string, std::unique_ptr<Action>> actions;
 };
 
 

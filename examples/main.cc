@@ -430,7 +430,7 @@ float remap(float ol, float ou, float f, float nl, float nu)
 constexpr float plane_size = 20.0f;
 
 
-using ShaderCompilerProperties = std::unordered_map<std::string, std::string>;
+using ShaderCompilerProperties = std::map<std::string, std::string>;
 
 std::string
 generate(std::string_view str, const ShaderCompilerProperties& properties)
@@ -493,31 +493,16 @@ struct PropertyIndex
     PropertyType type;
     int index;
 };
-}
-
-namespace std
+bool operator<(const PropertyIndex& lhs, const PropertyIndex& rhs)
 {
-template <>
-struct hash<::rendering::PropertyIndex>
-{
-    std::size_t operator()(const ::rendering::PropertyIndex& k) const
+    if(lhs.type == rhs.type)
     {
-        using std::size_t;
-        using std::hash;
-        using std::string;
-
-        return ((hash<::rendering::PropertyType>()(k.type)
-            ^ (hash<int>()(k.index) << 1)) >> 1)
-            ;
+        return lhs.index < rhs.index;
     }
-};
-}
-
-namespace rendering
-{
-bool operator==(const PropertyIndex& lhs, const PropertyIndex& rhs)
-{
-    return lhs.type == rhs.type && lhs.index == rhs.index;
+    else
+    {
+        return base_cast(lhs.type) < base_cast(rhs.type);
+    }
 }
 
 struct LightParams
@@ -845,7 +830,7 @@ std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache
     
     auto texture_uniform_indices = std::vector<std::size_t>{};
 
-    std::unordered_map<PropertyIndex, int> array_to_uniform;
+    std::map<PropertyIndex, int> array_to_uniform;
 
     for(const auto& prop: shader_source.properties)
     {

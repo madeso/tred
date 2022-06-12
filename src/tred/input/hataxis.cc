@@ -14,9 +14,16 @@ HatAndAxis2::HatAndAxis2(int h, Axis2 a)
 }
 
 
-bool HatAndAxis2::operator==(const HatAndAxis2& rhs) const
+bool HatAndAxis2::operator<(const HatAndAxis2& rhs) const
 {
-    return axis == rhs.axis && hat < rhs.hat;
+    if (axis == rhs.axis)
+    {
+        return hat < rhs.hat;
+    }
+    else
+    {
+        return axis < rhs.axis;
+    }
 }
 
 

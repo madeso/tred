@@ -1,5 +1,7 @@
 #pragma once
 
+
+#include <map>
 #include <set>
 
 
@@ -85,7 +87,7 @@ struct CompiledGeomVertexAttributes
 /** A mapping of the vertex type (position...) to the actual shader id (for more than one shader) */
 struct CompiledVertexTypeList
 {
-    CompiledVertexTypeList(const std::unordered_map<VertexType, int>& i, const VertexTypes& v);
+    CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v);
 
     [[nodiscard]] CompiledShaderVertexAttributes
     compile_shader_layout(const ShaderVertexAttributes& elements) const;
@@ -93,7 +95,7 @@ struct CompiledVertexTypeList
     [[nodiscard]] CompiledGeomVertexAttributes
     get_mesh_layout() const;
 
-    std::unordered_map<VertexType, int> indices;
+    std::map<VertexType, int> indices;
     VertexTypes debug_types;
 };
 

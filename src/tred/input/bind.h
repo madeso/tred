@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <map>
+
 #include <memory>
 
 
@@ -133,7 +135,7 @@ struct BindMap
         }
     }
 
-    std::unordered_map<T, float> binds;
+    std::map<T, float> binds;
 };
 
 

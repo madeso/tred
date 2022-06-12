@@ -1,5 +1,7 @@
 #include "tred/windows.h"
 
+#include <map>
+
 
 #include <array>
 #include <set>
@@ -332,7 +334,7 @@ struct SdlPlatform : public input::Platform
 
     using JoystickFunctions = HandleFunctions64<input::JoystickId>;
     HandleVector<JoystickData, JoystickFunctions> joysticks;
-    std::unordered_map<SDL_JoystickID, input::JoystickId> sdljoystick_to_id;
+    std::map<SDL_JoystickID, input::JoystickId> sdljoystick_to_id;
 
     input::JoystickId add_joystick_from_device(int device_id)
     {
@@ -687,7 +689,7 @@ enum class MouseState
 struct WindowsImplementation : public Windows
 {
     HandleVector<std::unique_ptr<WindowImplementation>, HandleFunctions64<WindowHandle>> windows;
-    std::unordered_map<window_id, WindowHandle> window_id_to_handle;
+    std::map<window_id, WindowHandle> window_id_to_handle;
     std::unique_ptr<SdlPlatform> platform;
     ImguiState imgui_state;
     OpenGlSetup opengl_setup;

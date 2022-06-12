@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "tred/input/platform.h"
 
 
@@ -13,7 +15,7 @@ struct UnitSetup
 
     void add_joystick(int index, JoystickId joy);
 
-    std::unordered_map<JoystickId, int> joysticks;
+    std::map<JoystickId, int> joysticks;
 };
 
 }

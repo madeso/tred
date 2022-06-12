@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <memory>
 
 #include "tred/result.h"
@@ -24,7 +26,7 @@ struct MappingList
 
     void add(const std::string& name, std::unique_ptr<Mapping>&& config);
 
-    std::unordered_map<std::string, std::unique_ptr<Mapping>> configs;
+    std::map<std::string, std::unique_ptr<Mapping>> configs;
 };
 
 
