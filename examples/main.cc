@@ -15,8 +15,6 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
-#include "mustache/mustache.hpp"
-
 
 #include "tred/dependency_sdl.h"
 #include "tred/opengl_debug.h"
@@ -40,6 +38,33 @@
 #include "tred/hash.string.h"
 #include "tred/stdutils.h"
 #include "tred/render_func.h"
+#include "tred/colors.h"
+
+#include "tred/render/light.h"
+#include "tred/render/light.uniforms.h"
+#include "tred/render/camera.h"
+#include "tred/render/camera.compiled.h"
+#include "tred/render/shader.template.h"
+#include "tred/render/material.shader.source.h"
+#include "tred/render/material.h"
+#include "tred/render/light.active.h"
+#include "tred/render/light.params.h"
+#include "tred/render/material.compiledprops.h"
+#include "tred/render/compiledmaterialshader.h"
+#include "tred/render/compiledmaterial.h"
+#include "tred/render/mesh.h"
+#include "tred/render/compiled.mesh.h"
+#include "tred/render/vfs.h"
+#include "tred/render/cache.h"
+#include "tred/render/renderlist.h"
+#include "tred/render/engine.h"
+#include "tred/render/scopedrenderer.h"
+#include "tred/render/world.h"
+
+#include "tred/render/handle.texture.h"
+#include "tred/render/handle.compiledmaterialshader.h"
+#include "tred/render/handle.mesh.h"
+
 
 // resource headers
 #include "shader_light.glsl.h"
@@ -51,293 +76,6 @@
 
 #define OLD_INPUT 0
 
-constexpr auto white3 = glm::vec3{1.0f, 1.0f, 1.0f};
-constexpr auto black3 = glm::vec3{0.0f, 0.0f, 0.0f};
-
-struct DirectionalLight
-{
-    // todo(Gustav): remove this?
-    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
-
-    float ambient_strength;
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-
-    DirectionalLight()
-        : ambient_strength(0.1f)
-        , ambient(white3)
-        , diffuse(white3)
-        , specular(white3)
-    {
-    }
-
-    DirectionalLight
-    (
-        float as,
-        const glm::vec3& a,
-        const glm::vec3& d,
-        const glm::vec3& s
-    )
-        : ambient_strength(as)
-        , ambient(a)
-        , diffuse(d)
-        , specular(s)
-    {
-    }
-
-    DirectionalLight(const DirectionalLight&) = default;
-    DirectionalLight& operator=(const DirectionalLight&) = default;
-
-    static DirectionalLight create_no_light()
-    {
-        return DirectionalLight{0.0f, black3, black3, black3};
-    }
-
-    // todo(Gustav): make a property instead, function only here for demo purposes
-    glm::vec3
-    GetDirection() const
-    {
-        return glm::normalize(-position);
-    }
-};
-
-
-struct DirectionalLightUniforms
-{
-    Uniform direction;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
-
-    DirectionalLightUniforms
-    (
-        const ShaderProgram& shader,
-        const std::string& base_name
-    )
-    :
-        direction(shader.get_uniform(base_name + ".normalized_direction")),
-        ambient(shader.get_uniform(base_name + ".ambient")),
-        diffuse(shader.get_uniform(base_name + ".diffuse")),
-        specular(shader.get_uniform(base_name + ".specular"))
-    {
-    }
-
-    void
-    set_shader(const ShaderProgram& shader, const DirectionalLight& light) const
-    {
-        shader.set_vec3(direction, light.GetDirection());
-        shader.set_vec3(ambient, light.ambient * light.ambient_strength);
-        shader.set_vec3(diffuse, light.diffuse);
-        shader.set_vec3(specular, light.specular);
-    }
-
-    void turn_on_light(const ShaderProgram& shader, const DirectionalLight& light) const
-    {
-        set_shader(shader, light);
-    }
-
-    void turn_off_light(const ShaderProgram& shader) const
-    {
-        set_shader(shader, DirectionalLight::create_no_light());
-    }
-};
-
-
-struct Attenuation
-{
-    float constant = 1.0f;
-    float linear = 0.09f;
-    float quadratic = 0.032f;
-};
-
-Attenuation zero_attenuation()
-{
-    return Attenuation{0.0f, 0.0f, 0.0f};
-}
-
-struct AttenuationUniforms
-{
-    Uniform constant;
-    Uniform linear;
-    Uniform quadratic;
-
-    AttenuationUniforms
-    (
-        const ShaderProgram& shader,
-        const std::string& base_name
-    )
-    :
-        constant(shader.get_uniform(base_name + ".constant")),
-        linear(shader.get_uniform(base_name + ".linear")),
-        quadratic(shader.get_uniform(base_name + ".quadratic"))
-    {
-    }
-
-    void
-    set_shader(const ShaderProgram& shader, const Attenuation& att) const
-    {
-        shader.set_float(constant, att.constant);
-        shader.set_float(linear, att.linear);
-        shader.set_float(quadratic, att.quadratic);
-    }
-};
-
-
-struct PointLight
-{
-    Attenuation attenuation;
-
-    glm::vec3 position;
-
-    float ambient_strength = 0.1f;
-    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
-
-    PointLight(const glm::vec3& p) : position(p) {}
-    PointLight(const PointLight&) = default;
-    PointLight& operator=(const PointLight&) = default;
-};
-
-
-struct PointLightUniforms
-{
-    AttenuationUniforms attenuation;
-    Uniform position;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
-
-    PointLightUniforms
-    (
-        const ShaderProgram& shader,
-        const std::string& base_name
-    )
-    :
-        attenuation(shader, base_name + ".attenuation"),
-        position(shader.get_uniform(base_name + ".position")),
-        ambient(shader.get_uniform(base_name + ".ambient")),
-        diffuse(shader.get_uniform(base_name + ".diffuse")),
-        specular(shader.get_uniform(base_name + ".specular"))
-    {
-    }
-
-    void
-    set_shader(const ShaderProgram& shader, const PointLight& light) const
-    {
-        attenuation.set_shader(shader, light.attenuation);
-        shader.set_vec3(position, light.position);
-        shader.set_vec3(ambient, light.ambient * light.ambient_strength);
-        shader.set_vec3(diffuse, light.diffuse);
-        shader.set_vec3(specular, light.specular);
-    }
-
-    void
-    turn_on_light(const ShaderProgram& shader, const PointLight& light) const
-    {
-        set_shader(shader, light);
-    }
-
-    void
-    turn_off_light(const ShaderProgram& shader) const
-    {
-        auto dark = PointLight{glm::vec3{0.0f, 0.0f, 0.0f}};
-
-        dark.attenuation = zero_attenuation();
-        dark.ambient_strength = 0.0f;
-
-        dark.ambient = {0.0f, 0.0f, 0.0f};
-        dark.diffuse = {0.0f, 0.0f, 0.0f};
-        dark.specular = {0.0f, 0.0f, 0.0f};
-
-        set_shader(shader, dark);
-    }
-};
-
-
-struct SpotLight
-{
-    Attenuation attenuation;
-
-    glm::vec3 position = glm::vec3{0.0f, 0.0f, 0.0f};
-    glm::vec3 direction = glm::vec3{0.0f, 0.0f, 0.0f};
-    float cutoff = 12.5f;
-    float outer_cutoff = 17.5;
-
-    float ambient_strength = 0.1f;
-    glm::vec3 ambient =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 diffuse =  glm::vec3{1.0f, 1.0f, 1.0f};
-    glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
-};
-
-
-struct SpotLightUniforms
-{
-    AttenuationUniforms attenuation;
-    Uniform position;
-    Uniform direction;
-    Uniform cos_cutoff;
-    Uniform cos_outer_cutoff;
-    Uniform ambient;
-    Uniform diffuse;
-    Uniform specular;
-
-    SpotLightUniforms
-    (
-        const ShaderProgram& shader,
-        const std::string& base_name
-    )
-    :
-        attenuation(shader, base_name + ".attenuation"),
-        position(shader.get_uniform(base_name + ".position")),
-        direction(shader.get_uniform(base_name + ".direction")),
-        cos_cutoff(shader.get_uniform(base_name + ".cos_cutoff")),
-        cos_outer_cutoff(shader.get_uniform(base_name + ".cos_outer_cutoff")),
-        ambient(shader.get_uniform(base_name + ".ambient")),
-        diffuse(shader.get_uniform(base_name + ".diffuse")),
-        specular(shader.get_uniform(base_name + ".specular"))
-    {
-    }
-
-    void
-    set_shader(const ShaderProgram& shader, const SpotLight& light) const
-    {
-        attenuation.set_shader(shader, light.attenuation);
-        shader.set_vec3(position, light.position);
-        shader.set_vec3(direction, light.direction);
-        shader.set_float(cos_cutoff, cos(glm::radians(light.cutoff)));
-        shader.set_float(cos_outer_cutoff, cos(glm::radians(light.outer_cutoff)));
-        shader.set_vec3(ambient, light.ambient * light.ambient_strength);
-        shader.set_vec3(diffuse, light.diffuse);
-        shader.set_vec3(specular, light.specular);
-    }
-
-    void
-    turn_on_light(const ShaderProgram& shader, const SpotLight& light) const
-    {
-        set_shader(shader, light);
-    }
-
-    void
-    turn_off_light(const ShaderProgram& shader) const
-    {
-        // todo(Gustav): make constant
-        auto dark = SpotLight{};
-
-        dark.attenuation = zero_attenuation();
-
-        dark.cutoff = 0.0f;
-        dark.outer_cutoff = 0.0f;
-        dark.ambient_strength = 0.0f;
-
-        dark.ambient = {0.0f, 0.0f, 0.0f};
-        dark.diffuse = {0.0f, 0.0f, 0.0f};
-        dark.specular = {0.0f, 0.0f, 0.0f};
-
-        set_shader(shader, dark);
-    }
-};
 
 
 constexpr unsigned int NUMBER_OF_POINT_LIGHTS = 4;
@@ -345,65 +83,6 @@ constexpr unsigned int NUMBER_OF_SPOT_LIGHTS = 1;
 constexpr unsigned int NUMBER_OF_DIRECTIONAL_LIGHTS = 1;
 
 
-constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
-
-
-struct CameraVectors
-{
-    glm::vec3 front;
-    glm::vec3 right;
-    glm::vec3 up;
-    glm::vec3 position;
-};
-
-
-struct Camera
-{
-    float fov = 45.0f;
-
-    float near = 0.1f;
-    float far = 100.0f;
-
-    glm::vec3 position = glm::vec3{0.0f, 0.0f,  3.0f};
-
-    float yaw = -90.0f;
-    float pitch = 0.0f;
-
-    CameraVectors create_vectors() const
-    {
-        const auto direction = glm::vec3
-        {
-            cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
-            sin(glm::radians(pitch)),
-            sin(glm::radians(yaw)) * cos(glm::radians(pitch))
-        };
-        const auto front = glm::normalize(direction);
-        const auto right = glm::normalize(glm::cross(front, UP));
-        const auto up = glm::normalize(glm::cross(right, front));
-
-        return {front, right, up, position};
-    }
-};
-
-
-struct CompiledCamera
-{
-    glm::mat4 view;
-    glm::vec3 position;
-
-    CompiledCamera(const glm::mat4& v, const glm::vec3& p)
-        : view(v)
-        , position(p)
-    {
-    }
-};
-
-
-CompiledCamera compile_camera(const CameraVectors& camera)
-{
-    const auto view = glm::lookAt(camera.position, camera.position + camera.front, UP);
-    return {view, camera.position};
-}
 
 float get_aspect_ratio(const Rectf& r)
 {
@@ -430,20 +109,6 @@ float remap(float ol, float ou, float f, float nl, float nu)
 constexpr float plane_size = 20.0f;
 
 
-using ShaderCompilerProperties = std::map<std::string, std::string>;
-
-std::string
-generate(std::string_view str, const ShaderCompilerProperties& properties)
-{
-    auto input = kainjow::mustache::mustache{std::string{str.begin(), str.end()}};
-    input.set_custom_escape([](const std::string& s) { return s; });
-    auto data = kainjow::mustache::data{};
-    for(const auto& kv: properties)
-    {
-        data[kv.first] = kv.second;
-    }
-    return input.render(data);
-}
 
 
 void log_shader_error(const std::string& file, const shader::ShaderResult& res)
@@ -469,952 +134,6 @@ void log_shader_error(const std::string& file, const shader::ShaderResult& res)
 }
 
 
-namespace rendering
-{
-
-
-enum class TextureId : u64 {};
-enum class CompiledMaterialShaderId : u64 {};
-
-struct Vfs;
-struct Cache;
-struct Engine;
-
-TextureId load_texture(Cache* cache, const Vfs& vfs, const std::string& path);
-const Texture& get_texture(const Cache& cache, TextureId id);
-
-enum class PropertyType
-{
-    float_type, vec3_type, vec4_type, texture_type
-};
-
-struct PropertyIndex
-{
-    PropertyType type;
-    int index;
-};
-bool operator<(const PropertyIndex& lhs, const PropertyIndex& rhs)
-{
-    if(lhs.type == rhs.type)
-    {
-        return lhs.index < rhs.index;
-    }
-    else
-    {
-        return base_cast(lhs.type) < base_cast(rhs.type);
-    }
-}
-
-struct LightParams
-{
-    int number_of_directional_lights;
-    int number_of_point_lights;
-    int number_of_spot_lights;
-};
-
-struct MaterialSourceProperty
-{
-    HashedString display_name; // used in ui and material references, example: "diffuse texture"
-    std::string shader_uniform_ident; // glsl variable identifier, example: "uDiffuse"
-    PropertyIndex index;
-};
-
-template<typename T>
-struct UniformIndexAnd
-{
-    int index;
-    T value;
-};
-
-template<typename T> UniformIndexAnd<T> make_uniform_and(int index, T val)
-{
-    return UniformIndexAnd<T>{index, val};
-}
-
-struct MaterialShaderSource
-{
-    // todo(Gustav): merge material shader source with cutstom frontmatter parsing so both shader and material shader can use the same frontmatter as base
-    shader::ShaderSource source;
-    bool apply_lightning;
-
-    // todo(Gustav): specify sort order
-    // todo(Gustav): specify blend mode
-    // todo(Gustav): stencil test/write action
-
-    std::vector<MaterialSourceProperty> properties;
-
-    MaterialShaderSource(const shader::ShaderSource& src, bool al)
-        : source(src)
-        , apply_lightning(al)
-    {
-    }
-
-    static MaterialShaderSource create_with_lights(const shader::ShaderSource& src) { return {src, true}; }
-    static MaterialShaderSource create_unlit(const shader::ShaderSource& src) { return {src, false}; }
-
-    // default values
-    // example: this material exposes "diffuse" and unless specified it is white
-    std::vector<float> floats;
-    std::vector<glm::vec3> vec3s;
-    std::vector<glm::vec4> vec4s;
-    std::vector<std::string> textures;
-
-    #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
-    MaterialShaderSource& FUNC_NAME(const HashedString& name, const std::string& uniform_name, const TYPE& v)\
-    {\
-        const auto index = Csizet_to_int(MEMBER.size());\
-        MEMBER.emplace_back(v);\
-        properties.emplace_back(MaterialSourceProperty{name, uniform_name, {ENUM, index}});\
-        return *this;\
-    }
-    ADD_OP(with_float, floats, float, PropertyType::float_type)
-    ADD_OP(with_vec3, vec3s, glm::vec3, PropertyType::vec3_type)
-    ADD_OP(with_vec4, vec4s, glm::vec4, PropertyType::vec4_type)
-    ADD_OP(with_texture, textures, std::string, PropertyType::texture_type)
-    #undef ADD_OP
-};
-
-
-std::optional<MaterialShaderSource> load_material_shader_source(const Vfs& vfs, const std::string& path);
-
-
-struct Material
-{
-    std::string shader;
-
-    explicit Material(const std::string& shader_path): shader(shader_path) {}
-
-    // custom properties
-    // example: the "diffuse" property for all "box" meshes is "dirt.png"
-    std::unordered_map<HashedString, PropertyIndex> name_to_array;
-    std::vector<float> floats;
-    std::vector<glm::vec3> vec3s;
-    std::vector<glm::vec4> vec4s;
-    std::vector<std::string> textures;
-
-    #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
-    Material& FUNC_NAME(const HashedString& name, const TYPE& v)\
-    {\
-        const auto index = Csizet_to_int(MEMBER.size());\
-        name_to_array.insert({name, PropertyIndex{ENUM, index}});\
-        MEMBER.emplace_back(v);\
-        return *this;\
-    }
-    ADD_OP(with_float, floats, float, PropertyType::float_type)
-    ADD_OP(with_vec3, vec3s, glm::vec3, PropertyType::vec3_type)
-    ADD_OP(with_vec4, vec4s, glm::vec4, PropertyType::vec4_type)
-    ADD_OP(with_texture, textures, std::string, PropertyType::texture_type)
-    #undef ADD_OP
-};
-
-struct LightData
-{
-    std::vector<DirectionalLight> directional_lights;
-    std::vector<PointLight> point_lights;
-    std::vector<SpotLight> spot_lights;
-
-    void clear()
-    {
-        directional_lights.clear();
-        point_lights.clear();
-        spot_lights.clear();
-    }
-};
-
-// returns false if there were too many lights in the scene
-template<typename TUniform, typename TData>
-void apply_data(const ShaderProgram& shader, const std::vector<TData>& src, const std::vector<TUniform>& dst, bool* applied)
-{
-    std::size_t index = 0;
-
-    for(const TData& data: src)
-    {
-        if(index>= dst.size()) { *applied = false; return; }
-        dst[index].turn_on_light(shader, data);
-        index += 1;
-    }
-
-    for(;index<dst.size(); index+=1)
-    {
-        dst[index].turn_off_light(shader);
-    }
-}
-
-struct LightStatus
-{
-    bool applied_directional_lights;
-    bool applied_point_lights;
-    bool applied_spot_lights;
-
-    static LightStatus create_no_error()
-    {
-        return {true, true, true};
-    }
-};
-
-struct LightUniforms
-{
-    std::vector<DirectionalLightUniforms> directional_lights;
-    std::vector<PointLightUniforms> point_lights;
-    std::vector<SpotLightUniforms> spot_lights;
-
-    LightUniforms(const ShaderProgram& shader, const LightParams& lp)
-    {
-        assert(lp.number_of_directional_lights == 1);
-        directional_lights.emplace_back(DirectionalLightUniforms(shader, "uDirectionalLight"));
-
-        assert(lp.number_of_spot_lights == 1);
-        spot_lights.emplace_back(SpotLightUniforms{shader, "uSpotLight"});
-
-        for(int point_light_index=0; point_light_index<lp.number_of_point_lights; point_light_index += 1)
-        {
-            const auto uniform_name = fmt::format("uPointLights[{}]", point_light_index);
-            point_lights.emplace_back(PointLightUniforms{shader, uniform_name});
-        }
-    }
-
-    void set_shader(const ShaderProgram& prog, const LightData& data, LightStatus* ls) const
-    {
-        apply_data(prog, data.directional_lights, directional_lights, &ls->applied_directional_lights);
-        apply_data(prog, data.point_lights, point_lights, &ls->applied_point_lights);
-        apply_data(prog, data.spot_lights, spot_lights, &ls->applied_spot_lights);
-    }
-};
-
-struct CompiledProperties
-{
-    std::vector<UniformIndexAnd<float>> floats;
-    std::vector<UniformIndexAnd<glm::vec3>> vec3s;
-    std::vector<UniformIndexAnd<glm::vec4>> vec4s;
-    std::vector<UniformIndexAnd<TextureId>> textures;
-
-    #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
-    void FUNC_NAME(PropertyIndex where, const TYPE& v)\
-    {\
-        assert(where.type == ENUM);\
-        MEMBER[Cint_to_sizet(where.index)].value = v;\
-    }
-    ADD_OP(set_float, floats, float, PropertyType::float_type)
-    ADD_OP(set_vec3, vec3s, glm::vec3, PropertyType::vec3_type)
-    ADD_OP(set_vec4, vec4s, glm::vec4, PropertyType::vec4_type)
-    ADD_OP(set_texture, textures, TextureId, PropertyType::texture_type)
-    #undef ADD_OP
-
-    void set_shader(const ShaderProgram& shader, const Cache& cache, const std::vector<Uniform>& uniforms) const
-    {
-        for(const auto& d: floats)
-        {
-            shader.set_float(uniforms[Cint_to_sizet(d.index)], d.value);
-        }
-        for(const auto& d: vec3s)
-        {
-            shader.set_vec3(uniforms[Cint_to_sizet(d.index)], d.value);
-        }
-        for(const auto& d: vec4s)
-        {
-            shader.set_vec4(uniforms[Cint_to_sizet(d.index)], d.value);
-        }
-        for(const auto& d: textures)
-        {
-            const auto& uniform = uniforms[Cint_to_sizet(d.index)];
-            bind_texture(uniform, get_texture(cache, d.value));
-            shader.set_texture(uniform);
-        }
-    }
-};
-
-
-struct CommonData
-{
-    glm::vec3 camera_position;
-    glm::mat4 pv; // projection * view
-    glm::mat4 model;
-};
-
-struct CommonUniforms
-{
-    CommonUniforms(const ShaderProgram& shader)
-        : transform(shader.get_uniform("uTransform"))
-        , model_transform(shader.get_uniform("uModelTransform"))
-        , normal_matrix(shader.get_uniform("uNormalMatrix"))
-        , view_position(shader.get_uniform("uViewPosition"))
-    {
-    }
-
-    Uniform transform;
-    Uniform model_transform;
-    Uniform normal_matrix;
-    Uniform view_position;
-
-    void set_shader(const ShaderProgram& shader, const CommonData& data) const
-    {
-        shader.set_vec3(view_position, data.camera_position);
-        shader.set_mat(transform, data.pv * data.model);
-        shader.set_mat(model_transform, data.model);
-        shader.set_mat(normal_matrix, glm::mat3(glm::transpose(glm::inverse(data.model))));
-    }
-};
-
-struct CompiledMaterialShader
-{
-    CompiledMaterialShader(ShaderProgram&& prog, CompiledGeomVertexAttributes layout, const std::string& a_debug_name)
-        : debug_name(a_debug_name)
-        , program(std::move(prog))
-        , mesh_layout(layout)
-        , common(program)
-    {
-    }
-
-    CompiledMaterialShader(CompiledMaterialShader&&) = default;
-    CompiledMaterialShader(const CompiledMaterialShader&) = delete;
-    
-    CompiledMaterialShader& operator=(CompiledMaterialShader&&) = default;
-    void operator=(const CompiledMaterialShader&) = delete;
-
-    std::string debug_name;
-
-    // acutal program
-    ShaderProgram program;
-    CompiledGeomVertexAttributes mesh_layout;
-
-    // uniforms
-    CommonUniforms common;
-    std::optional<LightUniforms> light;
-    std::vector<Uniform> uniforms;
-    
-    // stored properties
-    std::unordered_map<HashedString, PropertyIndex> name_to_array;
-    CompiledProperties default_values;
-
-    void use(const CompiledProperties& props, const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls) const
-    {
-        program.use();
-        common.set_shader(program, data);
-        if(light)
-        {
-            light->set_shader(program, light_data, ls);
-        }
-        props.set_shader(program, cache, uniforms);
-    }
-};
-
-CompiledVertexTypeList get_compile_attribute_layouts(Engine*, const ShaderVertexAttributes& layout);
-
-std::optional<CompiledMaterialShader> load_material_shader(Engine* engine, Cache* cache, const Vfs& vfs, const std::string& shader_name, const LightParams& lp)
-{
-    auto loaded_shader_source = load_material_shader_source(vfs, shader_name);
-    if(!loaded_shader_source) { return std::nullopt; }
-    const MaterialShaderSource& shader_source = std::move(*loaded_shader_source);
-
-    auto layout_compiler = get_compile_attribute_layouts(engine, shader_source.source.layout);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
-    const auto compiled_layout = layout_compiler.compile_shader_layout(shader_source.source.layout);
-
-    auto compile_defines = ShaderCompilerProperties{};
-    if(shader_source.apply_lightning)
-    {
-        compile_defines.insert({"NUMBER_OF_DIRECTIONAL_LIGHTS", std::to_string(lp.number_of_directional_lights)});
-        compile_defines.insert({"NUMBER_OF_POINT_LIGHTS", std::to_string(lp.number_of_point_lights)});
-        compile_defines.insert({"NUMBER_OF_SPOT_LIGHTS", std::to_string(lp.number_of_spot_lights)});
-    }
-    auto ret = CompiledMaterialShader
-    {
-        {
-            generate(shader_source.source.vertex, compile_defines),
-            generate(shader_source.source.fragment, compile_defines),
-            compiled_layout
-        },
-        mesh_layout,
-        shader_name
-    };
-    
-    auto texture_uniform_indices = std::vector<std::size_t>{};
-
-    std::map<PropertyIndex, int> array_to_uniform;
-
-    for(const auto& prop: shader_source.properties)
-    {
-        if(prop.index.type == PropertyType::texture_type)
-        {
-            texture_uniform_indices.emplace_back(ret.uniforms.size());
-        }
-        const auto uniform_index = ret.uniforms.size();
-        ret.uniforms.emplace_back(ret.program.get_uniform(prop.shader_uniform_ident));
-        ret.name_to_array.insert({prop.display_name, prop.index});
-        array_to_uniform.insert({prop.index, Csizet_to_int(uniform_index)});
-    }
-
-    // load default values
-#define COPY(PROP, ENUM) do { int index = 0; for(const auto& d: shader_source.PROP) { auto found = array_to_uniform.find({ENUM, index}); ASSERT(found != array_to_uniform.end()); ret.default_values.PROP.emplace_back(make_uniform_and(found->second, d)); index+=1;}} while(false)
-    COPY(floats, PropertyType::float_type);
-    COPY(vec3s, PropertyType::vec3_type);
-    COPY(vec4s, PropertyType::vec4_type);
-#undef COPY
-    {
-        int index = 0;
-        for(const auto& path: shader_source.textures)
-        {
-            auto found = array_to_uniform.find({PropertyType::texture_type, index});
-            ASSERT(found != array_to_uniform.end()); 
-            ret.default_values.textures.emplace_back(make_uniform_and(found->second, load_texture(cache, vfs, path)));
-            index += 1;
-        }
-    }
-
-    {
-        auto textures = std::vector<Uniform*>{};
-        for(auto index: texture_uniform_indices)
-        {
-            textures.emplace_back(&ret.uniforms[index]);
-        }
-        setup_textures(&ret.program, textures);
-    }
-
-    if(shader_source.apply_lightning)
-    {
-        ret.light = LightUniforms{ret.program, lp};
-    }
-    return ret;
-}
-
-struct Mesh
-{
-    Material material;
-    Geom geom;
-};
-
-CompiledMaterialShaderId load_compiled_material_shader(Engine* engine, const Vfs& vfs, Cache* cache, const std::string& path);
-const CompiledMaterialShader& get_compiled_material_shader(const Cache& cache, CompiledMaterialShaderId id);
-
-struct CompiledMaterial
-{
-    CompiledMaterialShaderId shader;
-    CompiledProperties properties;
-
-    // todo(Gustav): add util functions (that also take index) and clear prop (hashedstring+index)
-
-    #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
-    void set_##FUNC_NAME##_by_lookup(const Cache& cache, const HashedString& name, const TYPE& v)\
-    {\
-        const auto& cms = get_compiled_material_shader(cache, shader);\
-        const auto found = cms.name_to_array.find(name);\
-        ASSERT(found != cms.name_to_array.end());\
-        properties.set_##FUNC_NAME(found->second, v);\
-    }
-    ADD_OP(float, floats, float, PropertyType::float_type)
-    ADD_OP(vec3, vec3s, glm::vec3, PropertyType::vec3_type)
-    ADD_OP(vec4, vec4s, glm::vec4, PropertyType::vec4_type)
-    ADD_OP(texture, textures, TextureId, PropertyType::texture_type)
-    #undef ADD_OP
-
-    void use(const Cache& cache, const CommonData& data, const LightData& light_data, LightStatus* ls) const
-    {
-        const auto& shader_data = get_compiled_material_shader(cache, shader);
-        return shader_data.use(properties, cache, data, light_data, ls);
-    }
-};
-
-
-CompiledMaterial compile_material(Engine* engine, Cache* cache, const Vfs& vfs, const Material& mat)
-{
-    auto shader_id = load_compiled_material_shader(engine, vfs, cache, mat.shader);
-    const auto& shader = get_compiled_material_shader(*cache, shader_id);
-
-    auto properties = shader.default_values;
-
-    for(const auto& nta: mat.name_to_array)
-    {
-        const auto found = shader.name_to_array.find(nta.first);
-        if(found == shader.name_to_array.end())
-        {
-            LOG_ERROR("Invalid property {} in shader {}", nta.first, shader.debug_name);
-            continue;
-        }
-
-        const auto& shader_index = found->second;
-        const auto mat_index = nta.second;
-        if(shader_index.type != mat_index.type)
-        {
-            LOG_ERROR("Type mismatch for {} in shader {}: {} vs {}", nta.first, shader.debug_name, shader_index.type, mat_index.type);
-            continue;
-        }
-
-        switch(mat_index.type)
-        {
-        case PropertyType::float_type:   properties.floats  [Cint_to_sizet(shader_index.index)].value = mat.floats  [Cint_to_sizet(mat_index.index)]; break;
-        case PropertyType::vec3_type:    properties.vec3s   [Cint_to_sizet(shader_index.index)].value = mat.vec3s   [Cint_to_sizet(mat_index.index)]; break;
-        case PropertyType::vec4_type:    properties.vec4s   [Cint_to_sizet(shader_index.index)].value = mat.vec4s   [Cint_to_sizet(mat_index.index)]; break;
-        case PropertyType::texture_type: properties.textures[Cint_to_sizet(shader_index.index)].value = load_texture(cache, vfs, mat.textures[Cint_to_sizet(mat_index.index)]); break;
-        default:
-            DIE("Unhandled type");
-            break;
-        }
-    }
-
-    return {shader_id, properties};
-}
-
-
-void render_geom_with_material
-(
-    const CompiledGeom& geom,
-    const CompiledMaterial& material,
-    const Cache& cache,
-    const CommonData& data,
-    const LightData& light_data,
-    LightStatus* ls
-)
-{
-    material.use(cache, data, light_data, ls);
-    geom.draw();
-}
-
-struct CompiledMesh
-{
-    CompiledGeom geom;
-    CompiledMaterial material;
-};
-
-CompiledMesh compile_mesh(Engine* engine, Cache* cache, const Vfs& vfs, const Mesh& mesh)
-{
-    auto material = compile_material(engine, cache, vfs, mesh.material);
-    const auto& shader = get_compiled_material_shader(*cache, material.shader);
-    auto geom = compile_geom(mesh.geom, shader.mesh_layout);
-
-    return {std::move(geom), material};
-}
-
-
-
-struct Vfs
-{
-    Vfs() = default;
-    virtual ~Vfs() = default;
-
-    Vfs(const Vfs&) = delete;
-    Vfs(Vfs&&) = delete;
-    
-    void operator=(const Vfs&) = delete;
-    void operator=(Vfs&&) = delete;
-
-    virtual std::optional<MaterialShaderSource> load_material_shader_source(const std::string& path) const = 0;
-    virtual std::optional<Texture> load_texture(const std::string& path) const = 0;
-};
-
-
-std::optional<MaterialShaderSource> load_material_shader_source(const Vfs& vfs, const std::string& path)
-{
-    return vfs.load_material_shader_source(path);
-}
-
-
-struct Cache
-{
-    TextureId get_or_load_default_texture()
-    {
-        // todo(Gustav): add default texture
-        return *default_texture;
-    }
-
-    HandleVector64<Texture, TextureId> textures;
-    HandleVector64<CompiledMaterialShader, CompiledMaterialShaderId> shaders;
-
-    std::optional<TextureId> default_texture;
-};
-
-const Texture& get_texture(const Cache& cache, TextureId id)
-{
-    return cache.textures[id];
-}
-
-TextureId load_texture(Cache* cache, const Vfs& vfs, const std::string& path)
-{
-    auto texture = vfs.load_texture(path);
-    if(texture)
-    {
-        return cache->textures.add(std::move(*texture));
-    }
-
-    // todo(Gustav): construct default texture with path? based on normal?
-    LOG_WARNING("Unable to load texture {}", path);
-    return cache->get_or_load_default_texture();
-}
-
-const LightParams& get_light_params(const Engine& engine);
-
-CompiledMaterialShaderId load_compiled_material_shader(Engine* engine, const Vfs& vfs, Cache* cache, const std::string& path)
-{
-    auto shader = load_material_shader(engine, cache, vfs, path, get_light_params(*engine));
-    if(shader)
-    {
-        return cache->shaders.add(std::move(*shader));
-    }
-
-    // todo(Gustav): load default shader?
-    LOG_ERROR("Unable to load shader {}", path);
-    DIE("unable to load shader");
-    return static_cast<CompiledMaterialShaderId>(0);
-}
-
-const CompiledMaterialShader& get_compiled_material_shader(const Cache& cache, CompiledMaterialShaderId id)
-{
-    return cache.shaders[id];
-}
-
-enum class GeomId : u64 {};
-enum class MaterialId : u64 {};
-
-
-struct RenderCommand
-{
-    GeomId geom_id;
-    MaterialId material_id;
-    glm::mat4 model;
-};
-
-// bool operator<(const RenderCommand& lhs, const RenderCommand& rhs) { return lhs.id < rhs.id; }
-
-// also called render queue but as a non-native speaker I hate typing queue
-struct RenderList
-{
-    // todo(Gustav): sort commands!
-    // std::priority_queue<RenderCommand> commands;
-    // todo(Gustav): test perf with a std::multiset or a std::vector (sorted in render)
-    std::vector<RenderCommand> commands;
-
-    LightData lights;
-    glm::vec3 camera_position;
-    glm::mat4 projection_view;
-    LightStatus light_status;
-    std::optional<MaterialId> global_shader;
-
-    bool is_rendering = false;
-
-    void begin_perspective(float aspect_ratio, const Camera& camera, std::optional<MaterialId> the_global_shader)
-    {
-        ASSERT(is_rendering == false);
-        is_rendering = true;
-
-        const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-        const auto compiled_camera = compile_camera(camera.create_vectors());
-        const auto view = compiled_camera.view;
-        const auto pv = projection * view;
-
-        camera_position = compiled_camera.position;
-        projection_view = pv;
-        global_shader = the_global_shader;
-
-        light_status = LightStatus::create_no_error();
-        commands.clear();
-        lights.clear();
-    }
-
-    void add_directional_light(const DirectionalLight& d)
-    {
-        ASSERT(is_rendering);
-        lights.directional_lights.emplace_back(d);
-    }
-
-    void add_point_light(const PointLight& p)
-    {
-        ASSERT(is_rendering);
-        lights.point_lights.emplace_back(p);
-    }
-
-    void add_spot_light(const SpotLight& s)
-    {
-        ASSERT(is_rendering);
-        lights.spot_lights.emplace_back(s);
-    }
-
-    void add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
-    {
-        ASSERT(is_rendering);
-        commands.emplace_back(RenderCommand{geom_id, global_shader.value_or(material_id), model});
-    }
-
-    void end()
-    {
-        ASSERT(is_rendering);
-        is_rendering = false;
-    }
-};
-
-
-struct AddedMesh
-{
-    GeomId geom;
-    MaterialId material;
-};
-
-struct Engine
-{
-    Engine(Vfs* a_vfs, const LightParams& alp)
-        : vfs(a_vfs)
-        , lp(alp)
-    {
-    }
-
-    Vfs* vfs;
-    LightParams lp;
-    Cache cache;
-    
-    HandleVector64<CompiledGeom, GeomId> geoms;
-    HandleVector64<CompiledMaterial, MaterialId> materials;
-    std::vector<VertexType> global_layout;
-    bool added_meshes = false;
-
-    AddedMesh add_mesh(const Mesh& mesh)
-    {
-        added_meshes = true;
-        auto compiled = compile_mesh(this, &cache, *vfs, mesh);
-        return {geoms.add(std::move(compiled.geom)), materials.add(std::move(compiled.material))};
-    }
-
-    MaterialId add_global_shader(const Material& path)
-    {
-        ASSERT(added_meshes == false);
-        auto material = compile_material(this, &cache, *vfs, path);
-        const auto& shader = get_compiled_material_shader(cache, material.shader);
-        global_layout = shader.mesh_layout.get_base_layout();
-        return materials.add(std::move(material));
-    }
-
-    MaterialId duplicate_material(MaterialId id)
-    {
-        CompiledMaterial copy = materials[id];
-        return materials.add(std::move(copy));
-    }
-
-    CompiledMaterial& get_material_ref(MaterialId id)
-    {
-        return materials[id];
-    }
-    
-    
-    RenderList render;
-};
-
-CompiledVertexTypeList get_compile_attribute_layouts(Engine* engine, const ShaderVertexAttributes& layout)
-{
-    return compile_attribute_layouts(engine->global_layout, {layout});
-}
-
-enum class ScopedRendererState
-{
-    adding, complete
-};
-
-struct ScopedRenderer
-{
-    Engine* engine;
-    ScopedRendererState render_state = ScopedRendererState::adding;
-
-    ScopedRenderer() = default;
-    
-    ScopedRenderer(const ScopedRenderer&) = delete;
-    ScopedRenderer(ScopedRenderer&&) = delete;
-    void operator=(const ScopedRenderer&) = delete;
-    void operator=(ScopedRenderer&&) = delete;
-
-    void add_directional_light(const DirectionalLight& d)
-    {
-        ASSERT(render_state == ScopedRendererState::adding);
-        engine->render.add_directional_light(d);
-    }
-
-    void add_point_light(const PointLight& p)
-    {
-        ASSERT(render_state == ScopedRendererState::adding);
-        engine->render.add_point_light(p);
-    }
-
-    void add_spot_light(const SpotLight& s)
-    {
-        ASSERT(render_state == ScopedRendererState::adding);
-        engine->render.add_spot_light(s);
-    }
-    
-    void add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
-    {
-        ASSERT(render_state == ScopedRendererState::adding);
-        engine->render.add_mesh(geom_id, material_id, model);
-    }
-
-    void render_all()
-    {
-        ASSERT(render_state == ScopedRendererState::adding);
-        render_state = ScopedRendererState::complete;
-
-        engine->render.end();
-
-        clear_stencil_and_depth();
-        for(const auto& c: engine->render.commands)
-        {
-            render_geom_with_material
-            (
-                engine->geoms[c.geom_id],
-                engine->materials[c.material_id],
-                engine->cache,
-                {
-                    engine->render.camera_position,
-                    engine->render.projection_view,
-                    c.model
-                },
-                engine->render.lights,
-                &engine->render.light_status
-            );
-        }
-    }
-
-    ~ScopedRenderer()
-    {
-        ASSERT(render_state == ScopedRendererState::complete);
-    }
-};
-
-ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader)
-{
-    engine->render.begin_perspective(aspect_ratio, camera, global_shader);
-    return {engine};
-}
-
-
-// todo(Gustav): refactor to get lp as a argument isntead of engine?
-const LightParams& get_light_params(const Engine& engine)
-{
-    return engine.lp;
-}
-
-
-struct Actor
-{
-    GeomId geom;
-    MaterialId material;
-
-    // todo(Gustav): change to a representation that is easier to update and cull and can easily build a model matrix?
-    // float yaw, pitch, roll; float x, y, z; float scale_uniform;
-    glm::mat4 transform;
-};
-
-enum class ActorId : u64 {};
-enum class DirectionalLightId : u64 {};
-enum class SpotLightId : u64 {};
-enum class PointLightId : u64 {};
-
-struct World
-{
-    World() = default;
-    virtual ~World() = default;
-
-    World(const World&) = delete;
-    World(World&&) = delete;
-    void operator=(const World&) = delete;
-    void operator=(World&&) = delete;
-
-    HandleVector64<Actor, ActorId> actors;
-
-    HandleVector64<DirectionalLight, DirectionalLightId> directional_lights;
-    HandleVector64<SpotLight, SpotLightId> spot_lights;
-    HandleVector64<PointLight, PointLightId> point_lights;
-
-    ActorId add_actor(GeomId geom_id, MaterialId material_id, const glm::mat4& transform)
-    {
-        LOG_INFO("Adding actor {} {}", geom_id, material_id);
-        return actors.add(Actor{geom_id, material_id, transform});
-    }
-
-    void update_actor(ActorId id, const glm::mat4& transform)
-    {
-        actors[id].transform = transform;
-    }
-
-    DirectionalLightId add_directional_light(const DirectionalLight& light)
-    {
-        return directional_lights.add(DirectionalLight{light});
-    }
-
-    void update_directional_light(DirectionalLightId id, const DirectionalLight& light)
-    {
-        directional_lights[id] = light;
-    }
-
-    SpotLightId add_spot_light(const SpotLight& light)
-    {
-        return spot_lights.add(SpotLight{light});
-    }
-
-    void update_spot_light(SpotLightId id, const SpotLight& light)
-    {
-        spot_lights[id] = light;
-    }
-
-    PointLightId add_point_light(const PointLight& light)
-    {
-        return point_lights.add(PointLight{light});
-    }
-
-    void update_point_light(PointLightId id, const PointLight& light)
-    {
-        point_lights[id] = light;
-    }
-
-    void render(ScopedRenderer* renderer)
-    {
-        for(const auto& light: directional_lights) { renderer->add_directional_light(light); }
-        for(const auto& light: spot_lights) { renderer->add_spot_light(light); }
-        for(const auto& light: point_lights) { renderer->add_point_light(light); }
-        for(const auto& act: actors) { renderer->add_mesh(act.geom, act.material, act.transform); }
-    }
-};
-
-bool im_gui(World& world)
-{
-    bool changed = false;
-
-    #if 0
-    if (ImGui::CollapsingHeader("Directional light"))
-    {
-        for(const auto& light: directional_lights) { ImGui::Separator(); }
-    }
-    if (ImGui::CollapsingHeader("Spot lights"))
-    {
-        for(const auto& light: spot_lights) { renderer->add_spot_light(light); }
-    }
-    if (ImGui::CollapsingHeader("Point lights"))
-    {
-        for(const auto& light: point_lights) { renderer->add_point_light(light); }
-    }
-    #endif
-
-    if (ImGui::CollapsingHeader("Actors"))
-    {
-        int id = 0;
-        for(const auto& act: world.actors)
-        {
-            ImGui::PushID(id); id += 1;
-            {
-                const auto s = fmt::format("{} {}", act.geom, act.material);
-                ImGui::Text("%s", s.c_str());
-            }
-            ImGui::SameLine();
-            {
-                glm::vec3 p = act.transform[3];
-                const auto was_changed = ImGui::DragFloat3("Position", glm::value_ptr(p), 0.01f);
-
-                changed = was_changed | changed;
-            }
-            // ImGui::Separator();
-
-            ImGui::PopID();
-        }
-    }
-    return changed;
-}
-
-} // namespace rendering
-
-
 constexpr auto diffuse_color = HashedStringView{"Diffuse color"};
 constexpr auto diffuse_texture = HashedStringView{"Diffuse texture"};
 constexpr auto specular_texture = HashedStringView{"Specular texture"};
@@ -1423,16 +142,16 @@ constexpr auto specular_strength_prop = HashedStringView{"Specular strength"};
 constexpr auto tint_prop = HashedStringView{"Tint color"};
 
 
-struct FixedFileVfs : rendering::Vfs
+struct FixedFileVfs : render::Vfs
 {
-    std::optional<rendering::MaterialShaderSource> load_material_shader_source(const std::string& path) const override
+    std::optional<render::MaterialShaderSource> load_material_shader_source(const std::string& path) const override
     {
         if(path == "default.glsl")
         {
             const auto src = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
             log_shader_error(path, src);
             if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
-            return rendering::MaterialShaderSource::create_with_lights(*src.source)
+            return render::MaterialShaderSource::create_with_lights(*src.source)
                 .with_texture(diffuse_texture, "uMaterial.diffuse", "white.png")
                 .with_texture(specular_texture, "uMaterial.specular", "no-specular.png")
                 .with_vec4(diffuse_color, "uColor", glm::vec4{white3, 1.0f})
@@ -1446,7 +165,7 @@ struct FixedFileVfs : rendering::Vfs
             const auto src = shader::parse_shader_source(SHADER_LIGHT_GLSL);
             log_shader_error(path, src);
             if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
-            return rendering::MaterialShaderSource::create_unlit(*src.source)
+            return render::MaterialShaderSource::create_unlit(*src.source)
                 .with_vec3(diffuse_color, "uColor", glm::vec3{1.0f, 1.0f, 1.0f})
                 ;
         }
@@ -1810,7 +529,7 @@ main(int, char**)
     };
 
     auto vfs = FixedFileVfs{};
-    auto engine = rendering::Engine
+    auto engine = render::Engine
     {
         &vfs,
         {
@@ -1821,12 +540,12 @@ main(int, char**)
     };
 
     // todo(Gustav): add override shaders so we can render just white polygon/points
-    const auto white_only = engine.add_global_shader(rendering::Material{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
+    const auto white_only = engine.add_global_shader(render::Material{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
     bool use_white_only = false;
 
     const auto crate = engine.add_mesh
     ({
-        rendering::Material{"default.glsl"}
+        render::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,
@@ -1836,14 +555,14 @@ main(int, char**)
 
     const auto light = engine.add_mesh
     ({
-        rendering::Material{"unlit.glsl"},
+        render::Material{"unlit.glsl"},
         create_box_mesh(0.2f)
     });
     LOG_INFO("Light is {} {}", light.geom, light.material);
 
     const auto plane = engine.add_mesh
     ({
-        rendering::Material{"default.glsl"}
+        render::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,
@@ -1870,11 +589,11 @@ main(int, char**)
     struct PointLightAndMaterial
     {
         PointLight light;
-        rendering::MaterialId material;
-        rendering::PointLightId light_actor;
-        rendering::ActorId mesh_actor;
+        render::MaterialId material;
+        render::PointLightId light_actor;
+        render::ActorId mesh_actor;
 
-        PointLightAndMaterial(const glm::vec3& p, rendering::MaterialId m, rendering::GeomId light_geom, rendering::World* world)
+        PointLightAndMaterial(const glm::vec3& p, render::MaterialId m, render::GeomId light_geom, render::World* world)
             : light(p)
             , material(m)
             , light_actor(world->add_point_light(light))
@@ -1883,7 +602,7 @@ main(int, char**)
         }
     };
 
-    auto world = std::make_unique<rendering::World>();
+    auto world = render::create_null_world();
 
     auto point_lights = std::array<PointLightAndMaterial, NUMBER_OF_POINT_LIGHTS>
     {
@@ -1905,9 +624,9 @@ main(int, char**)
 
     struct Crate
     {
-        rendering::ActorId actor;
+        render::ActorId actor;
         unsigned int id;
-        Crate(rendering::ActorId a, unsigned int i) : actor(a), id(i) {}
+        Crate(render::ActorId a, unsigned int i) : actor(a), id(i) {}
     };
     std::vector<Crate> crates;
 
@@ -1961,7 +680,7 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                auto renderer = rendering::create_render_list_for_perspective
+                auto renderer = render::create_render_list_for_perspective
                 (
                     &engine, aspect_ratio, camera,
                     use_white_only ? std::make_optional(white_only) : std::nullopt
@@ -2067,8 +786,6 @@ main(int, char**)
                     set_rendering_mode();
                 }
                 ImGui::DragFloat("FOV", &camera.fov, 0.1f, 1.0f, 145.0f);
-
-                rendering::im_gui(*world.get());
 
                 if (ImGui::CollapsingHeader("Lights"))
                 {

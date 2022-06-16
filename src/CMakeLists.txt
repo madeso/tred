@@ -3,6 +3,8 @@ set(src
 
     tred/assert.cc tred/assert.h
 
+    tred/colors.cc tred/colors.h
+
     tred/cint.cc tred/cint.h
     tred/handle.cc tred/handle.h
     tred/texture.load.cc tred/texture.load.h
@@ -44,6 +46,33 @@ set(src
     tred/input/unitsetup.cc tred/input/unitsetup.h
     tred/input/system.pimpl.cc tred/input/system.pimpl.h
 
+    tred/render/handle.texture.cc tred/render/handle.texture.h
+    tred/render/handle.compiledmaterialshader.cc tred/render/handle.compiledmaterialshader.h
+    tred/render/handle.world.cc tred/render/handle.world.h
+    tred/render/handle.mesh.cc tred/render/handle.mesh.h
+
+    tred/render/light.cc tred/render/light.h
+    tred/render/light.uniforms.cc tred/render/light.uniforms.h
+    tred/render/camera.cc tred/render/camera.h
+    tred/render/camera.compiled.cc tred/render/camera.compiled.h
+    tred/render/shader.template.cc tred/render/shader.template.h
+    tred/render/material.property.cc tred/render/material.property.h
+    tred/render/material.shader.source.cc tred/render/material.shader.source.h
+    tred/render/material.cc tred/render/material.h
+    tred/render/light.active.cc tred/render/light.active.h
+    tred/render/light.params.cc tred/render/light.params.h
+    tred/render/material.compiledprops.cc tred/render/material.compiledprops.h
+    tred/render/compiledmaterialshader.cc tred/render/compiledmaterialshader.h
+    tred/render/compiledmaterial.cc tred/render/compiledmaterial.h
+    tred/render/mesh.cc tred/render/mesh.h
+    tred/render/compiled.mesh.cc tred/render/compiled.mesh.h
+    tred/render/vfs.cc tred/render/vfs.h
+    tred/render/cache.cc tred/render/cache.h
+    tred/render/renderlist.cc tred/render/renderlist.h
+    tred/render/engine.cc tred/render/engine.h
+    tred/render/scopedrenderer.cc tred/render/scopedrenderer.h
+    tred/render/world.cc tred/render/world.h
+
     tred/render2.cc tred/render2.h
     tred/layer2.cc tred/layer2.h
     tred/spritebatch.cc tred/spritebatch.h
@@ -83,8 +112,18 @@ set(src
 
 add_library(tred STATIC ${src})
 target_link_libraries(tred
-    PUBLIC sdl2 opengl imgui fmt::fmt stb::image glm embed
-    PRIVATE project_options project_warnings
+    PUBLIC
+        sdl2
+        opengl
+        imgui
+        fmt::fmt
+        stb::image
+        glm
+        embed
+    PRIVATE
+        project_options
+        project_warnings
+        mustache
 )
 target_include_directories(tred
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
