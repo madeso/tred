@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/geom.h"
+#include "tred/render/geom.h"
 
 #include "tred/render/material.h"
 

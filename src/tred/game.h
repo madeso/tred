@@ -7,15 +7,15 @@
 #include <functional>
 
 
-#include "tred/shader.h"
-#include "tred/vertex_layout.h"
+#include "tred/render/shader.h"
+#include "tred/render/vertex_layout.h"
 #include "tred/rect.h"
 #include "tred/types.h"
-#include "tred/texture.h"
-#include "tred/spritebatch.h"
+#include "tred/render/texture.h"
+#include "tred/render/spritebatch.h"
 #include "tred/input/key.h"
-#include "tred/render2.h"
-#include "tred/layer2.h"
+#include "tred/render/render2.h"
+#include "tred/render/layer2.h"
 
 struct Game
 {

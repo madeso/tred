@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tred/handle.h"
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 #include "tred/render/compiledmaterialshader.h"
 
 #include "tred/render/handle.texture.h"

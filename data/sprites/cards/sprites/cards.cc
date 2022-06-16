@@ -1,6 +1,6 @@
 #include "sprites/cards.h"
 
-#include "tred/texture.load.h"
+#include "tred/render/texture.load.h"
 
 #include "cards.png.h"
 

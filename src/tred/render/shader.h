@@ -5,8 +5,8 @@
 
 
 
-#include "tred/vertex_layout.h"
-#include "tred/uniform.h"
+#include "tred/render/vertex_layout.h"
+#include "tred/render/uniform.h"
 
 
 struct ShaderProgram

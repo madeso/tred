@@ -1,9 +1,9 @@
 #pragma once
 
-#include "tred/uniform.h"
-#include "tred/vertex_layout.h"
+#include "tred/render/uniform.h"
+#include "tred/render/vertex_layout.h"
 #include "tred/hash.string.h"
-#include "tred/shader.h"
+#include "tred/render/shader.h"
 
 #include "tred/render/material.property.h"
 #include "tred/render/light.uniforms.h"

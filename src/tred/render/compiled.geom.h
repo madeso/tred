@@ -2,8 +2,8 @@
 
 #include <unordered_set>
 
-#include "tred/vertex_layout.h"
-#include "tred/geom.h"
+#include "tred/render/vertex_layout.h"
+#include "tred/render/geom.h"
 
 
 /** A compiled Geom*/

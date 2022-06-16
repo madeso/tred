@@ -17,12 +17,12 @@
 
 #include "tred/dependency_sdl.h"
 #include "tred/log.h"
-#include "tred/opengl_utils.h"
-#include "tred/opengl_state.h"
+#include "tred/render/opengl_utils.h"
+#include "tred/render/opengl_state.h"
 #include "tred/types.h"
 #include "tred/handle.h"
-#include "tred/render2.h"
-#include "tred/layer2.h"
+#include "tred/render/render2.h"
+#include "tred/render/layer2.h"
 
 #include "tred/input/system.h"
 #include "tred/input/platform.h"

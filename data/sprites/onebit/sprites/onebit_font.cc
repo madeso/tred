@@ -2,7 +2,7 @@
 
 #include "tred/assert.h"
 
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 #include "tred/game.h"
 
 #include "sprites/onebit.h"

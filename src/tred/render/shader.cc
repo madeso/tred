@@ -1,8 +1,8 @@
-#include "tred/shader.h"
+#include "tred/render/shader.h"
 
 #include "tred/assert.h"
 #include "tred/dependency_opengl.h"
-#include "tred/shader.util.h"
+#include "tred/render/shader.util.h"
 #include "tred/log.h"
 #include "tred/cint.h"
 

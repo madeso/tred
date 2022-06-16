@@ -3,7 +3,7 @@
 #include "catch.hpp"
 #include "catchy/vectorequals.h"
 
-#include "tred/vertex_layout.h"
+#include "tred/render/vertex_layout.h"
 
 
 template<> struct fmt::formatter<VertexType>: formatter<string_view>

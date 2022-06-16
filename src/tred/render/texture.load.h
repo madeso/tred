@@ -2,8 +2,8 @@
 
 #include "embed/types.h"
 #include "tred/types.h"
-#include "tred/texture.types.h"
-#include "tred/texture.h"
+#include "tred/render/texture.types.h"
+#include "tred/render/texture.h"
 
 
 Texture

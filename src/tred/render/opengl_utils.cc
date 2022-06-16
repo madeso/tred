@@ -1,8 +1,8 @@
-#include "tred/opengl_utils.h"
+#include "tred/render/opengl_utils.h"
 
 #include "tred/dependency_opengl.h"
-#include "tred/opengl_debug.h"
-#include "tred/opengl_state.h"
+#include "tred/render/opengl_debug.h"
+#include "tred/render/opengl_state.h"
 
 void opengl_setup(OpenglStates* state)
 {

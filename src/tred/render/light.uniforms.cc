@@ -3,7 +3,7 @@
 #include <cmath>
 
 
-#include "tred/shader.h"
+#include "tred/render/shader.h"
 #include "tred/render/light.h"
 #include "tred/render/light.active.h"
 #include "tred/render/light.params.h"

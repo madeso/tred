@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tred/hash.string.h"
-#include "tred/shader.source.h"
+#include "tred/render/shader.source.h"
 #include "tred/render/material.property.h"
 
 namespace render

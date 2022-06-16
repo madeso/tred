@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tred/uniform.h"
+#include "tred/render/uniform.h"
 
 struct ShaderProgram;
 struct Attenuation;

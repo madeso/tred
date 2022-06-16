@@ -1,4 +1,4 @@
-#include "tred/geom.compiled.h"
+#include "tred/render/compiled.geom.h"
 
 #include <functional>
 #include <numeric>
@@ -6,7 +6,7 @@
 #include "tred/assert.h"
 #include "tred/dependency_opengl.h"
 #include "tred/cint.h"
-#include "tred/shader.util.h"
+#include "tred/render/shader.util.h"
 
 
 unsigned int

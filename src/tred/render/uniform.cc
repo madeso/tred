@@ -1,4 +1,4 @@
-#include "tred/uniform.h"
+#include "tred/render/uniform.h"
 
 
 Uniform::Uniform()

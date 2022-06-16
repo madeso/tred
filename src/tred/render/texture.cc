@@ -1,10 +1,10 @@
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 
 #include "tred/assert.h"
 
 #include "tred/dependency_opengl.h"
 #include "tred/cint.h"
-#include "tred/texture.load.h"
+#include "tred/render/texture.load.h"
 #include "tred/log.h"
 
 

@@ -1,10 +1,10 @@
 #include "tred/render/material.compiledprops.h"
 
-#include "tred/shader.h"
+#include "tred/render/shader.h"
 #include "tred/cint.h"
 
 #include "tred/render/material.property.h"
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 
 namespace render
 {

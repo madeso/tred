@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tred/rect.h"
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 
 #include <array>
 

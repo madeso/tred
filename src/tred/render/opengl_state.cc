@@ -1,8 +1,8 @@
-#include "tred/opengl_state.h"
+#include "tred/render/opengl_state.h"
 
 #include "tred/assert.h"
 
-#include "dependency_opengl.h"
+#include "tred/dependency_opengl.h"
 
 
 template<typename T, typename TChange>

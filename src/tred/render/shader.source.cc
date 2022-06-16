@@ -1,4 +1,4 @@
-#include "tred/shader.source.h"
+#include "tred/render/shader.source.h"
 
 #include <sstream>
 

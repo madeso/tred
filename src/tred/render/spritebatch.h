@@ -4,7 +4,7 @@
 
 
 
-#include "tred/texture.h"
+#include "tred/render/texture.h"
 #include "tred/types.h"
 #include "tred/rect.h"
 

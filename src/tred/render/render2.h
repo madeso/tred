@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tred/shader.h"
-#include "tred/spritebatch.h"
+#include "tred/render/shader.h"
+#include "tred/render/spritebatch.h"
 
 
 struct Render2

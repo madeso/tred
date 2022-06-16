@@ -5,7 +5,7 @@
 #include "tred/render/compiledmaterial.h"
 #include "tred/render/compiled.mesh.h"
 #include "tred/render/engine.h"
-#include "tred/render_func.h"
+#include "tred/render/render_func.h"
 
 namespace render
 {

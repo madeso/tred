@@ -1,11 +1,11 @@
-#include "tred/layer2.h"
+#include "tred/render/layer2.h"
 
-#include "tred/render2.h"
-#include "tred/spritebatch.h"
+#include "tred/render/render2.h"
+#include "tred/render/spritebatch.h"
 #include "tred/dependency_opengl.h"
-#include "tred/viewportdef.h"
-#include "tred/opengl_state.h"
-#include "tred/opengl_utils.h"
+#include "tred/render/viewportdef.h"
+#include "tred/render/opengl_state.h"
+#include "tred/render/opengl_utils.h"
 
 
 void set_gl_viewport(const Recti& r)

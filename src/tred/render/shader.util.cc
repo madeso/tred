@@ -1,4 +1,4 @@
-#include "tred/shader.util.h"
+#include "tred/render/shader.util.h"
 
 #include "tred/dependency_opengl.h"
 

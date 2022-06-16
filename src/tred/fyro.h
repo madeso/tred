@@ -30,13 +30,13 @@
 
 // custom/local headers
 #include "tred/dependency_sdl.h"
-#include "tred/opengl_debug.h"
+#include "tred/render/opengl_debug.h"
 #include "tred/cint.h"
-#include "tred/uniform.h"
-#include "tred/shader.h"
+#include "tred/render/uniform.h"
+#include "tred/render/shader.h"
 #include "tred/log.h"
 #include "tred/types.h"
 #include "tred/game.h"
-#include "tred/texture.h"
-#include "tred/texture.load.h"
+#include "tred/render/texture.h"
+#include "tred/render/texture.load.h"
 
