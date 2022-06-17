@@ -62,6 +62,8 @@ set(src
     tred/render/opengl_debug.cc tred/render/opengl_debug.h
     tred/render/opengl_state.cc tred/render/opengl_state.h
     tred/render/opengl_utils.cc tred/render/opengl_utils.h
+    tred/render/render_func.cc tred/render/render_func.h
+    tred/render/render2.cc tred/render/render2.h
     tred/render/renderlist.cc tred/render/renderlist.h
     tred/render/scopedrenderer.cc tred/render/scopedrenderer.h
     tred/render/shader.cc tred/render/shader.h
@@ -72,14 +74,11 @@ set(src
     tred/render/texture.cc tred/render/texture.h
     tred/render/texture.load.cc tred/render/texture.load.h
     tred/render/texture.types.cc tred/render/texture.types.h
+    tred/render/uniform.cc tred/render/uniform.h
     tred/render/vertex_layout.cc tred/render/vertex_layout.h
     tred/render/vfs.cc tred/render/vfs.h
-    tred/render/world.cc tred/render/world.h
-
-    tred/render/uniform.cc tred/render/uniform.h
-    tred/render/render_func.cc tred/render/render_func.h
-    tred/render/render2.cc tred/render/render2.h
     tred/render/viewportdef.cc tred/render/viewportdef.h
+    tred/render/world.cc tred/render/world.h
 
     tred/array.cc tred/array.h
     tred/assert.cc tred/assert.h
