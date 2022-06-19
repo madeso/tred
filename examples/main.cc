@@ -408,7 +408,7 @@ main(int, char**)
     const auto white_only = engine.add_global_shader(render::Material{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
     bool use_white_only = false;
 
-    const auto crate = engine.add_mesh
+    const auto added_crate = engine.add_mesh
     ({
         render::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
@@ -416,16 +416,16 @@ main(int, char**)
             ,
         create_box_mesh(1.0f)
     });
-    LOG_INFO("Crate is {} {}", crate.geom, crate.material);
+    LOG_INFO("Crate is {} {}", added_crate.geom, added_crate.material);
 
-    const auto light = engine.add_mesh
+    const auto added_light = engine.add_mesh
     ({
         render::Material{"unlit.glsl"},
         create_box_mesh(0.2f)
     });
-    LOG_INFO("Light is {} {}", light.geom, light.material);
+    LOG_INFO("Light is {} {}", added_light.geom, added_light.material);
 
-    const auto plane = engine.add_mesh
+    const auto added_plane = engine.add_mesh
     ({
         render::Material{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
@@ -433,7 +433,7 @@ main(int, char**)
             ,
         create_plane_mesh(plane_size, plane_size)
     });
-    LOG_INFO("Plane is {} {}", plane.geom, plane.material);
+    LOG_INFO("Plane is {} {}", added_plane.geom, added_plane.material);
 
     auto get_crate_transform = [&](unsigned int i, float time)
     {
@@ -471,10 +471,10 @@ main(int, char**)
 
     auto point_lights = std::array<PointLightAndMaterial, NUMBER_OF_POINT_LIGHTS>
     {
-        PointLightAndMaterial{glm::vec3{ 0.7f,  0.2f,  2.0f}, light.material, light.geom, world.get()},
-        PointLightAndMaterial{glm::vec3{ 2.3f, -3.3f, -4.0f}, engine.duplicate_material(light.material), light.geom, world.get()},
-        PointLightAndMaterial{glm::vec3{-4.0f,  2.0f, -12.0f}, engine.duplicate_material(light.material), light.geom, world.get()},
-        PointLightAndMaterial{glm::vec3{ 0.0f,  0.0f, -3.0f}, engine.duplicate_material(light.material), light.geom, world.get()}
+        PointLightAndMaterial{glm::vec3{ 0.7f,  0.2f,  2.0f}, added_light.material, added_light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{ 2.3f, -3.3f, -4.0f}, engine.duplicate_material(added_light.material), added_light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{-4.0f,  2.0f, -12.0f}, engine.duplicate_material(added_light.material), added_light.geom, world.get()},
+        PointLightAndMaterial{glm::vec3{ 0.0f,  0.0f, -3.0f}, engine.duplicate_material(added_light.material), added_light.geom, world.get()}
     };
     auto match_diffuse_color_for_point_light = [&](PointLightAndMaterial& pl)
     {
@@ -498,7 +498,7 @@ main(int, char**)
     // add flying crates
     for(unsigned int i=0; i<cube_positions.size(); i+=1)
     {
-        auto actor = world->add_actor(crate.geom, crate.material, get_crate_transform(i, 0.0f));
+        auto actor = world->add_actor(added_crate.geom, added_crate.material, get_crate_transform(i, 0.0f));
         crates.emplace_back(actor, i);
     }
 
@@ -509,7 +509,7 @@ main(int, char**)
     // add ground
     {
         const auto model = glm::translate(glm::mat4(1.0f), {0.0f, -3.5f, 0.0f});
-        world->add_actor(plane.geom, plane.material, model);
+        world->add_actor(added_plane.geom, added_plane.material, model);
     }
 
     auto cards = Texture{::cards::load_texture()};
