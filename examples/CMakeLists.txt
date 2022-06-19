@@ -1,5 +1,6 @@
 set(src
     main.cc
+    assets.cc assets.h
 )
 
 embed(embedded

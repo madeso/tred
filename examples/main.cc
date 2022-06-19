@@ -9,6 +9,8 @@
 #include <map>
 #include <set>
 
+#include "assets.h"
+
 #include <fmt/core.h>
 
 #include "tred/dependency_imgui.h"
@@ -16,62 +18,32 @@
 #include "imgui_impl_opengl3.h"
 
 
-#include "tred/dependency_sdl.h"
-#include "tred/render/opengl_debug.h"
 #include "tred/cint.h"
-#include "tred/render/geom.h"
-#include "tred/render/geom.default.h"
-#include "tred/render/texture.h"
-#include "tred/render/uniform.h"
-#include "tred/render/shader.h"
-#include "tred/log.h"
-#include "tred/render/compiled.geom.h"
-#include "tred/render/texture.load.h"
-#include "tred/windows.h"
-#include "tred/input/system.h"
-#include "tred/input/config.h"
-#include "tred/input/table.h"
-#include "tred/render/layer2.h"
-#include "tred/render/spritebatch.h"
-#include "tred/render/shader.source.h"
+#include "tred/colors.h"
+#include "tred/dependency_sdl.h"
 #include "tred/handle.h"
 #include "tred/hash.string.h"
+#include "tred/input/config.h"
+#include "tred/input/system.h"
+#include "tred/input/table.h"
+#include "tred/log.h"
 #include "tred/stdutils.h"
+#include "tred/windows.h"
+
+#include "tred/render/geom.default.h"
+#include "tred/render/layer2.h"
+#include "tred/render/spritebatch.h"
 #include "tred/render/render_func.h"
-#include "tred/colors.h"
-
-#include "tred/render/light.h"
-#include "tred/render/light.uniforms.h"
 #include "tred/render/camera.h"
-#include "tred/render/camera.compiled.h"
-#include "tred/render/shader.template.h"
-#include "tred/render/material.shader.source.h"
-#include "tred/render/material.h"
-#include "tred/render/light.active.h"
-#include "tred/render/light.params.h"
-#include "tred/render/material.compiledprops.h"
-#include "tred/render/compiledmaterialshader.h"
-#include "tred/render/compiledmaterial.h"
-#include "tred/render/mesh.h"
-#include "tred/render/compiled.mesh.h"
-#include "tred/render/vfs.h"
-#include "tred/render/cache.h"
-#include "tred/render/renderlist.h"
 #include "tred/render/engine.h"
-#include "tred/render/scopedrenderer.h"
+#include "tred/render/light.h"
 #include "tred/render/world.h"
-
-#include "tred/render/handle.texture.h"
-#include "tred/render/handle.compiledmaterialshader.h"
-#include "tred/render/handle.mesh.h"
+#include "tred/render/material.h"
+#include "tred/render/mesh.h"
+#include "tred/render/scopedrenderer.h"
 
 
 // resource headers
-#include "shader_light.glsl.h"
-#include "shader_material.glsl.h"
-#include "container_diffuse.png.h"
-#include "container_specular.png.h"
-
 #include "sprites/cards.h"
 
 #define OLD_INPUT 0
@@ -110,113 +82,6 @@ constexpr float plane_size = 20.0f;
 
 
 
-
-void log_shader_error(const std::string& file, const shader::ShaderResult& res)
-{
-    for(const auto& e: res.log)
-    {
-        switch(e.type)
-        {
-        case shader::ShaderMessageType::info:
-            LOG_INFO("{}({}): {}", file, e.line, e.message);
-            break;
-        case shader::ShaderMessageType::warning:
-            LOG_WARNING("{}({}): {}", file, e.line, e.message);
-            break;
-        case shader::ShaderMessageType::error:
-            LOG_ERROR("{}({}): {}", file, e.line, e.message);
-            break;
-        default:
-            LOG_ERROR("INVALID LOG ENTRY {}({}): {}", file, e.line, e.message);
-            break;
-        }
-    }
-}
-
-
-constexpr auto diffuse_color = HashedStringView{"Diffuse color"};
-constexpr auto diffuse_texture = HashedStringView{"Diffuse texture"};
-constexpr auto specular_texture = HashedStringView{"Specular texture"};
-constexpr auto shininess_prop = HashedStringView{"Shininess"};
-constexpr auto specular_strength_prop = HashedStringView{"Specular strength"};
-constexpr auto tint_prop = HashedStringView{"Tint color"};
-
-
-struct FixedFileVfs : render::Vfs
-{
-    std::optional<render::MaterialShaderSource> load_material_shader_source(const std::string& path) const override
-    {
-        if(path == "default.glsl")
-        {
-            const auto src = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
-            log_shader_error(path, src);
-            if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
-            return render::MaterialShaderSource::create_with_lights(*src.source)
-                .with_texture(diffuse_texture, "uMaterial.diffuse", "white.png")
-                .with_texture(specular_texture, "uMaterial.specular", "no-specular.png")
-                .with_vec4(diffuse_color, "uColor", glm::vec4{white3, 1.0f})
-                .with_vec3(tint_prop, "uMaterial.tint", white3)
-                .with_float(shininess_prop, "uMaterial.shininess", 32.0f)
-                .with_float(specular_strength_prop, "uMaterial.specular_strength", 1.0f)
-                ;
-        }
-        if(path == "unlit.glsl")
-        {
-            const auto src = shader::parse_shader_source(SHADER_LIGHT_GLSL);
-            log_shader_error(path, src);
-            if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
-            return render::MaterialShaderSource::create_unlit(*src.source)
-                .with_vec3(diffuse_color, "uColor", glm::vec3{1.0f, 1.0f, 1.0f})
-                ;
-        }
-        return std::nullopt;
-    }
-
-    std::optional<Texture> load_texture(const std::string& path) const override
-    {
-        if(path == "container_diffuse.png")
-        {
-            return load_image_from_embedded
-            (
-                CONTAINER_DIFFUSE_PNG,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            );
-        }
-        if(path == "container_specular.png")
-        {
-            return load_image_from_embedded
-            (
-                CONTAINER_SPECULAR_PNG,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            );
-        }
-        if(path == "white.png")
-        {
-            return load_image_from_color
-            (
-                0xFFFFFFFF,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            );
-        }
-        if(path == "no-specular.png")
-        {
-            return load_image_from_color
-            (
-                0x000000FF,
-                TextureEdge::repeat,
-                TextureRenderStyle::smooth,
-                Transparency::exclude
-            );
-        }
-        return std::nullopt;
-    }
-};
 
 
 #if OLD_INPUT == 0
@@ -528,7 +393,7 @@ main(int, char**)
         {-1.3f,  1.0f, -1.5f }
     };
 
-    auto vfs = FixedFileVfs{};
+    auto vfs = assets::FixedFileVfs{};
     auto engine = render::Engine
     {
         &vfs,
