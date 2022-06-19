@@ -1,0 +1,16 @@
+{
+    "project_directories":
+    [
+        "src/tred/render"
+    ],
+    "include_directories":
+    [
+        "src"
+    ],
+
+    "precompiled_headers":
+    [
+        "src/tred/pch.private.h",
+        "src/tred/pch.public.h"
+    ]
+}
