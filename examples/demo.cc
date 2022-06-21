@@ -54,7 +54,7 @@ struct ColorFlips
         }
     }
 
-    void render(SpriteBatch* batch)
+    void render(render::SpriteBatch* batch)
     {
         const auto color = [](int c, int s) -> float
         {
@@ -79,8 +79,8 @@ struct ColorFlips
 
 struct ExampleGame : public Game
 {
-    Texture cards;
-    Texture letter_g;
+    render::Texture cards;
+    render::Texture letter_g;
     ColorFlips flips;
     glm::vec2 mouse;
 
@@ -91,12 +91,12 @@ struct ExampleGame : public Game
         )
         , letter_g
         (
-            load_image_from_embedded
+            render::load_image_from_embedded
             (
                 LETTER_G_PNG,
-                TextureEdge::clamp,
-                TextureRenderStyle::smooth,
-                Transparency::include
+                render::TextureEdge::clamp,
+                render::TextureRenderStyle::smooth,
+                render::Transparency::include
             )
         )
         , mouse(0, 0)
@@ -111,9 +111,9 @@ struct ExampleGame : public Game
     }
 
     void
-    on_render(const RenderCommand& rc) override
+    on_render(const render::RenderCommand& rc) override
     {
-        auto r = with_layer2(rc, LayoutData{ViewportStyle::extended, 200.0f, 200.0f});
+        auto r = render::with_layer2(rc, render::LayoutData{render::ViewportStyle::extended, 200.0f, 200.0f});
 
         r.batch->quad({}, r.viewport_aabb_in_worldspace, {}, {0.8, 0.8, 0.8, 1.0f});
 
@@ -129,7 +129,7 @@ struct ExampleGame : public Game
         r.batch->quad(&letter_g, Rectf{40, 40}.translate(40, 40), {});
     }
 
-    void on_mouse_position(const InputCommand&, const glm::ivec2& p) override
+    void on_mouse_position(const render::InputCommand&, const glm::ivec2& p) override
     {
         // todo(Gustav): store world mouse?
         mouse = {p.x, p.y};

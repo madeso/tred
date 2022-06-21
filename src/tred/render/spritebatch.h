@@ -1,17 +1,14 @@
 #pragma once
 
-
-
-
-
 #include "tred/render/texture.h"
 #include "tred/types.h"
 #include "tred/rect.h"
 
+namespace render
+{
 
 struct Texture;
 struct ShaderProgram;
-
 struct Render2;
 
 struct Vertex2
@@ -49,3 +46,4 @@ struct SpriteBatch
     void submit();
 };
 
+}

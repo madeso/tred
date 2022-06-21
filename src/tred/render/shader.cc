@@ -6,6 +6,8 @@
 #include "tred/log.h"
 #include "tred/cint.h"
 
+namespace render
+{
 
 bool
 check_shader_compilation_error(const char* name, unsigned int shader)
@@ -310,3 +312,4 @@ setup_textures(ShaderProgram* shader, std::vector<Uniform*> uniform_list)
     }
 }
 
+}

@@ -2,11 +2,14 @@
 
 #include <cmath>
 
-
 #include "tred/render/shader.h"
 #include "tred/render/light.h"
 #include "tred/render/light.active.h"
 #include "tred/render/light.params.h"
+
+
+namespace render
+{
 
 
 DirectionalLightUniforms::DirectionalLightUniforms
@@ -179,10 +182,6 @@ SpotLightUniforms::turn_off_light(const ShaderProgram& shader) const
 }
 
 
-
-namespace render
-{
-
 // returns false if there were too many lights in the scene
 template<typename TUniform, typename TData>
 void apply_data(const ShaderProgram& shader, const std::vector<TData>& src, const std::vector<TUniform>& dst, bool* applied)
@@ -225,5 +224,5 @@ void LightUniforms::set_shader(const ShaderProgram& prog, const LightData& data,
     apply_data(prog, data.spot_lights, spot_lights, &ls->applied_spot_lights);
 }
 
-}
 
+}

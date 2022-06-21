@@ -1,13 +1,10 @@
 #pragma once
 
-
-
-
-
-
 #include "tred/render/vertex_layout.h"
 #include "tred/render/uniform.h"
 
+namespace render
+{
 
 struct ShaderProgram
 {
@@ -74,3 +71,4 @@ struct ShaderProgram
 void
 setup_textures(ShaderProgram* shader, std::vector<Uniform*> uniform_list);
 
+}

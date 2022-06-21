@@ -8,7 +8,7 @@
 
 namespace onebit
 {
-    Texture load_texture();
+    render::Texture load_texture();
 
 	constexpr Recti get(int x, int y) { return Recti::from_xywh(16*x, 16*y, 16, 16); }
 

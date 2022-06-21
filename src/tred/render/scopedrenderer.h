@@ -3,14 +3,13 @@
 #include "tred/render/handle.mesh.h"
 
 
+namespace render
+{
+
 struct DirectionalLight;
 struct PointLight;
 struct SpotLight;
 struct Camera;
-
-namespace render
-{
-
 struct Engine;
 
 

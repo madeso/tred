@@ -1,11 +1,11 @@
 #include "tred/render/opengl_debug.h"
 
-
-
 #include "tred/dependency_sdl.h"
 #include "tred/dependency_opengl.h"
 #include "tred/log.h"
 
+namespace render
+{
 
 const char*
 opengl_error_to_string(GLenum error_code)
@@ -136,4 +136,7 @@ setup_opengl_debug()
             GL_TRUE
         );
     }
+}
+
+
 }

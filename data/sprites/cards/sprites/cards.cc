@@ -6,14 +6,14 @@
 
 namespace cards
 {
-    Texture load_texture()
+    render::Texture load_texture()
     {
-        return load_image_from_embedded
+        return render::load_image_from_embedded
         (
             CARDS_PNG,
-            TextureEdge::clamp,
-            TextureRenderStyle::smooth,
-            Transparency::include
+            render::TextureEdge::clamp,
+            render::TextureRenderStyle::smooth,
+            render::Transparency::include
         );
     }
 }

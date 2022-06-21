@@ -6,14 +6,14 @@
 
 namespace onebit
 {
-    Texture load_texture()
+    render::Texture load_texture()
     {
-        return load_image_from_embedded
+        return render::load_image_from_embedded
         (
             ONEBIT_PNG,
-            TextureEdge::clamp,
-            TextureRenderStyle::pixel,
-            Transparency::include
+            render::TextureEdge::clamp,
+            render::TextureRenderStyle::pixel,
+            render::Transparency::include
         );
     }
 }

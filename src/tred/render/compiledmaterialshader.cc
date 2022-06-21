@@ -157,5 +157,4 @@ load_material_shader(Engine* engine, Cache* cache, const Vfs& vfs, const std::st
 
 
 
-
 }

@@ -2,6 +2,8 @@
 
 #include "tred/colors.h"
 
+namespace render
+{
 
 struct DirectionalLight
 {
@@ -80,3 +82,4 @@ struct SpotLight
     glm::vec3 specular = glm::vec3{1.0f, 1.0f, 1.0f};
 };
 
+}

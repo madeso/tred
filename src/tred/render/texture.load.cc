@@ -4,6 +4,8 @@
 #include "tred/log.h"
 #include "tred/cint.h"
 
+namespace render
+{
 
 Texture
 LoadImage
@@ -79,4 +81,6 @@ load_image_from_color
     {
         &pixel, 1, 1, te, trs, t
     };
+}
+
 }

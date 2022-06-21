@@ -2,6 +2,9 @@
 
 #include "tred/rect.h"
 
+namespace render
+{
+
 struct ViewportDef
 {
     Recti screen_rect;
@@ -50,3 +53,5 @@ lerp
     float t,
     const ViewportDef& rhs
 );
+
+}

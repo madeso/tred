@@ -8,6 +8,9 @@
 #include "tred/log.h"
 
 
+namespace render
+{
+
 namespace
 {
     constexpr unsigned int invalid_id = 0;
@@ -137,3 +140,4 @@ bind_texture(const Uniform& uniform, const Texture& texture)
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
+}

@@ -28,7 +28,7 @@ namespace onebit
     }
 
 
-    void font::simple_text(SpriteBatch* batch, Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim) const
+    void font::simple_text(render::SpriteBatch* batch, render::Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text_to_draw, const text_animation& anim) const
     {
         const auto font_spacing = get_spacing();
         const auto sprite = Rectf{size, size};

@@ -191,7 +191,7 @@ struct Minesweeper
         return count;
     }
 
-    void render(SpriteBatch* batch, Texture* onebit)
+    void render(render::SpriteBatch* batch, render::Texture* onebit)
     {
         for(int y=0; y<height; y+=1)
         {
@@ -243,7 +243,7 @@ struct Minesweeper
 
 struct MinesweeperGame : public Game
 {
-    Texture onebit;
+    render::Texture onebit;
     glm::vec2 mouse;
 
     Minesweeper ms;
@@ -264,10 +264,10 @@ struct MinesweeperGame : public Game
         ms = Minesweeper{20, 10, 10};
     }
 
-    LayoutData get_main_layout() const
+    render::LayoutData get_main_layout() const
     {
         // return {viewport_style::black_bars, 200.0f, 200.0f};
-        return {ViewportStyle::extended, 200.0f, 200.0f};
+        return {render::ViewportStyle::extended, 200.0f, 200.0f};
     }
 
     float title_anim = 0.0f;
@@ -279,7 +279,7 @@ struct MinesweeperGame : public Game
     }
 
     void
-    on_render(const RenderCommand& rc) override
+    on_render(const render::RenderCommand& rc) override
     {
         const std::string game_title = "minesweeper 42";
 
@@ -317,7 +317,7 @@ struct MinesweeperGame : public Game
         font.simple_text(r.batch, &onebit, black, title_rect.left, title_rect.bottom, game_title, ::onebit::siny_animation{wavy_range, 0.2f, title_anim});
     }
 
-    void on_mouse_position(const InputCommand&, const glm::ivec2& p) override
+    void on_mouse_position(const render::InputCommand&, const glm::ivec2& p) override
     {
         // todo(gustav): transform to world...
         mouse = {p.x, p.y};
@@ -325,7 +325,7 @@ struct MinesweeperGame : public Game
 
     Rectf game_button = Rectf{15.0f, 15.0f}.translate(100, 160);
 
-    void on_mouse_button(const InputCommand& c, input::MouseButton button, bool down) override
+    void on_mouse_button(const render::InputCommand& c, input::MouseButton button, bool down) override
     {
         if(down != false) { return; }
         if(button != input::MouseButton::left) { return; }

@@ -2,6 +2,9 @@
 
 #include "tred/assert.h"
 
+namespace render
+{
+
 
 std::optional<VertexType> parse_vertex_type(const std::string& name)
 {
@@ -95,7 +98,7 @@ struct VertexTypeList
 };
 
 
-CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const ::VertexTypes& v)
+CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v)
     : indices(i)
     , debug_types(v)
 {
@@ -190,3 +193,4 @@ compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& description
     return compile_attribute_layouts({}, descriptions);
 }
 
+}

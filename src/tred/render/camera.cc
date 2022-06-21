@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace render
+{
 
 CameraVectors
 Camera::create_vectors() const
@@ -17,4 +19,6 @@ Camera::create_vectors() const
     const auto up = glm::normalize(glm::cross(right, front));
 
     return {front, right, up, position};
+}
+
 }

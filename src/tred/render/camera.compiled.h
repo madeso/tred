@@ -1,5 +1,8 @@
 #pragma once
 
+namespace render
+{
+
 struct CameraVectors;
 
 
@@ -13,3 +16,5 @@ struct CompiledCamera
 
 
 CompiledCamera compile_camera(const CameraVectors& camera);
+
+}

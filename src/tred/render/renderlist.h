@@ -3,31 +3,31 @@
 #include "tred/render/handle.mesh.h"
 #include "tred/render/light.active.h"
 
+
+namespace render
+{
+
 struct Camera;
 struct DirectionalLight;
 struct PointLight;
 struct SpotLight;
 
-
-namespace render
-{
-
-struct RenderCommand
+struct RenderListCommand
 {
     GeomId geom_id;
     MaterialId material_id;
     glm::mat4 model;
 };
-// bool operator<(const RenderCommand& lhs, const RenderCommand& rhs) { return lhs.id < rhs.id; }
+// bool operator<(const RenderListCommand& lhs, const RenderListCommand& rhs) { return lhs.id < rhs.id; }
 
 
 // also called render queue but as a non-native speaker I hate typing queue
 struct RenderList
 {
     // todo(Gustav): sort commands!
-    // std::priority_queue<RenderCommand> commands;
+    // std::priority_queue<RenderListCommand> commands;
     // todo(Gustav): test perf with a std::multiset or a std::vector (sorted in render)
-    std::vector<RenderCommand> commands;
+    std::vector<RenderListCommand> commands;
 
     LightData lights;
     glm::vec3 camera_position;

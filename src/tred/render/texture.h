@@ -3,6 +3,9 @@
 #include "tred/render/uniform.h"
 #include "tred/render/texture.types.h"
 
+namespace render
+{
+
 struct Texture
 {
     unsigned int id;
@@ -38,3 +41,4 @@ struct Texture
 void
 bind_texture(const Uniform& uniform, const Texture& texture);
 
+}

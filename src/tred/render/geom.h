@@ -1,9 +1,7 @@
 #pragma once
 
-
-
-
-
+namespace render
+{
 
 /** A unique combination of position/normal/texturecoord/etc. in a Geom.
  */
@@ -35,3 +33,4 @@ struct Geom
     Geom(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris);
 };
 
+}

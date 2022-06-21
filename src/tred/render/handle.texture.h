@@ -3,10 +3,10 @@
 #include "tred/types.h"
 
 
-struct Texture;
-
 namespace render
 {
+    
+    struct Texture;
     struct Vfs;
     struct Cache;
 

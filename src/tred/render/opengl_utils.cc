@@ -4,6 +4,9 @@
 #include "tred/render/opengl_debug.h"
 #include "tred/render/opengl_state.h"
 
+namespace render
+{
+
 void opengl_setup(OpenglStates* state)
 {
     setup_opengl_debug();
@@ -43,3 +46,4 @@ void opengl_set3d(OpenglStates* states)
     );
 }
 
+}

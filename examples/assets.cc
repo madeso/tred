@@ -17,19 +17,19 @@
 namespace assets
 {
 
-void log_shader_error(const std::string& file, const shader::ShaderResult& res)
+void log_shader_error(const std::string& file, const render::shader::ShaderResult& res)
 {
     for(const auto& e: res.log)
     {
         switch(e.type)
         {
-        case shader::ShaderMessageType::info:
+        case render::shader::ShaderMessageType::info:
             LOG_INFO("{}({}): {}", file, e.line, e.message);
             break;
-        case shader::ShaderMessageType::warning:
+        case render::shader::ShaderMessageType::warning:
             LOG_WARNING("{}({}): {}", file, e.line, e.message);
             break;
-        case shader::ShaderMessageType::error:
+        case render::shader::ShaderMessageType::error:
             LOG_ERROR("{}({}): {}", file, e.line, e.message);
             break;
         default:
@@ -44,7 +44,7 @@ std::optional<render::MaterialShaderSource> FixedFileVfs::load_material_shader_s
 {
     if(path == "default.glsl")
     {
-        const auto src = shader::parse_shader_source(SHADER_MATERIAL_GLSL);
+        const auto src = render::shader::parse_shader_source(SHADER_MATERIAL_GLSL);
         log_shader_error(path, src);
         if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
         return render::MaterialShaderSource::create_with_lights(*src.source)
@@ -58,7 +58,7 @@ std::optional<render::MaterialShaderSource> FixedFileVfs::load_material_shader_s
     }
     if(path == "unlit.glsl")
     {
-        const auto src = shader::parse_shader_source(SHADER_LIGHT_GLSL);
+        const auto src = render::shader::parse_shader_source(SHADER_LIGHT_GLSL);
         log_shader_error(path, src);
         if(src.source.has_value() == false) { LOG_ERROR("Failed to parse shader file {}", path); return std::nullopt; }
         return render::MaterialShaderSource::create_unlit(*src.source)
@@ -68,46 +68,46 @@ std::optional<render::MaterialShaderSource> FixedFileVfs::load_material_shader_s
     return std::nullopt;
 }
 
-std::optional<Texture> FixedFileVfs::load_texture(const std::string& path) const
+std::optional<render::Texture> FixedFileVfs::load_texture(const std::string& path) const
 {
     if(path == "container_diffuse.png")
     {
-        return load_image_from_embedded
+        return render::load_image_from_embedded
         (
             CONTAINER_DIFFUSE_PNG,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
+            render::TextureEdge::repeat,
+            render::TextureRenderStyle::smooth,
+            render::Transparency::exclude
         );
     }
     if(path == "container_specular.png")
     {
-        return load_image_from_embedded
+        return render::load_image_from_embedded
         (
             CONTAINER_SPECULAR_PNG,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
+            render::TextureEdge::repeat,
+            render::TextureRenderStyle::smooth,
+            render::Transparency::exclude
         );
     }
     if(path == "white.png")
     {
-        return load_image_from_color
+        return render::load_image_from_color
         (
             0xFFFFFFFF,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
+            render::TextureEdge::repeat,
+            render::TextureRenderStyle::smooth,
+            render::Transparency::exclude
         );
     }
     if(path == "no-specular.png")
     {
-        return load_image_from_color
+        return render::load_image_from_color
         (
             0x000000FF,
-            TextureEdge::repeat,
-            TextureRenderStyle::smooth,
-            Transparency::exclude
+            render::TextureEdge::repeat,
+            render::TextureRenderStyle::smooth,
+            render::Transparency::exclude
         );
     }
     return std::nullopt;

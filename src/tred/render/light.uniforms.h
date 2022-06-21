@@ -2,11 +2,17 @@
 
 #include "tred/render/uniform.h"
 
+namespace render
+{
+
 struct ShaderProgram;
 struct Attenuation;
 struct DirectionalLight;
 struct PointLight;
 struct SpotLight;
+struct LightParams;
+struct LightData;
+struct LightStatus;
 
 
 struct DirectionalLightUniforms
@@ -101,13 +107,6 @@ struct SpotLightUniforms
     turn_off_light(const ShaderProgram& shader) const;
 };
 
-
-namespace render
-{
-
-struct LightParams;
-struct LightData;
-struct LightStatus;
 
 struct LightUniforms
 {

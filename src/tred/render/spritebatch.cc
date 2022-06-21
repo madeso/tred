@@ -6,6 +6,9 @@
 #include "tred/dependency_opengl.h"
 #include "tred/game.h"
 
+namespace render
+{
+
 SpriteBatch::SpriteBatch(ShaderProgram* quad_shader, Render2* r)
     : render(r)
     , white_texture
@@ -159,4 +162,6 @@ void SpriteBatch::submit()
     data.resize(0);
     quads = 0;
     current_texture = nullptr;
+}
+
 }

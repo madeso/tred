@@ -2,6 +2,8 @@
 
 using namespace std::literals;
 
+namespace render
+{
 
 Render2::Render2()
     // todo(Gustav): move quad_description and quad_layout to a seperate setup
@@ -65,3 +67,4 @@ Render2::Render2()
     // todo(Gustav): verify mesh layout with SpriteBatch
 }
 
+}

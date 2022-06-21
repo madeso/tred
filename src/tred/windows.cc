@@ -1,36 +1,29 @@
 #include "tred/windows.h"
 
 #include <map>
-
-
 #include <array>
 #include <set>
-#include "tred/assert.h"
 
-
-
-// imgui
-#include "tred/dependency_imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
-#include "tred/undef_windows.h"
 
+#include "tred/assert.h"
+#include "tred/dependency_imgui.h"
+#include "tred/undef_windows.h"
+#include "tred/windows.sdl.convert.h"
+#include "tred/windows.sdl.joystick.h"
 #include "tred/dependency_sdl.h"
 #include "tred/log.h"
-#include "tred/render/opengl_utils.h"
-#include "tred/render/opengl_state.h"
 #include "tred/types.h"
 #include "tred/handle.h"
+
+#include "tred/render/opengl_utils.h"
+#include "tred/render/opengl_state.h"
 #include "tred/render/render2.h"
 #include "tred/render/layer2.h"
 
 #include "tred/input/system.h"
 #include "tred/input/platform.h"
-
-#include "tred/handle.h"
-
-#include "tred/windows.sdl.convert.h"
-#include "tred/windows.sdl.joystick.h"
 
 
 using window_id = Uint32;
@@ -457,7 +450,7 @@ namespace
     {
         ImguiState* imgui;
         bool opengl_initialized = false;
-        std::unique_ptr<Render2> render_data;
+        std::unique_ptr<render::Render2> render_data;
         
         SDL_GLContext sdl_glcontext;
         WindowImplementation* active_window = nullptr; // sdl current active window
@@ -469,7 +462,7 @@ namespace
         {
         }
 
-        void run_setup(OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, detail::Window* win, bool is_main)
+        void run_setup(render::OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, detail::Window* win, bool is_main)
         {
             if(opengl_initialized == false)
             {
@@ -481,7 +474,7 @@ namespace
                 LOG_INFO("Renderer: {}", renderer);
                 LOG_INFO("Version: {}", version);
 
-                render_data = std::make_unique<Render2>();
+                render_data = std::make_unique<render::Render2>();
 
                 opengl_initialized = true;
             }
@@ -537,11 +530,11 @@ struct WindowImplementation : public detail::Window
     std::optional<render_function> on_render;
     ImguiState* imgui_state;
 
-    OpenglStates* states;
+    render::OpenglStates* states;
 
     bool is_main;
 
-    WindowImplementation(OpenglStates* st, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup, ImguiState* ist, bool im)
+    WindowImplementation(render::OpenglStates* st, const std::string& t, const glm::ivec2& s, OpenGlSetup* setup, ImguiState* ist, bool im)
         : title(t)
         , size(s)
         , sdl_window(nullptr)
@@ -693,7 +686,7 @@ struct WindowsImplementation : public Windows
     std::unique_ptr<SdlPlatform> platform;
     ImguiState imgui_state;
     OpenGlSetup opengl_setup;
-    OpenglStates states;
+    render::OpenglStates states;
     MouseState mouse_state = MouseState::unknown;
 
     explicit WindowsImplementation()

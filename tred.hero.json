@@ -1,7 +1,10 @@
 {
     "project_directories":
     [
-        "src/tred/render"
+        "src/tred/render",
+        "examples/main.cc",
+        "examples/assets.cc",
+        "examples/assets.h"
     ],
     "include_directories":
     [

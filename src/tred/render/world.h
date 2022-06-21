@@ -5,13 +5,13 @@
 #include "tred/render/handle.mesh.h"
 #include "tred/render/handle.world.h"
 
-struct DirectionalLight;
-struct PointLight;
-struct SpotLight;
 
 namespace render
 {
 
+struct DirectionalLight;
+struct PointLight;
+struct SpotLight;
 struct ScopedRenderer;
 
 struct World

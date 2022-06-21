@@ -4,6 +4,8 @@
 
 #include "tred/render/vertex_layout.h"
 
+namespace render
+{
 
 void
 set_shader_program(unsigned int new_program, const VertexTypes& types);
@@ -16,3 +18,5 @@ is_shader_bound(unsigned int program);
 
 void
 clear_shader_program();
+
+}

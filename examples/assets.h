@@ -16,7 +16,7 @@ namespace assets
 struct FixedFileVfs : render::Vfs
 {
     std::optional<render::MaterialShaderSource> load_material_shader_source(const std::string& path) const override;
-    std::optional<Texture> load_texture(const std::string& path) const override;
+    std::optional<render::Texture> load_texture(const std::string& path) const override;
 };
 
 }

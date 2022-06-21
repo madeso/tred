@@ -10,9 +10,12 @@
 #include "tred/types.h"
 #include "tred/input/unitdiscovery.h"
 
+namespace render
+{
 struct RenderCommand;
+}
 
-using render_function = std::function<void (const RenderCommand&)>;
+using render_function = std::function<void (const render::RenderCommand&)>;
 using imgui_function = std::function<void ()>;
 using update_function = std::function<bool (float)>;
 

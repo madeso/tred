@@ -1,11 +1,10 @@
 #pragma once
 
-struct Texture;
 
 namespace render
 {
 
-
+struct Texture;
 struct MaterialShaderSource;
 
 

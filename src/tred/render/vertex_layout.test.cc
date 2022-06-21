@@ -1,9 +1,9 @@
-
-
 #include "catch.hpp"
 #include "catchy/vectorequals.h"
 
 #include "tred/render/vertex_layout.h"
+
+using namespace render;
 
 
 template<> struct fmt::formatter<VertexType>: formatter<string_view>

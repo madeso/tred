@@ -2,6 +2,8 @@
 
 #include "tred/dependency_opengl.h"
 
+namespace render
+{
 
 namespace
 {
@@ -45,4 +47,6 @@ void
 clear_shader_program()
 {
     set_shader_program(0, {});
+}
+
 }

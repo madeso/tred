@@ -2,12 +2,12 @@
 
 #include "tred/render/handle.texture.h"
 
-struct ShaderProgram;
-struct Uniform;
 
 namespace render
 {
 
+struct ShaderProgram;
+struct Uniform;
 struct Cache;
 struct PropertyIndex;
 

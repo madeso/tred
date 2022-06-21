@@ -1,14 +1,11 @@
 #pragma once
 
-
-
-
-
-
 #include "vertex_layout.h"
 
-namespace shader
+
+namespace render::shader
 {
+
 enum class ShaderMessageType
 {
     info, warning, error

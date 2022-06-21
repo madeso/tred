@@ -5,6 +5,8 @@
 #include "tred/render/vertex_layout.h"
 #include "tred/render/geom.h"
 
+namespace render
+{
 
 /** A compiled Geom*/
 struct CompiledGeom
@@ -34,3 +36,5 @@ struct CompiledGeom
 
 CompiledGeom
 compile_geom(const Geom& mesh, const CompiledGeomVertexAttributes& layout);
+
+}

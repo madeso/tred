@@ -4,6 +4,9 @@
 #include "tred/render/spritebatch.h"
 
 
+namespace render
+{
+
 struct Render2
 {
     Render2();
@@ -17,3 +20,5 @@ struct Render2
 
     SpriteBatch batch;
 };
+
+}

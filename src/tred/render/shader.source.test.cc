@@ -4,7 +4,7 @@
 
 #include "catch.hpp"
 
-using namespace shader;
+using namespace render::shader;
 
 
 std::string GetLogAsString(const ShaderLog& log)

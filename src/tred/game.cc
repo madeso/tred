@@ -27,17 +27,17 @@
 #include "tred/windows.sdl.convert.h"
 
 
-void Game::on_render(const RenderCommand&) {}
+void Game::on_render(const render::RenderCommand&) {}
 void Game::on_imgui() {}
 bool Game::on_update(float) { return true; }
 void Game::on_key(char, bool) {}
-void Game::on_mouse_position(const InputCommand&, const glm::ivec2&) {}
-void Game::on_mouse_button(const InputCommand&, input::MouseButton, bool) {}
+void Game::on_mouse_position(const render::InputCommand&, const glm::ivec2&) {}
+void Game::on_mouse_button(const render::InputCommand&, input::MouseButton, bool) {}
 void Game::on_mouse_wheel(int) {}
 
 namespace
 {
-    void setup_open_gl(OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, bool imgui)
+    void setup_open_gl(render::OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, bool imgui)
     {
         opengl_setup(states);
         opengl_set2d(states);
@@ -74,12 +74,12 @@ struct Window
 
     SDL_Window* sdl_window;
     SDL_GLContext sdl_glcontext;
-    OpenglStates* states;
+    render::OpenglStates* states;
 
     std::shared_ptr<Game> game;
-    std::unique_ptr<Render2> render_data;
+    std::unique_ptr<render::Render2> render_data;
 
-    Window(OpenglStates* st, const std::string& t, const glm::ivec2& s, bool i)
+    Window(render::OpenglStates* st, const std::string& t, const glm::ivec2& s, bool i)
         : title(t)
         , size(s)
         , imgui(i)
@@ -259,13 +259,13 @@ void pump_events(Window* window)
 
 int setup_and_run(std::function<std::shared_ptr<Game>()> make_game, const std::string& title, const glm::ivec2& size, bool call_imgui)
 {
-    OpenglStates states;
+    render::OpenglStates states;
     auto window = ::Window{&states, title, size, call_imgui};
     if(window.sdl_window == nullptr)
     {
         return -1;
     }
-    window.render_data = std::make_unique<Render2>();
+    window.render_data = std::make_unique<render::Render2>();
     window.game = make_game();
 
     auto last = SDL_GetPerformanceCounter();

@@ -5,6 +5,8 @@
 #include "tred/render/texture.types.h"
 #include "tred/render/texture.h"
 
+namespace render
+{
 
 Texture
 load_image_from_embedded
@@ -23,3 +25,5 @@ load_image_from_color
     TextureRenderStyle trs,
     Transparency t
 );
+
+}

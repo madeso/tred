@@ -7,7 +7,7 @@
 
 namespace cards
 {
-    Texture load_texture();
+    render::Texture load_texture();
 
     // probably want to move this to a game logic?
     enum class type

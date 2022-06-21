@@ -21,8 +21,8 @@ constexpr float fade_time_outro = 1;
 struct render_data
 {
     Rectf viewport_aabb_in_worldspace;
-    Texture* onebit;
-    SpriteBatch* batch;
+    render::Texture* onebit;
+    render::SpriteBatch* batch;
 };
 
 using namespace std;
@@ -1490,7 +1490,7 @@ enum struct GameState { game, menu };
 
 struct GameWrapper : Game
 {
-    Texture onebit;
+    render::Texture onebit;
     glm::vec2 mouse;
 
     bool mouse_button = false;
@@ -1503,7 +1503,7 @@ struct GameWrapper : Game
     OldGame game;
     Menu menu;
 
-    void on_mouse_button(const InputCommand&, input::MouseButton button, bool down) override
+    void on_mouse_button(const render::InputCommand&, input::MouseButton button, bool down) override
     {
         if (button != input::MouseButton::left) { return; }
 
@@ -1554,12 +1554,12 @@ struct GameWrapper : Game
         return r;
     }
 
-    constexpr static auto layout = LayoutData{ViewportStyle::black_bars, width, height};
+    constexpr static auto layout = render::LayoutData{render::ViewportStyle::black_bars, width, height};
 
     void
-    on_render(const RenderCommand& rc) override
+    on_render(const render::RenderCommand& rc) override
     {
-        auto r = with_layer2(rc, layout);
+        auto r = render::with_layer2(rc, layout);
 
         const auto rd = render_data{r.viewport_aabb_in_worldspace, &onebit, r.batch};
 
@@ -1577,7 +1577,7 @@ struct GameWrapper : Game
         }
     }
 
-    void on_mouse_position(const InputCommand& c, const glm::ivec2& p) override
+    void on_mouse_position(const render::InputCommand& c, const glm::ivec2& p) override
     {
         mouse = with_layer(c, layout).mouse_to_world({p.x, p.y});
     }

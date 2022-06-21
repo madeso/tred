@@ -4,9 +4,11 @@
 
 #include "tred/rect.h"
 
-
+namespace render
+{
 struct Texture;
 struct SpriteBatch;
+}
 
 namespace onebit
 {
@@ -44,7 +46,7 @@ namespace onebit
             return size * 0.7f;
         }
 
-        void simple_text(SpriteBatch* batch, Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim) const;
+        void simple_text(render::SpriteBatch* batch, render::Texture* onebit, const glm::vec4 color, float x, float y, const std::string& text, const text_animation& anim) const;
 
         float get_width_of_string(const std::string& text) const;
     };

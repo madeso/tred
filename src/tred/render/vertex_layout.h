@@ -1,11 +1,11 @@
 #pragma once
 
-
 #include <map>
 #include <set>
 
 
-
+namespace render
+{
 
 /** Vertex source type, position, normal etc. */
 enum class VertexType
@@ -106,3 +106,4 @@ compile_attribute_layouts(const std::vector<VertexType>& base_layout, const std:
 CompiledVertexTypeList
 compile_attribute_layouts(const std::vector<ShaderVertexAttributes>& descriptions);
 
+}

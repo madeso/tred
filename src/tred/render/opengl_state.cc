@@ -4,6 +4,8 @@
 
 #include "tred/dependency_opengl.h"
 
+namespace render
+{
 
 template<typename T, typename TChange>
 void apply_generic_state(std::optional<T>* current_state, std::optional<T> new_state, TChange change_function)
@@ -50,4 +52,6 @@ void apply(OpenglStates* current_states, const OpenglStates& new_states)
     APPLY_STATE(blending, GL_BLEND);
     APPLY_STATE(depth_test, GL_DEPTH_TEST);
     #undef APPLY_STATE
+}
+
 }

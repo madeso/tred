@@ -2,6 +2,10 @@
 
 #include "tred/assert.h"
 
+
+namespace render
+{
+
 Vertex::Vertex
 (
     const glm::vec3& p,
@@ -22,4 +26,6 @@ Geom::Geom(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tr
     , triangles(tris)
 {
     ASSERT(triangles.size() % 3 == 0);
+}
+
 }

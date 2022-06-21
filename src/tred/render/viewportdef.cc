@@ -4,6 +4,9 @@
 
 #define ASSERTX(X,...) ASSERT(X)
 
+namespace render
+{
+
 
 ViewportDef
 ViewportDef::fit_with_black_bars
@@ -155,4 +158,6 @@ lerp
         V(virtual_height)
     };
     #undef V
+}
+
 }

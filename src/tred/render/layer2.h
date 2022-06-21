@@ -1,7 +1,10 @@
 #pragma once
 
-
 #include "tred/rect.h"
+
+
+namespace render
+{
 
 struct Render2;
 struct SpriteBatch;
@@ -73,3 +76,5 @@ Layer with_layer(const InputCommand& rc, const LayoutData& ld);
 RenderLayer2 with_layer2(const RenderCommand& rc, const LerpData& ld);
 RenderLayer3 with_layer3(const RenderCommand& rc, const LerpData& ld);
 Layer with_layer(const InputCommand& rc, const LerpData& ld);
+
+}

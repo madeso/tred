@@ -11,7 +11,6 @@ namespace render
 {
 
 
-
 void RenderList::begin_perspective(float aspect_ratio, const Camera& camera, std::optional<MaterialId> the_global_shader)
 {
     ASSERT(is_rendering == false);
@@ -52,7 +51,7 @@ void RenderList::add_spot_light(const SpotLight& s)
 void RenderList::add_mesh(GeomId geom_id, MaterialId material_id, const glm::mat4& model)
 {
     ASSERT(is_rendering);
-    commands.emplace_back(RenderCommand{geom_id, global_shader.value_or(material_id), model});
+    commands.emplace_back(RenderListCommand{geom_id, global_shader.value_or(material_id), model});
 }
 
 void RenderList::end()

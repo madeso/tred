@@ -1,5 +1,7 @@
 #include "tred/render/geom.h"
 
+namespace render
+{
 
 Geom
 create_plane_mesh();
@@ -12,3 +14,4 @@ create_plane_mesh(float size, float uv);
 Geom
 create_box_mesh(float size);
 
+}

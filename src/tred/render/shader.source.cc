@@ -2,11 +2,7 @@
 
 #include <sstream>
 
-
-
-
-
-namespace shader
+namespace render::shader
 {
 
 namespace

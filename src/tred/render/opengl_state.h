@@ -1,6 +1,8 @@
 #pragma once
 
-// use std::optional and bool?
+
+namespace render
+{
 
 struct OpenglStates
 {
@@ -15,3 +17,5 @@ struct OpenglStates
 
 
 void apply(OpenglStates* current_states, const OpenglStates& new_states);
+
+}

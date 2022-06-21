@@ -7,6 +7,8 @@
 #include "tred/render/opengl_state.h"
 #include "tred/render/opengl_utils.h"
 
+namespace render
+{
 
 void set_gl_viewport(const Recti& r)
 {
@@ -182,4 +184,6 @@ Layer with_layer(const InputCommand& rc, const LerpData& ld)
 {
     const auto vp = create_viewport(ld, rc.size);
     return create_layer(vp);
+}
+
 }

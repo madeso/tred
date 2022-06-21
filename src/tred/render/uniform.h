@@ -1,7 +1,7 @@
 #pragma once
 
-
-
+namespace render
+{
 
 /** Represents a found shader uniform and created via ShaderProgram::GetUniform()
  */
@@ -23,3 +23,4 @@ struct Uniform
     is_valid() const;
 };
 
+}

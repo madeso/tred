@@ -1,5 +1,7 @@
 #include "tred/render/uniform.h"
 
+namespace render
+{
 
 Uniform::Uniform()
     : name("<unknown>")
@@ -29,3 +31,4 @@ Uniform::is_valid() const
     return location >= 0;
 }
 
+}

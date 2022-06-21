@@ -216,7 +216,7 @@ struct DemoInput : input::InputSystemBase
 #endif
 
 
-bool ui_attenuation(Attenuation* a)
+bool ui_attenuation(render::Attenuation* a)
 {
     bool changed = false;
     changed = ImGui::DragFloat("Attenuation constant", &a->constant, 0.01f) || changed;
@@ -226,7 +226,7 @@ bool ui_attenuation(Attenuation* a)
 }
 
 
-bool ui_directional(DirectionalLight* light)
+bool ui_directional(render::DirectionalLight* light)
 {
     bool changed = false;
     changed = ImGui::DragFloat("Strength", &light->ambient_strength, 0.01f) || changed;
@@ -238,7 +238,7 @@ bool ui_directional(DirectionalLight* light)
 }
 
 
-bool ui_point(PointLight* light)
+bool ui_point(render::PointLight* light)
 {
     bool changed = false;
     changed = ui_attenuation(&light->attenuation) || changed;
@@ -251,7 +251,7 @@ bool ui_point(PointLight* light)
 }
 
 
-bool ui_spot(SpotLight* light)
+bool ui_spot(render::SpotLight* light)
 {
     bool changed = false;
     changed = ui_attenuation(&light->attenuation) || changed;
@@ -374,7 +374,7 @@ main(int, char**)
 
     auto sdl_input = DemoInput{true};
 
-    auto camera = ::Camera{};
+    auto camera = render::Camera{};
 
     auto game_window = windows->add_window("TreD", {1280, 720});
     auto debug_window = windows->add_window("debug", {800, 600});
@@ -414,14 +414,14 @@ main(int, char**)
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,
-        create_box_mesh(1.0f)
+        render::create_box_mesh(1.0f)
     });
     LOG_INFO("Crate is {} {}", added_crate.geom, added_crate.material);
 
     const auto added_light = engine.add_mesh
     ({
         render::Material{"unlit.glsl"},
-        create_box_mesh(0.2f)
+        render::create_box_mesh(0.2f)
     });
     LOG_INFO("Light is {} {}", added_light.geom, added_light.material);
 
@@ -431,7 +431,7 @@ main(int, char**)
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,
-        create_plane_mesh(plane_size, plane_size)
+        render::create_plane_mesh(plane_size, plane_size)
     });
     LOG_INFO("Plane is {} {}", added_plane.geom, added_plane.material);
 
@@ -448,12 +448,12 @@ main(int, char**)
         );
     };
 
-    auto spot_light = ::SpotLight{};
-    auto directional_light = ::DirectionalLight{};
+    auto spot_light = render::SpotLight{};
+    auto directional_light = render::DirectionalLight{};
 
     struct PointLightAndMaterial
     {
-        PointLight light;
+        render::PointLight light;
         render::MaterialId material;
         render::PointLightId light_actor;
         render::ActorId mesh_actor;
@@ -512,7 +512,7 @@ main(int, char**)
         world->add_actor(added_plane.geom, added_plane.material, model);
     }
 
-    auto cards = Texture{::cards::load_texture()};
+    auto cards = render::Texture{::cards::load_texture()};
 
     float time = 0.0f;
     bool animate = false;
@@ -522,21 +522,21 @@ main(int, char**)
     windows->set_render
     (
         game_window,
-        [&](const RenderCommand& rc)
+        [&](const render::RenderCommand& rc)
         {
             // draw 3d world
             // clear screen
-            const auto layout = LerpData
+            const auto layout = render::LerpData
             {
-                {ViewportStyle::extended, 800.0f, 600.0f},
-                {ViewportStyle::black_bars, 800.0f, 600.0f},
+                {render::ViewportStyle::extended, 800.0f, 600.0f},
+                {render::ViewportStyle::black_bars, 800.0f, 600.0f},
                 hud_lerp
             };
             
             // clear to black
             if(hud_lerp > 0.0f)
             {
-                rc.clear(glm::vec3{0.0f}, LayoutData{ViewportStyle::extended, 800.0f, 600.0f});
+                rc.clear(glm::vec3{0.0f}, render::LayoutData{render::ViewportStyle::extended, 800.0f, 600.0f});
             }
 
             // clear background
@@ -573,7 +573,7 @@ main(int, char**)
             // draw hud
             {
                 auto l2 = use_custom_hud
-                    ? with_layer2(rc, LayoutData{ViewportStyle::extended, 800.0f, 600.0f})
+                    ? with_layer2(rc, render::LayoutData{render::ViewportStyle::extended, 800.0f, 600.0f})
                     : with_layer2(rc, layout)
                     ;
 
@@ -587,9 +587,9 @@ main(int, char**)
     windows->set_render
     (
         debug_window,
-        [&](const RenderCommand& rc)
+        [&](const render::RenderCommand& rc)
         {
-            const auto debug_layout = LayoutData{ViewportStyle::extended, 800.0f, 600.0f};
+            const auto debug_layout = render::LayoutData{render::ViewportStyle::extended, 800.0f, 600.0f};
             rc.clear({0.1f, 0.1f, 0.7f}, debug_layout);
             {
                 auto l2 = with_layer2(rc, debug_layout);
@@ -622,9 +622,9 @@ main(int, char**)
     {
         switch(rendering_mode)
         {
-            case 0: set_poly_mode_to_fill(); use_white_only = false; break;
-            case 1: set_poly_mode_to_line(); use_white_only = true; break;
-            case 2: set_poly_mode_to_point(); use_white_only = true; break;
+            case 0: render::set_poly_mode_to_fill(); use_white_only = false; break;
+            case 1: render::set_poly_mode_to_line(); use_white_only = true; break;
+            case 2: render::set_poly_mode_to_point(); use_white_only = true; break;
             default: DIE("invalid rendering_mode"); break;
         }
     };

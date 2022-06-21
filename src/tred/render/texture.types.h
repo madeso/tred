@@ -1,5 +1,7 @@
 #pragma once
 
+namespace render
+{
 
 enum class TextureEdge
 {
@@ -18,3 +20,4 @@ enum class Transparency
     include, exclude
 };
 
+}

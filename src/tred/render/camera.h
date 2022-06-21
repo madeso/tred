@@ -1,5 +1,8 @@
 #pragma once
 
+namespace render
+{
+
 constexpr auto UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 struct CameraVectors
@@ -26,3 +29,4 @@ struct Camera
     CameraVectors create_vectors() const;
 };
 
+}

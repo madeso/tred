@@ -8,6 +8,8 @@
 #include "tred/cint.h"
 #include "tred/render/shader.util.h"
 
+namespace render
+{
 
 unsigned int
 create_buffer()
@@ -249,3 +251,4 @@ compile_geom(const Geom& mesh, const CompiledGeomVertexAttributes& layout)
     return CompiledGeom{vbo, vao, ebo, Csizet_to_int(mesh.triangles.size()), layout.debug_types};
 }
 
+}

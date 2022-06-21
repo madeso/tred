@@ -1,7 +1,8 @@
 #include "tred/render/render_func.h"
 
 
-
+namespace render
+{
 
 void clear_stencil_and_depth()
 {
@@ -26,3 +27,4 @@ void set_poly_mode_to_point()
     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 }
 
+}

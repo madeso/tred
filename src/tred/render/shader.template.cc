@@ -2,6 +2,8 @@
 
 #include "mustache/mustache.hpp"
 
+namespace render
+{
 
 std::string
 generate(std::string_view str, const ShaderCompilerProperties& properties)
@@ -14,4 +16,6 @@ generate(std::string_view str, const ShaderCompilerProperties& properties)
         data[kv.first] = kv.second;
     }
     return input.render(data);
+}
+
 }

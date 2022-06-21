@@ -10,12 +10,11 @@
 #include "tred/render/material.compiledprops.h"
 
 
-struct ShaderProgram;
-
-
 namespace render
 {
 
+
+struct ShaderProgram;
 struct Engine;
 
 struct CommonData

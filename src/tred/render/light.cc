@@ -1,5 +1,7 @@
 #include "tred/render/light.h"
 
+namespace render
+{
 
 DirectionalLight::DirectionalLight()
     : ambient_strength(0.1f)
@@ -43,4 +45,6 @@ DirectionalLight::GetDirection() const
 PointLight::PointLight(const glm::vec3& p)
     : position(p)
 {
+}
+
 }
