@@ -42,7 +42,10 @@ struct Engine
     MaterialId add_global_shader(const Material& path);
     MaterialId duplicate_material(MaterialId id);
     CompiledMaterial& get_material_ref(MaterialId id);
-    
 };
+
+struct World;
+struct Camera;
+void render_world(Engine* engine, World& world, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader);
     
 }

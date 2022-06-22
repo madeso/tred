@@ -40,7 +40,6 @@
 #include "tred/render/world.h"
 #include "tred/render/material.h"
 #include "tred/render/mesh.h"
-#include "tred/render/scopedrenderer.h"
 
 
 // resource headers
@@ -545,12 +544,7 @@ main(int, char**)
             {
                 auto l3 = with_layer3(rc, layout);
                 const auto aspect_ratio = get_aspect_ratio(l3.viewport_aabb_in_worldspace);
-                auto renderer = render::create_render_list_for_perspective
-                (
-                    &engine, aspect_ratio, camera,
-                    use_white_only ? std::make_optional(white_only) : std::nullopt
-                );
-
+                
                 for(auto& crate: crates)
                 {
                     const auto transform = get_crate_transform(crate.id, time);
@@ -565,9 +559,11 @@ main(int, char**)
                     world->update_point_light(pl.light_actor, pl.light);
                 }
 
-                world->render(&renderer);
-
-                renderer.render_all();
+                render_world
+                (
+                    &engine, *world, aspect_ratio, camera,
+                    use_white_only ? std::make_optional(white_only) : std::nullopt
+                );
             }
 
             // draw hud

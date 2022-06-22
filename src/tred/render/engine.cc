@@ -1,6 +1,8 @@
 #include "tred/render/engine.h"
 
 #include "tred/render/compiled.mesh.h"
+#include "tred/render/world.h"
+#include "tred/render/scopedrenderer.h"
 
 
 namespace render
@@ -53,5 +55,12 @@ CompiledVertexTypeList get_compile_attribute_layouts(Engine* engine, const Shade
     return compile_attribute_layouts(engine->global_layout, {layout});
 }
 
+
+void render_world(Engine* engine, World& world, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader)
+{
+    auto renderer = render::create_render_list_for_perspective(engine, aspect_ratio, camera, global_shader);
+    world.render(&renderer);
+    renderer.render_all();
+}
 
 }
