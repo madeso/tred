@@ -4,6 +4,7 @@
 #include "tred/log.h"
 #include "tred/cint.h"
 
+#include "tred/render/engine.data.h"
 #include "tred/render/compiledmaterialshader.h"
 #include "tred/render/material.h"
 
@@ -13,9 +14,9 @@ namespace render
 
 
 #define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
-void CompiledMaterial::set_##FUNC_NAME##_by_lookup(const Cache& cache, const HashedString& name, const TYPE& v)\
+void CompiledMaterial::set_##FUNC_NAME##_by_lookup(const EngineData& data, const HashedString& name, const TYPE& v)\
 {\
-    const auto& cms = get_compiled_material_shader(cache, shader);\
+    const auto& cms = get_compiled_material_shader(data.cache, shader);\
     const auto found = cms.name_to_array.find(name);\
     ASSERT(found != cms.name_to_array.end());\
     properties.set_##FUNC_NAME(found->second, v);\

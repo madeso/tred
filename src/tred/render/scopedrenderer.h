@@ -10,7 +10,7 @@ struct DirectionalLight;
 struct PointLight;
 struct SpotLight;
 struct Camera;
-struct Engine;
+struct EngineData;
 
 
 enum class ScopedRendererState
@@ -21,7 +21,7 @@ enum class ScopedRendererState
 
 struct ScopedRenderer
 {
-    Engine* engine;
+    EngineData* engine;
     ScopedRendererState render_state = ScopedRendererState::adding;
 
     ScopedRenderer() = default;
@@ -40,6 +40,6 @@ struct ScopedRenderer
     ~ScopedRenderer();
 };
 
-ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader);
+ScopedRenderer create_render_list_for_perspective(EngineData* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader);
 
 }

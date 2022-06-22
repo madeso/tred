@@ -1,21 +1,20 @@
 #pragma once
 
-#include "tred/render/compiled.geom.h"
+#include <memory>
 
 #include "tred/render/handle.mesh.h"
-#include "tred/render/compiledmaterial.h"
-#include "tred/render/light.params.h"
-#include "tred/render/cache.h"
-#include "tred/render/renderlist.h"
-#include "tred/handle.h"
+
 
 namespace render
 {
 
-
-struct Vfs;
-struct Mesh;
+struct Camera;
+struct CompiledMaterial;
+struct EngineData;
 struct Material;
+struct Mesh;
+struct Vfs;
+struct World;
 
 
 struct AddedMesh
@@ -26,17 +25,16 @@ struct AddedMesh
 
 struct Engine
 {
-    Engine(Vfs* a_vfs, const LightParams& alp);
+    Engine
+    (
+        Vfs* vfs,
+        int number_of_directional_lights,
+        int number_of_point_lights,
+        int number_of_spot_lights
+    );
+    ~Engine();
 
-    Vfs* vfs;
-    LightParams lp;
-    Cache cache;
-    HandleVector64<CompiledGeom, GeomId> geoms;
-    HandleVector64<CompiledMaterial, MaterialId> materials;
-    std::vector<VertexType> global_layout;
-    bool added_meshes = false;
-    RenderList render;
-
+    std::unique_ptr<EngineData> data;
 
     AddedMesh add_mesh(const Mesh& mesh);
     MaterialId add_global_shader(const Material& path);
@@ -44,8 +42,7 @@ struct Engine
     CompiledMaterial& get_material_ref(MaterialId id);
 };
 
-struct World;
-struct Camera;
+
 void render_world(Engine* engine, World& world, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader);
     
 }

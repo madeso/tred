@@ -40,7 +40,7 @@
 #include "tred/render/world.h"
 #include "tred/render/material.h"
 #include "tred/render/mesh.h"
-
+#include "tred/render/compiledmaterial.h"
 
 // resource headers
 #include "sprites/cards.h"
@@ -396,11 +396,9 @@ main(int, char**)
     auto engine = render::Engine
     {
         &vfs,
-        {
-            NUMBER_OF_DIRECTIONAL_LIGHTS,
-            NUMBER_OF_POINT_LIGHTS,
-            NUMBER_OF_SPOT_LIGHTS
-        }
+        NUMBER_OF_DIRECTIONAL_LIGHTS,
+        NUMBER_OF_POINT_LIGHTS,
+        NUMBER_OF_SPOT_LIGHTS
     };
 
     // todo(Gustav): add override shaders so we can render just white polygon/points
@@ -479,7 +477,7 @@ main(int, char**)
     {
         // todo(Gustav): move function to engine?
         auto& material = engine.get_material_ref(pl.material);
-        material.set_vec3_by_lookup(engine.cache, diffuse_color, pl.light.diffuse);
+        material.set_vec3_by_lookup(*engine.data, diffuse_color, pl.light.diffuse);
     };
     for(auto& pl: point_lights)
     {

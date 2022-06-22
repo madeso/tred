@@ -4,7 +4,7 @@
 
 #include "tred/render/compiledmaterial.h"
 #include "tred/render/compiled.mesh.h"
-#include "tred/render/engine.h"
+#include "tred/render/engine.data.h"
 #include "tred/render/render_func.h"
 
 namespace render
@@ -81,7 +81,7 @@ ScopedRenderer::~ScopedRenderer()
     ASSERT(render_state == ScopedRendererState::complete);
 }
 
-ScopedRenderer create_render_list_for_perspective(Engine* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader)
+ScopedRenderer create_render_list_for_perspective(EngineData* engine, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader)
 {
     engine->render.begin_perspective(aspect_ratio, camera, global_shader);
     return {engine};

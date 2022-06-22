@@ -17,6 +17,7 @@ struct LightStatus;
 struct Engine;
 struct Vfs;
 struct Material;
+struct EngineData;
 
 struct CompiledMaterial
 {
@@ -26,7 +27,7 @@ struct CompiledMaterial
     // todo(Gustav): add util functions (that also take index) and clear prop (hashedstring+index)
 
     #define ADD_OP(FUNC_NAME, TYPE)\
-    void set_##FUNC_NAME##_by_lookup(const Cache& cache, const HashedString& name, const TYPE& v)
+    void set_##FUNC_NAME##_by_lookup(const EngineData& cache, const HashedString& name, const TYPE& v)
     ADD_OP(float, float);
     ADD_OP(vec3, glm::vec3);
     ADD_OP(vec4, glm::vec4);
