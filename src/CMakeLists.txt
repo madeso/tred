@@ -41,7 +41,6 @@ set(src
 
     tred/render/cache.cc tred/render/cache.h
     tred/render/camera.cc tred/render/camera.h
-    tred/render/camera.compiled.cc tred/render/camera.compiled.h
     tred/render/compiled.geom.cc tred/render/compiled.geom.h
     tred/render/compiled.mesh.cc tred/render/compiled.mesh.h
     tred/render/compiledmaterial.cc tred/render/compiledmaterial.h

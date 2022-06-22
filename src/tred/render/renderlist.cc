@@ -3,7 +3,6 @@
 #include "tred/assert.h"
 
 #include "tred/render/camera.h"
-#include "tred/render/camera.compiled.h"
 #include "tred/render/light.h"
 
 
@@ -17,12 +16,11 @@ void RenderList::begin_perspective(float aspect_ratio, const Camera& camera, std
     is_rendering = true;
 
     const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-    const auto compiled_camera = compile_camera(camera.create_vectors());
-    const auto view = compiled_camera.view;
-    const auto pv = projection * view;
+    const auto camera_space = camera.create_vectors();
+    const auto view = glm::lookAt(camera.position, camera.position + camera_space.front, UP);
 
-    camera_position = compiled_camera.position;
-    projection_view = pv;
+    camera_position = camera.position;
+    projection_view = projection * view;
     global_shader = the_global_shader;
 
     light_status = LightStatus::create_no_error();
