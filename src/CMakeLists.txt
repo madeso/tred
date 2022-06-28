@@ -1,4 +1,4 @@
-set(src
+set(src_input
     tred/input/action.cc tred/input/action.h
     tred/input/actionmap.cc tred/input/actionmap.h
     tred/input/activeunit.cc tred/input/activeunit.h
@@ -33,7 +33,9 @@ set(src
     tred/input/unitdef.mouse.cc tred/input/unitdef.mouse.h
     tred/input/unitdiscovery.cc tred/input/unitdiscovery.h
     tred/input/unitsetup.cc tred/input/unitsetup.h
+)
 
+set(src_render
     tred/render/handle.compiledmaterialshader.cc tred/render/handle.compiledmaterialshader.h
     tred/render/handle.mesh.cc tred/render/handle.mesh.h
     tred/render/handle.texture.cc tred/render/handle.texture.h
@@ -78,7 +80,9 @@ set(src
     tred/render/vfs.cc tred/render/vfs.h
     tred/render/viewportdef.cc tred/render/viewportdef.h
     tred/render/world.cc tred/render/world.h
+)
 
+set(src_base
     tred/array.cc tred/array.h
     tred/assert.cc tred/assert.h
     tred/cint.cc tred/cint.h
@@ -99,8 +103,17 @@ set(src
     tred/windows.cc tred/windows.h
     tred/windows.sdl.convert.cc tred/windows.sdl.convert.h
     tred/windows.sdl.joystick.cc tred/windows.sdl.joystick.h
+)
 
+set(src_pch
     tred/pch.public.h tred/pch.private.h
+)
+
+set(src
+    ${src_input}
+    ${src_render}
+    ${src_base}
+    ${src_pch}
 )
 
 add_library(tred STATIC ${src})
@@ -127,6 +140,12 @@ target_precompile_headers(tred
 )
 
 source_group("" FILES ${src})
+
+source_group("input" FILES ${src_input})
+source_group("render" FILES ${src_render})
+source_group("base" FILES ${src_base})
+source_group("pch" FILES ${src_pch})
+
 
 set(src_test
     tred/handle.test.cc
