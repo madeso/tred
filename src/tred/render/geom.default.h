@@ -14,4 +14,8 @@ create_plane_mesh(float size, float uv);
 Geom
 create_box_mesh(float size);
 
+
+Geom
+create_box_mesh(float x, float y, float z);
+
 }

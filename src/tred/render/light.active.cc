@@ -12,11 +12,5 @@ void LightData::clear()
 }
 
 
-LightStatus LightStatus::create_no_error()
-{
-    return {true, true, true};
-}
-
-
 }
 

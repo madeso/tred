@@ -12,20 +12,28 @@ namespace render
 {
 
 
-CommonUniforms::CommonUniforms(const ShaderProgram& shader)
-    : transform(shader.get_uniform("uTransform"))
-    , model_transform(shader.get_uniform("uModelTransform"))
-    , normal_matrix(shader.get_uniform("uNormalMatrix"))
-    , view_position(shader.get_uniform("uViewPosition"))
+CommonUniforms get_common_uniforms_from_shader(const ShaderProgram& shader)
 {
+    return
+    {
+        shader.get_uniform("uTransform"),
+        shader.get_uniform("uModelTransform"),
+        shader.get_uniform("uNormalMatrix"),
+        shader.get_uniform("uViewPosition")
+    };
 }
 
-void CommonUniforms::set_shader(const ShaderProgram& shader, const CommonData& data) const
+void set_uniforms_in_shader
+(
+    const CommonUniforms& uniforms,
+    const ShaderProgram& shader,
+    const CommonData& data
+)
 {
-    shader.set_vec3(view_position, data.camera_position);
-    shader.set_mat(transform, data.pv * data.model);
-    shader.set_mat(model_transform, data.model);
-    shader.set_mat(normal_matrix, glm::mat3(glm::transpose(glm::inverse(data.model))));
+    shader.set_vec3(uniforms.view_position, data.camera_position);
+    shader.set_mat(uniforms.transform, data.pv * data.model);
+    shader.set_mat(uniforms.model_transform, data.model);
+    shader.set_mat(uniforms.normal_matrix, glm::mat3(glm::transpose(glm::inverse(data.model))));
 }
 
 
@@ -38,28 +46,29 @@ CompiledMaterialShader::CompiledMaterialShader
     : debug_name(a_debug_name)
     , program(std::move(prog))
     , mesh_layout(layout)
-    , common(program)
+    , common(get_common_uniforms_from_shader(program))
 {
 }
 
 
 void
-CompiledMaterialShader::use
+use_compiled_material_shader
 (
+    const CompiledMaterialShader& shader,
     const CompiledProperties& props,
     const Cache& cache,
     const CommonData& data,
     const LightData& light_data,
     LightStatus* ls
-) const
+)
 {
-    program.use();
-    common.set_shader(program, data);
-    if(light)
+    shader.program.use();
+    set_uniforms_in_shader(shader.common, shader.program, data);
+    if(shader.light)
     {
-        light->set_shader(program, light_data, ls);
+        shader.light->set_shader(shader.program, light_data, ls);
     }
-    props.set_shader(program, cache, uniforms);
+    props.set_shader(shader.program, cache, shader.uniforms);
 }
 
 
@@ -67,7 +76,6 @@ CompiledMaterialShader::use
 
 // todo(Gustav): move to a header
 CompiledVertexTypeList get_compile_attribute_layouts(Engine*, const ShaderVertexAttributes& layout);
-
 
 
 

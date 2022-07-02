@@ -232,7 +232,12 @@ bool ui_directional(render::DirectionalLight* light)
     changed = ImGui::ColorEdit3("Ambient", glm::value_ptr(light->ambient)) || changed;
     changed = ImGui::ColorEdit3("Diffuse", glm::value_ptr(light->diffuse)) || changed;
     changed = ImGui::ColorEdit3("Specular", glm::value_ptr(light->specular)) || changed;
-    changed = ImGui::DragFloat3("Position", glm::value_ptr(light->position), 0.01f) || changed;
+    const auto dir_changed = ImGui::DragFloat3("Direction", glm::value_ptr(light->direction), 0.01f);
+    if(dir_changed)
+    {
+        light->direction = glm::normalize(light->direction);
+    }
+    changed = dir_changed || changed;
     return changed;
 }
 
@@ -456,11 +461,11 @@ main(int, char**)
         render::ActorId mesh_actor;
 
         PointLightAndMaterial(const glm::vec3& p, render::MaterialId m, render::GeomId light_geom, render::World* world)
-            : light(p)
-            , material(m)
+            : material(m)
             , light_actor(world->add_point_light(light))
             , mesh_actor(world->add_actor(light_geom, material, glm::translate(glm::mat4(1.0f), light.position)))
         {
+            light.position = p;
         }
     };
 
@@ -477,7 +482,7 @@ main(int, char**)
     {
         // todo(Gustav): move function to engine?
         auto& material = engine.get_material_ref(pl.material);
-        material.set_vec3_by_lookup(*engine.data, diffuse_color, pl.light.diffuse);
+        set_vec3_by_lookup(&material, *engine.data, diffuse_color, pl.light.diffuse);
     };
     for(auto& pl: point_lights)
     {
@@ -735,7 +740,7 @@ main(int, char**)
             running = false;
         }
 
-        const auto v = camera.create_vectors();
+        const auto v = create_vectors(camera);
 
         #if OLD_INPUT == 1
         const auto input_inout = get(table, inout);

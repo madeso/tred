@@ -12,8 +12,6 @@ namespace render
 
 struct Cache
 {
-    TextureId get_or_load_default_texture();
-
     HandleVector64<Texture, TextureId> textures;
     HandleVector64<CompiledMaterialShader, CompiledMaterialShaderId> shaders;
 

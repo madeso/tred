@@ -35,11 +35,30 @@ set(src_input
     tred/input/unitsetup.cc tred/input/unitsetup.h
 )
 
+set(src_empty
+    tred/render/empty/handle.compiledmaterialshader.cc
+    tred/render/empty/handle.mesh.cc
+    tred/render/empty/handle.texture.cc
+    tred/render/empty/handle.world.cc
+
+    tred/render/empty/light.cc
+    tred/render/empty/light.params.cc 
+    tred/render/empty/mesh.cc
+    tred/render/empty/texture.types.cc
+    tred/render/empty/vfs.cc
+)
+
 set(src_render
-    tred/render/handle.compiledmaterialshader.cc tred/render/handle.compiledmaterialshader.h
-    tred/render/handle.mesh.cc tred/render/handle.mesh.h
-    tred/render/handle.texture.cc tred/render/handle.texture.h
-    tred/render/handle.world.cc tred/render/handle.world.h
+    tred/render/handle.compiledmaterialshader.h
+    tred/render/handle.mesh.h
+    tred/render/handle.texture.h
+    tred/render/handle.world.h
+    
+    tred/render/light.h
+    tred/render/light.params.h
+    tred/render/mesh.h
+    tred/render/texture.types.h
+    tred/render/vfs.h
 
     tred/render/cache.cc tred/render/cache.h
     tred/render/camera.cc tred/render/camera.h
@@ -52,14 +71,11 @@ set(src_render
     tred/render/geom.default.cc tred/render/geom.default.h
     tred/render/layer2.cc tred/render/layer2.h
     tred/render/light.active.cc tred/render/light.active.h
-    tred/render/light.cc tred/render/light.h
-    tred/render/light.params.cc tred/render/light.params.h
     tred/render/light.uniforms.cc tred/render/light.uniforms.h
     tred/render/material.cc tred/render/material.h
     tred/render/material.compiledprops.cc tred/render/material.compiledprops.h
     tred/render/material.property.cc tred/render/material.property.h
     tred/render/material.shader.source.cc tred/render/material.shader.source.h
-    tred/render/mesh.cc tred/render/mesh.h
     tred/render/opengl_debug.cc tred/render/opengl_debug.h
     tred/render/opengl_state.cc tred/render/opengl_state.h
     tred/render/opengl_utils.cc tred/render/opengl_utils.h
@@ -74,10 +90,8 @@ set(src_render
     tred/render/spritebatch.cc tred/render/spritebatch.h
     tred/render/texture.cc tred/render/texture.h
     tred/render/texture.load.cc tred/render/texture.load.h
-    tred/render/texture.types.cc tred/render/texture.types.h
     tred/render/uniform.cc tred/render/uniform.h
     tred/render/vertex_layout.cc tred/render/vertex_layout.h
-    tred/render/vfs.cc tred/render/vfs.h
     tred/render/viewportdef.cc tred/render/viewportdef.h
     tred/render/world.cc tred/render/world.h
 )
@@ -111,6 +125,7 @@ set(src_pch
 
 set(src
     ${src_input}
+    ${src_empty}
     ${src_render}
     ${src_base}
     ${src_pch}
@@ -142,6 +157,7 @@ target_precompile_headers(tred
 source_group("" FILES ${src})
 
 source_group("input" FILES ${src_input})
+source_group("empty" FILES ${src_empty})
 source_group("render" FILES ${src_render})
 source_group("base" FILES ${src_base})
 source_group("pch" FILES ${src_pch})

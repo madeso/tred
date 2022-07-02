@@ -16,14 +16,14 @@ void RenderList::begin_perspective(float aspect_ratio, const Camera& camera, std
     is_rendering = true;
 
     const glm::mat4 projection = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near, camera.far);
-    const auto camera_space = camera.create_vectors();
+    const auto camera_space = create_vectors(camera);
     const auto view = glm::lookAt(camera.position, camera.position + camera_space.front, UP);
 
     camera_position = camera.position;
     projection_view = projection * view;
     global_shader = the_global_shader;
 
-    light_status = LightStatus::create_no_error();
+    light_status = k_lightstatus_without_errors;
     commands.clear();
     lights.clear();
 }

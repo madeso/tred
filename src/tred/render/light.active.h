@@ -21,8 +21,8 @@ struct LightStatus
     bool applied_directional_lights;
     bool applied_point_lights;
     bool applied_spot_lights;
-
-    static LightStatus create_no_error();
 };
+
+constexpr LightStatus k_lightstatus_without_errors{true, true, true};
 
 }

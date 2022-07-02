@@ -10,7 +10,6 @@ struct CameraVectors
     glm::vec3 front;
     glm::vec3 right;
     glm::vec3 up;
-    glm::vec3 position;
 };
 
 
@@ -25,8 +24,8 @@ struct Camera
 
     float yaw = -90.0f;
     float pitch = 0.0f;
-
-    CameraVectors create_vectors() const;
 };
+
+CameraVectors create_vectors(const Camera& camera);
 
 }

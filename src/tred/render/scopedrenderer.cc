@@ -21,8 +21,8 @@ void render_geom_with_material
     LightStatus* ls
 )
 {
-    material.use(cache, data, light_data, ls);
-    geom.draw();
+    use_material(material, cache, data, light_data, ls);
+    draw(geom);
 }
 
 

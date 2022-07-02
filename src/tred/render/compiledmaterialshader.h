@@ -26,15 +26,14 @@ struct CommonData
 
 struct CommonUniforms
 {
-    CommonUniforms(const ShaderProgram& shader);
-
     Uniform transform;
     Uniform model_transform;
     Uniform normal_matrix;
     Uniform view_position;
-
-    void set_shader(const ShaderProgram& shader, const CommonData& data) const;
 };
+
+CommonUniforms get_common_uniforms_from_shader(const ShaderProgram& shader);
+void set_uniforms_in_shader(const CommonUniforms& uniforms, const ShaderProgram& shader, const CommonData& data);
 
 struct CompiledMaterialShader
 {
@@ -46,9 +45,9 @@ struct CompiledMaterialShader
     );
 
     CompiledMaterialShader(CompiledMaterialShader&&) = default;
-    CompiledMaterialShader(const CompiledMaterialShader&) = delete;
-    
     CompiledMaterialShader& operator=(CompiledMaterialShader&&) = default;
+
+    CompiledMaterialShader(const CompiledMaterialShader&) = delete;
     void operator=(const CompiledMaterialShader&) = delete;
 
     std::string debug_name;
@@ -65,17 +64,19 @@ struct CompiledMaterialShader
     // stored properties
     std::unordered_map<HashedString, PropertyIndex> name_to_array;
     CompiledProperties default_values;
-
-    void
-    use
-    (
-        const CompiledProperties& props,
-        const Cache& cache,
-        const CommonData& data,
-        const LightData& light_data,
-        LightStatus* ls
-    ) const;
 };
+
+
+void
+use_compiled_material_shader
+(
+    const CompiledMaterialShader& shader,
+    const CompiledProperties& props,
+    const Cache& cache,
+    const CommonData& data,
+    const LightData& light_data,
+    LightStatus* ls
+);
 
 
 

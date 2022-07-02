@@ -12,6 +12,68 @@ namespace render
 {
 
 
+constexpr Attenuation k_zero_attenuation = {0.0f, 0.0f, 0.0f};
+
+constexpr DirectionalLight k_no_directional_light =
+{
+    // direction
+    glm::vec3{0.0f, 1.0f, 0.0f},
+
+    //ambient_strength
+    0.0f,
+
+    // ambient
+    black3,
+    // diffuse
+    black3,
+    // specular
+    black3
+};
+
+constexpr PointLight k_no_point_light =
+{
+    k_zero_attenuation,
+
+    // position
+    glm::vec3{0.0f, 0.0f, 0.0f},
+
+    // ambient_strength
+    0.0f,
+
+    // ambient
+    black3,
+    // diffuse
+    black3,
+    // specular
+    black3
+};
+
+
+constexpr SpotLight k_no_spot_light =
+{
+    k_zero_attenuation,
+
+    // position
+    glm::vec3{0.0f, 0.0f, 0.0f},
+    // direction
+    glm::vec3{1.0f, 0.0f, 0.0f},
+
+    // cutoff
+    0.0f,
+    // outer_cutoff
+    0.0f,
+    // ambient_strength
+    0.0f,
+
+    // ambient
+    black3,
+    // diffuse
+    black3,
+    // specular
+    black3
+};
+
+
 DirectionalLightUniforms::DirectionalLightUniforms
 (
     const ShaderProgram& shader,
@@ -29,7 +91,7 @@ DirectionalLightUniforms::DirectionalLightUniforms
 void
 DirectionalLightUniforms::set_shader(const ShaderProgram& shader, const DirectionalLight& light) const
 {
-    shader.set_vec3(direction, light.GetDirection());
+    shader.set_vec3(direction, light.direction);
     shader.set_vec3(ambient, light.ambient * light.ambient_strength);
     shader.set_vec3(diffuse, light.diffuse);
     shader.set_vec3(specular, light.specular);
@@ -44,7 +106,7 @@ void DirectionalLightUniforms::turn_on_light(const ShaderProgram& shader, const 
 
 void DirectionalLightUniforms::turn_off_light(const ShaderProgram& shader) const
 {
-    set_shader(shader, DirectionalLight::create_no_light());
+    set_shader(shader, k_no_directional_light);
 }
 
 
@@ -104,19 +166,12 @@ PointLightUniforms::turn_on_light(const ShaderProgram& shader, const PointLight&
 }
 
 
+
+
 void
 PointLightUniforms::turn_off_light(const ShaderProgram& shader) const
 {
-    auto dark = PointLight{glm::vec3{0.0f, 0.0f, 0.0f}};
-
-    dark.attenuation = zero_attenuation();
-    dark.ambient_strength = 0.0f;
-
-    dark.ambient = {0.0f, 0.0f, 0.0f};
-    dark.diffuse = {0.0f, 0.0f, 0.0f};
-    dark.specular = {0.0f, 0.0f, 0.0f};
-
-    set_shader(shader, dark);
+    set_shader(shader, k_no_point_light);
 }
 
 
@@ -165,20 +220,7 @@ SpotLightUniforms::turn_on_light(const ShaderProgram& shader, const SpotLight& l
 void
 SpotLightUniforms::turn_off_light(const ShaderProgram& shader) const
 {
-    // todo(Gustav): make constant
-    auto dark = SpotLight{};
-
-    dark.attenuation = zero_attenuation();
-
-    dark.cutoff = 0.0f;
-    dark.outer_cutoff = 0.0f;
-    dark.ambient_strength = 0.0f;
-
-    dark.ambient = {0.0f, 0.0f, 0.0f};
-    dark.diffuse = {0.0f, 0.0f, 0.0f};
-    dark.specular = {0.0f, 0.0f, 0.0f};
-
-    set_shader(shader, dark);
+    set_shader(shader, k_no_spot_light);
 }
 
 

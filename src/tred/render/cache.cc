@@ -8,11 +8,10 @@
 namespace render
 {
 
-
-TextureId Cache::get_or_load_default_texture()
+TextureId get_or_load_default_texture(Cache* cache)
 {
     // todo(Gustav): add default texture
-    return *default_texture;
+    return *cache->default_texture;
 }
 
 const Texture& get_texture(const Cache& cache, TextureId id)
@@ -30,7 +29,7 @@ TextureId load_texture(Cache* cache, const Vfs& vfs, const std::string& path)
 
     // todo(Gustav): construct default texture with path? based on normal?
     LOG_WARNING("Unable to load texture {}", path);
-    return cache->get_or_load_default_texture();
+    return get_or_load_default_texture(cache);
 }
 
 

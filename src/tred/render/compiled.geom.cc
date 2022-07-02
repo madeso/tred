@@ -38,6 +38,32 @@ CompiledGeom::CompiledGeom(unsigned int a_vbo, unsigned int a_vao, unsigned int 
 {
 }
 
+void
+clear(CompiledGeom* geom)
+{
+    // todo(Gustav): figure out why we segfault if we unbind outside if...
+    if(geom->ebo != 0)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &geom->ebo);
+        geom->ebo = 0;
+    }
+
+    if(geom->vbo != 0)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &geom->vbo);
+        geom->vbo = 0;
+    }
+
+    if(geom->vao != 0)
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &geom->vao);
+        geom->vao = 0;
+    }
+}
+
 
 CompiledGeom::CompiledGeom(CompiledGeom&& rhs)
     : vbo(rhs.vbo)
@@ -57,7 +83,7 @@ CompiledGeom::CompiledGeom(CompiledGeom&& rhs)
 void
 CompiledGeom::operator=(CompiledGeom&& rhs)
 {
-    clear();
+    clear(this);
 
     vbo = rhs.vbo;
     vao = rhs.vao;
@@ -75,43 +101,16 @@ CompiledGeom::operator=(CompiledGeom&& rhs)
 
 CompiledGeom::~CompiledGeom()
 {
-    clear();
+    clear(this);
 }
 
 
 void
-CompiledGeom::clear()
+draw(const CompiledGeom& geom)
 {
-    // todo(Gustav): figure out why we segfault if we unbind outside if...
-    if(ebo != 0)
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glDeleteBuffers(1, &ebo);
-        ebo = 0;
-    }
-
-    if(vbo != 0)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDeleteBuffers(1, &vbo);
-        vbo = 0;
-    }
-
-    if(vao != 0)
-    {
-        glBindVertexArray(0);
-        glDeleteVertexArrays(1, &vao);
-        vao = 0;
-    }
-}
-
-
-void
-CompiledGeom::draw() const
-{
-    ASSERT(is_bound_for_shader(debug_shader_types));
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, number_of_indices, GL_UNSIGNED_INT, 0);
+    ASSERT(is_bound_for_shader(geom.debug_shader_types));
+    glBindVertexArray(geom.vao);
+    glDrawElements(GL_TRIANGLES, geom.number_of_indices, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
