@@ -1,10 +1,31 @@
 #pragma once
 
 #include "tred/render/uniform.h"
-#include "tred/render/texture.types.h"
+
+#include "embed/types.h"
+#include "tred/types.h"
 
 namespace render
 {
+
+
+enum class TextureEdge
+{
+    clamp, repeat
+};
+
+
+enum class TextureRenderStyle
+{
+    pixel, smooth
+};
+
+
+enum class Transparency
+{
+    include, exclude
+};
+
 
 struct Texture
 {
@@ -40,5 +61,24 @@ struct Texture
 // set the texture for the specified uniform
 void
 bind_texture(const Uniform& uniform, const Texture& texture);
+
+Texture
+load_image_from_embedded
+(
+    const embedded_binary& image_binary,
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
+);
+
+Texture
+load_image_from_color
+(
+    u32 pixel,
+    TextureEdge te,
+    TextureRenderStyle trs,
+    Transparency t
+);
+
 
 }

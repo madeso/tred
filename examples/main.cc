@@ -30,17 +30,14 @@
 #include "tred/stdutils.h"
 #include "tred/windows.h"
 
-#include "tred/render/geom.default.h"
 #include "tred/render/layer2.h"
-#include "tred/render/spritebatch.h"
+#include "tred/render/render2.h"
 #include "tred/render/render_func.h"
 #include "tred/render/camera.h"
 #include "tred/render/engine.h"
 #include "tred/render/light.h"
 #include "tred/render/world.h"
-#include "tred/render/material.h"
 #include "tred/render/mesh.h"
-#include "tred/render/compiledmaterial.h"
 
 // resource headers
 #include "sprites/cards.h"
@@ -407,12 +404,12 @@ main(int, char**)
     };
 
     // todo(Gustav): add override shaders so we can render just white polygon/points
-    const auto white_only = engine.add_global_shader(render::Material{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
+    const auto white_only = engine.add_global_shader(render::MaterialDescription{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
     bool use_white_only = false;
 
     const auto added_crate = engine.add_mesh
     ({
-        render::Material{"default.glsl"}
+        render::MaterialDescription{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,
@@ -422,14 +419,14 @@ main(int, char**)
 
     const auto added_light = engine.add_mesh
     ({
-        render::Material{"unlit.glsl"},
+        render::MaterialDescription{"unlit.glsl"},
         render::create_box_mesh(0.2f)
     });
     LOG_INFO("Light is {} {}", added_light.geom, added_light.material);
 
     const auto added_plane = engine.add_mesh
     ({
-        render::Material{"default.glsl"}
+        render::MaterialDescription{"default.glsl"}
             .with_texture(diffuse_texture, "container_diffuse.png")
             .with_texture(specular_texture, "container_specular.png")
             ,

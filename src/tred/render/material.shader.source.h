@@ -14,7 +14,7 @@ struct MaterialSourceProperty
 {
     HashedString display_name; // used in ui and material references, example: "diffuse texture"
     std::string shader_uniform_ident; // glsl variable identifier, example: "uDiffuse"
-    PropertyIndex index;
+    MaterialPropertyReference index;
 };
 
 struct MaterialShaderSource

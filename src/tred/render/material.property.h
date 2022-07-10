@@ -3,18 +3,20 @@
 namespace render
 {
 
-enum class PropertyType
+enum class MaterialPropertyType
 {
     float_type, vec3_type, vec4_type, texture_type
 };
 
-struct PropertyIndex
+
+// reference a certain property for example "diffuse texture"
+struct MaterialPropertyReference
 {
-    PropertyType type;
+    MaterialPropertyType type;
     int index;
 };
 
-bool operator<(const PropertyIndex& lhs, const PropertyIndex& rhs);
+bool operator<(const MaterialPropertyReference& lhs, const MaterialPropertyReference& rhs);
 
 }
 

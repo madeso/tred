@@ -18,11 +18,9 @@
 #include "tred/dependency_sdl.h"
 
 #include "tred/log.h"
-#include "tred/render/opengl_debug.h"
 #include "tred/render/opengl_utils.h"
-#include "tred/render/opengl_state.h"
 #include "tred/types.h"
-#include "tred/render/texture.load.h"
+#include "tred/render/texture.h"
 #include "tred/render/viewportdef.h"
 #include "tred/windows.sdl.convert.h"
 

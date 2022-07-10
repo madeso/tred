@@ -1,11 +1,10 @@
 #include "tred/render/layer2.h"
 
-#include "tred/render/render2.h"
-#include "tred/render/spritebatch.h"
 #include "tred/dependency_opengl.h"
-#include "tred/render/viewportdef.h"
-#include "tred/render/opengl_state.h"
+
 #include "tred/render/opengl_utils.h"
+#include "tred/render/render2.h"
+#include "tred/render/viewportdef.h"
 
 namespace render
 {
@@ -77,11 +76,11 @@ ViewportDef create_viewport(const LayoutData& ld, const glm::ivec2& size)
 {
     if(ld.style==ViewportStyle::black_bars)
     {
-        return ViewportDef::fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
+        return fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
     }
     else
     {
-        return ViewportDef::extend(ld.requested_width, ld.requested_height, size.x, size.y);
+        return extended_viewport(ld.requested_width, ld.requested_height, size.x, size.y);
     }
 }
 

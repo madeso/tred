@@ -14,7 +14,6 @@
 #include "tred/render/shader.h"
 #include "tred/render/vertex_layout.h"
 #include "tred/render/texture.h"
-#include "tred/render/spritebatch.h"
 #include "tred/render/render2.h"
 #include "tred/render/layer2.h"
 

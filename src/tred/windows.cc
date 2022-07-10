@@ -18,7 +18,6 @@
 #include "tred/handle.h"
 
 #include "tred/render/opengl_utils.h"
-#include "tred/render/opengl_state.h"
 #include "tred/render/render2.h"
 #include "tred/render/layer2.h"
 

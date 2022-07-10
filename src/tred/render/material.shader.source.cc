@@ -26,10 +26,10 @@ MaterialShaderSource& MaterialShaderSource::FUNC_NAME(const HashedString& name, 
     properties.emplace_back(MaterialSourceProperty{name, uniform_name, {ENUM, index}});\
     return *this;\
 }
-ADD_OP(with_float, floats, float, PropertyType::float_type)
-ADD_OP(with_vec3, vec3s, glm::vec3, PropertyType::vec3_type)
-ADD_OP(with_vec4, vec4s, glm::vec4, PropertyType::vec4_type)
-ADD_OP(with_texture, textures, std::string, PropertyType::texture_type)
+ADD_OP(with_float, floats, float, MaterialPropertyType::float_type)
+ADD_OP(with_vec3, vec3s, glm::vec3, MaterialPropertyType::vec3_type)
+ADD_OP(with_vec4, vec4s, glm::vec4, MaterialPropertyType::vec4_type)
+ADD_OP(with_texture, textures, std::string, MaterialPropertyType::texture_type)
 #undef ADD_OP
 
 

@@ -171,8 +171,8 @@ TEST_CASE("vertex_layout_test_simple", "[vertex_layout]")
         }
     );
 
-    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto compiled_layout = compile_shader_layout(layout_compiler, layout_shader_material);
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
 
     CHECK
     (
@@ -242,8 +242,8 @@ TEST_CASE("vertex_layout_test_with_custom_layput", "[vertex_layout]")
         }
     );
 
-    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto compiled_layout = compile_shader_layout(layout_compiler, layout_shader_material);
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
 
     CHECK
     (
@@ -313,9 +313,9 @@ TEST_CASE("vertex_layout_test_material_and_depth", "[vertex_layout]")
             layout_shader_depth
         }
     );
-    const auto compiled_layout_material = layout_compiler.compile_shader_layout(layout_shader_material);
-    const auto compiled_layout_depth = layout_compiler.compile_shader_layout(layout_shader_depth);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto compiled_layout_material = compile_shader_layout(layout_compiler, layout_shader_material);
+    const auto compiled_layout_depth = compile_shader_layout(layout_compiler, layout_shader_depth);
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
 
     CHECK
     (
@@ -407,9 +407,9 @@ TEST_CASE("vertex_layout_test_material_and_different", "[vertex_layout]")
             layout_shader_material
         }
     );
-    const auto compiled_layout_material = layout_compiler.compile_shader_layout(layout_shader_material);
-    const auto compiled_layout_different = layout_compiler.compile_shader_layout(layout_shader_different);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto compiled_layout_material = compile_shader_layout(layout_compiler, layout_shader_material);
+    const auto compiled_layout_different = compile_shader_layout(layout_compiler, layout_shader_different);
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
     
     CHECK
     (
@@ -497,9 +497,9 @@ TEST_CASE("vertex_layout_test_crazy", "[vertex_layout]")
             layout_shader_b
         }
     );
-    const auto compiled_layout_a = layout_compiler.compile_shader_layout(layout_shader_a);
-    const auto compiled_layout_b = layout_compiler.compile_shader_layout(layout_shader_b);
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto compiled_layout_a = compile_shader_layout(layout_compiler, layout_shader_a);
+    const auto compiled_layout_b = compile_shader_layout(layout_compiler, layout_shader_b);
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
     
     CHECK
     (
@@ -582,18 +582,18 @@ TEST_CASE("vertex_layout_test_get_not_requested", "[vertex_layout]")
         }
     );
 
-    const auto mesh_layout = layout_compiler.get_mesh_layout();
+    const auto mesh_layout = get_mesh_layout(layout_compiler);
     
     
     // not requested variables should assert
     REQUIRE_THROWS_WITH
     (
-        layout_compiler.compile_shader_layout(layout_shader_not_requested),
+        compile_shader_layout(layout_compiler, layout_shader_not_requested),
            Catch::Contains("Assertion failed")
         && Catch::Contains( "layout wasn't added to the compilation list" )
     );
 
-    const auto compiled_layout = layout_compiler.compile_shader_layout(layout_shader_material);
+    const auto compiled_layout = compile_shader_layout(layout_compiler, layout_shader_material);
 
     CHECK
     (

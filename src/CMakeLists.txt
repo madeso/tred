@@ -36,66 +36,40 @@ set(src_input
 )
 
 set(src_empty
-    tred/render/empty/handle.compiledmaterialshader.cc
-    tred/render/empty/handle.mesh.cc
-    tred/render/empty/handle.texture.cc
-    tred/render/empty/handle.world.cc
+    tred/render/empty/handles.cc
 
     tred/render/empty/light.cc
-    tred/render/empty/light.params.cc 
-    tred/render/empty/mesh.cc
-    tred/render/empty/texture.types.cc
+    tred/render/empty/render_world_interface.cc
     tred/render/empty/vfs.cc
 )
 
 set(src_render
-    tred/render/handle.compiledmaterialshader.h
-    tred/render/handle.mesh.h
-    tred/render/handle.texture.h
-    tred/render/handle.world.h
+    tred/render/handles.h
+    tred/render/handle.funcs.h
     
     tred/render/light.h
-    tred/render/light.params.h
-    tred/render/mesh.h
-    tred/render/texture.types.h
+    tred/render/render_world_interface.h
     tred/render/vfs.h
 
-    tred/render/cache.cc tred/render/cache.h
     tred/render/camera.cc tred/render/camera.h
-    tred/render/compiled.geom.cc tred/render/compiled.geom.h
     tred/render/compiled.mesh.cc tred/render/compiled.mesh.h
-    tred/render/compiledmaterial.cc tred/render/compiledmaterial.h
-    tred/render/compiledmaterialshader.cc tred/render/compiledmaterialshader.h
     tred/render/engine.cc tred/render/engine.h
-    tred/render/geom.cc tred/render/geom.h
-    tred/render/geom.default.cc tred/render/geom.default.h
     tred/render/layer2.cc tred/render/layer2.h
-    tred/render/light.active.cc tred/render/light.active.h
-    tred/render/light.uniforms.cc tred/render/light.uniforms.h
-    tred/render/material.cc tred/render/material.h
-    tred/render/material.compiledprops.cc tred/render/material.compiledprops.h
     tred/render/material.property.cc tred/render/material.property.h
     tred/render/material.shader.source.cc tred/render/material.shader.source.h
-    tred/render/opengl_debug.cc tred/render/opengl_debug.h
-    tred/render/opengl_state.cc tred/render/opengl_state.h
+    tred/render/mesh.cc tred/render/mesh.h
     tred/render/opengl_utils.cc tred/render/opengl_utils.h
     tred/render/render_func.cc tred/render/render_func.h
     tred/render/render2.cc tred/render/render2.h
-    tred/render/renderlist.cc tred/render/renderlist.h
-    tred/render/scopedrenderer.cc tred/render/scopedrenderer.h
     tred/render/shader.cc tred/render/shader.h
     tred/render/shader.source.cc tred/render/shader.source.h
-    tred/render/shader.template.cc tred/render/shader.template.h
-    tred/render/shader.util.cc tred/render/shader.util.h
-    tred/render/spritebatch.cc tred/render/spritebatch.h
     tred/render/texture.cc tred/render/texture.h
-    tred/render/texture.load.cc tred/render/texture.load.h
     tred/render/uniform.cc tred/render/uniform.h
     tred/render/vertex_layout.cc tred/render/vertex_layout.h
     tred/render/viewportdef.cc tred/render/viewportdef.h
     tred/render/world.cc tred/render/world.h
-)
-
+    )
+    
 set(src_base
     tred/array.cc tred/array.h
     tred/assert.cc tred/assert.h
@@ -113,6 +87,7 @@ set(src_base
     tred/rect.cc tred/rect.h
     tred/result.cc tred/result.h
     tred/sortablepair.cc tred/sortablepair.h
+    tred/template_engine.cc tred/template_engine.h
     tred/types.cc tred/types.h
     tred/windows.cc tred/windows.h
     tred/windows.sdl.convert.cc tred/windows.sdl.convert.h

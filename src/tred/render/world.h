@@ -2,8 +2,7 @@
 
 #include <memory>
 
-#include "tred/render/handle.mesh.h"
-#include "tred/render/handle.world.h"
+#include "tred/render/handles.h"
 
 
 namespace render
@@ -12,7 +11,12 @@ namespace render
 struct DirectionalLight;
 struct PointLight;
 struct SpotLight;
-struct ScopedRenderer;
+struct RenderList;
+
+enum class ActorId : u64 {};
+enum class DirectionalLightId : u64 {};
+enum class SpotLightId : u64 {};
+enum class PointLightId : u64 {};
 
 struct World
 {
@@ -32,7 +36,7 @@ struct World
     virtual void update_spot_light(SpotLightId id, const SpotLight& light) = 0;
     virtual PointLightId add_point_light(const PointLight& light) = 0;
     virtual void update_point_light(PointLightId id, const PointLight& light) = 0;
-    virtual void render(ScopedRenderer* renderer) = 0;
+    virtual void render(RenderList* renderer) = 0;
 };
 
 std::unique_ptr<World> create_null_world();

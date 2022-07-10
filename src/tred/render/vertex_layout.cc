@@ -20,62 +20,6 @@ std::optional<VertexType> parse_vertex_type(const std::string& name)
 }
 
 
-VertexElementDescription::VertexElementDescription(VertexType t, const std::string& n)
-    : type(t)
-    , name(n)
-{
-}
-
-
-CompiledVertexElement::CompiledVertexElement(const VertexType& t, const std::string& n, int i)
-    : type(t)
-    , name(n)
-    , index(i)
-{
-}
-
-
-CompiledVertexElement::CompiledVertexElement(const VertexElementDescription& d, int i)
-    : type(d.type)
-    , name(d.name)
-    , index(i)
-{
-}
-
-
-CompiledVertexElementNoName::CompiledVertexElementNoName(const VertexType& t, int i)
-    : type(t)
-    , index(i)
-{
-}
-
-
-CompiledShaderVertexAttributes::CompiledShaderVertexAttributes(const CompiledVertexLayoutList& e, const VertexTypes& t)
-    : elements(e)
-    , debug_types(t)
-{
-}
-
-
-CompiledGeomVertexAttributes::CompiledGeomVertexAttributes(const CompiledVertexLayoutNoNameList& e, const VertexTypes& t)
-    : elements(e)
-    , debug_types(t)
-{
-}
-
-
-std::vector<VertexType>
-CompiledGeomVertexAttributes::get_base_layout() const
-{
-    std::vector<VertexType> r;
-    for(const auto& e: elements)
-    {
-        r.emplace_back(e.type);
-    }
-    return r;
-}
-
-
 /** A list of things we need to extract from the Geom when compiling */
 struct VertexTypeList
 {
@@ -98,42 +42,37 @@ struct VertexTypeList
 };
 
 
-CompiledVertexTypeList::CompiledVertexTypeList(const std::map<VertexType, int>& i, const VertexTypes& v)
-    : indices(i)
-    , debug_types(v)
-{
-}
 
 CompiledShaderVertexAttributes
-CompiledVertexTypeList::compile_shader_layout(const ShaderVertexAttributes& elements) const
+compile_shader_layout(const CompiledVertexTypeList& l, const ShaderVertexAttributes& elements)
 {
-    CompiledShaderVertexAttributes::CompiledVertexLayoutList list;
+    std::vector<CompiledVertexElement> list;
 
     for(const auto& e: elements)
     {
-        const auto found = indices.find(e.type);
-        ASSERT(found != indices.end() && "layout wasn't added to the compilation list");
-        if(found != indices.end())
+        const auto found = l.indices.find(e.type);
+        ASSERT(found != l.indices.end() && "layout wasn't added to the compilation list");
+        if(found != l.indices.end())
         {
-            list.push_back({e, found->second});
+            list.push_back({e.type, e.name, found->second});
         }
     }
 
-    return {list, debug_types};
+    return {list, l.debug_types};
 }
 
 
 [[nodiscard]] CompiledGeomVertexAttributes
-CompiledVertexTypeList::get_mesh_layout() const
+get_mesh_layout(const CompiledVertexTypeList& l)
 {
-    CompiledGeomVertexAttributes::CompiledVertexLayoutNoNameList list;
+    std::vector<CompiledVertexElementNoName> list;
 
-    for(const auto& e: indices)
+    for(const auto& e: l.indices)
     {
         list.push_back({e.first, e.second});
     }
 
-    return {list, debug_types};
+    return {list, l.debug_types};
 }
 
 

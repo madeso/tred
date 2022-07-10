@@ -2,7 +2,7 @@
 
 #include "tred/handle.h"
 #include "tred/render/light.h"
-#include "tred/render/scopedrenderer.h"
+#include "tred/render/render_world_interface.h"
 
 namespace render
 {
@@ -74,12 +74,12 @@ struct NullWorld : World
         point_lights[id] = light;
     }
 
-    void render(ScopedRenderer* renderer)
+    void render(RenderList* renderer)
     {
-        for(const auto& light: directional_lights) { renderer->add_directional_light(light); }
-        for(const auto& light: spot_lights) { renderer->add_spot_light(light); }
-        for(const auto& light: point_lights) { renderer->add_point_light(light); }
-        for(const auto& act: actors) { renderer->add_mesh(act.geom, act.material, act.transform); }
+        for(const auto& light: directional_lights) { sr_add_directional_light(renderer, light); }
+        for(const auto& light: spot_lights) { sr_add_spot_light(renderer, light); }
+        for(const auto& light: point_lights) { sr_add_point_light(renderer, light); }
+        for(const auto& act: actors) { sr_add_mesh(renderer, act.geom, act.material, act.transform); }
     }
 };
 

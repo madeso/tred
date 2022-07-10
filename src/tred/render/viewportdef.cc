@@ -9,7 +9,7 @@ namespace render
 
 
 ViewportDef
-ViewportDef::fit_with_black_bars
+fit_with_black_bars
 (
     float width,
     float height,
@@ -51,7 +51,7 @@ DetermineExtendScale(float scale, float height, int window_height)
 
 
 ViewportDef
-ViewportDef::extend
+extended_viewport
 (
     float width,
     float height,
@@ -65,8 +65,7 @@ ViewportDef::extend
     ASSERTX(window_height >= 0, window_height);
     const auto w = static_cast<float>(window_width) / width;
     const auto h = static_cast<float>(window_height) / height;
-    const auto r = Recti(window_width, window_height)
-                            .set_bottom_left(0, 0);
+    const auto r = Recti{window_width, window_height}.set_bottom_left(0, 0);
     if(w < h)
     {
         const auto s = DetermineExtendScale(w, height, window_height);
@@ -78,31 +77,6 @@ ViewportDef::extend
         return ViewportDef {r, width * s, height};
     }
 }
-
-
-ViewportDef
-ViewportDef::screen_pixel(int window_width, int window_height)
-{
-    ASSERTX(window_width >= 0, window_width);
-    ASSERTX(window_height >= 0, window_height);
-
-    return ViewportDef
-    {
-        Recti(window_width, window_height)
-                .set_bottom_left(0, 0),
-        static_cast<float>(window_width),
-        static_cast<float>(window_height)
-    };
-}
-
-
-ViewportDef::ViewportDef(const Recti& screen, float w, float h)
-    : screen_rect(screen)
-    , virtual_width(w)
-    , virtual_height(h)
-{
-}
-
 
 
 namespace

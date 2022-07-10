@@ -6,7 +6,7 @@
 namespace render
 {
 
-bool operator<(const PropertyIndex& lhs, const PropertyIndex& rhs)
+bool operator<(const MaterialPropertyReference& lhs, const MaterialPropertyReference& rhs)
 {
     if(lhs.type == rhs.type)
     {

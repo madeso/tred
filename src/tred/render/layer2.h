@@ -66,6 +66,11 @@ struct RenderCommand
     void clear(const glm::vec3& color, const LerpData& ld) const;
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions
+
+
 // todo(Gustav): pass camera to with_ functions
 // todo(Gustav): move to member functions
 

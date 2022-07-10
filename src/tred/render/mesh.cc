@@ -1,8 +1,56 @@
-#include "tred/render/geom.default.h"
+#include "tred/render/mesh.h"
+
+#include "tred/assert.h"
+#include "tred/cint.h"
 
 
 namespace render
 {
+
+MaterialDescription::MaterialDescription(const std::string& shader_path)
+    : shader(shader_path)
+{
+}
+
+
+#define ADD_OP(FUNC_NAME, MEMBER, TYPE, ENUM)\
+MaterialDescription& MaterialDescription::FUNC_NAME(const HashedString& name, const TYPE& v)\
+{\
+    const auto index = Csizet_to_int(MEMBER.size());\
+    name_to_array.insert({name, MaterialPropertyReference{ENUM, index}});\
+    MEMBER.emplace_back(v);\
+    return *this;\
+}
+ADD_OP(with_float, floats, float, MaterialPropertyType::float_type)
+ADD_OP(with_vec3, vec3s, glm::vec3, MaterialPropertyType::vec3_type)
+ADD_OP(with_vec4, vec4s, glm::vec4, MaterialPropertyType::vec4_type)
+ADD_OP(with_texture, textures, std::string, MaterialPropertyType::texture_type)
+#undef ADD_OP
+
+
+
+
+Vertex::Vertex
+(
+    const glm::vec3& p,
+    const glm::vec3& n,
+    const glm::vec2& t,
+    const glm::vec4& c
+)
+    : position(p)
+    , normal(n)
+    , texture(t)
+    , color(c)
+{
+}
+
+
+Geom::Geom(const std::vector<Vertex>& verts, const std::vector<unsigned int>& tris)
+    : vertices(verts)
+    , triangles(tris)
+{
+    ASSERT(triangles.size() % 3 == 0);
+}
 
 
 Geom

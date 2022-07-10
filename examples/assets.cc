@@ -6,7 +6,6 @@
 #include "tred/render/shader.h"
 #include "tred/render/material.shader.source.h"
 #include "tred/render/texture.h"
-#include "tred/render/texture.load.h"
 
 #include "shader_light.glsl.h"
 #include "shader_material.glsl.h"
