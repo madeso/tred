@@ -19,7 +19,6 @@
 
 #include "tred/render/opengl_utils.h"
 #include "tred/render/render2.h"
-#include "tred/render/layer2.h"
 
 #include "tred/input/system.h"
 #include "tred/input/platform.h"

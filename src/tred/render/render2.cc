@@ -1,10 +1,14 @@
 #include "tred/render/render2.h"
 
 #include "tred/dependency_opengl.h"
+#include "tred/assert.h"
+#include "tred/rect.h"
 
 #include "tred/render/shader.h"
 #include "tred/render/texture.h"
+#include "tred/render/opengl_utils.h"
 
+#define ASSERTX(X,...) ASSERT(X)
 
 using namespace std::literals;
 
@@ -249,6 +253,320 @@ Render2::Render2()
     setup_textures(&quad_shader, {&texture_uniform});
 
     // todo(Gustav): verify mesh layout with SpriteBatch
+}
+
+
+struct ViewportDef
+{
+    Recti screen_rect;
+
+    float virtual_width;
+    float virtual_height;
+};
+
+
+ViewportDef
+fit_with_black_bars
+(
+    float width,
+    float height,
+    int window_width,
+    int window_height
+)
+{
+    ASSERTX(width > 0, width);
+    ASSERTX(height > 0, height);
+    ASSERTX(window_width >= 0, window_width);
+    ASSERTX(window_height >= 0, window_height);
+    const float w = static_cast<float>(window_width) / width;
+    const float h = static_cast<float>(window_height) / height;
+    const float s = std::min(w, h);
+    ASSERTX(s > 0, s, w, h);
+    const float new_width = width * s;
+    const float new_height = height * s;
+
+    return ViewportDef
+    {
+        Recti(static_cast<int>(new_width), static_cast<int>(new_height)).set_bottom_left
+        (
+            static_cast<int>((static_cast<float>(window_width) - new_width) / 2.0f),
+            static_cast<int>((static_cast<float>(window_height) - new_height) / 2.0f)
+        ),
+        width,
+        height
+    };
+}
+
+
+float
+DetermineExtendScale(float scale, float height, int window_height)
+{
+    const auto scaled_height = height * scale;
+    const auto s = static_cast<float>(window_height) / scaled_height;
+    return s;
+}
+
+
+ViewportDef
+extended_viewport
+(
+    float width,
+    float height,
+    int window_width,
+    int window_height
+)
+{
+    ASSERTX(width >= 0, width);
+    ASSERTX(height >= 0, height);
+    ASSERTX(window_width >= 0, window_width);
+    ASSERTX(window_height >= 0, window_height);
+    const auto w = static_cast<float>(window_width) / width;
+    const auto h = static_cast<float>(window_height) / height;
+    const auto r = Recti{window_width, window_height}.set_bottom_left(0, 0);
+    if(w < h)
+    {
+        const auto s = DetermineExtendScale(w, height, window_height);
+        return ViewportDef {r, width, height * s};
+    }
+    else
+    {
+        const auto s = DetermineExtendScale(h, width, window_width);
+        return ViewportDef {r, width * s, height};
+    }
+}
+
+
+namespace
+{
+    float lerp(float lhs, float t, float rhs)
+    {
+        return lhs + t * (rhs - lhs);
+    }
+
+    int lerp(int lhs, float t, int rhs)
+    {
+        return static_cast<int>
+        (
+            lerp
+            (
+                static_cast<float>(lhs),
+                t,
+                static_cast<float>(rhs)
+            )
+        );
+    }
+
+    template<typename T>
+    Rect<T> lerp(const Rect<T>& lhs, float t, const Rect<T>& rhs)
+    {
+        #define V(x) lerp(lhs.x, t, rhs.x)
+        return
+        {
+            V(left),
+            V(bottom),
+            V(right),
+            V(top)
+        };
+        #undef V
+    }
+}
+
+
+[[nodiscard]]
+ViewportDef
+lerp
+(
+    const ViewportDef& lhs,
+    float t,
+    const ViewportDef& rhs
+)
+{
+    #define V(x) lerp(lhs.x, t, rhs.x)
+    return
+    {
+        V(screen_rect),
+        V(virtual_width),
+        V(virtual_height)
+    };
+    #undef V
+}
+
+
+
+void set_gl_viewport(const Recti& r)
+{
+    glViewport(r.left, r.bottom, r.get_width(), r.get_height());
+}
+
+
+RenderLayer2::~RenderLayer2()
+{
+    batch->submit();
+}
+
+
+RenderLayer2::RenderLayer2(Layer&& l, SpriteBatch* b)
+    : Layer(l)
+    , batch(b)
+{
+}
+
+RenderLayer3::RenderLayer3(Layer&& l)
+    : Layer(l)
+{
+}
+
+
+Layer create_layer(const ViewportDef& vp)
+{
+    return {{vp.virtual_width, vp.virtual_height}, vp.screen_rect};
+}
+
+
+RenderLayer2 create_layer2(const RenderCommand& rc, const ViewportDef& vp)
+{
+    set_gl_viewport(vp.screen_rect);
+    opengl_set2d(rc.states);
+
+    const auto camera = glm::mat4(1.0f);
+    const auto projection = glm::ortho(0.0f, vp.virtual_width, 0.0f, vp.virtual_height);
+
+    rc.render->quad_shader.use();
+    rc.render->quad_shader.set_mat(rc.render->view_projection_uniform, projection);
+    rc.render->quad_shader.set_mat(rc.render->transform_uniform, camera);
+
+    // todo(Gustav): transform viewport according to the camera
+    return RenderLayer2{create_layer(vp), &rc.render->batch};
+}
+
+RenderLayer3 create_layer3(const RenderCommand& rc, const ViewportDef& vp)
+{
+    set_gl_viewport(vp.screen_rect);
+    opengl_set3d(rc.states);
+
+    return RenderLayer3{create_layer(vp)};
+}
+
+
+glm::vec2 Layer::mouse_to_world(const glm::vec2& p) const
+{
+    // transform from mouse pixels to window 0-1
+    const auto n = Cint_to_float(screen).to01(p);
+    return viewport_aabb_in_worldspace.from01(n);
+}
+
+
+ViewportDef create_viewport(const LayoutData& ld, const glm::ivec2& size)
+{
+    if(ld.style==ViewportStyle::black_bars)
+    {
+        return fit_with_black_bars(ld.requested_width, ld.requested_height, size.x, size.y);
+    }
+    else
+    {
+        return extended_viewport(ld.requested_width, ld.requested_height, size.x, size.y);
+    }
+}
+
+
+ViewportDef create_viewport(const LerpData& ld, const glm::ivec2& size)
+{
+    return lerp
+    (
+        create_viewport(ld.lhs, size),
+        ld.t,
+        create_viewport(ld.rhs, size)
+    );
+}
+
+
+void
+RenderCommand::clear(const glm::vec3& color, const LayoutData& ld) const
+{
+    if(ld.style == ViewportStyle::extended)
+    {
+        glClearColor(color.r, color.g, color.b, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    else
+    {
+        auto l = with_layer2(*this, ld);
+        l.batch->quad({}, l.viewport_aabb_in_worldspace, {}, glm::vec4{color, 1.0f});
+    }
+}
+
+
+bool
+is_fullscreen(const LerpData& ld)
+{
+    if(ld.lhs.style == ld.rhs.style || (ld.t <= 0.0f || ld.t >= 1.0f))
+    {
+        const auto style = ld.t >= 1.0f ? ld.rhs.style : ld.lhs.style;
+        return style == ViewportStyle::extended;
+    }
+
+    return false;
+}
+
+
+void
+RenderCommand::clear(const glm::vec3& color, const LerpData& ld) const
+{
+    if(is_fullscreen(ld))
+    {
+        glClearColor(color.r, color.g, color.b, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    else
+    {
+        auto l = with_layer2(*this, ld);
+        l.batch->quad({}, l.viewport_aabb_in_worldspace, {}, glm::vec4{color, 1.0f});
+    }
+}
+
+
+RenderLayer2 with_layer2(const RenderCommand& rc, const LayoutData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer2(rc, vp);
+}
+
+
+RenderLayer3 with_layer3(const RenderCommand& rc, const LayoutData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer3(rc, vp);
+}
+
+
+Layer with_layer(const InputCommand& rc, const LayoutData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer(vp);
+}
+
+
+
+
+
+RenderLayer2 with_layer2(const RenderCommand& rc, const LerpData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer2(rc, vp);
+}
+
+
+RenderLayer3 with_layer3(const RenderCommand& rc, const LerpData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer3(rc, vp);
+}
+
+
+Layer with_layer(const InputCommand& rc, const LerpData& ld)
+{
+    const auto vp = create_viewport(ld, rc.size);
+    return create_layer(vp);
 }
 
 }

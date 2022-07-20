@@ -30,7 +30,6 @@
 #include "tred/stdutils.h"
 #include "tred/windows.h"
 
-#include "tred/render/layer2.h"
 #include "tred/render/render2.h"
 #include "tred/render/render_func.h"
 #include "tred/render/camera.h"

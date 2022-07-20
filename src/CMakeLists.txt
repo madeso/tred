@@ -54,7 +54,6 @@ set(src_render
     tred/render/camera.cc tred/render/camera.h
     tred/render/compiled.mesh.cc tred/render/compiled.mesh.h
     tred/render/engine.cc tred/render/engine.h
-    tred/render/layer2.cc tred/render/layer2.h
     tred/render/material.property.cc tred/render/material.property.h
     tred/render/material.shader.source.cc tred/render/material.shader.source.h
     tred/render/mesh.cc tred/render/mesh.h
@@ -66,7 +65,6 @@ set(src_render
     tred/render/texture.cc tred/render/texture.h
     tred/render/uniform.cc tred/render/uniform.h
     tred/render/vertex_layout.cc tred/render/vertex_layout.h
-    tred/render/viewportdef.cc tred/render/viewportdef.h
     tred/render/world.cc tred/render/world.h
     )
     
