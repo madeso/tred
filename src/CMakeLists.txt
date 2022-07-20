@@ -77,8 +77,6 @@ set(src_base
     tred/colors.cc tred/colors.h
     tred/dependency_opengl.cc tred/dependency_opengl.h
     tred/dependency_sdl.cc tred/dependency_sdl.h tred/dependency_glad.h
-    tred/fyro.h
-    tred/game.cc tred/game.h
     tred/handle.cc tred/handle.h
     tred/hash.cc tred/hash.h
     tred/hash.string.cc tred/hash.string.h
