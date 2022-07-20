@@ -182,11 +182,6 @@ void apply_state(std::optional<bool>* current_state, std::optional<bool> new_sta
 }
 
 
-OpenglStates& OpenglStates::with_cull_face(bool t) { cull_face = t; return *this; }
-OpenglStates& OpenglStates::with_blending(bool t) { blending = t; return *this; }
-OpenglStates& OpenglStates::with_depth_test(bool t) { depth_test = t; return *this; }
-
-
 void apply(OpenglStates* current_states, const OpenglStates& new_states)
 {
     #define APPLY_STATE(name, gl) apply_state(&current_states->name, new_states.name, gl)
@@ -202,12 +197,11 @@ void opengl_setup(OpenglStates* state)
 {
     setup_opengl_debug();
 
-    apply
-    (
-        state,
-        OpenglStates{}
-            .with_cull_face(true)
-    );
+    {
+        OpenglStates new_states;
+        new_states.cull_face = true;
+        apply(state, new_states);
+    }
     
     glCullFace(GL_BACK);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -216,25 +210,21 @@ void opengl_setup(OpenglStates* state)
 
 void opengl_set2d(OpenglStates* states)
 {
-    apply
-    (
-        states,
-        OpenglStates{}
-            .with_depth_test(false)
-            .with_blending(true)
-    );
+    OpenglStates new_states;
+    new_states.depth_test = false;
+    new_states.blending = true;
+
+    apply(states, new_states);
 }
 
 
 void opengl_set3d(OpenglStates* states)
 {
-    apply
-    (
-        states,
-        OpenglStates{}
-            .with_depth_test(true)
-            .with_blending(false)
-    );
+    OpenglStates new_states;
+    new_states.depth_test = true;
+    new_states.blending = false;
+
+    apply(states, new_states);
 }
 
 }
