@@ -28,6 +28,12 @@ ADD_OP(with_texture, textures, std::string, MaterialPropertyType::texture_type)
 #undef ADD_OP
 
 
+MaterialDescription&
+MaterialDescription::with_render_mode(RenderMode rm)
+{
+    render_mode = rm;
+    return *this;
+}
 
 
 Vertex::Vertex

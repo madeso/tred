@@ -28,6 +28,7 @@ struct Geom;
 struct MaterialDescription;
 struct MaterialPropertyReference;
 struct Mesh;
+struct OpenglStates;
 struct PointLight;
 struct ShaderProgram;
 struct SpotLight;
@@ -190,6 +191,7 @@ struct CompiledMaterial
 {
     CompiledMaterialShaderId shader;
     CompiledProperties properties;
+    RenderMode render_mode;
 };
 
 
@@ -245,6 +247,7 @@ void
 use_material
 (
     const CompiledMaterial& mat,
+    OpenglStates* states,
     const Cache& cache,
     const CommonData& data,
     const ActiveLights& active_lights,

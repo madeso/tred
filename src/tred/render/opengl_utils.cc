@@ -189,6 +189,11 @@ void apply(OpenglStates* current_states, const OpenglStates& new_states)
     APPLY_STATE(blending, GL_BLEND);
     APPLY_STATE(depth_test, GL_DEPTH_TEST);
     #undef APPLY_STATE
+
+    apply_generic_state(&current_states->render_mode, new_states.render_mode, [](unsigned int rm)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, rm);
+    });
 }
 
 
@@ -226,5 +231,35 @@ void opengl_set3d(OpenglStates* states)
 
     apply(states, new_states);
 }
+
+
+void opengl_set_render_mode_to_fill(OpenglStates* states)
+{
+    OpenglStates new_states;
+    new_states.render_mode = GL_FILL;
+
+    apply(states, new_states);
+}
+
+
+void opengl_set_render_mode_to_line(OpenglStates* states)
+{
+    OpenglStates new_states;
+    new_states.render_mode = GL_LINE;
+
+    apply(states, new_states);
+}
+
+
+void opengl_set_render_mode_to_point(OpenglStates* states)
+{
+    OpenglStates new_states;
+    new_states.render_mode = GL_POINT;
+
+    apply(states, new_states);
+}
+
+
+
 
 }

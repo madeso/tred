@@ -14,6 +14,7 @@
 #include "tred/render/texture.h"
 #include "tred/render/vfs.h"
 #include "tred/render/world.h"
+#include "tred/render/render2.h"
 
 
 namespace render
@@ -177,6 +178,7 @@ load_compiled_material_shader
     return static_cast<CompiledMaterialShaderId>(0);
 }
 
+
 const CompiledMaterialShader& get_compiled_material_shader(const Cache& cache, CompiledMaterialShaderId id)
 {
     return cache.shaders[id];
@@ -258,6 +260,7 @@ void
 render_world
 (
     Engine* engine,
+    const RenderCommand& rc,
     World& world,
     float aspect_ratio,
     const Camera& camera,
@@ -301,6 +304,7 @@ render_world
         use_material
         (
             engine->data->materials[c.material_id],
+            rc.states,
             engine->data->cache,
             {
                 camera.position,

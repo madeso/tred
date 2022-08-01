@@ -17,6 +17,7 @@
 #include "tred/render/mesh.h"
 #include "tred/render/shader.h"
 #include "tred/render/texture.h"
+#include "tred/render/opengl_utils.h"
 
 
 namespace render
@@ -478,15 +479,33 @@ void render_geom(const CompiledGeom& geom)
     glBindVertexArray(0);
 }
 
+
+void set_render_mode(OpenglStates* states, RenderMode render_mode)
+{
+    switch(render_mode)
+    {
+    case RenderMode::fill:  opengl_set_render_mode_to_fill(states); break;
+    case RenderMode::line:  opengl_set_render_mode_to_line(states); break;
+    case RenderMode::point: opengl_set_render_mode_to_point(states); break;
+    default:
+        DIE("unhandled render_mode");
+        break;
+    }
+}
+
+
 void use_material
 (
     const CompiledMaterial& mat,
+    OpenglStates* states,
     const Cache& cache,
     const CommonData& data,
     const ActiveLights& active_lights,
     LightStatus* ls
 )
 {
+    set_render_mode(states, mat.render_mode);
+
     const auto& shader = get_compiled_material_shader(cache, mat.shader);
     
     shader.program.use();
@@ -569,7 +588,7 @@ compile_material
         }
     }
 
-    return {shader_id, properties};
+    return {shader_id, properties, mat.render_mode};
 }
 
 

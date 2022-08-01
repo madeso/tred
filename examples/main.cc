@@ -403,8 +403,9 @@ main(int, char**)
     };
 
     // todo(Gustav): add override shaders so we can render just white polygon/points
-    const auto white_only = engine.add_global_shader(render::MaterialDescription{"unlit.glsl"}); // reuse unlit for white-only shader as it per default is white
-    bool use_white_only = false;
+    const auto white_line_shader = engine.add_global_shader(render::MaterialDescription{"unlit.glsl"}.with_render_mode(render::RenderMode::line));
+    const auto white_point_shader = engine.add_global_shader(render::MaterialDescription{"unlit.glsl"}.with_render_mode(render::RenderMode::point));
+    render::RenderMode custom_render_mode = render::RenderMode::fill;
 
     const auto added_crate = engine.add_mesh
     ({
@@ -558,11 +559,16 @@ main(int, char**)
                     world->update_point_light(pl.light_actor, pl.light);
                 }
 
-                render_world
-                (
-                    &engine, *world, aspect_ratio, camera,
-                    use_white_only ? std::make_optional(white_only) : std::nullopt
-                );
+                std::optional<render::MaterialId> material_override;
+                switch(custom_render_mode)
+                {
+                    case render::RenderMode::fill:  material_override = std::nullopt; break;
+                    case render::RenderMode::line:  material_override = white_line_shader; break;
+                    case render::RenderMode::point: material_override = white_point_shader; break;
+                    default: assert(false && "invalid render mode"); break;
+                }
+
+                render_world(&engine, rc, *world, aspect_ratio, camera, material_override);
             }
 
             // draw hud
@@ -612,14 +618,14 @@ main(int, char**)
         }
     );
 
-    int rendering_mode = 0;
-    const auto set_rendering_mode = [&rendering_mode, &use_white_only]()
+    int ui_render_mode = 0;
+    const auto set_rendering_mode = [&custom_render_mode, &ui_render_mode]()
     {
-        switch(rendering_mode)
+        switch(ui_render_mode)
         {
-            case 0: render::set_poly_mode_to_fill(); use_white_only = false; break;
-            case 1: render::set_poly_mode_to_line(); use_white_only = true; break;
-            case 2: render::set_poly_mode_to_point(); use_white_only = true; break;
+            case 0: custom_render_mode = render::RenderMode::fill; break;
+            case 1: custom_render_mode = render::RenderMode::line; break;
+            case 2: custom_render_mode = render::RenderMode::point; break;
             default: DIE("invalid rendering_mode"); break;
         }
     };
@@ -641,7 +647,7 @@ main(int, char**)
                 ImGui::SameLine();
                 ImGui::Checkbox("Custom hud?", &use_custom_hud);
 
-                if(ImGui::Combo("Rendering mode", &rendering_mode, "Fill\0Line\0Point\0"))
+                if(ImGui::Combo("Rendering mode", &ui_render_mode, "Fill\0Line\0Point\0"))
                 {
                     set_rendering_mode();
                 }

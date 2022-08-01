@@ -9,6 +9,13 @@ enum class MaterialPropertyType
 };
 
 
+enum class RenderMode
+{
+    fill, line, point
+};
+
+
+
 // reference a certain property for example "diffuse texture"
 struct MaterialPropertyReference
 {

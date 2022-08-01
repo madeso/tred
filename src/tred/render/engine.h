@@ -14,8 +14,10 @@ struct CompiledMaterial;
 struct EngineData;
 struct MaterialDescription;
 struct Mesh;
+struct RenderCommand;
 struct Vfs;
 struct World;
+
 
 struct AddedMesh
 {
@@ -63,6 +65,14 @@ ADD_OP(texture, TextureId);
 #undef ADD_OP
 
 
-void render_world(Engine* engine, World& world, float aspect_ratio, const Camera& camera, std::optional<MaterialId> global_shader);
+void render_world
+(
+    Engine* engine,
+    const RenderCommand& rc,
+    World& world,
+    float aspect_ratio,
+    const Camera& camera,
+    std::optional<MaterialId> global_shader
+);
     
 }

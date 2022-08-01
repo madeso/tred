@@ -7,6 +7,7 @@
 namespace render
 {
 
+
 struct MaterialDescription
 {
     std::string shader;
@@ -20,6 +21,7 @@ struct MaterialDescription
     std::vector<glm::vec3> vec3s;
     std::vector<glm::vec4> vec4s;
     std::vector<std::string> textures;
+    RenderMode render_mode = RenderMode::fill;
 
     #define ADD_OP(FUNC_NAME, TYPE)\
     MaterialDescription& FUNC_NAME(const HashedString& name, const TYPE& v)
@@ -28,6 +30,8 @@ struct MaterialDescription
     ADD_OP(with_vec4, glm::vec4);
     ADD_OP(with_texture, std::string);
     #undef ADD_OP
+
+    MaterialDescription& with_render_mode(RenderMode rm);
 };
 
 
