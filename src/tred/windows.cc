@@ -27,16 +27,6 @@
 using window_id = Uint32;
 
 
-namespace detail
-{
-struct Window
-{
-    virtual ~Window() = default;
-    virtual void render() = 0;
-};
-}
-
-
 namespace
 {
     // doesn't really seem necessary as sdl will detect them anyway?
@@ -45,6 +35,9 @@ namespace
 
     constexpr bool log_joystick_connection_events = true;
 }
+
+
+struct WindowImplementation;
 
 
 struct GamecontrollerData
@@ -430,7 +423,6 @@ struct SdlPlatform : public input::Platform
     }
 };
 
-struct WindowImplementation;
 
 namespace
 {
@@ -439,11 +431,11 @@ namespace
         bool imgui_requested = true;
 
         std::optional<imgui_function> on_imgui;
-        detail::Window* owning_window = nullptr;
+        WindowImplementation* owning_window = nullptr;
 
 
 
-        bool is_imgui(detail::Window* win)
+        bool is_imgui(WindowImplementation* win)
         {
             return win == owning_window;
         }
@@ -470,7 +462,7 @@ namespace
         {
         }
 
-        void run_setup(render::OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, detail::Window* win, bool is_main)
+        void run_setup(render::OpenglStates* states, SDL_Window* window, SDL_GLContext glcontext, WindowImplementation* win, bool is_main)
         {
             if(opengl_initialized == false)
             {
@@ -508,7 +500,7 @@ namespace
             }
         }
 
-        void closing_window(detail::Window* win)
+        void closing_window(WindowImplementation* win)
         {
             if(win == imgui->owning_window)
             {
@@ -526,7 +518,7 @@ namespace
 }
 
 
-struct WindowImplementation : public detail::Window
+struct WindowImplementation
 {
     std::string title;
     glm::ivec2 size;
@@ -599,7 +591,7 @@ struct WindowImplementation : public detail::Window
         }
     }
 
-    ~WindowImplementation() override
+    ~WindowImplementation()
     {
         if(sdl_window)
         {
@@ -642,7 +634,7 @@ struct WindowImplementation : public detail::Window
         }
     }
 
-    void render() override
+    void render()
     {
         if(sdl_window == nullptr) { return; }
 
