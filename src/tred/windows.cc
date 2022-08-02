@@ -27,6 +27,16 @@
 using window_id = Uint32;
 
 
+namespace detail
+{
+struct Window
+{
+    virtual ~Window() = default;
+    virtual void render() = 0;
+};
+}
+
+
 namespace
 {
     // doesn't really seem necessary as sdl will detect them anyway?
@@ -948,14 +958,23 @@ std::unique_ptr<Windows> setup()
 }
 
 
-int main_loop(input::unit_discovery discovery, std::unique_ptr<Windows>&& windows, input::InputSystemBase* input_system, update_function&& on_update)
+
+int main_loop
+(
+    input::unit_discovery discovery,
+    std::unique_ptr<Windows>&& windows,
+    input::InputSystemBase* input_system,
+    update_function&& on_update
+)
 {
     auto last = SDL_GetPerformanceCounter();
 
     while(windows->running)
     {
         const auto now = SDL_GetPerformanceCounter();
-        const auto dt = static_cast<float>(now - last) / static_cast<float>(SDL_GetPerformanceFrequency());
+        const auto diff = static_cast<float>(now - last);
+        const auto freq = static_cast<float>(SDL_GetPerformanceFrequency());
+        const auto dt = diff / freq;
         last = now;
 
         windows->pump_events(input_system);
