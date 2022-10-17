@@ -24,6 +24,11 @@
 * light cookies
 * breaking glass: https://www.youtube.com/watch?v=nuHg6_IIyK8
 * volumetric lightning, mist, fog, godrays: https://www.youtube.com/watch?v=G0sYTrX3VHI
+  - volumetric fog
+  - reyleigh scattering
+  - distance fog(screenspace, fragment shader)
+  - non constant density fog
+  - height based (and fogpilled) fog
 * Iridescence material
 * Debug draw lines, spheres etc (dear imgui to render text in 3d?)
 * various particle rendering types (point, axis aligned etc)
