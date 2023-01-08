@@ -23,12 +23,13 @@
 #include "tred/dependency_sdl.h"
 #include "tred/handle.h"
 #include "tred/hash.string.h"
-#include "tred/input/config.h"
-#include "tred/input/system.h"
-#include "tred/input/table.h"
 #include "tred/log.h"
 #include "tred/stdutils.h"
 #include "tred/windows.h"
+
+#include "tred/input/config.h"
+#include "tred/input/system.h"
+#include "tred/input/table.h"
 
 #include "tred/render/render2.h"
 #include "tred/render/render_func.h"

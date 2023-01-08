@@ -1,4 +1,4 @@
-#include "hash.string.h"
+#include "tred/hash.string.h"
 
 
 HashedString::HashedString(const std::string& str)
